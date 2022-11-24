@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/gfx">
         <file>Sheet.png</file>
+        <file>HeroSystem.ico</file>
     </qresource>
 </RCC>
