@@ -10,17 +10,26 @@ CONFIG += c++17
 
 SOURCES += \
     character.cpp \
+    characteristic.cpp \
+    complication.cpp \
+    complicationsdialog.cpp \
     main.cpp \
     option.cpp \
     sheet.cpp
 
 HEADERS += \
+    AccidentalChange.h \
+    Dependence.h \
     character.h \
+    characteristic.h \
+    complication.h \
+    complicationsdialog.h \
     option.h \
     sheet.h \
     sheet_ui.h
 
 FORMS += \
+    complicationsdialog.ui \
     sheet.ui
 
 # Default rules for deployment.

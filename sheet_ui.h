@@ -1,11 +1,14 @@
 #pragma once
 
+#include <QAction>
 #include <QLineEdit>
 #include <QGridLayout>
 #include <QLabel>
 #include <QFrame>
 #include <QHeaderView>
 #include <QMainWindow>
+#include <QMenu>
+#include <QTableView>
 #include <QTableWidget>
 #include <QTextEdit>
 
@@ -59,6 +62,42 @@ private:
         return lineedit;
     }
 
+    struct menuItems {
+        menuItems()
+            : text("-")
+            , action(nullptr) { }
+        menuItems(QString x)
+            : text(x)
+            , action(nullptr) { }
+        menuItems(QString x, QAction** y)
+            : text(x)
+            , action(y) { }
+        menuItems(const menuItems& mi)
+            : text(mi.text)
+            , action(mi.action) { }
+        menuItems(menuItems&& mi)
+            : text(mi.text)
+            , action(mi.action) { }
+        QString text;
+        QAction** action;
+    };
+
+    QMenu* createMenu(QWidget* parent, QFont& font, QList<menuItems> items) {
+        QMenu* menu = new QMenu(parent);
+        menu->setFont(font);
+        for (auto& item: items) {
+            if (item.action == nullptr) {
+                menu->addSeparator();
+                continue;
+            }
+            QAction*& action = *item.action;
+            action = new QAction(item.text);
+            action->setFont(font);
+            menu->addAction(action);
+        }
+        return menu;
+    }
+
     const bool Selectable = true;
 
     QTableWidget* createTableWidget(QWidget* parent, QFont& font, QList<int> cols, QStringList headers, QList<QStringList> vals, int x, int y, int l, int h,
@@ -66,9 +105,33 @@ private:
         return createTableWidget(parent, font, cols, headers, vals, x, y, l, h, "", selectable);
     }
 
+    QTableView* createTableView(QWidget* parent, QFont& font, int x, int y, int l, int h, QString w) {
+        QTableView* tableview = new QTableView(parent);
+        int pnt = font.pointSize();
+        tableview->setFont(font);
+        tableview->setContextMenuPolicy(Qt::CustomContextMenu);
+        QString family = font.family();
+        tableview->setStyleSheet("QTableView { selection-color: black;"
+                                           "   selection-background-color: lightblue;"
+                                           "   gridline-color: white;"
+                                           "   border-style: none;"
+                                           "   color: black;"
+                                           " } "
+                                 "QHeaderView::section { background-color: white;"
+                                                     "   border-style: none;"
+                                                     "   color: black;" +
+                                             QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
+                                                     " }");
+        tableview->setToolTip(w);
+        moveTo(tableview, x, y, l, h);
+        return tableview;
+    }
+
     QTableWidget* createTableWidget(QWidget* parent, QFont& font, QList<int> cols, QStringList headers, QList<QStringList> vals, int x, int y, int l, int h,
                                     QString w, bool selectable = false) {
         QTableWidget* tablewidget = new QTableWidget(parent);
+        tablewidget->setContextMenuPolicy(Qt::CustomContextMenu);
+        tablewidget->setWordWrap(true);
         auto verticalHeader = tablewidget->verticalHeader();
         int pnt = font.pointSize();
         int sz = 0;
@@ -80,17 +143,22 @@ private:
         }
         verticalHeader->setVisible(false);
         verticalHeader->setMinimumSectionSize(1);
-        verticalHeader->setMaximumSectionSize(sz);
+        verticalHeader->setMaximumSectionSize(selectable ? h : sz);
         verticalHeader->setDefaultSectionSize(0);
+        verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
         auto horizontalHeader = tablewidget->horizontalHeader();
+        horizontalHeader->setStretchLastSection(true);
         horizontalHeader->setMaximumSectionSize(l);
         horizontalHeader->setDefaultSectionSize(10);
         horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
+        horizontalHeader->setMaximumSize(l, sz);
+        tablewidget->setSelectionMode(selectable ? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
+        tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         tablewidget->setFont(font);
         QString family = font.family();
         if (selectable)
             tablewidget->setStyleSheet("QTableWidget { selection-color: black;"
-                                                   "   selection-background-color: lightblue;"
+                                                   "   selection-background-color: cyan;"
                                                    "   gridline-color: white;"
                                                    "   border-style: none;"
                                                    "   color: black;"
@@ -124,7 +192,13 @@ private:
         tablewidget->setToolTip(w);
         moveTo(tablewidget, x, y, l, h);
         for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
-        for (i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
+        int total = 0;
+        for (i = 1; i < tablewidget->columnCount(); ++i) {
+            tablewidget->resizeColumnToContents(i - 1);
+            total += tablewidget->columnWidth(i - 1);
+        }
+        tablewidget->setColumnWidth(cols.size() - 1, l - total);
+
         return tablewidget;
     }
 
@@ -213,12 +287,21 @@ public:
 
     QTableWidget* complications        = nullptr;
     QLabel*       totalcomplicationpts = nullptr;
+    QMenu*        complicationsMenu    = nullptr;
+    QAction*      newComplication      = nullptr;
+    QAction*      editComplication     = nullptr;
+    QAction*      deleteComplication   = nullptr;
+    QAction*      cutComplication      = nullptr;
+    QAction*      copyComplication     = nullptr;
+    QAction*      pasteComplication    = nullptr;
+    QAction*      moveComplicationUp   = nullptr;
+    QAction*      moveComplicationDown = nullptr;
 
     QTableWidget* attacksandmaneuvers = nullptr;
 
     QTableWidget* defenses = nullptr;
 
-    QLabel*    perceptionRoll           = nullptr;
+    QLabel*    perceptionroll           = nullptr;
     QTextEdit* enhancedandunusualsenses = nullptr;
 
     QLabel*    totalpoints           = nullptr;
@@ -281,7 +364,7 @@ public:
         recval     = createLineEdit(widget, font,  "4", 79, 584, 45, 20, "Recovery: 1 point");
         endval     = createLineEdit(widget, font, "20", 79, 609, 45, 20, "Endurance: 1 point gets 5 points of END");
         bodyval    = createLineEdit(widget, font, "10", 79, 634, 45, 20, "Body: 1 point");
-        stunval    = createLineEdit(widget, font, "10", 79, 659, 45, 20, "Stun: 1 point gets 2 points of STUN");
+        stunval    = createLineEdit(widget, font, "20", 79, 659, 45, 20, "Stun: 1 point gets 2 points of STUN");
         strpoints  = createLabel(widget, font,   "0", 199, 250, 20);
         dexpoints  = createLabel(widget, font,   "0", 199, 275, 20);
         conpoints  = createLabel(widget, font,   "0", 199, 299, 20);
@@ -348,10 +431,21 @@ public:
                                           { "V. Leap (2m)  ", "2m",       "4m" } }, 675, 225, 260, 195);
         movementsfx = createLabel(widget, font, "", 775, 423, 20);
 
+        //complications = createTableView(widget, font, 675, 590, 260, 455, "The things that make life difficult for your character");
         complications        = createTableWidget(widget, font, { 93, 140 },
                                                  { "Pts   ", "Complication", },
-                                                 { }, 675, 590, 260, 455, "The things that make likfe difficult for your character", Selectable);
-        totalcomplicationpts = createLabel(widget, font, "0", 675, 1045, 20);
+                                                 { }, 675, 590, 260, 455, "The things that make life difficult for your character", Selectable);
+        totalcomplicationpts = createLabel(widget, font, "0/75", 675, 1045, 20);
+        complicationsMenu = createMenu(complications, font, { { "New",       &newComplication },
+                                                              { "Edit",      &editComplication },
+                                                              { "Delete",    &deleteComplication },
+                                                              { "-",         },
+                                                              { "Cut",       &cutComplication },
+                                                              { "Copy",      &copyComplication },
+                                                              { "Paste",     &pasteComplication },
+                                                              { "-",         },
+                                                              { "Move Up",   &moveComplicationUp },
+                                                              { "Move Down", &moveComplicationDown } } );
 
         attacksandmaneuvers = createTableWidget(widget, smallfont, { 93, 60, 80, 30, 30 },
                                                 {   "Maneuver",        "Phase", "OCV",   "DCV", "Effects"                  },
@@ -373,7 +467,7 @@ public:
                                                 }, 69, 739, 295, 495);
 
         defenses = createTableWidget(widget, font, { 93, 90 },
-                                     {   "Type", "Ammount/Effect" },
+                                     {   "Type", "Amount/Effect" },
                                      { { "Normal PD ",      "2" },
                                        { "Resistant PD ",   "0" },
                                        { "Normal ED ",      "2" },
@@ -382,13 +476,13 @@ public:
                                        { "Power Defense ",  "0" },
                                        { "Flash Defense ",  "0" } }, 392, 739, 249, 270);
 
-        perceptionRoll = createLabel(widget, font, "11-", 569, 1066, 20);
+        perceptionroll = createLabel(widget, font, "11-", 569, 1066, 20);
         enhancedandunusualsenses = createTextEdit(widget, font, "<b>Enhanced and Unusual Senses</b>", 390, 1083, 249, 150);
 
-        totalpoints       = createLabel(widget, font,   "0", 855, 1135, 20);
+        totalpoints       = createLabel(widget, font, "0/325", 855, 1135, 20);
         totalexperienceearned = createLineEdit(widget, font, "0", 853, 1159, 80, 20, "How much experience your character has earned");
-        experiencespent   = createLabel(widget, font,   "0", 855, 1184, 20);
-        experienceunspent = createLabel(widget, font,   "0", 855, 1209, 20);
+        experiencespent   = createLabel(widget, font,     "0", 855, 1184, 20);
+        experienceunspent = createLabel(widget, font,   "325", 855, 1209, 20);
 
         charactername2 = createLabel(widget, font,      "", 184, 1391, 20);
         height         = createLabel(widget, font,    "2m", 124, 1416, 20);
