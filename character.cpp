@@ -216,11 +216,11 @@ bool Character::store(QString filename) {
     characteristics.insert("END",  _END.toJson());
     characteristics.insert("BODY", _BODY.toJson());
     characteristics.insert("STUN", _STUN.toJson());
-
     top.insert("characteristics", characteristics);
 
     QJsonArray complications;
     for (int i = 0; i < _complications.count(); ++i) complications.append(_complications[i]->toJson());
+    top.insert("complications", complications);
 
     QJsonDocument json;
     json.setObject(top);

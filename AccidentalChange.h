@@ -20,7 +20,7 @@ public:
     AccidentalChange(const QJsonObject& json)
         : Complication()
         , _circumstance(json["circumstance"].toInt(0))
-        , _frequency(json["frequence"].toInt(0))
+        , _frequency(json["frequency"].toInt(0))
         , _what(json["what"].toString("")) { }
 
     AccidentalChange& operator=(const AccidentalChange& ac) {
@@ -49,8 +49,8 @@ public:
         circumstance = createComboBox(parent, layout, "How common is the change", { "Uncommmon", "Common", "Very Common" });
         frequency    = createComboBox(parent, layout, "How often do you change", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" });
     }
-    int points() override {
-        store();
+    int points(bool noStore = false) override {
+        if (!noStore) store();
         return _circumstance * 5 + 5 + _frequency * 5;
     }
     void restore() override {
@@ -59,15 +59,15 @@ public:
         frequency->setCurrentIndex(_frequency);
     }
     void store() override {
-        _what = what->text();
+        _what         = what->text();
         _circumstance = circumstance->currentIndex();
-        _frequency = frequency->currentIndex();
+        _frequency    = frequency->currentIndex();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]         = "Accidental Change";
         obj["circumstance"] = _circumstance;
-        obj["frequence"]    = _frequency;
+        obj["frequency"]    = _frequency;
         obj["what"]         = _what;
         return obj;
     }

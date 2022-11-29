@@ -6,7 +6,6 @@
 #include <QMainWindow>
 
 #include "character.h"
-#include "complication.h"
 #include "option.h"
 #include "sheet_ui.h"
 
@@ -83,27 +82,37 @@ private:
     static Sheet_UI _Sheet_UI;
 
 public slots:
-    void valChanged(QString txt) { characteristicChanged(dynamic_cast<QLineEdit*>(sender()), txt); }
-    void valEditingFinished()    { characteristicEditingFinished(dynamic_cast<QLineEdit*>(sender())); }
+    void itemDoubleClicked(QTableWidgetItem*) { editComplication(); }
+    void valChanged(QString txt)              { characteristicChanged(dynamic_cast<QLineEdit*>(sender()), txt); }
+    void valEditingFinished()                 { characteristicEditingFinished(dynamic_cast<QLineEdit*>(sender())); }
 
+    void aboutToHideFileMenu();
     void aboutToShowComplicationsMenu();
+    void aboutToShowFileMenu();
     void alternateIdsChanged(QString);
     void campaignNameChanged(QString);
     void characterNameChanged(QString);
     void complicationsMenu(QPoint);
+    void copyComplication();
     void currentBODYChanged(QString);
     void currentBODYEditingFinished();
     void currentENDChanged(QString);
     void currentENDEditingFinished();
     void currentSTUNChanged(QString);
     void currentSTUNEditingFinished();
+    void cutComplication();
+    void deleteComplication();
+    void editComplication();
     void eyeColorChanged(QString);
     void gamemasterChanged(QString);
     void genreChanged(QString);
     void hairColorChanged(QString);
+    void moveComplicationDown();
+    void moveComplicationUp();
     void newchar();
     void newComplication();
     void open();
+    void pasteComplication();
     void playerNameChanged(QString);
     void save();
     void saveAs();

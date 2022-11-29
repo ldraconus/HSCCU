@@ -18,7 +18,8 @@ public:
     explicit ComplicationsDialog(QWidget *parent = nullptr);
     ~ComplicationsDialog();
 
-    Complication* complication() { return _complication; }
+    Complication* complication()                       { return _complication; }
+    ComplicationsDialog& complication(Complication* c);
 
 private:
     Ui::ComplicationsDialog *ui;
@@ -29,13 +30,14 @@ private:
     QLabel*       _description;
     QPushButton*  _ok;
     QLabel*       _points;
+    bool          _skipUpdate = false;
 
     QLabel* createLabel(QVBoxLayout*, QString, bool wordWrap = false);
     void    updateForm();
 
 public slots:
     void currentIndexChanged(int) { updateForm(); }
-    void textChanged(QString)     { updateForm(); }
+    void textChanged(QString);
 
     void pickComplication(int);
     void stateChanged(int state);

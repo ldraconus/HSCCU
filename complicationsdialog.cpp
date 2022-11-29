@@ -25,18 +25,51 @@ ComplicationsDialog::~ComplicationsDialog()
     delete ui;
 }
 
+ComplicationsDialog& ComplicationsDialog::complication(Complication* c) {
+    QJsonObject obj = c->toJson();
+    QString name = obj["name"].toString();
+    if (name.isEmpty()) return *this;
+    int idx = Complication::Available().indexOf(name);
+    if (idx == -1) return *this;
+    _skipUpdate = true;
+    ui->comboBox->setCurrentIndex(idx);
+    _complication = c;
+    ui->comboBox->setEnabled(false);
+    auto* layout = new QVBoxLayout(ui->form);
+    _complication->createForm(this, layout);
+    createLabel(layout, "");
+    _points      = createLabel(layout, "-1 Points");
+    _description = createLabel(layout, "<incomplete>", WordWrap);
+
+    layout->addStretch(1);
+    _complication->restore();
+    updateForm();
+    return *this;
+}
+
 QLabel* ComplicationsDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap) {
     QLabel* label = new QLabel();
-    label->setText(text);
-    label->setWordWrap(wordWrap);
-    parent->addWidget(label);
+    if (label != nullptr) {
+        label->setText(text);
+        label->setWordWrap(wordWrap);
+        parent->addWidget(label);
+    }
     return label;
 }
 
 void ComplicationsDialog::pickComplication(int idx) {
-    auto* layout = new QVBoxLayout(ui->form);
-    ui->form->setLayout(layout);
+    if (_skipUpdate) {
+        _skipUpdate = false;
+        return;
+    }
 
+    QVBoxLayout* layout = static_cast<QVBoxLayout*>(ui->form->layout());
+    if (layout == nullptr) {
+        layout = new QVBoxLayout(ui->form);
+        ui->form->setLayout(layout);
+    }
+
+    if (_complication) delete _complication;
     _complication = Complication::ByIndex(idx);
     _complication->createForm(this, layout);
     createLabel(layout, "");
@@ -50,6 +83,13 @@ void ComplicationsDialog::pickComplication(int idx) {
 void ComplicationsDialog::stateChanged(int) {
     QCheckBox* checkBox = static_cast<QCheckBox*>(sender());
     _complication->callback(checkBox);
+    updateForm();
+}
+
+void ComplicationsDialog::textChanged(QString) {
+    QLineEdit* text = static_cast<QLineEdit*>(sender());
+    _complication->callback(text);
+    updateForm();
 }
 
 void ComplicationsDialog::updateForm() {

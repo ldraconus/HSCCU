@@ -15,22 +15,37 @@ SOURCES += \
     complicationsdialog.cpp \
     main.cpp \
     option.cpp \
-    sheet.cpp
+    sheet.cpp \
+    skilldialog.cpp
 
 HEADERS += \
     AccidentalChange.h \
     Dependence.h \
+    Dependent.h \
+    DistinctiveFeature.h \
+    Enraged.h \
+    Hunted.h \
+    NegativeReputation.h \
+    PhysicalComplication.h \
+    PsychologicalComplication.h \
+    Rivalry.h \
+    SocialComplication.h \
+    Susceptibility.h \
+    Unluck.h \
+    Vulnerability.h \
     character.h \
     characteristic.h \
     complication.h \
     complicationsdialog.h \
     option.h \
     sheet.h \
-    sheet_ui.h
+    sheet_ui.h \
+    skilldialog.h
 
 FORMS += \
     complicationsdialog.ui \
-    sheet.ui
+    sheet.ui \
+    skilldialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

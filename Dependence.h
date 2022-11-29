@@ -99,8 +99,8 @@ public:
                                                                                 "1 Year", "5 Years" });
         addiction  = createCheckBox(parent, layout, "Addiction", std::mem_fn(&Complication::checked));
     }
-    int points() override {
-        store();
+    int points(bool noStore = false) override {
+        if (!noStore) store();
         return (_rarity + 1) * 5 + (_damage + 1) * 5 + (_roll + 1) * 5 + (_competence ? 5 : 0) + (_weakness ? 5 : 0) +
                (_addiction ? 5 : (25 - 5 * _timeStep));
     }

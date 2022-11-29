@@ -1,12 +1,17 @@
 #include "complicationsdialog.h"
+#include "complication.h"
 #include "sheet.h"
 #include "ui_sheet.h"
 #include "sheet_ui.h"
 
 #include <cmath>
 
+#include <QClipboard>
 #include <QFileDialog>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QStandardPaths>
@@ -195,10 +200,12 @@ Sheet::Sheet(QWidget *parent)
     _option.totalPoints(400)
            .complications(75);
 
-    connect(ui->action_New,    SIGNAL(triggered()), this, SLOT(newchar()));
-    connect(ui->action_Open,   SIGNAL(triggered()), this, SLOT(open()));
-    connect(ui->action_Save,   SIGNAL(triggered()), this, SLOT(save()));
-    connect(ui->actionSave_As, SIGNAL(triggered()), this, SLOT(saveAs()));
+    connect(ui->menu_File,     SIGNAL(aboutToShow()), this, SLOT(aboutToShowFileMenu()));
+    connect(ui->menu_File,     SIGNAL(aboutToHide()), this, SLOT(aboutToHideFileMenu()));
+    connect(ui->action_New,    SIGNAL(triggered()),   this, SLOT(newchar()));
+    connect(ui->action_Open,   SIGNAL(triggered()),   this, SLOT(open()));
+    connect(ui->action_Save,   SIGNAL(triggered()),   this, SLOT(save()));
+    connect(ui->actionSave_As, SIGNAL(triggered()),   this, SLOT(saveAs()));
 
     connect(Ui->alternateids,          SIGNAL(textEdited(QString)), this, SLOT(alternateIdsChanged(QString)));
     connect(Ui->bodyval,               SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
@@ -250,9 +257,17 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->totalexperienceearned, SIGNAL(textEdited(QString)), this, SLOT(totalExperienceEarnedChanged(QString)));
     connect(Ui->totalexperienceearned, SIGNAL(editingFinished()),   this, SLOT(totalExperienceEarnedEditingFinished()));
 
-    connect(Ui->complications,     SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(complicationsMenu(QPoint)));
-    connect(Ui->complicationsMenu, SIGNAL(aboutToShow()),                      this, SLOT(aboutToShowComplicationsMenu()));
-    connect(Ui->newComplication,   SIGNAL(triggered()),                        this, SLOT(newComplication()));
+    connect(Ui->complications,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(itemDoubleClicked(QTableWidgetItem*)));
+    connect(Ui->complications,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(complicationsMenu(QPoint)));
+    connect(Ui->complicationsMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowComplicationsMenu()));
+    connect(Ui->newComplication,      SIGNAL(triggered()),                          this, SLOT(newComplication()));
+    connect(Ui->editComplication,     SIGNAL(triggered()),                          this, SLOT(editComplication()));
+    connect(Ui->deleteComplication,   SIGNAL(triggered()),                          this, SLOT(deleteComplication()));
+    connect(Ui->cutComplication,      SIGNAL(triggered()),                          this, SLOT(cutComplication()));
+    connect(Ui->copyComplication,     SIGNAL(triggered()),                          this, SLOT(copyComplication()));
+    connect(Ui->pasteComplication,    SIGNAL(triggered()),                          this, SLOT(pasteComplication()));
+    connect(Ui->moveComplicationUp,   SIGNAL(triggered()),                          this, SLOT(moveComplicationUp()));
+    connect(Ui->moveComplicationDown, SIGNAL(triggered()),                          this, SLOT(moveComplicationDown()));
 
     _widget2Def = {
         { Ui->strval,  { &_character.STR(),  Ui->strval,  Ui->strpoints, Ui->strroll } },
@@ -411,6 +426,8 @@ void Sheet::setCell(QTableWidget* tbl, int row, int col, QString str, const QFon
     lbl->setFont(tbl->font());
     lbl->setFont(font);
     lbl->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
+    lbl->setSizeHint(QSize(1, 1));
+    lbl->setFlags(lbl->flags() & ~Qt::ItemIsEditable);
     if (row >= tbl->rowCount()) tbl->setRowCount(row + 1);
     tbl->setItem(row, col, lbl);
 }
@@ -471,13 +488,13 @@ void Sheet::updateComplications() {
 
     _complicationPoints = 0;
     QFont font = Ui->complications->font();
-    font.setPointSize((font.pointSize() * 8 + 5) / 10);
     int row = 0;
     for (const auto& complication: _character.complications()) {
-        setCell(Ui->complications, row, 0, QString("%1").arg(complication->points()), font);
+        int pts = complication->points(Complication::NoStore);
+        setCell(Ui->complications, row, 0, QString("%1").arg(pts), font);
         setCell(Ui->complications, row, 1, complication->description(), font, WordWrap);
         Ui->complications->resizeRowsToContents();
-        _complicationPoints += complication->points();
+        _complicationPoints += pts;
         ++row;
     }
 
@@ -508,14 +525,29 @@ QString Sheet::valueToDice(int value) {
 
 // ---[SLOTS] --------------------------------------------------------------------------------------------
 
+void Sheet::aboutToHideFileMenu() {
+    ui->action_Save->setEnabled(true);
+}
+
 void Sheet::aboutToShowComplicationsMenu() {
-    bool show = !Ui->complications->selectedItems().isEmpty();
+    const auto selection = Ui->complications->selectedItems();
+    bool show = !selection.isEmpty();
+    int row = -1;
+    if (show) row = selection[0]->row();
     Ui->editComplication->setEnabled(show);
     Ui->deleteComplication->setEnabled(show);
     Ui->cutComplication->setEnabled(show);
     Ui->copyComplication->setEnabled(show);
-    Ui->moveComplicationUp->setEnabled(show);
-    Ui->moveComplicationDown->setEnabled(show);
+    Ui->moveComplicationUp->setEnabled(show && row != 0);
+    Ui->moveComplicationDown->setEnabled(show && row != _character.complications().count() - 1);
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    const QMimeData* clip = clipboard->mimeData();
+    bool canPaste = clip->hasFormat("application/complication");
+    Ui->pasteComplication->setEnabled(canPaste);
+}
+
+void Sheet::aboutToShowFileMenu() {
+    ui->action_Save->setEnabled(_changed);
 }
 
 void Sheet::alternateIdsChanged(QString txt) {
@@ -532,6 +564,21 @@ void Sheet::characterNameChanged(QString txt) {
     Ui->charactername2->setText(txt);
     _character.characterName(txt);
     _changed = true;
+}
+
+void Sheet::copyComplication() {
+    QClipboard* clip = QGuiApplication::clipboard();
+    QMimeData* data = new QMimeData();
+    auto selection = Ui->complications->selectedItems();
+    int row = selection[0]->row();
+    Complication* complication = _character.complications()[row];
+    QJsonObject obj = complication->toJson();
+    QJsonDocument doc;
+    doc.setObject(obj);
+    data->setData("application/complication", doc.toJson());
+    QString text = QString("%1\t%2").arg(complication->points(Complication::NoStore)).arg(complication->description());
+    data->setData("text/plain", text.toUtf8());
+    clip->setMimeData(data);
 }
 
 void Sheet::complicationsMenu(QPoint pos) {
@@ -567,6 +614,43 @@ void Sheet::currentSTUNEditingFinished() {
     if (Ui->currentstun->text().isEmpty()) Ui->currentstun->setText("0");
 }
 
+void Sheet::cutComplication() {
+    copyComplication();
+    deleteComplication();
+}
+
+void Sheet::deleteComplication() {
+    auto selection = Ui->complications->selectedItems();
+    int row = selection[0]->row();
+    Complication* complication = _character.complications().takeAt(row);
+    _complicationPoints -= complication->points(Complication::NoStore);
+    Ui->complications->removeRow(row);
+    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
+    updateTotals();
+    _changed = true;
+}
+
+void Sheet::editComplication() {
+    auto selection = Ui->complications->selectedItems();
+    int row = selection[0]->row();
+    Complication* complication = _character.complications()[row];
+    ComplicationsDialog dlg(this);
+    dlg.complication(complication);
+    int old = complication->points();
+
+    if (dlg.exec() == QDialog::Rejected) return;
+    if (complication->description().isEmpty()) return;
+
+    QFont font = Ui->complications->font();
+    setCell(Ui->complications, row, 0, QString("%1").arg(complication->points()), font);
+    setCell(Ui->complications, row, 1, complication->description(),               font, WordWrap);
+    Ui->complications->resizeRowsToContents();
+    _complicationPoints += complication->points() - old;
+    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
+    updateTotals();
+    _changed = true;
+}
+
 void Sheet::eyeColorChanged(QString txt) {
     _character.eyeColor(txt);
     _changed = true;
@@ -585,6 +669,24 @@ void Sheet::genreChanged(QString txt) {
 void Sheet::hairColorChanged(QString txt) {
     _character.hairColor(txt);
     _changed = true;
+}
+
+void Sheet::moveComplicationDown() {
+    auto selection = Ui->complications->selectedItems();
+    int row = selection[0]->row();
+    auto& complications = _character.complications();
+    Complication* complication = complications.takeAt(row);
+    complications.insert(row + 1, complication);
+    updateComplications();
+}
+
+void Sheet::moveComplicationUp() {
+    auto selection = Ui->complications->selectedItems();
+    int row = selection[0]->row();
+    auto& complications = _character.complications();
+    Complication* complication = complications.takeAt(row);
+    complications.insert(row - 1, complication);
+    updateComplications();
 }
 
 void Sheet::newchar() {
@@ -614,13 +716,13 @@ void Sheet::newComplication() {
 
     int row = Ui->complications->rowCount();
     QFont font = Ui->complications->font();
-    font.setPointSize((font.pointSize() * 8 + 5) / 10);
     setCell(Ui->complications, row, 0, QString("%1").arg(complication->points()), font);
     setCell(Ui->complications, row, 1, complication->description(), font, WordWrap);
     Ui->complications->resizeRowsToContents();
     _complicationPoints += complication->points();
     Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
     updateTotals();
+    _changed = true;
 }
 
 void Sheet::open() {
@@ -652,6 +754,28 @@ void Sheet::open() {
         updateDisplay();
         _changed = false;
     }
+}
+
+void Sheet::pasteComplication() {
+    QClipboard* clip = QGuiApplication::clipboard();
+    const QMimeData* data = clip->mimeData();
+    QByteArray byteArray = data->data("application/complication");
+    QString jsonStr(byteArray);
+    QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
+    QJsonObject obj = json.object();
+    QString name = obj["name"].toString();
+    Complication* complication = Complication::FromJson(name, obj);
+    _character.complications().append(complication);
+
+    int row = Ui->complications->rowCount();
+    QFont font = Ui->complications->font();
+    setCell(Ui->complications, row, 0, QString("%1").arg(complication->points(Complication::NoStore)), font);
+    setCell(Ui->complications, row, 1, complication->description(), font, WordWrap);
+    Ui->complications->resizeRowsToContents();
+    _complicationPoints += complication->points(Complication::NoStore);
+    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
+    updateTotals();
+    _changed = true;
 }
 
 void Sheet::playerNameChanged(QString txt) {
