@@ -127,20 +127,20 @@ QList<QString> Complication::Available() {
 
 Complication* Complication::ByIndex(int idx) {
     switch (idx) {
-    case 0:  return new AccidentalChange();
-    case 1:  return new Dependence();
-    case 2:  return new Dependent();
-    case 3:  return new DistinctiveFeature();
-    case 4:  return new Enraged();
-    case 5:  return new Hunted();
-    case 6:  return new NegativeReputation();
-    case 7:  return new PhysicalComplication();
-    case 8:  return new PsychologicalComplication();
-    case 9:  return new Rivalry();
-    case 10: return new SocialComplication();
-    case 11: return new Susceptibility();
-    case 12: return new Unluck();
-    case 13: return new Vulnerability();
+    case 0:  return new AccidentalChange;
+    case 1:  return new Dependence;
+    case 2:  return new Dependent;
+    case 3:  return new DistinctiveFeature;
+    case 4:  return new Enraged;
+    case 5:  return new Hunted;
+    case 6:  return new NegativeReputation;
+    case 7:  return new PhysicalComplication;
+    case 8:  return new PsychologicalComplication;
+    case 9:  return new Rivalry;
+    case 10: return new SocialComplication;
+    case 11: return new Susceptibility;
+    case 12: return new Unluck;
+    case 13: return new Vulnerability;
     default: return nullptr;
     }
 }

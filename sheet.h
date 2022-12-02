@@ -23,6 +23,11 @@ public:
     Sheet(QWidget *parent = nullptr);
     ~Sheet();
 
+    static Sheet* _sheet;
+    static Sheet& ref() { return* _sheet; }
+
+    Character& character() { return _character; }
+
     class _CharacteristicDef {
     public:
         _CharacteristicDef(Characteristic* c = nullptr, QLineEdit* v = nullptr, QLabel* p = nullptr, QLabel* r = nullptr)
@@ -49,14 +54,15 @@ private:
 
     static const bool DontUpdateTotal = false;
 
-    bool      _changed            = false;
-    int       _complicationPoints = 0;
-    int       _totalPoints        = 0;
+    bool _changed                    = false;
+    int  _complicationPoints         = 0;
+    int  _skillsTalentsOrPerksPoints = 0;
+    int  _totalPoints                = 0;
 
-    Character            _character;
-    QString              _dir;
-    QString              _filename;
-    Option               _option;
+    Character _character;
+    QString   _dir;
+    QString   _filename;
+    Option    _option;
 
     QMap<QObject*, _CharacteristicDef> _widget2Def;
 
@@ -82,12 +88,13 @@ private:
     static Sheet_UI _Sheet_UI;
 
 public slots:
-    void itemDoubleClicked(QTableWidgetItem*) { editComplication(); }
-    void valChanged(QString txt)              { characteristicChanged(dynamic_cast<QLineEdit*>(sender()), txt); }
-    void valEditingFinished()                 { characteristicEditingFinished(dynamic_cast<QLineEdit*>(sender())); }
+    void complicationDoubleClicked(QTableWidgetItem*) { editComplication(); }
+    void valChanged(QString txt)                      { characteristicChanged(dynamic_cast<QLineEdit*>(sender()), txt); }
+    void valEditingFinished()                         { characteristicEditingFinished(dynamic_cast<QLineEdit*>(sender())); }
 
     void aboutToHideFileMenu();
     void aboutToShowComplicationsMenu();
+    void aboutToShowSkillsPerksAndTalentsMenu();
     void aboutToShowFileMenu();
     void alternateIdsChanged(QString);
     void campaignNameChanged(QString);
@@ -111,11 +118,13 @@ public slots:
     void moveComplicationUp();
     void newchar();
     void newComplication();
+    void newSkillTalentOrPerk();
     void open();
     void pasteComplication();
     void playerNameChanged(QString);
     void save();
     void saveAs();
+    void skillstalentsandperksMenu(QPoint);
     void totalExperienceEarnedChanged(QString);
     void totalExperienceEarnedEditingFinished();
 };

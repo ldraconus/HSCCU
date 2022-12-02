@@ -42,65 +42,69 @@ Character::Character(const Character& c)
 
 Character& Character::operator=(const Character& c) {
     if (&c != this) {
-        _alternateIds  = c._alternateIds;
-        _campaignName  = c._campaignName;
-        _characterName = c._characterName;
-        _eyeColor      = c._eyeColor;
-        _gamemaster    = c._gamemaster;
-        _genre         = c._genre;
-        _hairColor     = c._hairColor;
-        _playerName    = c._playerName;
-        _xp            = c._xp;
+        _alternateIds         = c._alternateIds;
+        _campaignName         = c._campaignName;
+        _characterName        = c._characterName;
+        _complications        = c._complications;
+        _eyeColor             = c._eyeColor;
+        _gamemaster           = c._gamemaster;
+        _genre                = c._genre;
+        _hairColor            = c._hairColor;
+        _playerName           = c._playerName;
+        _skillsTalentsOrPerks = c._skillsTalentsOrPerks;
+        _xp                   = c._xp;
 
-        _STR           = c._STR;
-        _DEX           = c._DEX;
-        _CON           = c._CON;
-        _INT           = c._INT;
-        _EGO           = c._EGO;
-        _PRE           = c._PRE;
-        _OCV           = c._OCV;
-        _DCV           = c._DCV;
-        _OMCV          = c._OMCV;
-        _DMCV          = c._DMCV;
-        _SPD           = c._SPD;
-        _PD            = c._PD;
-        _ED            = c._ED;
-        _REC           = c._REC;
-        _END           = c._END;
-        _BODY          = c._BODY;
-        _STUN          = c._STUN;
+        _STR  = c._STR;
+        _DEX  = c._DEX;
+        _CON  = c._CON;
+        _INT  = c._INT;
+        _EGO  = c._EGO;
+        _PRE  = c._PRE;
+        _OCV  = c._OCV;
+        _DCV  = c._DCV;
+        _OMCV = c._OMCV;
+        _DMCV = c._DMCV;
+        _SPD  = c._SPD;
+        _PD   = c._PD;
+        _ED   = c._ED;
+        _REC  = c._REC;
+        _END  = c._END;
+        _BODY = c._BODY;
+        _STUN = c._STUN;
     }
     return *this;
 }
 
 Character& Character::operator=(Character&& c) {
-    _alternateIds  = c._alternateIds;
-    _campaignName  = c._campaignName;
-    _characterName = c._characterName;
-    _eyeColor      = c._eyeColor;
-    _gamemaster    = c._gamemaster;
-    _genre         = c._genre;
-    _hairColor     = c._hairColor;
-    _playerName    = c._playerName;
-    _xp            = c._xp;
+    _alternateIds         = c._alternateIds;
+    _campaignName         = c._campaignName;
+    _characterName        = c._characterName;
+    _complications        = c._complications;
+    _eyeColor             = c._eyeColor;
+    _gamemaster           = c._gamemaster;
+    _genre                = c._genre;
+    _hairColor            = c._hairColor;
+    _playerName           = c._playerName;
+    _skillsTalentsOrPerks = c._skillsTalentsOrPerks;
+    _xp                   = c._xp;
 
-    _STR           = c._STR;
-    _DEX           = c._DEX;
-    _CON           = c._CON;
-    _INT           = c._INT;
-    _EGO           = c._EGO;
-    _PRE           = c._PRE;
-    _OCV           = c._OCV;
-    _DCV           = c._DCV;
-    _OMCV          = c._OMCV;
-    _DMCV          = c._DMCV;
-    _SPD           = c._SPD;
-    _PD            = c._PD;
-    _ED            = c._ED;
-    _REC           = c._REC;
-    _END           = c._END;
-    _BODY          = c._BODY;
-    _STUN          = c._STUN;
+    _STR  = c._STR;
+    _DEX  = c._DEX;
+    _CON  = c._CON;
+    _INT  = c._INT;
+    _EGO  = c._EGO;
+    _PRE  = c._PRE;
+    _OCV  = c._OCV;
+    _DCV  = c._DCV;
+    _OMCV = c._OMCV;
+    _DMCV = c._DMCV;
+    _SPD  = c._SPD;
+    _PD   = c._PD;
+    _ED   = c._ED;
+    _REC  = c._REC;
+    _END  = c._END;
+    _BODY = c._BODY;
+    _STUN = c._STUN;
 
     return *this;
 }
@@ -134,6 +138,8 @@ void Character::erase() {
     _STUN.base(_STUN.init());
     for (const auto& x: _complications) delete x;
     _complications.clear();
+    for (const auto& x: _skillsTalentsOrPerks) delete x;
+    _skillsTalentsOrPerks.clear();
 }
 
 bool Character::load(QString filename) {
@@ -183,6 +189,12 @@ bool Character::load(QString filename) {
         _complications.append(Complication::FromJson(obj["name"].toString(), obj));
     }
 
+    QJsonArray skillsTalentsOrPerks = top["skillsTalentsOrPerks"].toArray();
+    for (const auto& skillsTalentsOrPerk: skillsTalentsOrPerks) {
+        QJsonObject obj = skillsTalentsOrPerk.toObject();
+        _skillsTalentsOrPerks.append(SkillTalentOrPerk::FromJson(obj["name"].toString(), obj));
+    }
+
     return true;
 }
 
@@ -221,6 +233,10 @@ bool Character::store(QString filename) {
     QJsonArray complications;
     for (int i = 0; i < _complications.count(); ++i) complications.append(_complications[i]->toJson());
     top.insert("complications", complications);
+
+    QJsonArray skillsTalentsOrPerks;
+    for (int i = 0; i < _skillsTalentsOrPerks.count(); ++i) skillsTalentsOrPerks.append(_skillsTalentsOrPerks[i]->toJson());
+    top.insert("skillsTalentsOrPerks", skillsTalentsOrPerks);
 
     QJsonDocument json;
     json.setObject(top);

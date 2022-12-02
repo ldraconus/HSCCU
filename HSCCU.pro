@@ -16,16 +16,24 @@ SOURCES += \
     main.cpp \
     option.cpp \
     sheet.cpp \
-    skilldialog.cpp
+    skilldialog.cpp \
+    skilltalentorperk.cpp
 
 HEADERS += \
     AccidentalChange.h \
+    AgilitySkills.h \
+    BackgroundSkills.h \
+    CombatSkills.h \
     Dependence.h \
     Dependent.h \
     DistinctiveFeature.h \
     Enraged.h \
     Hunted.h \
+    IntellectSkills.h \
+    InteractionSkills.h \
+    MiscSkill.h \
     NegativeReputation.h \
+    Perk.h \
     PhysicalComplication.h \
     PsychologicalComplication.h \
     Rivalry.h \
@@ -40,7 +48,8 @@ HEADERS += \
     option.h \
     sheet.h \
     sheet_ui.h \
-    skilldialog.h
+    skilldialog.h \
+    skilltalentorperk.h
 
 FORMS += \
     complicationsdialog.ui \

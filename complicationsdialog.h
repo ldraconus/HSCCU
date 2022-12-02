@@ -37,10 +37,10 @@ private:
 
 public slots:
     void currentIndexChanged(int) { updateForm(); }
-    void textChanged(QString);
 
     void pickComplication(int);
     void stateChanged(int state);
+    void textChanged(QString);
 };
 
 #endif // COMPLICATIONSDIALOG_H

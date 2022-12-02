@@ -31,8 +31,6 @@ public:
     Complication() { }
     virtual ~Complication() { }
 
-    std::_Mem_fn<void (Complication::*)(bool)> none      = std::mem_fn(&Complication::empty);
-
     static const bool NoStore = true;
 
     virtual QString     description()                = 0;

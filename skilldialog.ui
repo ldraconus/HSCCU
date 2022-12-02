@@ -15,9 +15,12 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QComboBox" name="comboBox">
+    <widget class="QComboBox" name="skillTalentOrPerkComboBox">
+     <property name="currentIndex">
+      <number>-1</number>
+     </property>
      <property name="placeholderText">
-      <string>Select what to create...</string>
+      <string>Skill, Talent, or Perk?</string>
      </property>
      <item>
       <property name="text">
@@ -37,9 +40,12 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBox_2">
+    <widget class="QComboBox" name="availableComboBox">
      <property name="enabled">
       <bool>false</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Which one?</string>
      </property>
     </widget>
    </item>
@@ -82,5 +88,38 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SkillDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>585</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>SkillDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>585</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -3,6 +3,7 @@
 
 #include "characteristic.h"
 #include "complication.h"
+#include "skilltalentorperk.h"
 
 #include <QObject>
 
@@ -53,7 +54,19 @@ public:
     Characteristic& BODY() { return _BODY; }
     Characteristic& STUN() { return _STUN; }
 
-    QList<Complication*>& complications() { return _complications; }
+    Characteristic& characteristic(int x) {
+        switch (x) {
+        case 0:  return _STR;
+        case 1:  return _DEX;
+        case 2:  return _CON;
+        case 3:  return _INT;
+        case 4:  return _EGO;
+        default: return _PRE;
+        }
+    }
+
+    QList<Complication*>&      complications()        { return _complications; }
+    QList<SkillTalentOrPerk*>& skillsTalentsOrPerks() { return _skillsTalentsOrPerks; }
 
     void erase();
     bool load(QString);
@@ -78,7 +91,8 @@ private:
     Characteristic _BODY;
     Characteristic _STUN;
 
-    QList<Complication*> _complications;
+    QList<Complication*>      _complications;
+    QList<SkillTalentOrPerk*> _skillsTalentsOrPerks;
 
     QString _alternateIds  = "";
     QString _campaignName  = "";

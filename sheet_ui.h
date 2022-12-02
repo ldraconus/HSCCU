@@ -101,44 +101,22 @@ private:
 
     const bool Selectable = true;
 
-    QTableWidget* createTableWidget(QWidget* parent, QFont& font, QList<int> cols, QStringList headers, QList<QStringList> vals, int x, int y, int l, int h,
+    QTableWidget* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, int x, int y, int l, int h,
                                     bool selectable = false) {
-        return createTableWidget(parent, font, cols, headers, vals, x, y, l, h, "", selectable);
+        return createTableWidget(parent, font, headers, vals, x, y, l, h, "", selectable);
     }
 
-    QTableView* createTableView(QWidget* parent, QFont& font, int x, int y, int l, int h, QString w) {
-        QTableView* tableview = new QTableView(parent);
-        int pnt = font.pointSize();
-        tableview->setFont(font);
-        tableview->setContextMenuPolicy(Qt::CustomContextMenu);
-        QString family = font.family();
-        tableview->setStyleSheet("QTableView { selection-color: black;"
-                                           "   selection-background-color: lightblue;"
-                                           "   gridline-color: white;"
-                                           "   border-style: none;"
-                                           "   color: black;"
-                                           " } "
-                                 "QHeaderView::section { background-color: white;"
-                                                     "   border-style: none;"
-                                                     "   color: black;" +
-                                             QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
-                                                     " }");
-        tableview->setToolTip(w);
-        moveTo(tableview, x, y, l, h);
-        return tableview;
-    }
-
-    QTableWidget* createTableWidget(QWidget* parent, QFont& font, QList<int> cols, QStringList headers, QList<QStringList> vals, int x, int y, int l, int h,
+    QTableWidget* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, int x, int y, int l, int h,
                                     QString w, bool selectable = false) {
         QTableWidget* tablewidget = new QTableWidget(parent);
         tablewidget->setContextMenuPolicy(Qt::CustomContextMenu);
         tablewidget->setWordWrap(true);
         auto verticalHeader = tablewidget->verticalHeader();
         int pnt = font.pointSize();
-        int sz = (int) (pnt * 1.6 + 0.5);
+        int sz = pnt * 2;
         verticalHeader->setVisible(false);
         verticalHeader->setMinimumSectionSize(1);
-        verticalHeader->setMaximumSectionSize(sz);
+        verticalHeader->setMaximumSectionSize(selectable ? h : sz);
         verticalHeader->setDefaultSectionSize(1);
         verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
         auto horizontalHeader = tablewidget->horizontalHeader();
@@ -155,14 +133,14 @@ private:
             tablewidget->setStyleSheet("QTableWidget { selection-color: black;"
                                                    "   selection-background-color: cyan;"
                                                    "   gridline-color: white;"
-                                                   "   border-style: none;" +
-                                           QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
+                                                   "   border-style: none;"
+                                         + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
                                                    "   color: black;"
                                                    " } "
                                        "QHeaderView::section { background-color: white;"
                                                            "   border-style: none;"
                                                            "   color: black;" +
-                                                   QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
+                                                   QString("   font: bold %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
                                                            " }");
         else
             tablewidget->setStyleSheet("QTableWidget { selection-color: black;"
@@ -177,7 +155,7 @@ private:
                                                            "   color: black;" +
                                                    QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
                                                            " }");
-        tablewidget->setColumnCount(cols.size());
+        tablewidget->setColumnCount(headers.size());
         tablewidget->setRowCount(vals.size());
         tablewidget->setHorizontalHeaderLabels(headers);
         int i = 0;
@@ -188,13 +166,13 @@ private:
         }
         tablewidget->setToolTip(w);
         moveTo(tablewidget, x, y, l, h);
-        for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
         int total = 0;
+        for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
         for (i = 1; i < tablewidget->columnCount(); ++i) {
             tablewidget->resizeColumnToContents(i - 1);
             total += tablewidget->columnWidth(i - 1);
         }
-        tablewidget->setColumnWidth(cols.size() - 1, l - total);
+        tablewidget->setColumnWidth(headers.size() - 1, l - total);
 
         return tablewidget;
     }
@@ -316,17 +294,17 @@ public:
     QLineEdit* genre        = nullptr;
     QLineEdit* gamemaster   = nullptr;
 
-    QTableWidget* skillsperksandtalents          = nullptr;
-    QLabel*       totalskillsperksandtalentscost = nullptr;
-    QMenu*        skillsperksandtalentsMenu      = nullptr;
-    QAction*      newSkillPerkOrTalent           = nullptr;
-    QAction*      editSkillPerkOrTalent          = nullptr;
-    QAction*      deleteSkillPerkOrTalent        = nullptr;
-    QAction*      cutSkillPerkOrTalent           = nullptr;
-    QAction*      copySkillPerkOrTalent          = nullptr;
-    QAction*      pasteSkillPerkOrTalent         = nullptr;
-    QAction*      moveSkillPerkOrTalentUp        = nullptr;
-    QAction*      moveSkillPerkOrTalentDown      = nullptr;
+    QTableWidget* skillstalentsandperks          = nullptr;
+    QLabel*       totalskillstalentsandperkscost = nullptr;
+    QMenu*        skillstalentsandperksMenu      = nullptr;
+    QAction*      newSkillTalentOrPerk           = nullptr;
+    QAction*      editSkillTalentOrPerk          = nullptr;
+    QAction*      deleteSkillTalentOrPerk        = nullptr;
+    QAction*      cutSkillTalentOrPerk           = nullptr;
+    QAction*      copySkillTalentOrPerk          = nullptr;
+    QAction*      pasteSkillTalentOrPerk         = nullptr;
+    QAction*      moveSkillTalentOrPerkUp        = nullptr;
+    QAction*      moveSkillTalentOrPerkDown      = nullptr;
 
     QTableWidget* powersandequipment          = nullptr;
     QLabel*       totalpowersandequipmentcost = nullptr;
@@ -345,7 +323,7 @@ public:
         largeFont.setPointSize(16);
         QFont font = widget->font();
         QFont tableFont = font;
-        tableFont.setPointSize(13);
+        tableFont.setPointSize(12);
         QFont narrow = font;
         narrow.setStretch(QFont::Stretch::SemiCondensed);
         QFont smallfont = widget->font();
@@ -431,7 +409,7 @@ public:
         combatskilllevels = createTextEdit(widget, narrow, "<b>Combat Skill Levels</b> ", 392, 520, 244, 145);
         presenceattack    = createLabel(widget, font,   "2d6", 573, 663, 20);
 
-        movement    = createTableWidget(widget, font, { 93, 60, 80 },
+        movement    = createTableWidget(widget, font,
                                         {   "Type",           "Combat ", "Non-Combat" },
                                         { { "Run (12m)  ",    "12m",     "24m" },
                                           { "Swim (4m)  ",    "4m",       "8m" },
@@ -439,22 +417,21 @@ public:
                                           { "V. Leap (2m)  ", "2m",       "4m" } }, 675, 225, 260, 195);
         movementsfx = createLabel(widget, font, "", 775, 423, 20);
 
-        complications        = createTableWidget(widget, tableFont, { 93, 140 },
-                                                 { "Pts   ", "Complication", },
+        complications        = createTableWidget(widget, tableFont, { "Pts   ", "Complication", },
                                                  { }, 675, 590, 260, 455, "The things that make life difficult for your character", Selectable);
         totalcomplicationpts = createLabel(widget, font, "0/75", 675, 1045, 20);
-        complicationsMenu = createMenu(complications, font, { { "New",       &newComplication },
-                                                              { "Edit",      &editComplication },
-                                                              { "Delete",    &deleteComplication },
-                                                              { "-",         },
-                                                              { "Cut",       &cutComplication },
-                                                              { "Copy",      &copyComplication },
-                                                              { "Paste",     &pasteComplication },
-                                                              { "-",         },
-                                                              { "Move Up",   &moveComplicationUp },
-                                                              { "Move Down", &moveComplicationDown } } );
+        complicationsMenu    = createMenu(complications, font, { { "New",       &newComplication },
+                                                                 { "Edit",      &editComplication },
+                                                                 { "Delete",    &deleteComplication },
+                                                                 { "-",         },
+                                                                 { "Cut",       &cutComplication },
+                                                                 { "Copy",      &copyComplication },
+                                                                 { "Paste",     &pasteComplication },
+                                                                 { "-",         },
+                                                                 { "Move Up",   &moveComplicationUp },
+                                                                 { "Move Down", &moveComplicationDown } } );
 
-        attacksandmaneuvers = createTableWidget(widget, smallfont, { 93, 60, 80, 30, 30 },
+        attacksandmaneuvers = createTableWidget(widget, smallfont,
                                                 {   "Maneuver",        "Phase", "OCV",   "DCV", "Effects"                  },
                                                 { { "Block",           "½",     "+0",    "+0",  "Block, abort"             },
                                                   { "Brace",           "0",     "+2",    "½",   "+2 OCV vs R Mod"          },
@@ -473,7 +450,7 @@ public:
                                                   { "Trip",            "½",     "-1",    "-2",  "Knock target prone"       }
                                                 }, 69, 739, 295, 495);
 
-        defenses = createTableWidget(widget, font, { 93, 90 },
+        defenses = createTableWidget(widget, font,
                                      {   "Type", "Amount/Effect" },
                                      { { "Normal PD ",      "2" },
                                        { "Resistant PD ",   "0" },
@@ -501,25 +478,25 @@ public:
         genre        = createLineEdit(widget, font, "", 721, 1416, 213, 20, "The kind of game (street level, superhero, galactic, etc)");
         gamemaster   = createLineEdit(widget, font, "", 764, 1441, 170, 20, "Who is running the game for your character");
 
-        skillsperksandtalents = createTableWidget(widget, tableFont, { 90, 90, 90 }, { "Cost", "Name                                  ", "Roll" },
-                                                  { }, 73, 1521, 265, 990, "Things your character is skilled at or has a gift for", Selectable);
-        totalskillsperksandtalentscost = createLabel(widget, font, "0", 73, 2510, 20);
-        skillsperksandtalentsMenu = createMenu(skillsperksandtalents, font, { { "New",       &newSkillPerkOrTalent },
-                                                                              { "Edit",      &editSkillPerkOrTalent },
-                                                                              { "Delete",    &deleteSkillPerkOrTalent },
-                                                                              { "-",         },
-                                                                              { "Cut",       &cutSkillPerkOrTalent },
-                                                                              { "Copy",      &copySkillPerkOrTalent },
-                                                                              { "Paste",     &pasteSkillPerkOrTalent },
-                                                                              { "-",         },
-                                                                              { "Move Up",   &moveSkillPerkOrTalentUp },
-                                                                              { "Move Down", &moveSkillPerkOrTalentDown } } );
+        skillstalentsandperks         = createTableWidget(widget, tableFont, { "Cost", "Name                                  ", "Roll" },
+                                                          { }, 73, 1521, 265, 990, "Things your character is skilled at or has a gift for", Selectable);
+        totalskillstalentsandperkscost = createLabel(widget, font, "0", 73, 2510, 20);
+        skillstalentsandperksMenu      = createMenu(skillstalentsandperks, font, { { "New",       &newSkillTalentOrPerk },
+                                                                                   { "Edit",      &editSkillTalentOrPerk },
+                                                                                   { "Delete",    &deleteSkillTalentOrPerk },
+                                                                                   { "-",         },
+                                                                                   { "Cut",       &cutSkillTalentOrPerk },
+                                                                                   { "Copy",      &copySkillTalentOrPerk },
+                                                                                   { "Paste",     &pasteSkillTalentOrPerk },
+                                                                                   { "-",         },
+                                                                                   { "Move Up",   &moveSkillTalentOrPerkUp },
+                                                                                   { "Move Down", &moveSkillTalentOrPerkDown } } );
 
-        powersandequipment = createTableWidget(widget, tableFont, { 90, 90, 90, 90 },
-                                               { "Cost", "Name                ",
-                                                 "Power/Equipment                                                            ",
-                                                 "END" },
-                                               { }, 367, 1521, 570, 991, "Special powers and equipment for your character", Selectable);
+        powersandequipment          = createTableWidget(widget, tableFont,
+                                                        { "Cost", "Name                ",
+                                                          "Power/Equipment                                                            ",
+                                                          "END" },
+                                                        { }, 367, 1521, 570, 991, "Special powers and equipment for your character", Selectable);
         totalpowersandequipmentcost = createLabel(widget, font, "0", 367, 2511, 20);
 
         QMetaObject::connectSlotsByName(widget);

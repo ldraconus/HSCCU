@@ -92,8 +92,8 @@ public:
         damage     = createComboBox(parent, layout, "How much damage?", { "1d6", "2d6", "3d6" });
         roll       = createComboBox(parent, layout, "Required Roll?",   { "Powers aquire a 14- Required Roll",
                                                                           "Powers aquire a 11- Required Roll" });
-        competence = createCheckBox(parent, layout, "Incomptence: -1 to Skill Rolls and related rolls per time increment", none);
-        weakness   = createCheckBox(parent, layout, "Weakness: -3 to all Characteristics per time increment", none);
+        competence = createCheckBox(parent, layout, "Incomptence: -1 to Skill Rolls and related rolls per time increment");
+        weakness   = createCheckBox(parent, layout, "Weakness: -3 to all Characteristics per time increment");
         timeStep   = createComboBox(parent, layout, "Time between penalties", { "Segment", "Phase", "Turn", "1 Minute", "5 Minutes", "20 Minutes",
                                                                                 "1 Hour", "6 Hours", "1 Day", "1 Week", "1 Month", "1 Season",
                                                                                 "1 Year", "5 Years" });

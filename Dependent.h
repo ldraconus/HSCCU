@@ -70,9 +70,9 @@ public:
         who        = createLineEdit(parent, layout, "Who is it?");
         competence = createComboBox(parent, layout, "How compentent is the DNPC?", { "Incompetent", "Normal", "Slightly Less Powerful Then The PC",
                                                                                      "As Powerful As The PC" });
-        useful     = createCheckBox(parent, layout, "DNPC has useful noncombat position or skills", none);
+        useful     = createCheckBox(parent, layout, "DNPC has useful noncombat position or skills");
         frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
-        unaware    = createCheckBox(parent, layout, "DNPC is unaware of character's adventuring", none);
+        unaware    = createCheckBox(parent, layout, "DNPC is unaware of character's adventuring");
         multiples  = createLineEdit(parent, layout, "How many multiples of 2?", std::mem_fn(&Complication::numeric));
     }
     int points(bool noStore = false) override {
