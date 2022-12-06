@@ -26,7 +26,7 @@
    <item>
     <widget class="QComboBox" name="comboBox">
      <property name="maxVisibleItems">
-      <number>14</number>
+      <number>15</number>
      </property>
      <property name="placeholderText">
       <string>Select a complication...</string>

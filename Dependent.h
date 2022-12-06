@@ -11,59 +11,37 @@ public:
     Dependent(): Complication() { }
     Dependent(const Dependent& ac)
         : Complication()
-        , _competence(ac._competence)
-        , _frequency(ac._frequency)
-        , _multiples(ac._multiples)
-        , _unaware(ac._unaware)
-        , _useful(ac._useful)
-        , _who(ac._who) { }
+        , v(ac.v) { }
     Dependent(Dependent&& ac)
         : Complication()
-        , _competence(ac._competence)
-        , _frequency(ac._frequency)
-        , _multiples(ac._multiples)
-        , _unaware(ac._unaware)
-        , _useful(ac._useful)
-        , _who(ac._who) { }
+        , v(ac.v) { }
     Dependent(const QJsonObject& json)
         : Complication()
-        , _competence(json["competence"].toInt(0))
-        , _frequency(json["frequency"].toInt(0))
-        , _multiples(json["multiples"].toInt(0))
-        , _unaware(json["unaware"].toBool(false))
-        , _useful(json["useful"].toBool(false))
-        , _who(json["who"].toString("")) { }
+        , v { json["competence"].toInt(0)
+            , json["frequency"].toInt(0)
+            , json["multiples"].toInt(0)
+            , json["unaware"].toBool(false)
+            , json["useful"].toBool(false)
+            , json["who"].toString("") } { }
 
     Dependent& operator=(const Dependent& ac) {
-        if (this != &ac) {
-            _who        = ac._who;
-            _competence = ac._competence;
-            _frequency  = ac._frequency;
-            _multiples  = ac._multiples;
-            _unaware    = ac._unaware;
-            _useful     = ac._useful;
-        }
+        if (this != &ac) v = ac.v;
         return *this;
     }
     Dependent& operator=(Dependent&& ac) {
-        _who        = ac._who;
-        _competence = ac._competence;
-        _frequency  = ac._frequency;
-        _multiples  = ac._multiples;
-        _unaware    = ac._unaware;
-        _useful     = ac._useful;
+        v = ac.v;
         return *this;
     }
 
     QString description() override {
         static QList<QString> comp { "Incompetent", "Normal", "Slightly Less Powerful Then The PC", "As Powerful As The PC" };
         static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
-        if (_frequency == -1 || _competence == -1 || _who.isEmpty()) return "<incomplete>";
-        QString result = "Dependent NPC: " + _who + " (" + freq[_frequency];
-        if (_competence != -1) result += "; " + comp[_competence];
-        if (_unaware) result += "; DNPC is unaware of character's adventuring";
-        if (_useful) result += "; DNPC has useful noncombat position or skills";
-        if (_multiples > 0) result += QString("; %1x people").arg(std::pow(2, _multiples));
+        if (v._frequency == -1 || v._competence == -1 || v._who.isEmpty()) return "<incomplete>";
+        QString result = "Dependent NPC: " + v._who + " (" + freq[v._frequency];
+        if (v._competence != -1) result += "; " + comp[v._competence];
+        if (v._unaware) result += "; DNPC is unaware of character's adventuring";
+        if (v._useful) result += "; DNPC has useful noncombat position or skills";
+        if (v._multiples > 0) result += QString("; %1x people").arg(std::pow(2, v._multiples));
         return result + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
@@ -77,43 +55,47 @@ public:
     }
     int points(bool noStore = false) override {
         if (!noStore) store();
-        return 10 - _competence * 5 + (_useful ? 5 : 0) + 5 * (_frequency + 1) + (_unaware ? 5 : 0) + _multiples * 5;
+        return 10 - v._competence * 5 + (v._useful ? 5 : 0) + 5 * (v._frequency + 1) + (v._unaware ? 5 : 0) + v._multiples * 5;
     }
     void restore() override {
-        who->setText(_who);
-        competence->setCurrentIndex(_competence);
-        frequency->setCurrentIndex(_frequency);
-        multiples->setText(QString("%1").arg(_multiples));
-        unaware->setChecked(_unaware);
-        useful->setChecked(_useful);
+        vars s = v;
+        who->setText(s._who);
+        competence->setCurrentIndex(s._competence);
+        frequency->setCurrentIndex(s._frequency);
+        multiples->setText(QString("%1").arg(s._multiples));
+        unaware->setChecked(s._unaware);
+        useful->setChecked(s._useful);
+        v = s;
     }
     void store() override {
-        _who        = who->text();
-        _competence = competence->currentIndex();
-        _frequency  = frequency->currentIndex();
-        _multiples  = multiples->text().toInt(0);
-        _unaware    = unaware->isChecked();
-        _useful     = useful->isChecked();
+        v._who        = who->text();
+        v._competence = competence->currentIndex();
+        v._frequency  = frequency->currentIndex();
+        v._multiples  = multiples->text().toInt(0);
+        v._unaware    = unaware->isChecked();
+        v._useful     = useful->isChecked();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]       = "Dependent NPC";
-        obj["competence"] = _competence;
-        obj["frequency"]  = _frequency;
-        obj["multiples"]  = _multiples;
-        obj["unaware"]    = _unaware;
-        obj["useful"]     = _useful;
-        obj["who"]        = _who;
+        obj["competence"] = v._competence;
+        obj["frequency"]  = v._frequency;
+        obj["multiples"]  = v._multiples;
+        obj["unaware"]    = v._unaware;
+        obj["useful"]     = v._useful;
+        obj["who"]        = v._who;
         return obj;
     }
 
 private:
-    int     _competence = -1;
-    int     _frequency = -1;
-    int     _multiples = 0;
-    bool    _unaware = false;
-    bool    _useful = false;
-    QString _who = "";
+    struct vars {
+        int     _competence = -1;
+        int     _frequency = -1;
+        int     _multiples = 0;
+        bool    _unaware = false;
+        bool    _useful = false;
+        QString _who = "";
+    } v;
 
     QComboBox* competence;
     QComboBox* frequency;

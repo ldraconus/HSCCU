@@ -7,10 +7,13 @@
 #include "InteractionSkills.h"
 #include "MiscSkill.h"
 #include "Perk.h"
+#include "Talent.h"
 
-#define MAKE(x)   SkillTalentOrPerk::skill<x> _##x
-#define LINK(x)   #x, &statics::_##x
-#define SPCS(x,y) x, &statics::_##y
+#define MAKE(x)        SkillTalentOrPerk::skill<x> _##x
+#define MAKE_PERK(x)   SkillTalentOrPerk::perk<x> _##x
+#define MAKE_TALENT(x) SkillTalentOrPerk::talent<x> _##x
+#define LINK(x)        #x, &statics::_##x
+#define SPCS(x,y)      x, &statics::_##y
 
 namespace statics {
     // SKILLS
@@ -84,6 +87,42 @@ namespace statics {
     MAKE(Weaponsmith);
 
     // PERKS
+    MAKE_PERK(Access);
+    MAKE_PERK(Anonymity);
+    MAKE_PERK(ComputerLink);
+    MAKE_PERK(Contact);
+    MAKE_PERK(DeepCover);
+    MAKE_PERK(Favor);
+    MAKE_PERK(Follower);
+    MAKE_PERK(FringeBenefit);
+    MAKE_PERK(Money);
+    MAKE_PERK(PositiveReputation);
+    MAKE_PERK(VehiclesAndBases);
+
+    // TALENT
+    MAKE_TALENT(AbsoluteRangeSense);
+    MAKE_TALENT(AbsoluteTimeSense);
+    MAKE_TALENT(Ambidexterity);
+    MAKE_TALENT(AnimalFriendship);
+    MAKE_TALENT(BumpOfDirection);
+    MAKE_TALENT(CombatLuck);
+    MAKE_TALENT(CombatSense);
+    MAKE_TALENT(DangerSense);
+    MAKE_TALENT(DeadlyBlow);
+    MAKE_TALENT(DoubleJointed);
+    MAKE_TALENT(EideticMemory);
+    MAKE_TALENT(EnvironmentalMovement);
+    MAKE_TALENT(LightningCalculator);
+    MAKE_TALENT(LightningReflexes);
+    MAKE_TALENT(Lightsleep);
+    MAKE_TALENT(OffHandDefense);
+    MAKE_TALENT(PerfectPitch);
+    MAKE_TALENT(Resistance);
+    MAKE_TALENT(SimulateDeath);
+    MAKE_TALENT(SpeedReading);
+    MAKE_TALENT(StrikingAppearence);
+    MAKE_TALENT(UniversalTranslator);
+    MAKE_TALENT(Weaponmaster);
 }
 
 QMap<QString, SkillTalentOrPerk::skillBase*> SkillTalentOrPerk::_skills {
@@ -156,14 +195,49 @@ QMap<QString, SkillTalentOrPerk::skillBase*> SkillTalentOrPerk::_skills {
     { LINK(Weaponsmith) }
 };
 
-QMap<QString, SkillTalentOrPerk::skillBase*> SkillTalentOrPerk::_talents;
+QMap<QString, SkillTalentOrPerk::talentBase*> SkillTalentOrPerk::_talents {
+    { SPCS("Absolute Range Sense", AbsoluteRangeSense) },
+    { SPCS("Absolute Time Sense", AbsoluteTimeSense) },
+    { LINK(Ambidexterity) },
+    { SPCS("Animal Friendship", AnimalFriendship) },
+    { SPCS("Bump Of Direction", BumpOfDirection) },
+    { SPCS("Combat Luck", CombatLuck) },
+    { SPCS("Combat Sense", CombatSense) },
+    { SPCS("Danger Sense○", DangerSense) },
+    { SPCS("Deadly Blow▲", DeadlyBlow) },
+    { SPCS("Double Jointed", DoubleJointed) },
+    { SPCS("Eidetic Memory", EideticMemory) },
+    { SPCS("Environmental Movement", EnvironmentalMovement) },
+    { SPCS("Lightning Calculator", LightningCalculator) },
+    { SPCS("Lightning Reflexes▲", LightningReflexes) },
+    { LINK(Lightsleep) },
+    { SPCS("Off-Hand Defense", OffHandDefense) },
+    { SPCS("Perfect Pitch", PerfectPitch) },
+    { LINK(Resistance) },
+    { SPCS("Simulate Death", SimulateDeath) },
+    { SPCS("Speed Reading", SpeedReading) },
+    { SPCS("Strining Appearence", StrikingAppearence) },
+    { SPCS("Universal Translator○", UniversalTranslator) },
+    { SPCS("Weaponmaster▲", Weaponmaster) }
+};
 
 QMap<QString, SkillTalentOrPerk::perkBase*> SkillTalentOrPerk::_perks {
-
+    { LINK(Access) },
+    { LINK(Anonymity) },
+    { SPCS("Computer Link", ComputerLink) },
+    { LINK(Contact) },
+    { SPCS("Deep Cover", DeepCover) },
+    { LINK(Favor) },
+    { LINK(Follower) },
+    { SPCS("Fringe Benefit", FringeBenefit) },
+    { LINK(Money) },
+    { SPCS("Positive Reputation", PositiveReputation) },
+    { SPCS("Vehicles And Bases", VehiclesAndBases) }
 };
 
 
 SkillTalentOrPerk::SkillTalentOrPerk() { }
+
 bool SkillTalentOrPerk::isNumber(QString txt) {
     bool ok;
     txt.toInt(&ok, 10);
@@ -209,6 +283,7 @@ QComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layou
     QComboBox* comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setPlaceholderText(prompt);
+    comboBox->setToolTip(prompt);
     comboBox->setCurrentIndex(-1);
     layout->addWidget(comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
@@ -220,6 +295,7 @@ QComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layou
     QComboBox* comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setPlaceholderText(prompt);
+    comboBox->setToolTip(prompt);
     comboBox->setCurrentIndex(-1);
     layout->addWidget(comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
@@ -236,6 +312,8 @@ QLabel* SkillTalentOrPerk::createLabel(QWidget*, QVBoxLayout* layout, QString te
 QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (SkillTalentOrPerk::*)(QString)> callback) {
     QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
+    lineEdit->setToolTip(prompt);
+    lineEdit->setText("");
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
     _callbacksEdit.insert(_callbacksEdit.cend(), lineEdit, callback);
@@ -245,6 +323,7 @@ QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layou
 QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt) {
     QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
+    lineEdit->setToolTip(prompt);
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
     return lineEdit;

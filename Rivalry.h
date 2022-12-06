@@ -9,47 +9,20 @@ public:
     Rivalry(): Complication() { }
     Rivalry(const Rivalry& ac)
         : Complication()
-        , _intensity(ac._intensity)
-        , _nature(ac._nature)
-        , _pc(ac._pc)
-        , _power(ac._power)
-        , _unaware(ac._unaware)
-        , _who(ac._who) { }
+        , v(ac.v) { }
     Rivalry(Rivalry&& ac)
         : Complication()
-        , _intensity(ac._intensity)
-        , _nature(ac._nature)
-        , _pc(ac._pc)
-        , _power(ac._power)
-        , _unaware(ac._unaware)
-        , _who(ac._who) { }
+        , v(ac.v) { }
     Rivalry(const QJsonObject& json)
         : Complication()
-        , _intensity(json["intensity"].toInt(0))
-        , _nature(json["nature"].toInt(0))
-        , _pc(json["pc"].toInt(0))
-        , _power(json["power"].toInt(0))
-        , _unaware(json["unaware"].toBool(false))
-        , _who(json["who"].toString("")) { }
+        , v { json["intensity"].toInt(0), json["nature"].toInt(0), json["pc"].toBool(false), json["power"].toInt(0), json["unaware"].toBool(false), json["who"].toString("") } { }
 
     Rivalry& operator=(const Rivalry& ac) {
-        if (this != &ac) {
-            _intensity = ac._intensity;
-            _nature    = ac._nature;
-            _pc        = ac._pc;
-            _power     = ac._power;
-            _unaware   = ac._unaware;
-            _who       = ac._who;
-        }
+        if (this != &ac) v = ac.v;
         return *this;
     }
     Rivalry& operator=(Rivalry&& ac) {
-        _intensity = ac._intensity;
-        _nature    = ac._nature;
-        _pc        = ac._pc;
-        _power     = ac._power;
-        _unaware   = ac._unaware;
-        _who       = ac._who;
+        v = ac.v;;
         return *this;
     }
 
@@ -57,10 +30,10 @@ public:
         static QList<QString> natr { "Professional", "Romantic", "Professional and Romantic" };
         static QList<QString> powr { "Less Powerful", "As Powerful", "More Powerful", "Significatly More Powerful" };
         static QList<QString> intn { "Outdo, Embaraass, or Humiliate", "Maim, or Kill" };
-        if (_nature == -1 || _power == -1 || _intensity == -1 || _who.isEmpty()) return "<incomplete>";
-        QString result = QString("Rivalry: %1 (%2; %3; %4").arg(_who, natr[_nature], powr[_power], intn[_intensity]);
-        if (_unaware) result += "; Unaware";
-        if (_pc) result += "; is a PC";
+        if (v._nature == -1 || v._power == -1 || v._intensity == -1 || v._who.isEmpty()) return "<incomplete>";
+        QString result = QString("Rivalry: %1 (%2; %3; %4").arg(v._who, natr[v._nature], powr[v._power], intn[v._intensity]);
+        if (v._unaware) result += "; Unaware";
+        if (v._pc) result += "; is a PC";
         return result + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
@@ -73,43 +46,47 @@ public:
     }
     int points(bool noStore = false) override {
         if (!noStore) store();
-        return _intensity * 5 + ((_nature < 2) ? 5 : 10) + (_unaware ? 5 : 0) + (_pc ? 5 : 0) + (_power * 5 - 5) + _intensity * 5;
+        return v._intensity * 5 + ((v._nature < 2) ? 5 : 10) + (v._unaware ? 5 : 0) + (v._pc ? 5 : 0) + (v._power * 5 - 5) + v._intensity * 5;
     }
     void restore() override {
-        who->setText(_who);
-        intensity->setCurrentIndex(_intensity);
-        nature->setCurrentIndex(_nature);
-        pc->setChecked(_pc);
-        power->setCurrentIndex(_power);
-        unaware->setChecked(_unaware);
+        vars s = v;
+        who->setText(s._who);
+        intensity->setCurrentIndex(s._intensity);
+        nature->setCurrentIndex(s._nature);
+        pc->setChecked(s._pc);
+        power->setCurrentIndex(s._power);
+        unaware->setChecked(s._unaware);
+        v = s;
     }
     void store() override {
-        _who       = who->text();
-        _intensity = intensity->currentIndex();
-        _nature    = nature->currentIndex();
-        _pc        = pc->isChecked();
-        _power     = power->currentIndex();
-        _unaware   = unaware->isChecked();
+        v._who       = who->text();
+        v._intensity = intensity->currentIndex();
+        v._nature    = nature->currentIndex();
+        v._pc        = pc->isChecked();
+        v._power     = power->currentIndex();
+        v._unaware   = unaware->isChecked();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]      = "Rivalry";
-        obj["intensity"] = _intensity;
-        obj["nature"]    = _nature;
-        obj["pc"]        = _pc;
-        obj["power"]     = _power;
-        obj["unaware"]   = _unaware;
-        obj["who"]       = _who;
+        obj["intensity"] = v._intensity;
+        obj["nature"]    = v._nature;
+        obj["pc"]        = v._pc;
+        obj["power"]     = v._power;
+        obj["unaware"]   = v._unaware;
+        obj["who"]       = v._who;
         return obj;
     }
 
 private:
-    int     _intensity = -1;
-    int     _nature    = -1;
-    bool    _pc        = false;
-    int     _power     = -1;
-    bool    _unaware   = false;
-    QString _who       = "";
+    struct vars {
+        int     _intensity = -1;
+        int     _nature    = -1;
+        bool    _pc        = false;
+        int     _power     = -1;
+        bool    _unaware   = false;
+        QString _who       = "";
+    } v;
 
     QComboBox* intensity;
     QComboBox* nature;

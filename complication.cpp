@@ -6,6 +6,7 @@
 #include "DistinctiveFeature.h"
 #include "Enraged.h"
 #include "Hunted.h"
+#include "Money.h"
 #include "NegativeReputation.h"
 #include "PhysicalComplication.h"
 #include "PsychologicalComplication.h"
@@ -115,6 +116,7 @@ QList<QString> Complication::Available() {
              "Distinctive Feature",
              "Enraged/Berserk",
              "Hunted",
+             "Money",
              "Negative Reputation",
              "Physical Complication",
              "Psychological Complication",
@@ -133,14 +135,15 @@ Complication* Complication::ByIndex(int idx) {
     case 3:  return new DistinctiveFeature;
     case 4:  return new Enraged;
     case 5:  return new Hunted;
-    case 6:  return new NegativeReputation;
-    case 7:  return new PhysicalComplication;
-    case 8:  return new PsychologicalComplication;
-    case 9:  return new Rivalry;
-    case 10: return new SocialComplication;
-    case 11: return new Susceptibility;
-    case 12: return new Unluck;
-    case 13: return new Vulnerability;
+    case 6:  return new Money;
+    case 7:  return new NegativeReputation;
+    case 8:  return new PhysicalComplication;
+    case 9:  return new PsychologicalComplication;
+    case 10: return new Rivalry;
+    case 11: return new SocialComplication;
+    case 12: return new Susceptibility;
+    case 13: return new Unluck;
+    case 14: return new Vulnerability;
     default: return nullptr;
     }
 }
@@ -154,14 +157,15 @@ Complication* Complication::FromJson(QString name, const QJsonObject& json) {
     case 3:  return new DistinctiveFeature(json);
     case 4:  return new Enraged(json);
     case 5:  return new Hunted(json);
-    case 6:  return new NegativeReputation(json);
-    case 7:  return new PhysicalComplication(json);
-    case 8:  return new PsychologicalComplication(json);
-    case 9:  return new Rivalry(json);
-    case 10: return new SocialComplication(json);
-    case 11: return new Susceptibility(json);
-    case 12: return new Unluck(json);
-    case 13: return new Vulnerability(json);
+    case 6:  return new Money(json);
+    case 7:  return new NegativeReputation(json);
+    case 8:  return new PhysicalComplication(json);
+    case 9:  return new PsychologicalComplication(json);
+    case 10: return new Rivalry(json);
+    case 11: return new SocialComplication(json);
+    case 12: return new Susceptibility(json);
+    case 13: return new Unluck(json);
+    case 14: return new Vulnerability(json);
     default: return nullptr;
     }
 }

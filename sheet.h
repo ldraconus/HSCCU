@@ -81,6 +81,7 @@ private:
     void    updateCharacteristics();
     void    updateCharacter();
     void    updateComplications();
+    void    updateSkillsTalentsAndPerks();
     void    updateDisplay();
     void    updateTotals();
     QString valueToDice(int);
@@ -88,9 +89,10 @@ private:
     static Sheet_UI _Sheet_UI;
 
 public slots:
-    void complicationDoubleClicked(QTableWidgetItem*) { editComplication(); }
-    void valChanged(QString txt)                      { characteristicChanged(dynamic_cast<QLineEdit*>(sender()), txt); }
-    void valEditingFinished()                         { characteristicEditingFinished(dynamic_cast<QLineEdit*>(sender())); }
+    void complicationDoubleClicked(QTableWidgetItem*)          { editComplication(); }
+    void skillstalentsandperksDoubleClicked(QTableWidgetItem*) { editSkillstalentsandperks(); }
+    void valChanged(QString txt)                               { characteristicChanged(dynamic_cast<QLineEdit*>(sender()), txt); }
+    void valEditingFinished()                                  { characteristicEditingFinished(dynamic_cast<QLineEdit*>(sender())); }
 
     void aboutToHideFileMenu();
     void aboutToShowComplicationsMenu();
@@ -101,6 +103,7 @@ public slots:
     void characterNameChanged(QString);
     void complicationsMenu(QPoint);
     void copyComplication();
+    void copySkillTalentOrPerk();
     void currentBODYChanged(QString);
     void currentBODYEditingFinished();
     void currentENDChanged(QString);
@@ -108,14 +111,19 @@ public slots:
     void currentSTUNChanged(QString);
     void currentSTUNEditingFinished();
     void cutComplication();
+    void cutSkillTalentOrPerk();
     void deleteComplication();
+    void deleteSkillstalentsandperks();
     void editComplication();
+    void editSkillstalentsandperks();
     void eyeColorChanged(QString);
     void gamemasterChanged(QString);
     void genreChanged(QString);
     void hairColorChanged(QString);
     void moveComplicationDown();
     void moveComplicationUp();
+    void moveSkillTalentOrPerkDown();
+    void moveSkillTalentOrPerkUp();
     void newchar();
     void newComplication();
     void newSkillTalentOrPerk();

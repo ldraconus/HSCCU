@@ -9,42 +9,24 @@ public:
     DistinctiveFeature(): Complication() { }
     DistinctiveFeature(const DistinctiveFeature& ac)
         : Complication()
-        , _concealability(ac._concealability)
-        , _detectable(ac._detectable)
-        , _notDistinctive(ac._notDistinctive)
-        , _reaction(ac._reaction)
-        , _what(ac._what) { }
+        , v(ac.v) { }
     DistinctiveFeature(DistinctiveFeature&& ac)
         : Complication()
-        , _concealability(ac._concealability)
-        , _detectable(ac._detectable)
-        , _notDistinctive(ac._notDistinctive)
-        , _reaction(ac._reaction)
-        , _what(ac._what) { }
+        , v(ac.v) { }
     DistinctiveFeature(const QJsonObject& json)
         : Complication()
-        , _concealability(json["concealability"].toInt(0))
-        , _detectable(json["detectable"].toInt(0))
-        , _notDistinctive(json["notDistinctive"].toBool(false))
-        , _reaction(json["reaction"].toInt(0))
-        , _what(json["what"].toString("")) { }
+        , v { json["concealability"].toInt(0)
+            , json["detectable"].toInt(0)
+            , json["notDistinctive"].toBool(false)
+            , json["reaction"].toInt(0)
+            , json["what"].toString("") } { }
 
     DistinctiveFeature& operator=(const DistinctiveFeature& ac) {
-        if (this != &ac) {
-            _concealability = ac._concealability;
-            _detectable     = ac._detectable;
-            _notDistinctive = ac._notDistinctive;
-            _reaction       = ac._reaction;
-            _what           = ac._what;
-        }
+        if (this != &ac) v = ac.v;
         return *this;
     }
     DistinctiveFeature& operator=(DistinctiveFeature&& ac) {
-        _concealability = ac._concealability;
-        _detectable     = ac._detectable;
-        _notDistinctive = ac._notDistinctive;
-        _reaction       = ac._reaction;
-        _what           = ac._what;
+        v = ac.v;
         return *this;
     }
 
@@ -55,9 +37,9 @@ public:
                                       "Unusual Senses and/or by a Small Group and/or Only By Technology or Major Effort" };
         static QList<QString> rctn { "Noticed and Recognizable", "Always Noticed and Causes Major Reaction or Prejudice",
                                      "Causes Extreme Reaction" };
-        if (_what.isEmpty() || _reaction == -1 || _detectable == -1 || _concealability == -1) return "<incomplete>";
-        return "Distinctive Feature: " + _what + " (" + conc[_concealability] + "; " + rctn[_reaction] + "; " + dtct[_detectable] +
-                (_notDistinctive ? "; Not Distictive in Some Cultures" : "") + ")";
+        if (v._what.isEmpty() || v._reaction == -1 || v._detectable == -1 || v._concealability == -1) return "<incomplete>";
+        return "Distinctive Feature: " + v._what + " (" + conc[v._concealability] + "; " + rctn[v._reaction] + "; " + dtct[v._detectable] +
+                (v._notDistinctive ? "; Not Distictive in Some Cultures" : "") + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what           = createLineEdit(parent, layout, "What is distinctive?");
@@ -71,39 +53,43 @@ public:
     }
     int points(bool noStore = false) override {
         if (!noStore) store();
-        return 5 * (_concealability + 1) + _reaction * 5 - _detectable * 5 - (_notDistinctive ? 5 : 0);
+        return 5 * (v._concealability + 1) + v._reaction * 5 - v._detectable * 5 - (v._notDistinctive ? 5 : 0);
     }
     void restore() override {
-        what->setText(_what);
-        concealability->setCurrentIndex(_concealability);
-        detectable->setCurrentIndex(_detectable);
-        notDistinctive->setChecked(_notDistinctive);
-        reaction->setCurrentIndex(_reaction);
+        vars s = v;
+        what->setText(s._what);
+        concealability->setCurrentIndex(s._concealability);
+        detectable->setCurrentIndex(s._detectable);
+        notDistinctive->setChecked(s._notDistinctive);
+        reaction->setCurrentIndex(s._reaction);
+        v = s;
     }
     void store() override {
-        _what           = what->text();
-        _concealability = concealability->currentIndex();
-        _detectable     = detectable->currentIndex();
-        _notDistinctive = notDistinctive->isChecked();
-        _reaction       = reaction->currentIndex();
+        v._what           = what->text();
+        v._concealability = concealability->currentIndex();
+        v._detectable     = detectable->currentIndex();
+        v._notDistinctive = notDistinctive->isChecked();
+        v._reaction       = reaction->currentIndex();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]           = "Distinctive Feature";
-        obj["concealability"] = _concealability;
-        obj["detectable"]     = _detectable;
-        obj["notDistinctive"] = _notDistinctive;
-        obj["reaction"]       = _reaction;
-        obj["what"]           = _what;
+        obj["concealability"] = v._concealability;
+        obj["detectable"]     = v._detectable;
+        obj["notDistinctive"] = v._notDistinctive;
+        obj["reaction"]       = v._reaction;
+        obj["what"]           = v._what;
         return obj;
     }
 
 private:
-    int     _concealability = -1;
-    int     _detectable = -1;
-    bool    _notDistinctive = false;
-    int     _reaction = -1;
-    QString _what = "";
+    struct vars {
+        int     _concealability = -1;
+        int     _detectable = -1;
+        bool    _notDistinctive = false;
+        int     _reaction = -1;
+        QString _what = "";
+    } v;
 
     QComboBox* concealability;
     QComboBox* detectable;

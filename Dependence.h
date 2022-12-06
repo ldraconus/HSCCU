@@ -8,57 +8,27 @@ public:
     Dependence(): Complication() { }
     Dependence(const Dependence& d)
         : Complication()
-        , _addiction(d._addiction)
-        , _competence(d._competence)
-        , _damage(d._damage)
-        , _rarity(d._rarity)
-        , _roll(d._roll)
-        , _timeStep(d._timeStep)
-        , _weakness(d._weakness)
-        , _what(d._what) { }
+        , v(d.v) { }
     Dependence(Dependence&& d)
         : Complication()
-        , _addiction(d._addiction)
-        , _competence(d._competence)
-        , _damage(d._damage)
-        , _rarity(d._rarity)
-        , _roll(d._roll)
-        , _timeStep(d._timeStep)
-        , _weakness(d._weakness)
-        , _what(d._what) { }
+        , v(d.v) { }
     Dependence(const QJsonObject& json)
         : Complication()
-        , _addiction(json["addiction"].toBool(false))
-        , _competence(json["competence"].toBool(false))
-        , _damage(json["damage"].toInt(0))
-        , _rarity(json["rarity"].toInt(-1))
-        , _roll(json["roll"].toInt(-1))
-        , _timeStep(json["time step"].toInt(-1))
-        , _weakness(json["weakness"].toBool(false))
-        , _what(json["what"].toString()) { }
+        , v { json["addiction"].toBool(false)
+            , json["competence"].toBool(false)
+            , json["damage"].toInt(0)
+            , json["rarity"].toInt(-1)
+            , json["roll"].toInt(-1)
+            , json["time step"].toInt(-1)
+            , json["weakness"].toBool(false)
+            , json["what"].toString() } { }
 
     Dependence& operator=(const Dependence& d) {
-        if (this != &d) {
-            _addiction  = d._addiction;
-            _competence = d._competence;
-            _damage     = d._damage;
-            _rarity     = d._rarity;
-            _roll       = d._roll;
-            _timeStep   = d._timeStep;
-            _weakness   = d._weakness;
-            _what       = d._what;
-        }
+        if (this != &d) v = d.v;
         return *this;
     }
     Dependence& operator=(Dependence&& d) {
-        _addiction  = d._addiction;
-        _competence = d._competence;
-        _damage     = d._damage;
-        _rarity     = d._rarity;
-        _roll       = d._roll;
-        _timeStep   = d._timeStep;
-        _weakness   = d._weakness;
-        _what       = d._what;
+        v = d.v;
         return *this;
     }
 
@@ -72,16 +42,16 @@ public:
         static QList<QString> time { "Segment", "Phase", "Turn", "Minute", "5 Minutes", "20 Minutes",
                                      "1 Hour", "6 Hours", "Day", "Week", "Month", "Season",
                                      "Year", "5 Years" };
-        if (_addiction && _damage < 0 && !_competence && !_weakness) return "<incomplete>";
-        if (_rarity < 0 || (_damage < 0 && _roll < 0 && !_competence && !_weakness) || (!_addiction && _timeStep < 0)) return "<incomplete>";
+        if (v._addiction && v._damage < 0 && !v._competence && !v._weakness) return "<incomplete>";
+        if (v._rarity < 0 || (v._damage < 0 && v._roll < 0 && !v._competence && !v._weakness) || (!v._addiction && v._timeStep < 0)) return "<incomplete>";
         QString result;
-        if (_addiction) result = QString("Addiction: %1 (%2").arg(_what, rarity[_rarity]);
-        else result = QString("Dependence: %1 (%2").arg(_what, rarity[_rarity]);
-        if (_damage >= 0) result += "; " + damage[_damage] + " damage";
-        if (_timeStep >= 0 && !_addiction) result += QString("%1 every ").arg(_damage >= 0 ? "" : ";") + time[_timeStep];
-        if (_roll >= 0) result += "; " + roll[_roll];
-        if (_competence) result += QString("; ") + "-1 to Skill Rolls and related rolls per time increment";
-        if (_weakness) result += QString("; ") + "-3 to all Characteristics per time increment";
+        if (v._addiction) result = QString("Addiction: %1 (%2").arg(v._what, rarity[v._rarity]);
+        else result = QString("Dependence: %1 (%2").arg(v._what, rarity[v._rarity]);
+        if (v._damage >= 0) result += "; " + damage[v._damage] + " damage";
+        if (v._timeStep >= 0 && !v._addiction) result += QString("%1 every ").arg(v._damage >= 0 ? "" : ";") + time[v._timeStep];
+        if (v._roll >= 0) result += "; " + roll[v._roll];
+        if (v._competence) result += QString("; ") + "-1 to Skill Rolls and related rolls per time increment";
+        if (v._weakness) result += QString("; ") + "-3 to all Characteristics per time increment";
         return result + ") ";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
@@ -101,52 +71,56 @@ public:
     }
     int points(bool noStore = false) override {
         if (!noStore) store();
-        return (_rarity + 1) * 5 + (_damage + 1) * 5 + (_roll + 1) * 5 + (_competence ? 5 : 0) + (_weakness ? 5 : 0) +
-               (_addiction ? 5 : (25 - 5 * _timeStep));
+        return (v._rarity + 1) * 5 + (v._damage + 1) * 5 + (v._roll + 1) * 5 + (v._competence ? 5 : 0) + (v._weakness ? 5 : 0) +
+               (v._addiction ? 5 : (25 - 5 * v._timeStep));
     }
     void restore() override {
-        addiction->setChecked(_addiction);
-        competence->setChecked(_competence);
-        damage->setCurrentIndex(_damage);
-        rarity->setCurrentIndex(_rarity);
-        roll->setCurrentIndex(_roll);
-        timeStep->setCurrentIndex(_timeStep);
-        weakness->setChecked(_weakness);
-        what->setText(_what);
+        vars s = v;
+        addiction->setChecked(s._addiction);
+        competence->setChecked(s._competence);
+        damage->setCurrentIndex(s._damage);
+        rarity->setCurrentIndex(s._rarity);
+        roll->setCurrentIndex(s._roll);
+        timeStep->setCurrentIndex(s._timeStep);
+        weakness->setChecked(s._weakness);
+        what->setText(s._what);
+        v = s;
     }
     void store() override {
-        _addiction = addiction->isChecked();
-        _competence = competence->isChecked();
-        _damage = damage->currentIndex();
-        _rarity = rarity->currentIndex();
-        _roll = roll->currentIndex();
-        _timeStep = timeStep->currentIndex();
-        _weakness = weakness->isChecked();
-        _what = what->text();
+        v._addiction  = addiction->isChecked();
+        v._competence = competence->isChecked();
+        v._damage     = damage->currentIndex();
+        v._rarity     = rarity->currentIndex();
+        v._roll       = roll->currentIndex();
+        v._timeStep   = timeStep->currentIndex();
+        v._weakness   = weakness->isChecked();
+        v._what       = what->text();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]       = "Dependence";
-        obj["addiction"]  = _addiction;
-        obj["competence"] = _competence;
-        obj["damage"]     = _damage;
-        obj["rarity"]     = _rarity;
-        obj["roll"]       = _roll;
-        obj["time step"]  = _timeStep;
-        obj["weakness"]   = _weakness;
-        obj["what"]       = _what;
+        obj["addiction"]  = v._addiction;
+        obj["competence"] = v._competence;
+        obj["damage"]     = v._damage;
+        obj["rarity"]     = v._rarity;
+        obj["roll"]       = v._roll;
+        obj["time step"]  = v._timeStep;
+        obj["weakness"]   = v._weakness;
+        obj["what"]       = v._what;
         return obj;
     }
 
 private:
-    bool    _addiction = true;
-    bool    _competence = 0;
-    int     _damage = 0;
-    int     _rarity = -1;
-    int     _roll = 0;
-    int     _timeStep = -1;
-    bool    _weakness = false;
-    QString _what = "";
+    struct vars {
+        bool    _addiction = true;
+        bool    _competence = 0;
+        int     _damage = 0;
+        int     _rarity = -1;
+        int     _roll = 0;
+        int     _timeStep = -1;
+        bool    _weakness = false;
+        QString _what = "";
+    } v;
 
     QCheckBox* addiction;
     QCheckBox* competence;

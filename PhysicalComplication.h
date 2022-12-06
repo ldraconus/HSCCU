@@ -9,40 +9,28 @@ public:
     PhysicalComplication(): Complication() { }
     PhysicalComplication(const PhysicalComplication& ac)
         : Complication()
-        , _frequency(ac._frequency)
-        , _impairs(ac._impairs)
-        , _what(ac._what) { }
+        , v(ac.v) { }
     PhysicalComplication(PhysicalComplication&& ac)
         : Complication()
-        , _frequency(ac._frequency)
-        , _impairs(ac._impairs)
-        , _what(ac._what) { }
+        , v(ac.v) { }
     PhysicalComplication(const QJsonObject& json)
         : Complication()
-        , _frequency(json["frequency"].toInt(0))
-        , _impairs(json["impairs"].toInt(0))
-        , _what(json["what"].toString("")) { }
+        , v { json["frequency"].toInt(0), json["impairs"].toInt(0), json["what"].toString("") } { }
 
     PhysicalComplication& operator=(const PhysicalComplication& ac) {
-        if (this != &ac) {
-            _frequency = ac._frequency;
-            _impairs   = ac._impairs;
-            _what      = ac._what;
-        }
+        if (this != &ac) v = ac.v;
         return *this;
     }
     PhysicalComplication& operator=(PhysicalComplication&& ac) {
-        _frequency = ac._frequency;
-        _impairs   = ac._impairs;
-        _what      = ac._what;
+        v = ac.v;
         return *this;
     }
 
     QString description() override {
         static QList<QString> impr { "Barely", "Slightly", "Greatly", "Fully" };
         static QList<QString> freq { "Infrequently", "Frequently", "Very Frequently", "Always" };
-        if (_frequency == -1 || _impairs == -1 || _what.isEmpty()) return "<incomplete>";
-        return QString("Physical Complication: %1 (%2; %3 imparing)").arg(_what, freq[_frequency], impr[_impairs]);
+        if (v._frequency == -1 || v._impairs == -1 || v._what.isEmpty()) return "<incomplete>";
+        return QString("Physical Complication: %1 (%2; %3 imparing)").arg(v._what, freq[v._frequency], impr[v._impairs]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what         = createLineEdit(parent, layout, "What is the complication?");
@@ -51,31 +39,35 @@ public:
     }
     int points(bool noStore = false) override {
         if (!noStore) store();
-        return (_frequency + 1) * 5 + _impairs * 5;
+        return (v._frequency + 1) * 5 + v._impairs * 5;
     }
     void restore() override {
-        what->setText(_what);
-        frequency->setCurrentIndex(_frequency);
-        impairs->setCurrentIndex(_impairs);
+        vars s = v;
+        what->setText(s._what);
+        frequency->setCurrentIndex(s._frequency);
+        impairs->setCurrentIndex(s._impairs);
+        v = s;
     }
     void store() override {
-        _what      = what->text();
-        _frequency = frequency->currentIndex();
-        _impairs   = impairs->currentIndex();
+        v._what      = what->text();
+        v._frequency = frequency->currentIndex();
+        v._impairs   = impairs->currentIndex();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["name"]         = "Physical Complication";
-        obj["frequency"]    = _frequency;
-        obj["impairs"]      = _impairs;
-        obj["what"]         = _what;
+        obj["name"]      = "Physical Complication";
+        obj["frequency"] = v._frequency;
+        obj["impairs"]   = v._impairs;
+        obj["what"]      = v._what;
         return obj;
     }
 
 private:
-    int     _frequency = -1;
-    int     _impairs = -1;
-    QString _what = "";
+    struct vars {
+        int     _frequency = -1;
+        int     _impairs = -1;
+        QString _what = "";
+    } v;
 
     QComboBox* frequency;
     QComboBox* impairs;

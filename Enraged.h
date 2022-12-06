@@ -9,42 +9,24 @@ public:
     Enraged(): Complication() { }
     Enraged(const Enraged& ac)
         : Complication()
-        , _chance(ac._chance)
-        , _frequency(ac._frequency)
-        , _regain(ac._regain)
-        , _type(ac._type)
-        , _what(ac._what) { }
+        , v(ac.v) { }
     Enraged(Enraged&& ac)
         : Complication()
-        , _chance(ac._chance)
-        , _frequency(ac._frequency)
-        , _regain(ac._regain)
-        , _type(ac._type)
-        , _what(ac._what) { }
+        , v(ac.v) { }
     Enraged(const QJsonObject& json)
         : Complication()
-        , _chance(json["chance"].toInt(0))
-        , _frequency(json["frequency"].toInt(0))
-        , _regain(json["regain"].toInt(0))
-        , _type(json["type"].toBool(false))
-        , _what(json["what"].toString("")) { }
+        , v { json["chance"].toInt(0)
+            , json["frequency"].toInt(0)
+            , json["regain"].toInt(0)
+            , json["type"].toBool(false)
+            , json["what"].toString("") } { }
 
     Enraged& operator=(const Enraged& ac) {
-        if (this != &ac) {
-            _chance    = ac._chance;
-            _frequency = ac._frequency;
-            _regain    = ac._regain;
-            _type      = ac._type;
-            _what      = ac._what;
-        }
+        if (this != &ac) v = ac.v;
         return *this;
     }
     Enraged& operator=(Enraged&& ac) {
-        _chance    = ac._chance;
-        _frequency = ac._frequency;
-        _regain    = ac._regain;
-        _type      = ac._type;
-        _what      = ac._what;
+        v = ac.v;
         return *this;
     }
 
@@ -52,8 +34,8 @@ public:
         static QList<QString> freq { "Uncommon", "Common", "Very Common" };
         static QList<QString> chnc { "8-", "11-", "14-" };
         static QList<QString> regn { "14-", "11-", "8-" };
-        if (_frequency == -1 || _chance == -1 || _regain == -1 || _what.isEmpty()) return "<incomplete>";
-        return QString("%1: %2 (%3 Go: %4; Recover: %5)").arg(_type ? "Berserk" : "Enraged", _what, freq[_frequency], chnc[_chance], regn[_regain]);
+        if (v._frequency == -1 || v._chance == -1 || v._regain == -1 || v._what.isEmpty()) return "<incomplete>";
+        return QString("%1: %2 (%3 Go: %4; Recover: %5)").arg(v._type ? "Berserk" : "Enraged", v._what, freq[v._frequency], chnc[v._chance], regn[v._regain]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what      = createLineEdit(parent, layout, "What sets you off?");
@@ -64,39 +46,43 @@ public:
     }
     int points(bool noStore = false) override {
         if (!noStore) store();
-        return (_frequency + 1) * 5 + _chance * 5 + _regain * 5 + (_type ? 10 : 0);
+        return (v._frequency + 1) * 5 + v._chance * 5 + v._regain * 5 + (v._type ? 10 : 0);
     }
     void restore() override {
-        what->setText(_what);
-        chance->setCurrentIndex(_chance);
-        frequency->setCurrentIndex(_frequency);
-        regain->setCurrentIndex(_regain);
-        type->setChecked(_type);
+        vars s = v;
+        what->setText(s._what);
+        chance->setCurrentIndex(s._chance);
+        frequency->setCurrentIndex(s._frequency);
+        regain->setCurrentIndex(s._regain);
+        type->setChecked(s._type);
+        v = s;
     }
     void store() override {
-        _what      = what->text();
-        _chance    = chance->currentIndex();
-        _frequency = frequency->currentIndex();
-        _regain    = regain->currentIndex();
-        _type      = type->isChecked();
+        v._what      = what->text();
+        v._chance    = chance->currentIndex();
+        v._frequency = frequency->currentIndex();
+        v._regain    = regain->currentIndex();
+        v._type      = type->isChecked();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]      = "Enraged/Berserk";
-        obj["chance"]    = _chance;
-        obj["frequency"] = _frequency;
-        obj["regain"]    = _regain;
-        obj["type"]      = _type;
-        obj["what"]      = _what;
+        obj["chance"]    = v._chance;
+        obj["frequency"] = v._frequency;
+        obj["regain"]    = v._regain;
+        obj["type"]      = v._type;
+        obj["what"]      = v._what;
         return obj;
     }
 
 private:
-    int     _chance = -1;
-    int     _frequency = -1;
-    int     _regain = -1;
-    bool    _type;
-    QString _what = "";
+    struct vars {
+        int     _chance = -1;
+        int     _frequency = -1;
+        int     _regain = -1;
+        bool    _type;
+        QString _what = "";
+    } v;
 
     QComboBox* chance;
     QComboBox* frequency;

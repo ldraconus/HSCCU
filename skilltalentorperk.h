@@ -85,6 +85,27 @@ public:
         SkillTalentOrPerk* create(const QJsonObject& json) override { return new T(json); }
     };
 
+    class talentBase {
+    public:
+        talentBase() { }
+        talentBase(const talentBase&) { }
+        talentBase(talentBase*) { }
+
+        virtual SkillTalentOrPerk* create()                        = 0;
+        virtual SkillTalentOrPerk* create(const QJsonObject& json) = 0;
+    };
+
+    template <typename T>
+    class talent: public talentBase {
+    public:
+        talent(): talentBase() { }
+        talent(const talent& b): talentBase(b) { }
+        talent(talentBase* b): talentBase(b) { }
+
+        SkillTalentOrPerk* create() override                        { return new T; }
+        SkillTalentOrPerk* create(const QJsonObject& json) override { return new T(json); }
+    };
+
     SkillTalentOrPerk();
     virtual ~SkillTalentOrPerk() { }
 
@@ -122,9 +143,9 @@ private:
     QLabel* _points;
     QLabel* _description;
 
-    static QMap<QString, skillBase*> _skills;
-    static QMap<QString, skillBase*> _talents;
-    static QMap<QString, perkBase*> _perks;
+    static QMap<QString, skillBase*>  _skills;
+    static QMap<QString, talentBase*> _talents;
+    static QMap<QString, perkBase*>   _perks;
 };
 
 #endif // SKILLTALENTORPERK_H

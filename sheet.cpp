@@ -276,8 +276,16 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->moveComplicationUp,   SIGNAL(triggered()),                          this, SLOT(moveComplicationUp()));
     connect(Ui->moveComplicationDown, SIGNAL(triggered()),                          this, SLOT(moveComplicationDown()));
 
-    connect(Ui->skillstalentsandperks, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(skillstalentsandperksMenu(QPoint)));
-    connect(Ui->newSkillTalentOrPerk,  SIGNAL(triggered()),                        this, SLOT(newSkillTalentOrPerk()));
+    connect(Ui->skillstalentsandperks,     SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(skillstalentsandperksDoubleClicked(QTableWidgetItem*)));
+    connect(Ui->skillstalentsandperks,     SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(skillstalentsandperksMenu(QPoint)));
+    connect(Ui->newSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(newSkillTalentOrPerk()));
+    connect(Ui->skillstalentsandperksMenu, SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
+    connect(Ui->editSkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(editSkillstalentsandperks()));
+    connect(Ui->deleteSkillTalentOrPerk,   SIGNAL(triggered()),                          this, SLOT(deleteSkillstalentsandperks()));
+    connect(Ui->cutSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(cutSkillTalentOrPerk()));
+    connect(Ui->copySkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(copySkillTalentOrPerk()));
+    connect(Ui->moveSkillTalentOrPerkUp,   SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkUp()));
+    connect(Ui->moveSkillTalentOrPerkDown, SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkDown()));
 
     _widget2Def = {
         { Ui->strval,  { &_character.STR(),  Ui->strval,  Ui->strpoints, Ui->strroll } },
@@ -509,6 +517,26 @@ void Sheet::updateComplications() {
     Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
 }
 
+void Sheet::updateSkillsTalentsAndPerks(){
+    Ui->skillstalentsandperks->setRowCount(0);
+    Ui->skillstalentsandperks->update();
+
+    _skillsTalentsOrPerksPoints = 0;
+    QFont font = Ui->skillstalentsandperks->font();
+    int row = 0;
+    for (const auto& stp: _character.skillsTalentsOrPerks()) {
+        int pts = stp->points(Complication::NoStore);
+        setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(pts), font);
+        setCell(Ui->skillstalentsandperks, row, 1, stp->description(), font, WordWrap);
+        setCell(Ui->skillstalentsandperks, row, 2, stp->roll(), font);
+        Ui->skillstalentsandperks->resizeRowsToContents();
+        _skillsTalentsOrPerksPoints += pts;
+        ++row;
+    }
+
+    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
+}
+
 void Sheet::updateDisplay() {
     updateCharacter();
     updateCharacteristics();
@@ -606,6 +634,21 @@ void Sheet::copyComplication() {
     clip->setMimeData(data);
 }
 
+void Sheet::copySkillTalentOrPerk() {
+    QClipboard* clip = QGuiApplication::clipboard();
+    QMimeData* data = new QMimeData();
+    auto selection = Ui->skillstalentsandperks->selectedItems();
+    int row = selection[0]->row();
+    SkillTalentOrPerk* skilltalentorperk = _character.skillsTalentsOrPerks()[row];
+    QJsonObject obj = skilltalentorperk->toJson();
+    QJsonDocument doc;
+    doc.setObject(obj);
+    data->setData("application/skilltalentorperk", doc.toJson());
+    QString text = QString("%1\t%2").arg(skilltalentorperk->points(SkillTalentOrPerk::NoStore)).arg(skilltalentorperk->description());
+    data->setData("text/plain", text.toUtf8());
+    clip->setMimeData(data);
+}
+
 void Sheet::complicationsMenu(QPoint pos) {
     Ui->complicationsMenu->exec(mapToGlobal(pos
                                             + Ui->complications->pos()
@@ -644,6 +687,11 @@ void Sheet::cutComplication() {
     deleteComplication();
 }
 
+void Sheet::cutSkillTalentOrPerk() {
+    copySkillTalentOrPerk();
+    deleteSkillstalentsandperks();
+}
+
 void Sheet::deleteComplication() {
     auto selection = Ui->complications->selectedItems();
     int row = selection[0]->row();
@@ -651,6 +699,17 @@ void Sheet::deleteComplication() {
     _complicationPoints -= complication->points(Complication::NoStore);
     Ui->complications->removeRow(row);
     Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
+    updateTotals();
+    _changed = true;
+}
+
+void Sheet::deleteSkillstalentsandperks() {
+    auto selection = Ui->skillstalentsandperks->selectedItems();
+    int row = selection[0]->row();
+    SkillTalentOrPerk* skilltalentorperk = _character.skillsTalentsOrPerks().takeAt(row);
+    _skillsTalentsOrPerksPoints -= skilltalentorperk->points(Complication::NoStore);
+    Ui->skillstalentsandperks->removeRow(row);
+    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));
     updateTotals();
     _changed = true;
 }
@@ -675,6 +734,30 @@ void Sheet::editComplication() {
     Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
     updateTotals();
     _changed = true;
+}
+
+void Sheet::editSkillstalentsandperks() {
+    auto selection = Ui->skillstalentsandperks->selectedItems();
+    int row = selection[0]->row();
+    SkillTalentOrPerk* skilltalentorperk = _character.skillsTalentsOrPerks()[row];
+    SkillDialog dlg(this);
+    dlg.skilltalentorperk(skilltalentorperk);
+    int old = skilltalentorperk->points();
+
+    if (dlg.exec() == QDialog::Rejected) return;
+    if (skilltalentorperk->description().isEmpty()) return;
+
+    QFont font = Ui->skillstalentsandperks->font();
+    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(skilltalentorperk->points()), font);
+    setCell(Ui->skillstalentsandperks, row, 1, skilltalentorperk->description(),               font, WordWrap);
+    setCell(Ui->skillstalentsandperks, row, 2, skilltalentorperk->roll(),                      font);
+
+    Ui->skillstalentsandperks->resizeRowsToContents();
+    _skillsTalentsOrPerksPoints += skilltalentorperk->points() - old;
+    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));
+    updateTotals();
+    _changed = true;
+
 }
 
 void Sheet::eyeColorChanged(QString txt) {
@@ -713,6 +796,24 @@ void Sheet::moveComplicationUp() {
     Complication* complication = complications.takeAt(row);
     complications.insert(row - 1, complication);
     updateComplications();
+}
+
+void Sheet::moveSkillTalentOrPerkDown() {
+    auto selection = Ui->skillstalentsandperks->selectedItems();
+    int row = selection[0]->row();
+    auto& stps = _character.skillsTalentsOrPerks();
+    auto* stp = stps.takeAt(row);
+    stps.insert(row + 1, stp);
+    updateSkillsTalentsAndPerks();
+}
+
+void Sheet::moveSkillTalentOrPerkUp() {
+    auto selection = Ui->skillstalentsandperks->selectedItems();
+    int row = selection[0]->row();
+    auto& skillstalentsorperks = _character.skillsTalentsOrPerks();
+    SkillTalentOrPerk* skilltalentorperk = skillstalentsorperks.takeAt(row);
+    skillstalentsorperks.insert(row - 1, skilltalentorperk);
+    updateSkillsTalentsAndPerks();
 }
 
 void Sheet::newchar() {

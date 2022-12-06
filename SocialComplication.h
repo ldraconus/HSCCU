@@ -9,46 +9,29 @@ public:
     SocialComplication(): Complication() { }
     SocialComplication(const SocialComplication& ac)
         : Complication()
-        , _effects(ac._effects)
-        , _frequency(ac._frequency)
-        , _notRestrictive(ac._notRestrictive)
-        , _what(ac._what) { }
+        , v(ac.v) { }
     SocialComplication(SocialComplication&& ac)
         : Complication()
-        , _effects(ac._effects)
-        , _frequency(ac._frequency)
-        , _notRestrictive(ac._notRestrictive)
-        , _what(ac._what) { }
+        , v(ac.v) { }
     SocialComplication(const QJsonObject& json)
         : Complication()
-        , _effects(json["effects"].toInt(0))
-        , _frequency(json["frequency"].toInt(0))
-        , _notRestrictive(json["notRestrictive"].toBool(false))
-        , _what(json["what"].toString("")) { }
+        , v { json["effects"].toInt(0), json["frequency"].toInt(0), json["notRestrictive"].toBool(false), json["what"].toString("") } { }
 
     SocialComplication& operator=(const SocialComplication& ac) {
-        if (this != &ac) {
-            _frequency      = ac._frequency;
-            _effects        = ac._effects;
-            _notRestrictive = ac._notRestrictive;
-            _what           = ac._what;
-        }
+        if (this != &ac) v = ac.v;
         return *this;
     }
     SocialComplication& operator=(SocialComplication&& ac) {
-        _frequency      = ac._frequency;
-        _effects        = ac._effects;
-        _notRestrictive = ac._notRestrictive;
-        _what           = ac._what;
+        v = ac.v;
         return *this;
     }
 
     QString description() override {
         static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)",  "Very Frequently (14-)" };
         static QList<QString> effc { "Minor", "Major", "Severe" };
-        if (_what.isEmpty() || _frequency == -1 || _effects == -1) return "<incomplete>";
-        return "Social Complication: " + _what + " (" + freq[_frequency] + "; " + effc[_effects] +
-                (_notRestrictive ? "; Not Resrtictive in Some Cultures" : "") + ")";
+        if (v._what.isEmpty() || v._frequency == -1 || v._effects == -1) return "<incomplete>";
+        return "Social Complication: " + v._what + " (" + freq[v._frequency] + "; " + effc[v._effects] +
+                (v._notRestrictive ? "; Not Resrtictive in Some Cultures" : "") + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what           = createLineEdit(parent, layout, "What is the complication?");
@@ -58,35 +41,39 @@ public:
     }
     int points(bool noStore = false) override {
         if (!noStore) store();
-        return 5 * (_frequency + 1) + _effects * 5 - (_notRestrictive ? 5 : 0);
+        return 5 * (v._frequency + 1) + v._effects * 5 - (v._notRestrictive ? 5 : 0);
     }
     void restore() override {
-        effects->setCurrentIndex(_effects);
-        frequency->setCurrentIndex(_frequency);
-        notRestrictive->setChecked(_notRestrictive);
-        what->setText(_what);
+        vars s = v;
+        effects->setCurrentIndex(s._effects);
+        frequency->setCurrentIndex(s._frequency);
+        notRestrictive->setChecked(s._notRestrictive);
+        what->setText(s._what);
+        v = s;
     }
     void store() override {
-        _effects        = effects->currentIndex();
-        _frequency      = frequency->currentIndex();
-        _notRestrictive = notRestrictive->isChecked();
-        _what           = what->text();
+        v._effects        = effects->currentIndex();
+        v._frequency      = frequency->currentIndex();
+        v._notRestrictive = notRestrictive->isChecked();
+        v._what           = what->text();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]           = "Social Complication";
-        obj["effects"]        = _effects;
-        obj["frequency"]      = _frequency;
-        obj["notRestrictive"] = _notRestrictive;
-        obj["what"]           = _what;
+        obj["effects"]        = v._effects;
+        obj["frequency"]      = v._frequency;
+        obj["notRestrictive"] = v._notRestrictive;
+        obj["what"]           = v._what;
         return obj;
     }
 
 private:
-    int     _effects        = -1;
-    int     _frequency      = -1;
-    bool    _notRestrictive = false;
-    QString _what           = "";
+    struct vars {
+        int     _effects        = -1;
+        int     _frequency      = -1;
+        bool    _notRestrictive = false;
+        QString _what           = "";
+    } v;
 
     QComboBox* effects;
     QComboBox* frequency;

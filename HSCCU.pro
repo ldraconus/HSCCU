@@ -13,6 +13,7 @@ SOURCES += \
     characteristic.cpp \
     complication.cpp \
     complicationsdialog.cpp \
+    fraction.cpp \
     main.cpp \
     option.cpp \
     sheet.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     IntellectSkills.h \
     InteractionSkills.h \
     MiscSkill.h \
+    Money.h \
     NegativeReputation.h \
     Perk.h \
     PhysicalComplication.h \
@@ -39,12 +41,14 @@ HEADERS += \
     Rivalry.h \
     SocialComplication.h \
     Susceptibility.h \
+    Talent.h \
     Unluck.h \
     Vulnerability.h \
     character.h \
     characteristic.h \
     complication.h \
     complicationsdialog.h \
+    fraction.h \
     option.h \
     sheet.h \
     sheet_ui.h \

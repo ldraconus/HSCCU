@@ -9,40 +9,28 @@ public:
     AccidentalChange(): Complication() { }
     AccidentalChange(const AccidentalChange& ac)
         : Complication()
-        , _circumstance(ac._circumstance)
-        , _frequency(ac._frequency)
-        , _what(ac._what) { }
+        , v(ac.v) { }
     AccidentalChange(AccidentalChange&& ac)
         : Complication()
-        , _circumstance(ac._circumstance)
-        , _frequency(ac._frequency)
-        , _what(ac._what) { }
+        , v(ac.v) { }
     AccidentalChange(const QJsonObject& json)
         : Complication()
-        , _circumstance(json["circumstance"].toInt(0))
-        , _frequency(json["frequency"].toInt(0))
-        , _what(json["what"].toString("")) { }
+        , v { json["circumstance"].toInt(0), json["frequency"].toInt(0), json["what"].toString("") } { }
 
     AccidentalChange& operator=(const AccidentalChange& ac) {
-        if (this != &ac) {
-            _circumstance = ac._circumstance;
-            _frequency    = ac._frequency;
-            _what         = ac._what;
-        }
+        if (this != &ac) v = ac.v;
         return *this;
     }
     AccidentalChange& operator=(AccidentalChange&& ac) {
-        _circumstance = ac._circumstance;
-        _frequency    = ac._frequency;
-        _what         = ac._what;
+        v = ac.v;
         return *this;
     }
 
     QString description() override {
         static QList<QString> circ { "Uncommon", "Common", "Very Common" };
         static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
-        if (_frequency == -1 || _circumstance == -1 || _what.isEmpty()) return "<incomplete>";
-        return QString("Accidental Change: %1 (%2; %3)").arg(_what, circ[_circumstance], freq[_frequency]);
+        if (v._frequency == -1 || v._circumstance == -1 || v._what.isEmpty()) return "<incomplete>";
+        return QString("Accidental Change: %1 (%2; %3)").arg(v._what, circ[v._circumstance], freq[v._frequency]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what         = createLineEdit(parent, layout, "What sets off the change?");
@@ -51,31 +39,35 @@ public:
     }
     int points(bool noStore = false) override {
         if (!noStore) store();
-        return _circumstance * 5 + 5 + _frequency * 5;
+        return v._circumstance * 5 + 5 + v._frequency * 5;
     }
     void restore() override {
-        what->setText(_what);
-        circumstance->setCurrentIndex(_circumstance);
-        frequency->setCurrentIndex(_frequency);
+        vars s = v;
+        what->setText(s._what);
+        circumstance->setCurrentIndex(s._circumstance);
+        frequency->setCurrentIndex(s._frequency);
+        v = s;
     }
     void store() override {
-        _what         = what->text();
-        _circumstance = circumstance->currentIndex();
-        _frequency    = frequency->currentIndex();
+        v._what         = what->text();
+        v._circumstance = circumstance->currentIndex();
+        v._frequency    = frequency->currentIndex();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]         = "Accidental Change";
-        obj["circumstance"] = _circumstance;
-        obj["frequency"]    = _frequency;
-        obj["what"]         = _what;
+        obj["circumstance"] = v._circumstance;
+        obj["frequency"]    = v._frequency;
+        obj["what"]         = v._what;
         return obj;
     }
 
 private:
-    int     _circumstance = -1;
-    int     _frequency = -1;
-    QString _what = "";
+    struct vars {
+        int     _circumstance = -1;
+        int     _frequency = -1;
+        QString _what = "";
+    } v;
 
     QComboBox* circumstance;
     QComboBox* frequency;

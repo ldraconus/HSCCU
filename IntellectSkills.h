@@ -9,51 +9,45 @@ class IntellectSkills: public SkillTalentOrPerk {
 public:
     IntellectSkills(): SkillTalentOrPerk() { }
     IntellectSkills(QString name)
-        : _name(name)
-        , _plus(0) { }
+        : v { name, 0 } { }
     IntellectSkills(const IntellectSkills& s)
         : SkillTalentOrPerk()
-        , _name(s._name)
-        , _plus(s._plus) { }
+        , v(s.v) { }
     IntellectSkills(IntellectSkills&& s)
         : SkillTalentOrPerk()
-        , _name(s._name)
-        , _plus(s._plus) { }
+        , v(s.v) { }
     IntellectSkills(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , _name(json["name"].toString(""))
-        , _plus(json["plus"].toInt(0)) { }
+        , v { json["name"].toString(""), json["plus"].toInt(0) } { }
 
     virtual IntellectSkills& operator=(const IntellectSkills& s) {
-        if (this != &s) {
-            _name = s._name;
-            _plus = s._plus;
-        }
+        if (this != &s) v = s.v;
         return *this;
     }
     virtual IntellectSkills& operator=(IntellectSkills&& s) {
-        _name = s._name;
-        _plus = s._plus;
+        v = s.v;
         return *this;
     }
 
-    QString description(bool showRoll = false) override      { return _name + " (" + (showRoll ? roll() : "+" + QString("%1").arg(_plus)) + ")"; }
+    QString description(bool showRoll = false) override      { return v._name + " (" + (showRoll ? roll() : "+" + QString("%1").arg(v._plus)) + ")"; }
     void form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric)); }
-    int points(bool noStore = false) override                { if (!noStore) store(); return 3 + _plus * 2; }
-    void restore() override                                  { plus->setText(QString("%1").arg(_plus)); }
-    QString roll() override                                  { return add(Sheet::ref().character().INT().roll(), _plus); }
-    void    store() override                                 { _plus = plus->text().toInt(0); }
+    int points(bool noStore = false) override                { if (!noStore) store(); return 3 + v._plus * 2; }
+    void restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s; }
+    QString roll() override                                  { return add(Sheet::ref().character().INT().roll(), v._plus); }
+    void    store() override                                 { v._plus = plus->text().toInt(0); }
 
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["name"] = _name;
-        obj["plus"] = _plus;
+        obj["name"] = v._name;
+        obj["plus"] = v._plus;
         return obj;
     }
 
 private:
-    QString _name;
-    int     _plus;
+    struct vars {
+        QString _name;
+        int     _plus;
+    } v;
 
     QLineEdit* plus;
 

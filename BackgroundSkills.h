@@ -9,29 +9,27 @@ class BackgroundSkill: public SkillTalentOrPerk {
 public:
     BackgroundSkill(): SkillTalentOrPerk() { }
     BackgroundSkill(QString name)
-        : _name(name) { }
+        : v { name } { }
     BackgroundSkill(const BackgroundSkill& s)
         : SkillTalentOrPerk()
-        , _name(s._name) { }
+        , v(s.v) { }
     BackgroundSkill(BackgroundSkill&& s)
         : SkillTalentOrPerk()
-        , _name(s._name) { }
+        , v(s.v) { }
     BackgroundSkill(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , _name(json["name"].toString("")) { }
+        , v { json["name"].toString("") } { }
 
     virtual BackgroundSkill& operator=(const BackgroundSkill& s) {
-        if (this != &s) {
-            _name = s._name;
-        }
+        if (this != &s) v = s.v;
         return *this;
     }
     virtual BackgroundSkill& operator=(BackgroundSkill&& s) {
-        _name = s._name;
+        v = s.v;
         return *this;
     }
 
-    QString description(bool showRoll = false) override { return showRoll ? _name : _name; }
+    QString description(bool showRoll = false) override { return showRoll ? v._name : v._name; }
     void form(QWidget*, QVBoxLayout*) override          { }
     int points(bool noStore = false) override           { return noStore ? 0 : 0; }
     void restore() override                             { }
@@ -40,12 +38,14 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["name"] = _name;
+        obj["name"] = v._name;
         return obj;
     }
 
 private:
-    QString _name;
+    struct vars {
+        QString _name;
+    } v;
 };
 
 #define CLASS(x)\
@@ -68,16 +68,16 @@ private:
 class KS: public BackgroundSkill {
 public:
     KS(): BackgroundSkill("Knowledge Skill")           { }
-    KS(const KS& s): BackgroundSkill(s)    { }
-    KS(KS&& s): BackgroundSkill(s)         { }
-    KS(const QJsonObject& json): BackgroundSkill(json) { _introll = json["introll"].toBool(false);
-                                                         _plus    = json["plus"].toInt(1);
-                                                         _for     = json["for"].toString("");
-                                                         _type    = json["type"].toInt(0);
+    KS(const KS& s): BackgroundSkill(s)                { }
+    KS(KS&& s): BackgroundSkill(s)                     { }
+    KS(const QJsonObject& json): BackgroundSkill(json) { v._introll = json["introll"].toBool(false);
+                                                         v._plus    = json["plus"].toInt(1);
+                                                         v._for     = json["for"].toString("");
+                                                         v._type    = json["type"].toInt(0);
                                                        }
 
-    QString description(bool showRoll = false) override         { return (showRoll ? (_introll ? add(Sheet::ref().character().DEX().roll(), _plus)
-                                                                                              : QString("%1-").arg(11 + _plus)) + " "
+    QString description(bool showRoll = false) override         { return (showRoll ? (v._introll ? add(Sheet::ref().character().DEX().roll(), v._plus)
+                                                                                                 : QString("%1-").arg(11 + v._plus)) + " "
                                                                                    : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { introll = createCheckBox(parent, layout, "Base off INT");
                                                                   plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -85,32 +85,36 @@ public:
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                 }
     int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return _plus * 2 + (_introll ? 3 : 2);
+                                                                  return v._plus * 2 + (v._introll ? 3 : 2);
     }
-    void    restore() override                                  { plus->setText(QString("%1").arg(_plus));
-                                                                  type->setCurrentIndex(_type);
-                                                                  forwhat->setText(_for);
-                                                                  introll->setChecked(_introll);
+    void    restore() override                                  { vars s = v;
+                                                                  plus->setText(QString("%1").arg(s._plus));
+                                                                  type->setCurrentIndex(s._type);
+                                                                  forwhat->setText(s._for);
+                                                                  introll->setChecked(s._introll);
+                                                                  v = s;
                                                                 }
-    QString roll() override                                     { return _introll ? add(Sheet::ref().character().DEX().roll(), _plus) : QString("%1-").arg(11 + _plus); }
-    void    store() override                                    { _plus = plus->text().toInt(0);
-                                                                  _for  = forwhat->text();
-                                                                  _type = type->currentIndex();
-                                                                  _introll = introll->isChecked();
+    QString roll() override                                     { return v._introll ? add(Sheet::ref().character().DEX().roll(), v._plus) : QString("%1-").arg(11 + v._plus); }
+    void    store() override                                    { v._plus    = plus->text().toInt(0);
+                                                                  v._for     = forwhat->text();
+                                                                  v._type    = type->currentIndex();
+                                                                  v._introll = introll->isChecked();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = BackgroundSkill::toJson();
-                                                                  obj["plus"] = _plus;
-                                                                  obj["for"]  = _for;
-                                                                  obj["type"] = _type;
-                                                                  obj["introll"] = _introll;
+                                                                  obj["plus"]    = v._plus;
+                                                                  obj["for"]     = v._for;
+                                                                  obj["type"]    = v._type;
+                                                                  obj["introll"] = v._introll;
                                                                   return obj;
                                                                 }
 
 private:
-    int     _introll = -1;
-    int     _plus    = 0;
-    QString _for     = "";
-    int     _type    = -1;
+    struct vars {
+        int     _introll = -1;
+        int     _plus    = 0;
+        QString _for     = "";
+        int     _type    = -1;
+    } v;
 
     QCheckBox* introll;
     QLineEdit* plus;
@@ -118,14 +122,14 @@ private:
     QComboBox* type;
 
     QString optOut() {
-        if (_plus < 0 || _for.isEmpty()) return "<incomplete>";
+        if (v._plus < 0 || v._for.isEmpty()) return "<incomplete>";
         QString res;
-        switch (_type) {
+        switch (v._type) {
         case 0:
         case 1:
-        case 4: res += QString("KS: %2 (+%1)").arg(_plus).arg(_for); break;
-        case 2: res += QString("AK: %2 (+%1)").arg(_plus).arg(_for); break;
-        case 3: res += QString("CK: %2 (+%1)").arg(_plus).arg(_for); break;
+        case 4: res += QString("KS: %2 (+%1)").arg(v._plus).arg(v._for); break;
+        case 2: res += QString("AK: %2 (+%1)").arg(v._plus).arg(v._for); break;
+        case 3: res += QString("CK: %2 (+%1)").arg(v._plus).arg(v._for); break;
         default: return "<incomplete>";
         }
 
@@ -144,9 +148,9 @@ public:
     Language(): BackgroundSkill("Language")           { }
     Language(const Language& s): BackgroundSkill(s)    { }
     Language(Language&& s): BackgroundSkill(s)         { }
-    Language(const QJsonObject& json): BackgroundSkill(json) { _which    = json["which"].toString("");
-                                                               _level    = json["level"].toInt(0);
-                                                               _literate = json["literate"].toBool(false);
+    Language(const QJsonObject& json): BackgroundSkill(json) { v._which    = json["which"].toString("");
+                                                               v._level    = json["level"].toInt(0);
+                                                               v._literate = json["literate"].toBool(false);
                                                              }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -155,36 +159,40 @@ public:
                                                                   literate = createCheckBox(parent, layout, "Literate (If not standard)");
                                                                 }
     int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return _level + 1 + (_literate ? 1 : 0);
+                                                                  return v._level + 1 + (v._literate ? 1 : 0);
     }
-    void    restore() override                                  { which->setText(_which);
-                                                                  level->setCurrentIndex(_level);
-                                                                  literate->setChecked(_literate);
+    void    restore() override                                  { vars s = v;
+                                                                  which->setText(s._which);
+                                                                  level->setCurrentIndex(s._level);
+                                                                  literate->setChecked(s._literate);
+                                                                  v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { _which    = which->text();
-                                                                  _level    = level->currentIndex();
-                                                                  _literate = literate->isChecked();
+    void    store() override                                    { v._which    = which->text();
+                                                                  v._level    = level->currentIndex();
+                                                                  v._literate = literate->isChecked();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = BackgroundSkill::toJson();
-                                                                  obj["which"]    = _which;
-                                                                  obj["level"]    = _level;
-                                                                  obj["literate"] = _literate;
+                                                                  obj["which"]    = v._which;
+                                                                  obj["level"]    = v._level;
+                                                                  obj["literate"] = v._literate;
                                                                   return obj;
                                                                 }
 
 private:
-    QString _which    = "";
-    int     _level    = -1;
-    bool    _literate = "";
+    struct vars {
+        QString _which    = "";
+        int     _level    = -1;
+        bool    _literate = "";
+    } v;
 
     QLineEdit* which;
     QComboBox* level;
     QCheckBox* literate;
 
     QString optOut() {
-        if (_level < 0 || _which.isEmpty()) return "<incomplete>";
-        return "Language: " + _which + " (" + QStringList{ "Basic", "Fluent", "Fluent w/accent1", "Idiomatic", "Imitate Dialects" }[_level] + (_literate ? ", Literate)" : ")");
+        if (v._level < 0 || v._which.isEmpty()) return "<incomplete>";
+        return "Language: " + v._which + " (" + QStringList{ "Basic", "Fluent", "Fluent w/accent1", "Idiomatic", "Imitate Dialects" }[v._level] + (v._literate ? ", Literate)" : ")");
     }
 };
 
@@ -193,48 +201,52 @@ public:
     PS(): BackgroundSkill("Professional Skill")           { }
     PS(const PS& s): BackgroundSkill(s)    { }
     PS(PS&& s): BackgroundSkill(s)         { }
-    PS(const QJsonObject& json): BackgroundSkill(json) { _what = json["what"].toString("");
-                                                         _plus = json["plus"].toInt(0);
-                                                         _stat = json["stat"].toInt(-1);
+    PS(const QJsonObject& json): BackgroundSkill(json) { v._what = json["what"].toString("");
+                                                         v._plus = json["plus"].toInt(0);
+                                                         v._stat = json["stat"].toInt(-1);
                                                        }
 
-    QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(_plus) + ") ": "") + optOut(); }
+    QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v._plus) + ") ": "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { what = createLineEdit(parent, layout, "What profession?");
                                                                   plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   stat = createComboBox(parent, layout, "Base on a stat?", { "STR", "DEX", "CON", "INT", "EGO", "PRE"});
                                                                 }
     int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return _plus * 2 + (2 + ((_stat >= 0) ? 1 : 0));
+                                                                  return v._plus * 2 + (2 + ((v._stat >= 0) ? 1 : 0));
                                                                 }
-    void    restore() override                                  { what->setText(_what);
-                                                                  plus->setText(QString("%1").arg(_plus));
-                                                                  stat->setCurrentIndex(_stat);
+    void    restore() override                                  { vars s = v;
+                                                                  what->setText(s._what);
+                                                                  plus->setText(QString("%1").arg(s._plus));
+                                                                  stat->setCurrentIndex(s._stat);
+                                                                  v = s;
                                                                 }
-    QString roll() override                                     { return (_stat >= 0) ? add(Sheet::ref().character().characteristic(_stat).roll(), _plus)
-                                                                                      : QString("%1-").arg(11 + _plus); }
-    void    store() override                                    { _what = what->text();
-                                                                  _plus = plus->text().toInt(0);
-                                                                  _stat = stat->currentIndex();
+    QString roll() override                                     { return (v._stat >= 0) ? add(Sheet::ref().character().characteristic(v._stat).roll(), v._plus)
+                                                                                        : QString("%1-").arg(11 + v._plus); }
+    void    store() override                                    { v._what = what->text();
+                                                                  v._plus = plus->text().toInt(0);
+                                                                  v._stat = stat->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = BackgroundSkill::toJson();
-                                                                  obj["what"] = _what;
-                                                                  obj["plus"] = _plus;
-                                                                  obj["stat"] = _stat;
+                                                                  obj["what"] = v._what;
+                                                                  obj["plus"] = v._plus;
+                                                                  obj["stat"] = v._stat;
                                                                   return obj;
                                                                 }
 
 private:
-    QString _what = "";
-    int     _plus = 0;
-    int     _stat  = -1;
+    struct vars {
+        QString _what = "";
+        int     _plus = 0;
+        int     _stat  = -1;
+    } v;
 
     QLineEdit* what;
     QLineEdit* plus;
     QComboBox* stat;
 
     QString optOut() {
-        if (_plus <= 0 || _what.isEmpty()) return "<incomplete>";
-        return "PS: " + _what + ((_stat != -1) ? QStringList { " (STR)", " (DEX)", " (CON)", " (INT)", " (EGO)", " (PRE)" }[_stat] : "");
+        if (v._plus <= 0 || v._what.isEmpty()) return "<incomplete>";
+        return "PS: " + v._what + ((v._stat != -1) ? QStringList { " (STR)", " (DEX)", " (CON)", " (INT)", " (EGO)", " (PRE)" }[v._stat] : "");
     }
 
     void numeric(QString) override {
@@ -249,48 +261,52 @@ public:
     SS(): BackgroundSkill("Science Skill")           { }
     SS(const SS& s): BackgroundSkill(s)    { }
     SS(SS&& s): BackgroundSkill(s)         { }
-    SS(const QJsonObject& json): BackgroundSkill(json) { _what = json["what"].toString("");
-                                                         _plus = json["plus"].toInt(0);
-                                                         _int  = json["int"].toBool(false);
+    SS(const QJsonObject& json): BackgroundSkill(json) { v._what = json["what"].toString("");
+                                                         v._plus = json["plus"].toInt(0);
+                                                         v._int  = json["int"].toBool(false);
                                                        }
 
-    QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(_plus) + ") ": "") + optOut(); }
+    QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v._plus) + ") ": "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { what    = createLineEdit(parent, layout, "What profession?");
                                                                   plus    = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   intstat = createCheckBox(parent, layout, "Based on INT");
                                                                 }
     int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return _plus * 2 + (2 + (_int ? 1 : 0));
+                                                                  return v._plus * 2 + (2 + (v._int ? 1 : 0));
                                                                 }
-    void    restore() override                                  { what->setText(_what);
-                                                                  plus->setText(QString("%1").arg(_plus));
-                                                                  intstat->setChecked(_int);
+    void    restore() override                                  { vars s = v;
+                                                                  what->setText(s._what);
+                                                                  plus->setText(QString("%1").arg(s._plus));
+                                                                  intstat->setChecked(s._int);
+                                                                  v = s;
                                                                 }
-    QString roll() override                                     { return _int ? add(Sheet::ref().character().INT().roll(), _plus)
-                                                                              : QString("%1-").arg(11 + _plus); }
-    void    store() override                                    { _what = what->text();
-                                                                  _plus = plus->text().toInt(0);
-                                                                  _int  = intstat->isChecked();
+    QString roll() override                                     { return v._int ? add(Sheet::ref().character().INT().roll(), v._plus)
+                                                                                : QString("%1-").arg(11 + v._plus); }
+    void    store() override                                    { v._what = what->text();
+                                                                  v._plus = plus->text().toInt(0);
+                                                                  v._int  = intstat->isChecked();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = BackgroundSkill::toJson();
-                                                                  obj["what"] = _what;
-                                                                  obj["plus"] = _plus;
-                                                                  obj["int"]  = _int;
+                                                                  obj["what"] = v._what;
+                                                                  obj["plus"] = v._plus;
+                                                                  obj["int"]  = v._int;
                                                                   return obj;
                                                                 }
 
 private:
-    QString _what = "";
-    int     _plus = 0;
-    bool    _int = false;
+    struct vars {
+        QString _what = "";
+        int     _plus = 0;
+        bool    _int = false;
+    } v;
 
     QLineEdit* what;
     QLineEdit* plus;
     QCheckBox* intstat;
 
     QString optOut() {
-        if (_plus <= 0 || _what.isEmpty()) return "<incomplete>";
-        return "SS: " + _what + (_int ? " (INT)" : "");
+        if (v._plus <= 0 || v._what.isEmpty()) return "<incomplete>";
+        return "SS: " + v._what + (v._int ? " (INT)" : "");
     }
 
     void numeric(QString) override {
@@ -305,8 +321,8 @@ public:
     TF(): BackgroundSkill("Transport Familiarity")     { }
     TF(const TF& s): BackgroundSkill(s)                { }
     TF(TF&& s): BackgroundSkill(s)                     { }
-    TF(const QJsonObject& json): BackgroundSkill(json) { _what = json["what"].toInt(0);
-                                                         _with = json["with"].toString("");
+    TF(const QJsonObject& json): BackgroundSkill(json) { v._what = json["what"].toInt(0);
+                                                         v._with = json["with"].toString("");
                                                        }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -315,33 +331,37 @@ public:
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
                                                                 }
     int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return QList<int>{ 0, 1, 2 }[_what + 1]; }
-    void    restore() override                                  { what->setCurrentIndex(_what);
-                                                                  with->setText(_with);
+                                                                  return QList<int>{ 0, 1, 2 }[v._what + 1]; }
+    void    restore() override                                  { vars s = v;
+                                                                  what->setCurrentIndex(s._what);
+                                                                  with->setText(s._with);
+                                                                  v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { _what = what->currentIndex();
-                                                                  _with = with->text();
+    void    store() override                                    { v._what = what->currentIndex();
+                                                                  v._with = with->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = BackgroundSkill::toJson();
-                                                                  obj["what"] = _what;
-                                                                  obj["with"] = _with;
+                                                                  obj["what"] = v._what;
+                                                                  obj["with"] = v._with;
                                                                   return obj;
                                                                 }
 
 private:
-    int     _what = -1;
-    QString _with = "";
+    struct vars {
+        int     _what = -1;
+        QString _with = "";
+    } v;
 
     QComboBox* what;
     QLineEdit* with;
 
     QString optOut() {
-        if (_with.isEmpty()) return "<incomplete>";
+        if (v._with.isEmpty()) return "<incomplete>";
         QString res = "TF: ";
-        switch (_what) {
-        case 0: res += QString("(One Class of Conveyances; %1)").arg(_with); break;
-        case 1: res += QString("(Broad Category of Conveyancess; %1)").arg(_with);   break;
+        switch (v._what) {
+        case 0: res += QString("(One Class of Conveyances: %1)").arg(v._with); break;
+        case 1: res += QString("(Broad Category of Conveyancess: %1)").arg(v._with);   break;
         default: return "<incomplete>";
         }
 

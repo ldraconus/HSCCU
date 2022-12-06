@@ -29,12 +29,12 @@
      </item>
      <item>
       <property name="text">
-       <string>Perk</string>
+       <string>Talent</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Talent</string>
+       <string>Perk</string>
       </property>
      </item>
     </widget>
@@ -43,6 +43,9 @@
     <widget class="QComboBox" name="availableComboBox">
      <property name="enabled">
       <bool>false</bool>
+     </property>
+     <property name="maxVisibleItems">
+      <number>25</number>
      </property>
      <property name="placeholderText">
       <string>Which one?</string>
