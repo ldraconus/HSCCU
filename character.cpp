@@ -189,6 +189,12 @@ bool Character::load(QString filename) {
         _complications.append(Complication::FromJson(obj["name"].toString(), obj));
     }
 
+    QJsonArray powers = top["powers"].toArray();
+    for (const auto& power: powers) {
+        QJsonObject obj = power.toObject();
+        _powers.append(Power::FromJson(obj["name"].toString(), obj));
+    }
+
     QJsonArray skillsTalentsOrPerks = top["skillsTalentsOrPerks"].toArray();
     for (const auto& skillsTalentsOrPerk: skillsTalentsOrPerks) {
         QJsonObject obj = skillsTalentsOrPerk.toObject();
@@ -233,6 +239,10 @@ bool Character::store(QString filename) {
     QJsonArray complications;
     for (int i = 0; i < _complications.count(); ++i) complications.append(_complications[i]->toJson());
     top.insert("complications", complications);
+
+    QJsonArray powers;
+    for (int i = 0; i < _powers.count(); ++i) powers.append(_powers[i]->toJson());
+    top.insert("powers", powers);
 
     QJsonArray skillsTalentsOrPerks;
     for (int i = 0; i < _skillsTalentsOrPerks.count(); ++i) skillsTalentsOrPerks.append(_skillsTalentsOrPerks[i]->toJson());

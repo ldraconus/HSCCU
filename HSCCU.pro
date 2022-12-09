@@ -9,19 +9,24 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    advantage.cpp \
     character.cpp \
     characteristic.cpp \
     complication.cpp \
     complicationsdialog.cpp \
     fraction.cpp \
     main.cpp \
+    modifiersdialog.cpp \
     option.cpp \
+    powerdialog.cpp \
+    powers.cpp \
     sheet.cpp \
     skilldialog.cpp \
     skilltalentorperk.cpp
 
 HEADERS += \
     AccidentalChange.h \
+    AdjustmentPowers.h \
     AgilitySkills.h \
     BackgroundSkills.h \
     CombatSkills.h \
@@ -44,12 +49,16 @@ HEADERS += \
     Talent.h \
     Unluck.h \
     Vulnerability.h \
+    advantage.h \
     character.h \
     characteristic.h \
     complication.h \
     complicationsdialog.h \
     fraction.h \
+    modifiersdialog.h \
     option.h \
+    powerdialog.h \
+    powers.h \
     sheet.h \
     sheet_ui.h \
     skilldialog.h \
@@ -57,6 +66,8 @@ HEADERS += \
 
 FORMS += \
     complicationsdialog.ui \
+    modifiersdialog.ui \
+    powerdialog.ui \
     sheet.ui \
     skilldialog.ui
 

@@ -15,8 +15,7 @@ QT_END_NAMESPACE
 
 // --- [Actual sheet definitions] ----------------------------------------------------------------------
 
-class Sheet: public QMainWindow
-{
+class Sheet: public QMainWindow {
     Q_OBJECT
 
 public:
@@ -56,6 +55,7 @@ private:
 
     bool _changed                    = false;
     int  _complicationPoints         = 0;
+    int  _powersOrEquiomentPoints    = 0;
     int  _skillsTalentsOrPerksPoints = 0;
     int  _totalPoints                = 0;
 
@@ -81,6 +81,7 @@ private:
     void    updateCharacteristics();
     void    updateCharacter();
     void    updateComplications();
+    void    updatePowersAndEquipment();
     void    updateSkillsTalentsAndPerks();
     void    updateDisplay();
     void    updateTotals();
@@ -90,14 +91,16 @@ private:
 
 public slots:
     void complicationDoubleClicked(QTableWidgetItem*)          { editComplication(); }
+    void powersandequipmentDoubleClicked(QTableWidgetItem*)    { editPowerOrEquipment(); }
     void skillstalentsandperksDoubleClicked(QTableWidgetItem*) { editSkillstalentsandperks(); }
     void valChanged(QString txt)                               { characteristicChanged(dynamic_cast<QLineEdit*>(sender()), txt); }
     void valEditingFinished()                                  { characteristicEditingFinished(dynamic_cast<QLineEdit*>(sender())); }
 
     void aboutToHideFileMenu();
     void aboutToShowComplicationsMenu();
-    void aboutToShowSkillsPerksAndTalentsMenu();
     void aboutToShowFileMenu();
+    void aboutToShowPowersAndEquipmentMenu();
+    void aboutToShowSkillsPerksAndTalentsMenu();
     void alternateIdsChanged(QString);
     void campaignNameChanged(QString);
     void characterNameChanged(QString);
@@ -115,6 +118,7 @@ public slots:
     void deleteComplication();
     void deleteSkillstalentsandperks();
     void editComplication();
+    void editPowerOrEquipment();
     void editSkillstalentsandperks();
     void eyeColorChanged(QString);
     void gamemasterChanged(QString);
@@ -126,10 +130,13 @@ public slots:
     void moveSkillTalentOrPerkUp();
     void newchar();
     void newComplication();
+    void newPowerOrEquipment();
     void newSkillTalentOrPerk();
     void open();
     void pasteComplication();
+    void pasteSkillTalentOrPerk();
     void playerNameChanged(QString);
+    void powersandequipmentMenu(QPoint);
     void save();
     void saveAs();
     void skillstalentsandperksMenu(QPoint);

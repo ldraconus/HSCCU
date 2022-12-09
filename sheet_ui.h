@@ -308,6 +308,15 @@ public:
 
     QTableWidget* powersandequipment          = nullptr;
     QLabel*       totalpowersandequipmentcost = nullptr;
+    QMenu*        powersandequipmentMenu      = nullptr;
+    QAction*      newPowerOrEquipment         = nullptr;
+    QAction*      editPowerOrEquipment        = nullptr;
+    QAction*      deletePowerOrEquipment      = nullptr;
+    QAction*      cutPowerOrEquipment         = nullptr;
+    QAction*      copyPowerOrEquipment        = nullptr;
+    QAction*      pastePowerOrEquipment       = nullptr;
+    QAction*      movePowerOrEquipmentUp      = nullptr;
+    QAction*      movePowerOrEquipmentDown    = nullptr;
 
     Sheet_UI() { }
 
@@ -498,6 +507,16 @@ public:
                                                           "END" },
                                                         { }, 367, 1521, 570, 991, "Special powers and equipment for your character", Selectable);
         totalpowersandequipmentcost = createLabel(widget, font, "0", 367, 2511, 20);
+        powersandequipmentMenu      = createMenu(powersandequipment, font, { { "New",       &newPowerOrEquipment },
+                                                                             { "Edit",      &editPowerOrEquipment },
+                                                                             { "Delete",    &deletePowerOrEquipment },
+                                                                             { "-",         },
+                                                                             { "Cut",       &cutPowerOrEquipment },
+                                                                             { "Copy",      &copyPowerOrEquipment },
+                                                                             { "Paste",     &pastePowerOrEquipment },
+                                                                             { "-",         },
+                                                                             { "Move Up",   &movePowerOrEquipmentUp },
+                                                                             { "Move Down", &movePowerOrEquipmentDown } } );
 
         QMetaObject::connectSlotsByName(widget);
     }

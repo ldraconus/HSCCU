@@ -3,6 +3,7 @@
 
 #include "characteristic.h"
 #include "complication.h"
+#include "powers.h"
 #include "skilltalentorperk.h"
 
 #include <QObject>
@@ -67,6 +68,7 @@ public:
 
     QList<Complication*>&      complications()        { return _complications; }
     QList<SkillTalentOrPerk*>& skillsTalentsOrPerks() { return _skillsTalentsOrPerks; }
+    QList<Power*>&             powersOrEquipment()    { return _powers; }
 
     void erase();
     bool load(QString);
@@ -93,6 +95,7 @@ private:
 
     QList<Complication*>      _complications;
     QList<SkillTalentOrPerk*> _skillsTalentsOrPerks;
+    QList<Power*>             _powers;
 
     QString _alternateIds  = "";
     QString _campaignName  = "";

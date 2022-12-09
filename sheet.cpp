@@ -1,5 +1,7 @@
 #include "complicationsdialog.h"
 #include "complication.h"
+#include "powers.h"
+#include "powerdialog.h"
 #include "skilldialog.h"
 #include "skilltalentorperk.h"
 
@@ -278,14 +280,27 @@ Sheet::Sheet(QWidget *parent)
 
     connect(Ui->skillstalentsandperks,     SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(skillstalentsandperksDoubleClicked(QTableWidgetItem*)));
     connect(Ui->skillstalentsandperks,     SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(skillstalentsandperksMenu(QPoint)));
-    connect(Ui->newSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(newSkillTalentOrPerk()));
     connect(Ui->skillstalentsandperksMenu, SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
+    connect(Ui->newSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(newSkillTalentOrPerk()));
     connect(Ui->editSkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(editSkillstalentsandperks()));
     connect(Ui->deleteSkillTalentOrPerk,   SIGNAL(triggered()),                          this, SLOT(deleteSkillstalentsandperks()));
     connect(Ui->cutSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(cutSkillTalentOrPerk()));
     connect(Ui->copySkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(copySkillTalentOrPerk()));
+    connect(Ui->pasteSkillTalentOrPerk,    SIGNAL(triggered()),                          this, SLOT(pasteSkillTalentOrPerk()));
     connect(Ui->moveSkillTalentOrPerkUp,   SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkUp()));
     connect(Ui->moveSkillTalentOrPerkDown, SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkDown()));
+
+    connect(Ui->powersandequipment,     SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
+    connect(Ui->powersandequipment,     SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
+    connect(Ui->powersandequipmentMenu, SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
+    connect(Ui->newPowerOrEquipment,    SIGNAL(triggered()),                          this, SLOT(newPowerOrEquipment()));
+    connect(Ui->editSkillTalentOrPerk,  SIGNAL(triggered()),                          this, SLOT(editSkillstalentsandperks()));
+//    connect(Ui->deleteSkillTalentOrPerk,   SIGNAL(triggered()),                          this, SLOT(deleteSkillstalentsandperks()));
+//    connect(Ui->cutSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(cutSkillTalentOrPerk()));
+//    connect(Ui->copySkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(copySkillTalentOrPerk()));
+//    connect(Ui->pasteSkillTalentOrPerk,    SIGNAL(triggered()),                          this, SLOT(pasteSkillTalentOrPerk()));
+//    connect(Ui->moveSkillTalentOrPerkUp,   SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkUp()));
+//    connect(Ui->moveSkillTalentOrPerkDown, SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkDown()));
 
     _widget2Def = {
         { Ui->strval,  { &_character.STR(),  Ui->strval,  Ui->strpoints, Ui->strroll } },
@@ -509,10 +524,10 @@ void Sheet::updateComplications() {
         int pts = complication->points(Complication::NoStore);
         setCell(Ui->complications, row, 0, QString("%1").arg(pts), font);
         setCell(Ui->complications, row, 1, complication->description(), font, WordWrap);
-        Ui->complications->resizeRowsToContents();
         _complicationPoints += pts;
         ++row;
     }
+    Ui->complications->resizeRowsToContents();
 
     Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
 }
@@ -529,23 +544,46 @@ void Sheet::updateSkillsTalentsAndPerks(){
         setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(pts), font);
         setCell(Ui->skillstalentsandperks, row, 1, stp->description(), font, WordWrap);
         setCell(Ui->skillstalentsandperks, row, 2, stp->roll(), font);
-        Ui->skillstalentsandperks->resizeRowsToContents();
         _skillsTalentsOrPerksPoints += pts;
         ++row;
     }
+    Ui->skillstalentsandperks->resizeRowsToContents();
 
-    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
+    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));
+}
+
+void Sheet::updatePowersAndEquipment(){
+    Ui->powersandequipment->setRowCount(0);
+    Ui->powersandequipment->update();
+
+    _powersOrEquiomentPoints = 0;
+    QFont font = Ui->powersandequipment->font();
+    int row = 0;
+    for (const auto& pe: _character.powersOrEquipment()) {
+        int pts = pe->points(Power::NoStore);
+        setCell(Ui->powersandequipment, row, 0, QString("%1").arg(pts), font);
+        setCell(Ui->powersandequipment, row, 1, pe->nickname(), font);
+        setCell(Ui->powersandequipment, row, 2, pe->description(), font, WordWrap);
+        setCell(Ui->powersandequipment, row, 3, pe->end(), font);
+        _skillsTalentsOrPerksPoints += pts;
+        ++row;
+    }
+    Ui->powersandequipment->resizeRowsToContents();
+
+    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_powersOrEquiomentPoints));
 }
 
 void Sheet::updateDisplay() {
     updateCharacter();
     updateCharacteristics();
     updateComplications();
+    updatePowersAndEquipment();
+    updateSkillsTalentsAndPerks();
     updateTotals();
 }
 
 void Sheet::updateTotals() {
-    _totalPoints = characteristicsCost() + _skillsTalentsOrPerksPoints;
+    _totalPoints = characteristicsCost() + _skillsTalentsOrPerksPoints + _powersOrEquiomentPoints;
     Ui->totalpoints->setText(QString("%1/%2")
                              .arg(_totalPoints)
                              .arg(_option.totalPoints() - _option.complications() + min(_option.complications(), _complicationPoints)));
@@ -584,6 +622,10 @@ void Sheet::aboutToShowComplicationsMenu() {
 
 void Sheet::aboutToShowFileMenu() {
     ui->action_Save->setEnabled(_changed);
+}
+
+void Sheet::aboutToShowPowersAndEquipmentMenu() {
+    // [TODO] - Basically copy one the following function ;-)
 }
 
 void Sheet::aboutToShowSkillsPerksAndTalentsMenu() {
@@ -643,8 +685,9 @@ void Sheet::copySkillTalentOrPerk() {
     QJsonObject obj = skilltalentorperk->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
-    data->setData("application/skilltalentorperk", doc.toJson());
-    QString text = QString("%1\t%2").arg(skilltalentorperk->points(SkillTalentOrPerk::NoStore)).arg(skilltalentorperk->description());
+    data->setData("application/skillperkortalent", doc.toJson());
+    QString text = QString("%1\t%2\t%3").arg(skilltalentorperk->points(SkillTalentOrPerk::NoStore))
+            .arg(skilltalentorperk->description(), skilltalentorperk->roll());
     data->setData("text/plain", text.toUtf8());
     clip->setMimeData(data);
 }
@@ -734,6 +777,10 @@ void Sheet::editComplication() {
     Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
     updateTotals();
     _changed = true;
+}
+
+void Sheet::editPowerOrEquipment() {
+    // [TODO] Pretty much copy the method below, changing the names of the innocent ;-)
 }
 
 void Sheet::editSkillstalentsandperks() {
@@ -853,6 +900,30 @@ void Sheet::newComplication() {
     _changed = true;
 }
 
+void Sheet::newPowerOrEquipment() {
+    PowerDialog dlg(this);
+
+    if (dlg.exec() == QDialog::Rejected) return;
+    Power* powerorequipment = dlg.powerorequipment();
+    if (powerorequipment->description().isEmpty()) return;
+
+    _character.powersOrEquipment().append(powerorequipment);
+
+    int row = Ui->powersandequipment->rowCount();
+    QFont font = Ui->powersandequipment->font();
+    setCell(Ui->powersandequipment, row, 0, QString("%1").arg(powerorequipment->points()), font);
+    setCell(Ui->powersandequipment, row, 1, QString("%1").arg(powerorequipment->nickname()), font);
+    setCell(Ui->powersandequipment, row, 2, powerorequipment->description(), font, WordWrap);
+    setCell(Ui->powersandequipment, row, 3, powerorequipment->end(), font);
+    Ui->powersandequipment->resizeRowsToContents();
+
+    _powersOrEquiomentPoints += powerorequipment->points();
+    Ui->totalpowersandequipmentcost->setText(QString("%1").arg(_powersOrEquiomentPoints));
+    updateTotals();
+    _changed = true;
+
+}
+
 void Sheet::newSkillTalentOrPerk() {
     SkillDialog dlg(this);
 
@@ -929,9 +1000,39 @@ void Sheet::pasteComplication() {
     _changed = true;
 }
 
+void Sheet::pasteSkillTalentOrPerk() {
+    QClipboard* clip = QGuiApplication::clipboard();
+    const QMimeData* data = clip->mimeData();
+    QByteArray byteArray = data->data("application/skillperkortalent");
+    QString jsonStr(byteArray);
+    QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
+    QJsonObject obj = json.object();
+    QString name = obj["name"].toString();
+    SkillTalentOrPerk* stp = SkillTalentOrPerk::FromJson(name, obj);
+    _character.skillsTalentsOrPerks().append(stp);
+
+    int row = Ui->skillstalentsandperks->rowCount();
+    QFont font = Ui->skillstalentsandperks->font();
+    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(stp->points(Complication::NoStore)), font);
+    setCell(Ui->skillstalentsandperks, row, 1, stp->description(), font, WordWrap);
+    setCell(Ui->skillstalentsandperks, row, 2, stp->roll(), font);
+    Ui->skillstalentsandperks->resizeRowsToContents();
+
+    _skillsTalentsOrPerksPoints += stp->points(Complication::NoStore);
+    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));
+    updateTotals();
+    _changed = true;
+}
+
 void Sheet::playerNameChanged(QString txt) {
     _character.playerName(txt);
     _changed = true;
+}
+
+void Sheet::powersandequipmentMenu(QPoint pos) {
+    Ui->powersandequipmentMenu->exec(mapToGlobal(pos
+                                                 + Ui->powersandequipment->pos()
+                                                 - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
 }
 
 void Sheet::save() {
