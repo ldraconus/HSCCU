@@ -203,7 +203,7 @@ QMap<QString, SkillTalentOrPerk::talentBase*> SkillTalentOrPerk::_talents {
     { SPCS("Bump Of Direction", BumpOfDirection) },
     { SPCS("Combat Luck", CombatLuck) },
     { SPCS("Combat Sense", CombatSense) },
-    { SPCS("Danger Sense○", DangerSense) },
+    { SPCS("Danger Senseϴ", DangerSense) },
     { SPCS("Deadly Blow▲", DeadlyBlow) },
     { SPCS("Double Jointed", DoubleJointed) },
     { SPCS("Eidetic Memory", EideticMemory) },
@@ -217,7 +217,7 @@ QMap<QString, SkillTalentOrPerk::talentBase*> SkillTalentOrPerk::_talents {
     { SPCS("Simulate Death", SimulateDeath) },
     { SPCS("Speed Reading", SpeedReading) },
     { SPCS("Strining Appearence", StrikingAppearence) },
-    { SPCS("Universal Translator○", UniversalTranslator) },
+    { SPCS("Universal Translatorϴ", UniversalTranslator) },
     { SPCS("Weaponmaster▲", Weaponmaster) }
 };
 

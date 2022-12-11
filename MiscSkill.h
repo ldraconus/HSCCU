@@ -33,6 +33,7 @@ public:
 
     QString description(bool showRoll = false) override { return v._name +  (showRoll ? "" : ""); }
     void form(QWidget*, QVBoxLayout*) override          { }
+    QString name() override                             { return v._name; }
     int points(bool noStore = false) override           { if (!noStore) store(); return 0; }
     void restore() override                             { }
     QString roll() override                             { return ""; }

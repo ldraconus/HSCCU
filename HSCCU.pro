@@ -9,13 +9,13 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    advantage.cpp \
     character.cpp \
     characteristic.cpp \
     complication.cpp \
     complicationsdialog.cpp \
     fraction.cpp \
     main.cpp \
+    modifier.cpp \
     modifiersdialog.cpp \
     option.cpp \
     powerdialog.cpp \
@@ -49,12 +49,12 @@ HEADERS += \
     Talent.h \
     Unluck.h \
     Vulnerability.h \
-    advantage.h \
     character.h \
     characteristic.h \
     complication.h \
     complicationsdialog.h \
     fraction.h \
+    modifier.h \
     modifiersdialog.h \
     option.h \
     powerdialog.h \

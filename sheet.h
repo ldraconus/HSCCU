@@ -73,6 +73,8 @@ private:
     void    characteristicEditingFinished(QLineEdit*);
     QString formatLift(int);
     bool    eventFilter(QObject* object, QEvent*);
+    void    rebuildCombatSkillLevels();
+    void    rebuildMartialArts();
     void    setCVs(_CharacteristicDef&, QLabel*);
     void    setCell(QTableWidget*, int, int, QString, const QFont&, bool wordWrap = false);
     void    setDamage(_CharacteristicDef&, QLabel*);
@@ -83,6 +85,7 @@ private:
     void    updateComplications();
     void    updatePowersAndEquipment();
     void    updateSkillsTalentsAndPerks();
+    void    updateSkillRolls();
     void    updateDisplay();
     void    updateTotals();
     QString valueToDice(int);

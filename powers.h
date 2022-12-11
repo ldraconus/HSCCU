@@ -3,6 +3,7 @@
 
 #include "powerdialog.h"
 #include "fraction.h"
+#include "modifier.h"
 
 #include <functional>
 
@@ -100,6 +101,8 @@ public:
     virtual Fraction lim()            { return Fraction(0); }
     virtual void     numeric(QString) { }
 
+    QList<Modifier*>& modifiers() { return _modifiers; }
+
     QWidget* sender() { return _sender; }
 
     void callback(QCheckBox*);
@@ -115,6 +118,8 @@ public:
     bool isNumber(QString);
 
 private:
+    QList<Modifier*> _modifiers;
+
     static QMap<QString, adjustmentBase*> _adjustmentPower;
 
 public slots:

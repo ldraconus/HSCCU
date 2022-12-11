@@ -290,11 +290,11 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->moveSkillTalentOrPerkUp,   SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkUp()));
     connect(Ui->moveSkillTalentOrPerkDown, SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkDown()));
 
-    connect(Ui->powersandequipment,     SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
-    connect(Ui->powersandequipment,     SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
-    connect(Ui->powersandequipmentMenu, SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
-    connect(Ui->newPowerOrEquipment,    SIGNAL(triggered()),                          this, SLOT(newPowerOrEquipment()));
-    connect(Ui->editSkillTalentOrPerk,  SIGNAL(triggered()),                          this, SLOT(editSkillstalentsandperks()));
+    connect(Ui->powersandequipment,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
+    connect(Ui->powersandequipment,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
+    connect(Ui->powersandequipmentMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
+    connect(Ui->newPowerOrEquipment,       SIGNAL(triggered()),                          this, SLOT(newPowerOrEquipment()));
+//    connect(Ui->editSkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(editSkillstalentsandperks()));
 //    connect(Ui->deleteSkillTalentOrPerk,   SIGNAL(triggered()),                          this, SLOT(deleteSkillstalentsandperks()));
 //    connect(Ui->cutSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(cutSkillTalentOrPerk()));
 //    connect(Ui->copySkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(copySkillTalentOrPerk()));
@@ -385,7 +385,10 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
             }
         }
         def.points()->setText(QString("%1").arg(def.characteristic()->points()));
-        if (def.roll()) def.roll()->setText(def.characteristic()->roll());
+        if (def.roll()) {
+            def.roll()->setText(def.characteristic()->roll());
+            updateSkillRolls();
+        }
 
         if (val == Ui->strval) {
             setDamage(def, Ui->hthdamage);
@@ -444,6 +447,86 @@ QString Sheet::formatLift(int str) {
     else num = QString("%1").arg(formatNumber(lift / 1000000.0));
     if (num.right(2) == ".0") num = num.left(num.length() - 2);
     return num + " " + units;
+}
+
+void Sheet::rebuildCombatSkillLevels() {
+    bool first = true;
+    QString csl = "<b>Combat Skill Levels</b> ";
+    for (const auto& stp: _character.skillsTalentsOrPerks()) {
+        stp->points(Complication::NoStore);
+        if (stp->name() == "Combat Skill Levels" ||
+            (stp->name() == "Skill Levels" && stp->description().contains("Overall"))) {
+            if (first) first = false;
+            else csl += ", ";
+            QString d = stp->description().mid(stp->name().length() + 2);
+            csl += d;
+        }
+    }
+    Ui->combatskilllevels->setHtml(csl);
+}
+
+void Sheet::rebuildMartialArts() {
+    /*
+     * { "Block",           "½",     "+0",    "+0",  "Block, abort"             },
+       { "Brace",           "0",     "+2",    "½",   "+2 OCV vs R Mod"          },
+       { "Disarm",          "½",     "-2",    "+0",  "Disarm, STR v. STR"       },
+       { "Dodge",           "½",     "——",    "+3",  "Abort vs. all attacks"    },
+       { "Grab",            "½",     "-1",    "-2",  "Grab 2 limbs"             },
+       { "Grab By",         "½†",    "-3",    "-4",  "Move&Grab;+(v/10) to STR" },
+       { "Haymaker",        "½*",    "+0",    "-5",  "+4 DCs to attack"         },
+       { "Move By",         "½†",    "-2",    "-2",  "STR/2+v/10; take ⅓"       },
+       { "Move Through",    "½†",    "-v/10", "-3",  "STR+v/6; take ½ or full"  },
+       { "Multiple Attack", "1",     "var",   "½",   "Attack multiple times"    },
+       { "Set",             "1",     "+1",    "+0",  "Ranged attacks only"      },
+       { "Shove",           "½",     "-1",    "-1",  "Push 1m per 5 STR"        },
+       { "Strike",          "½",     "+0",    "+0",  "STR or weapon"            },
+       { "Throw",           "½",     "+0",    "+0",  "Throw w/STR dmg"          },
+       { "Trip",            "½",     "-1",    "-2",  "Knock target prone"       } */
+    static QMap<QString, QStringList> table = {
+        { "Choke Hold",       { "½", "-2", "+0", "Grab 1 limb, 2d6 NND" } },
+        { "Defensive Strike", { "½", "+1", "+3", "STR strike" } },
+        { "Killing Strike",   { "½", "-2", "+0", "HKA ½d6" } },
+        { "Legsweep",         { "½", "+2", "-1", "STR+1d6, target falls" } },
+        { "Martial Block",    { "½", "+2", "+2", "Block, abort" } },
+        { "Martial Disarm",   { "½", "-1", "-1", "Disarm, +10 STR" } },
+        { "Martial Dodge",    { "½", "——", "+5", "Dodge, abort" } },
+        { "Martial Escape",   { "½", "+0", "+0", "+15 STR vs. Grabs" } },
+        { "Martial Grab",     { "½", "-1", "-1", "Grab 2 Limbs, +10 STR" } },
+        { "Martial Strike",   { "½", "+0", "+2", "STR+2d6" } },
+        { "Martial Throw",    { "½", "+0", "+1", "STR+v/10, target falls" } },
+        { "Nerve Strike",     { "½", "-1", "+1", "2d6 NND" } },
+        { "Offensive Strike", { "½", "-2", "+1", "STR+4d6" } },
+        { "Passing Strike",   { "½", "+1", "+0", "STR+v/10, full move" } },
+        { "Sacrifice Throw",  { "½", "+2", "+1", "STR, both fall" } }
+    };
+
+    auto* man = Ui->attacksandmaneuvers;
+    man->setRowCount(15);
+    man->update();
+
+    QFont font = ui->label->font();
+    font.setPointSize(8);
+    font.setStretch(QFont::Stretch::Condensed);
+    for (const auto& stp: _character.skillsTalentsOrPerks()) {
+        stp->points(Complication::NoStore);
+        if (stp->name() == "Martial Arts") {
+            QString d = stp->description().mid(stp->name().length() + 2);
+            auto maneuvers = d.split(", ");
+            for (const auto& m: maneuvers) {
+                int size = man->rowCount();
+                int row;
+                for (row = 15; row < size; ++row) {
+                    const auto* cell = man->item(row, 0);
+                    if (cell->text() == m) break;
+                }
+                if (row != size) continue;
+                setCell(man, row, 0, m, font);
+                for (int i = 0; i < 4; i++)  setCell(man, row, i + 1, table[m][i], font);
+            }
+        }
+    }
+    man->resizeRowsToContents();
+    for (int i = 1; i < man->columnCount(); ++i) man->resizeColumnToContents(i - 1);
 }
 
 void Sheet::setCVs(_CharacteristicDef& def, QLabel* set) {
@@ -532,6 +615,17 @@ void Sheet::updateComplications() {
     Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
 }
 
+void Sheet::updateSkillRolls() {
+    QFont font = Ui->skillstalentsandperks->font();
+    int row = 0;
+    for (const auto& stp: _character.skillsTalentsOrPerks()) {
+        stp->points(Complication::NoStore);
+        setCell(Ui->skillstalentsandperks, row, 2, stp->roll(), font);
+        ++row;
+    }
+    Ui->skillstalentsandperks->resizeRowsToContents();
+}
+
 void Sheet::updateSkillsTalentsAndPerks(){
     Ui->skillstalentsandperks->setRowCount(0);
     Ui->skillstalentsandperks->update();
@@ -579,6 +673,9 @@ void Sheet::updateDisplay() {
     updateComplications();
     updatePowersAndEquipment();
     updateSkillsTalentsAndPerks();
+    rebuildCombatSkillLevels();
+    rebuildMartialArts();
+
     updateTotals();
 }
 
@@ -751,6 +848,12 @@ void Sheet::deleteSkillstalentsandperks() {
     int row = selection[0]->row();
     SkillTalentOrPerk* skilltalentorperk = _character.skillsTalentsOrPerks().takeAt(row);
     _skillsTalentsOrPerksPoints -= skilltalentorperk->points(Complication::NoStore);
+
+    if (skilltalentorperk->name() == "Combat Skill Levels" ||
+        skilltalentorperk->name() == "Range Skill Levels" ||
+        skilltalentorperk->name() == "Skill Levels") rebuildCombatSkillLevels();
+    if (skilltalentorperk->name() == "Martial Arts") rebuildMartialArts();
+
     Ui->skillstalentsandperks->removeRow(row);
     Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));
     updateTotals();
@@ -798,6 +901,10 @@ void Sheet::editSkillstalentsandperks() {
     setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(skilltalentorperk->points()), font);
     setCell(Ui->skillstalentsandperks, row, 1, skilltalentorperk->description(),               font, WordWrap);
     setCell(Ui->skillstalentsandperks, row, 2, skilltalentorperk->roll(),                      font);
+
+    if (skilltalentorperk->name() == "Combat Skill Levels" ||
+        skilltalentorperk->name() == "Skill Levels") rebuildCombatSkillLevels();
+    if (skilltalentorperk->name() == "Martial Arts") rebuildMartialArts();
 
     Ui->skillstalentsandperks->resizeRowsToContents();
     _skillsTalentsOrPerksPoints += skilltalentorperk->points() - old;
@@ -939,6 +1046,9 @@ void Sheet::newSkillTalentOrPerk() {
     setCell(Ui->skillstalentsandperks, row, 1, skilltalentorperk->description(), font, WordWrap);
     setCell(Ui->skillstalentsandperks, row, 2, skilltalentorperk->roll(), font);
     Ui->skillstalentsandperks->resizeRowsToContents();
+    if (skilltalentorperk->name() == "Combat Skill Levels" ||
+        skilltalentorperk->name() == "Skill Levels") rebuildCombatSkillLevels();
+    if (skilltalentorperk->name() == "Martial Arts") rebuildMartialArts();
 
     _skillsTalentsOrPerksPoints += skilltalentorperk->points();
     Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));
@@ -1017,6 +1127,10 @@ void Sheet::pasteSkillTalentOrPerk() {
     setCell(Ui->skillstalentsandperks, row, 1, stp->description(), font, WordWrap);
     setCell(Ui->skillstalentsandperks, row, 2, stp->roll(), font);
     Ui->skillstalentsandperks->resizeRowsToContents();
+
+    if (stp->name() == "Combat Skill Levels" ||
+        stp->name() == "Skill Levels") rebuildCombatSkillLevels();
+    if (stp->name() == "Martial Arts") rebuildMartialArts();
 
     _skillsTalentsOrPerksPoints += stp->points(Complication::NoStore);
     Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));

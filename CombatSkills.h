@@ -29,6 +29,7 @@ public:
 
     QString description(bool showRoll = false) override { return showRoll ? v._name : v._name; }
     void form(QWidget*, QVBoxLayout*) override          { throw "No options, immediately accept"; }
+    QString name()                                      { return v._name; }
     int points(bool noStore = false) override           { if (!noStore) store(); return 10; }
     void restore() override                             { }
     QString roll() override                             { return ""; }
@@ -356,7 +357,7 @@ public:
                                                                   v._extradamageclass = extradamageclass->text().toInt(0);
                                                                   v._weaponelements = weaponelements->text().toInt(0);
                                                                   v._weapons = weapons->text();
- }
+                                                                }
     QJsonObject toJson() override                               { QJsonObject obj = CombatSkills::toJson();
                                                                   obj["choke hold"]           = v._chokehold;
                                                                   obj["defensive strike"]     = v._defensivestrike;

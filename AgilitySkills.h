@@ -29,12 +29,13 @@ public:
         return *this;
     }
 
-    QString description(bool showRoll = false) override      { return v._name + " (" + (showRoll ? roll() : "+" + QString("%1").arg(v._plus)) + ")"; }
-    void form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric)); }
-    int points(bool noStore = false) override                { if (!noStore) store(); return 3 + v._plus * 2; }
-    void restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s; }
-    QString roll() override                                  { return add(Sheet::ref().character().DEX().roll(), v._plus); }
-    void    store() override                                 { v._plus = plus->text().toInt(0); }
+    QString description(bool showRoll = false) override         { return v._name + " (" + (showRoll ? roll() : "+" + QString("%1").arg(v._plus)) + ")"; }
+    void    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric)); }
+    QString name() override                                     { return v._name; }
+    int     points(bool noStore = false) override               { if (!noStore) store(); return 3 + v._plus * 2; }
+    void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s; }
+    QString roll() override                                     { return add(Sheet::ref().character().DEX().roll(), v._plus); }
+    void    store() override                                    { v._plus = plus->text().toInt(0); }
 
     QJsonObject toJson() override {
         QJsonObject obj;

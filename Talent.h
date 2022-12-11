@@ -30,9 +30,10 @@ public:
     }
 
     QString description(bool showRoll = false) override { return v._name + (showRoll ? "" : ""); }
-    void form(QWidget*, QVBoxLayout*) override          { throw "No options, immediately accept"; }
-    int points(bool noStore = false) override           { if (!noStore) store(); return 0; }
-    void restore() override                             { }
+    void    form(QWidget*, QVBoxLayout*) override       { throw "No options, immediately accept"; }
+    QString name()                                      { return v._name; }
+    int     points(bool noStore = false) override       { if (!noStore) store(); return 0; }
+    void    restore() override                          { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
 
@@ -327,7 +328,7 @@ private:
 
     QString optOut() {
         if (_dtct < 0 || _area < 0 || (_pen && _thrgh.isEmpty()) || (_intuit && (_dtct > 1 || _area > 1))) return "<incomplete>";
-        QString res = "Danger Sense○";
+        QString res = "Danger Senseϴ";
         if (_plus > 0) res += ": +" + QString("%1").arg(_plus);
         QString sep = " (";
         if (_sense) { res += sep + "Sense"; sep = "; "; }
@@ -814,7 +815,7 @@ private:
     QLineEdit* plus;
 
     QString optOut() {
-        QString res = "Universal Translator○";
+        QString res = "Universal Translatorϴ";
         if (v._plus > 0) res += QString(": +%1 to INT roll").arg(v._plus);
         return res;
     }
