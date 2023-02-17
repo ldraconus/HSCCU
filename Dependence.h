@@ -36,20 +36,20 @@ public:
         static QList<QString> rarity { "Very Common/Easy To Obtain",
                                        "Common/Difficult To Obtain",
                                        "Uncommon/Extremely Difficult To Obtain" };
-        static QList<QString> damage { "1d6", "2d6", "3d6" };
-        static QList<QString> roll { "Powers aquire a 14- Required Roll",
+        static QList<QString> damage { "", "1d6", "2d6", "3d6" };
+        static QList<QString> roll { "", "Powers aquire a 14- Required Roll",
                                      "Powers aquire a 11- Required Roll" };
-        static QList<QString> time { "Segment", "Phase", "Turn", "Minute", "5 Minutes", "20 Minutes",
+        static QList<QString> time { "", "Segment", "Phase", "Turn", "Minute", "5 Minutes", "20 Minutes",
                                      "1 Hour", "6 Hours", "Day", "Week", "Month", "Season",
                                      "Year", "5 Years" };
-        if (v._addiction && v._damage < 0 && !v._competence && !v._weakness) return "<incomplete>";
-        if (v._rarity < 0 || (v._damage < 0 && v._roll < 0 && !v._competence && !v._weakness) || (!v._addiction && v._timeStep < 0)) return "<incomplete>";
+        if (v._addiction && v._damage < 1 && !v._competence && !v._weakness) return "<incomplete>";
+        if (v._rarity < 0 || (v._damage < 1 && v._roll < 1 && !v._competence && !v._weakness) || (!v._addiction && v._timeStep < 1)) return "<incomplete>";
         QString result;
         if (v._addiction) result = QString("Addiction: %1 (%2").arg(v._what, rarity[v._rarity]);
         else result = QString("Dependence: %1 (%2").arg(v._what, rarity[v._rarity]);
-        if (v._damage >= 0) result += "; " + damage[v._damage] + " damage";
-        if (v._timeStep >= 0 && !v._addiction) result += QString("%1 every ").arg(v._damage >= 0 ? "" : ";") + time[v._timeStep];
-        if (v._roll >= 0) result += "; " + roll[v._roll];
+        if (v._damage >= 1) result += "; " + damage[v._damage] + " damage";
+        if (v._timeStep >= 1 && !v._addiction) result += QString("%1 every ").arg(v._damage >= 1 ? "" : ";") + time[v._timeStep];
+        if (v._roll >= 1) result += "; " + roll[v._roll];
         if (v._competence) result += QString("; ") + "-1 to Skill Rolls and related rolls per time increment";
         if (v._weakness) result += QString("; ") + "-3 to all Characteristics per time increment";
         return result + ") ";
@@ -59,20 +59,21 @@ public:
         rarity     = createComboBox(parent, layout, "How rare/dificult to get is it?", { "Very Common/Easy To Obtain",
                                                                                          "Common/Difficult To Obtain",
                                                                                          "Uncommon/Extremely Difficult To Obtain" });
-        damage     = createComboBox(parent, layout, "How much damage?", { "1d6", "2d6", "3d6" });
-        roll       = createComboBox(parent, layout, "Required Roll?",   { "Powers aquire a 14- Required Roll",
+        damage     = createComboBox(parent, layout, "How much damage?", { "No Damage", "1d6", "2d6", "3d6" });
+        roll       = createComboBox(parent, layout, "Required Roll?",   { "No Roll",
+                                                                          "Powers aquire a 14- Required Roll",
                                                                           "Powers aquire a 11- Required Roll" });
         competence = createCheckBox(parent, layout, "Incomptence: -1 to Skill Rolls and related rolls per time increment");
         weakness   = createCheckBox(parent, layout, "Weakness: -3 to all Characteristics per time increment");
-        timeStep   = createComboBox(parent, layout, "Time between penalties", { "Segment", "Phase", "Turn", "1 Minute", "5 Minutes", "20 Minutes",
+        timeStep   = createComboBox(parent, layout, "Time between penalties", { "No Time", "Segment", "Phase", "Turn", "1 Minute", "5 Minutes", "20 Minutes",
                                                                                 "1 Hour", "6 Hours", "1 Day", "1 Week", "1 Month", "1 Season",
                                                                                 "1 Year", "5 Years" });
         addiction  = createCheckBox(parent, layout, "Addiction", std::mem_fn(&Complication::checked));
     }
-    int points(bool noStore = false) override {
+    Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._rarity + 1) * 5 + (v._damage + 1) * 5 + (v._roll + 1) * 5 + (v._competence ? 5 : 0) + (v._weakness ? 5 : 0) +
-               (v._addiction ? 5 : (25 - 5 * v._timeStep));
+        return v._rarity * 5_cp + v._damage * 5_cp + v._roll * 5_cp + (v._competence ? 5_cp : 0_cp) + (v._weakness ? 5_cp : 0_cp) +
+               (v._addiction ? 5_cp : (30_cp - 5_cp * v._timeStep));
     }
     void restore() override {
         vars s = v;

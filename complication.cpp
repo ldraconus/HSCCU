@@ -127,45 +127,45 @@ QList<QString> Complication::Available() {
              "Vulnerability" };
 }
 
-Complication* Complication::ByIndex(int idx) {
+shared_ptr<Complication> Complication::ByIndex(int idx) {
     switch (idx) {
-    case 0:  return new AccidentalChange;
-    case 1:  return new Dependence;
-    case 2:  return new Dependent;
-    case 3:  return new DistinctiveFeature;
-    case 4:  return new Enraged;
-    case 5:  return new Hunted;
-    case 6:  return new Money;
-    case 7:  return new NegativeReputation;
-    case 8:  return new PhysicalComplication;
-    case 9:  return new PsychologicalComplication;
-    case 10: return new Rivalry;
-    case 11: return new SocialComplication;
-    case 12: return new Susceptibility;
-    case 13: return new Unluck;
-    case 14: return new Vulnerability;
+    case 0:  return make_shared<AccidentalChange>();
+    case 1:  return make_shared<Dependence>();
+    case 2:  return make_shared<Dependent>();
+    case 3:  return make_shared<DistinctiveFeature>();
+    case 4:  return make_shared<Enraged>();
+    case 5:  return make_shared<Hunted>();
+    case 6:  return make_shared<MoneyComp>();
+    case 7:  return make_shared<NegativeReputation>();
+    case 8:  return make_shared<PhysicalComplication>();
+    case 9:  return make_shared<PsychologicalComplication>();
+    case 10: return make_shared<Rivalry>();
+    case 11: return make_shared<SocialComplication>();
+    case 12: return make_shared<Susceptibility>();
+    case 13: return make_shared<Unluck>();
+    case 14: return make_shared<Vulnerability>();
     default: return nullptr;
     }
 }
 
-Complication* Complication::FromJson(QString name, const QJsonObject& json) {
+shared_ptr<Complication> Complication::FromJson(QString name, const QJsonObject& json) {
     auto complications = Available();
     switch (complications.indexOf(name)) {
-    case 0:  return new AccidentalChange(json);
-    case 1:  return new Dependence(json);
-    case 2:  return new Dependent(json);
-    case 3:  return new DistinctiveFeature(json);
-    case 4:  return new Enraged(json);
-    case 5:  return new Hunted(json);
-    case 6:  return new Money(json);
-    case 7:  return new NegativeReputation(json);
-    case 8:  return new PhysicalComplication(json);
-    case 9:  return new PsychologicalComplication(json);
-    case 10: return new Rivalry(json);
-    case 11: return new SocialComplication(json);
-    case 12: return new Susceptibility(json);
-    case 13: return new Unluck(json);
-    case 14: return new Vulnerability(json);
+    case 0:  return make_shared<AccidentalChange>(json);
+    case 1:  return make_shared<Dependence>(json);
+    case 2:  return make_shared<Dependent>(json);
+    case 3:  return make_shared<DistinctiveFeature>(json);
+    case 4:  return make_shared<Enraged>(json);
+    case 5:  return make_shared<Hunted>(json);
+    case 6:  return make_shared<MoneyComp>(json);
+    case 7:  return make_shared<NegativeReputation>(json);
+    case 8:  return make_shared<PhysicalComplication>(json);
+    case 9:  return make_shared<PsychologicalComplication>(json);
+    case 10: return make_shared<Rivalry>(json);
+    case 11: return make_shared<SocialComplication>(json);
+    case 12: return make_shared<Susceptibility>(json);
+    case 13: return make_shared<Unluck>(json);
+    case 14: return make_shared<Vulnerability>(json);
     default: return nullptr;
     }
 }

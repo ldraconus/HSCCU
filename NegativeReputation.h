@@ -28,7 +28,7 @@ public:
 
     QString description() override {
         static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
-        if (v._frequency == -1 || v._what.isEmpty()) return "<incomplete>";
+        if (v._frequency < 0 || v._what.isEmpty()) return "<incomplete>";
         return QString("Negative Reputation: %1 (%2%3%4)").arg(v._what, freq[v._frequency], v._extreme ? "; Extreme" : "", v._limited ? "; Limited Group" : "");
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
@@ -37,9 +37,9 @@ public:
         extreme   = createCheckBox(parent, layout, "Extreme Reputation");
         limited   = createCheckBox(parent, layout, "Known only to a limited group");
     }
-    int points(bool noStore = false) override {
+    Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._extreme ? 5 : 0) + (v._frequency + 1) * 5 - (v._limited ? 5 : 0);
+        return (v._extreme ? 5_cp : 0_cp) + (v._frequency + 1) * 5_cp - (v._limited ? 5_cp : 0_cp);
     }
     void restore() override {
         vars s = v;

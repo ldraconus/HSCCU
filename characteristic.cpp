@@ -1,6 +1,7 @@
 #include "characteristic.h"
 
 Characteristic::Characteristic(const QJsonObject& c)
+    : _cost(this->cost())
 {
     if (c.find("base")      == c.end() ||
         c.find("primary")   == c.end() ||
@@ -30,7 +31,7 @@ Characteristic& Characteristic::operator=(Characteristic&& c) {
 int Characteristic::points() {
     int half = _per / 2;
     if (_per % 2 == 0) half--;
-    return (_primary + ((_base - _init)) * _cost + half) / _per;
+    return ((_base - _init) * _cost.points + half) / _per;
 }
 
 

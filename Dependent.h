@@ -36,12 +36,12 @@ public:
     QString description() override {
         static QList<QString> comp { "Incompetent", "Normal", "Slightly Less Powerful Then The PC", "As Powerful As The PC" };
         static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
-        if (v._frequency == -1 || v._competence == -1 || v._who.isEmpty()) return "<incomplete>";
+        if (v._frequency < 0 || v._competence < 0 || v._who.isEmpty()) return "<incomplete>";
         QString result = "Dependent NPC: " + v._who + " (" + freq[v._frequency];
         if (v._competence != -1) result += "; " + comp[v._competence];
         if (v._unaware) result += "; DNPC is unaware of character's adventuring";
         if (v._useful) result += "; DNPC has useful noncombat position or skills";
-        if (v._multiples > 0) result += QString("; %1x people").arg(std::pow(2, v._multiples));
+        if (v._multiples > 0) result += QString("; %1 people").arg(std::pow(2, v._multiples));
         return result + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
@@ -51,11 +51,12 @@ public:
         useful     = createCheckBox(parent, layout, "DNPC has useful noncombat position or skills");
         frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
         unaware    = createCheckBox(parent, layout, "DNPC is unaware of character's adventuring");
-        multiples  = createLineEdit(parent, layout, "How many multiples of 2?", std::mem_fn(&Complication::numeric));
+        multiples  = createLineEdit(parent, layout, "How many multiples dependants?", std::mem_fn(&Complication::numeric));
     }
-    int points(bool noStore = false) override {
+    Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return 10 - v._competence * 5 + (v._useful ? 5 : 0) + 5 * (v._frequency + 1) + (v._unaware ? 5 : 0) + v._multiples * 5;
+        int mult = (int) (log((double) v._multiples) / log(2.0));
+        return 10_cp - v._competence * 5_cp + (v._useful ? 5_cp : 0_cp) + 5_cp * (v._frequency + 1) + (v._unaware ? 5_cp : 0_cp) + mult * 5_cp;
     }
     void restore() override {
         vars s = v;

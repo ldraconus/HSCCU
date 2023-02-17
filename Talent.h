@@ -29,10 +29,12 @@ public:
         return *this;
     }
 
+    bool isTalent() override { return true; }
+
     QString description(bool showRoll = false) override { return v._name + (showRoll ? "" : ""); }
     void    form(QWidget*, QVBoxLayout*) override       { throw "No options, immediately accept"; }
-    QString name()                                      { return v._name; }
-    int     points(bool noStore = false) override       { if (!noStore) store(); return 0; }
+    QString name() override                             { return v._name; }
+    Points<> points(bool noStore = false) override      { if (!noStore) store(); return 0_cp; }
     void    restore() override                          { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
@@ -56,7 +58,7 @@ private:
         x(const x& s): Talent(s) { }\
         x(x&& s): Talent(s) { }\
         x(const QJsonObject& json): Talent(json) { }\
-        int points(bool noStore = false) { if (!noStore) store(); return y; }\
+        Points<> points(bool noStore = false) { if (!noStore) store(); return y; }\
     };
 #define CLASS_SPACE(x,y,z)\
     class x: public Talent {\
@@ -65,7 +67,7 @@ private:
         x(const x& s): Talent(s) { }\
         x(x&& s): Talent(s) { }\
         x(const QJsonObject& json): Talent(json) { }\
-        int points(bool noStore = false) { if (!noStore) store(); return z; }\
+        Points<> points(bool noStore = false) { if (!noStore) store(); return z; }\
     };
 
 class Ambidexterity: public Talent {
@@ -79,8 +81,8 @@ public:
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { offhand = createLineEdit(parent, layout, "Offhand penalties offset", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._offhand; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return Points<>(v._offhand); }
     void    restore() override                                  { vars s = v;
                                                                   QString msg = QString("%1").arg(s._offhand);
                                                                   offhand->setText(msg);
@@ -123,8 +125,8 @@ public:
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { levels = createLineEdit(parent, layout, "Levels of Combat Luck?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return 6 * v._levels; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return 6_cp * v._levels; }
     void    restore() override                                  { vars s = v;
                                                                   QString msg = QString("%1").arg(s._levels);
                                                                   levels->setText(msg);
@@ -169,8 +171,8 @@ public:
     void    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus to toll?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   sense = createCheckBox(parent, layout, "Make a sense");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return 15 + v._plus + (v._sense ? 2 : 0); }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return 15_cp + v._plus + (v._sense ? 2_cp : 0_cp); }
     void    restore() override                                  { vars s = v;
                                                                   QString msg = QString("%1").arg(v._plus);
                                                                   int sns = v._sense;
@@ -241,18 +243,18 @@ public:
                                                                   area   = createComboBox(parent, layout, "Area?", { "The character",
                                                                                                                      "Anyone in immediate area",
                                                                                                                      "Anyone in general area",
-                                                                                                                     "Anyone on any area" });
+                                                                                                                     "Anyone in any area" });
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return 15 +
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return 15_cp +
                                                                          _plus +
-                                                                         (_sense ? 2 : 0) -
-                                                                         (_intuit ? 5 : 0) +
-                                                                         (_anlze ? 5 : 0) +
-                                                                         (_descr ? 5 : 0) +
-                                                                         (_pen ? 5 : 0) +
-                                                                         _dtct * 5 +
-                                                                         _area * 5;
+                                                                         (_sense ? 2_cp : 0_cp) -
+                                                                         (_intuit ? 5_cp : 0_cp) +
+                                                                         (_anlze ? 5_cp : 0_cp) +
+                                                                         (_descr ? 5_cp : 0_cp) +
+                                                                         (_pen ? 5_cp : 0_cp) +
+                                                                         (_dtct - 1) * 5_cp +
+                                                                         (_area - 1) * 5_cp;
                                                                 }
     void    restore() override                                  { bool    sns = _sense;
                                                                   bool    ntt = _intuit;
@@ -337,7 +339,7 @@ private:
         if (_descr) { res += sep + "Discriminate"; sep = "; "; }
         if (_pen) { res += sep + "Pentrates " + _thrgh; sep = "; "; }
         res += sep += QStringList{ "In Combat, perceivable", "In or out of combat, perceivable", "Any" }[_dtct];
-        res += "; " + QStringList{ "Personalr", "Anyone in immediate area", "Anyone in general area", "Anyone on any area" }[_area];
+        res += "; " + QStringList{ "Personal", "Anyone in immediate area", "Anyone in general area", "Anyone in any area" }[_area];
         return res + ")";
     }
 
@@ -356,8 +358,8 @@ private:
     }
 
     void checked(bool tf) override {
-        rebuild(dtct, tf ? 2 : 3, { "In Combat, perceivable", "In or out of combat, perceivable", "Any" });
-        rebuild(area, tf ? 2 : 4, { "Personalr", "Anyone in immediate area", "Anyone in general area", "Anyone on any area" });
+        rebuild(dtct, tf ? 2 : 3, { "", "In Combat, perceivable", "In or out of combat, perceivable", "Any" });
+        rebuild(area, tf ? 2 : 4, { "", "The character", "Anyone in immediate area", "Anyone in general area", "Anyone in any area" });
     }
 };
 
@@ -380,8 +382,9 @@ public:
                                                                   ranged = createCheckBox(parent, layout, "Ranged");
                                                                   versus = createLineEdit(parent, layout, "Against?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return QList<int>{ 0, 12, 16, 19}[v._circ + 1] * v._mult; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points<>> circ { 0_cp, 12_cp, 16_cp, 19_cp };
+                                                                  return circ[v._circ + 1] * v._mult; }
     void    restore() override                                  { vars s = v;
                                                                   mult->setText(QString("%1").arg(s._mult));
                                                                   circ->setCurrentIndex(s._circ);
@@ -417,7 +420,7 @@ private:
     QLineEdit* versus;
 
     QString optOut() {
-        if (v._mult < 1 || v._circ == -1 || v._versus.isEmpty()) return "<incomplete>";
+        if (v._mult < 1 || v._circ < 0 || v._versus.isEmpty()) return "<incomplete>";
         QString res = "Deadly Blow▲";
         res += ": +" + QString("%1 DCs").arg(v._mult * 3) + " against " + v._versus + " (" +
                QStringList { "Very limited circumstances or group",
@@ -444,11 +447,12 @@ public:
                                                          }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { size  = createComboBox(parent, layout, "How many senses?", { "All", "Two", "Ome" });
+    void    form(QWidget* parent, QVBoxLayout* layout) override { size  = createComboBox(parent, layout, "How many senses?", { "All", "Two", "One" });
                                                                   sense = createLineEdit(parent, layout, "Sense?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return QList<int>{ 0, 5, 3, 2}[v._size + 1]; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points<>> size { 0_cp, 5_cp, 3_cp, 2_cp };
+                                                                  return size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   sense->setText(s._sense);
                                                                   size->setCurrentIndex(s._size);
@@ -474,7 +478,7 @@ private:
     QComboBox* size;
 
     QString optOut() {
-        if (v._size > 1 && v._sense.isEmpty()) return "<incomplete>";
+        if (v._size >= 2 && v._sense.isEmpty()) return "<incomplete>";
         QString res = "Eidetic Memory";
         if (v._size > 0) res += " with " + v._sense;
         return res;
@@ -494,8 +498,8 @@ public:
     void    form(QWidget* parent, QVBoxLayout* layout) override { plus   = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   versus = createLineEdit(parent, layout, "Environment?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * 2; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return v._plus * 2_cp; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
                                                                   versus->setText(s._versus);
@@ -554,8 +558,8 @@ public:
                                                                                                                      "Act first with a Single Action" });
                                                                   with  = createLineEdit(parent, layout, "Environment?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * 2; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return v._plus * 2_cp; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
                                                                   level->setCurrentIndex(s._level);
@@ -586,7 +590,7 @@ private:
     QLineEdit* with;
 
     QString optOut() {
-        if (v._plus < 1 || v._level == -1 || (v._level > 2 && v._with.isEmpty())) return "<incomplete>";
+        if (v._plus < 1 || v._level < 0 || (v._level > 3 && v._with.isEmpty())) return "<incomplete>";
         QString res = "Lightning Reflexes▲: ";
         res += QString("%1 DEX").arg(v._plus)  + " to " + QStringList{ "Act first with All Actions",
                 "Act first with All HTH Attacks",
@@ -594,7 +598,7 @@ private:
                 "Act first with a Large Group of Actions",
                 "Act first with a Small Group of Actions",
                 "Act first with a Single Action"}[v._level];
-        if (v._level > 2) res += " with " + v._with;
+        if (v._level > 3) res += " with " + v._with;
         return res;
     }
 
@@ -616,8 +620,8 @@ public:
     QString description(bool showRoll = false) override         { return (showRoll ? add(Sheet::ref().character().EGO().roll(), v._plus) + " " : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return Points<>(v._plus); }
     void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
                                                                 }
     QString roll() override                                     { return ""; }
@@ -660,8 +664,8 @@ public:
     QString description(bool showRoll = false) override         { return (showRoll ? add(Sheet::ref().character().EGO().roll(), v._plus) + " " : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * 3; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return v._plus * 3_cp; }
     void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
                                                                 }
     QString roll() override                                     { return ""; }
@@ -704,8 +708,8 @@ public:
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { mult = createLineEdit(parent, layout, "x10?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return 4 + (v._mult - 1) * 2; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return 4_cp + (v._mult - 1) * 2_cp; }
     void    restore() override                                  { vars s = v; mult->setText(QString("%1").arg(s._mult)); v = s;
                                                                 }
     QString roll() override                                     { return ""; }
@@ -750,8 +754,8 @@ public:
     void    form(QWidget* parent, QVBoxLayout* layout) override { limit = createCheckBox(parent, layout, "Specific group");
                                                                   who  = createLineEdit(parent, layout, "Who is affected?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._limit ? 2 : 3; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return v._limit ? 2_cp : 3_cp; }
     void    restore() override                                  { vars s = v;
                                                                   limit->setChecked(s._limit);
                                                                   who->setText(s._who);
@@ -795,8 +799,8 @@ public:
     QString description(bool showRoll = false) override         { return (showRoll ? add(Sheet::ref().character().INT().roll(), v._plus) + " " : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return 20 + v._plus; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return 20_cp + v._plus; }
     void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
                                                                 }
     QString roll() override                                     { return ""; }
@@ -848,8 +852,9 @@ public:
                                                                   killing = createCheckBox(parent, layout, "Kllling");
                                                                   with    = createLineEdit(parent, layout, "With?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return QList<int>{ 0, 12, 16, 19}[v._wpns + 1] * v._mult; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points<>> wpns { 0_cp, 12_cp, 16_cp, 19_cp };
+                                                                  return wpns[v._wpns + 1] * v._mult; }
     void    restore() override                                  { vars s = v;
                                                                   mult->setText(QString("%1").arg(s._mult));
                                                                   wpns->setCurrentIndex(s._wpns);
@@ -890,7 +895,7 @@ private:
     QLineEdit* with;
 
     QString optOut() {
-        if (v._mult < 1 || v._wpns == -1 || v._with.isEmpty()) return "<incomplete>";
+        if (v._mult < 1 || v._wpns < 0 || v._with.isEmpty()) return "<incomplete>";
         QString res = "Weaponmaster▲";
         res += ": +" + QString("%1 DCs").arg(v._mult * 3) + " with " + v._with + " (" +
                QStringList { "Very limited group of weapons",
@@ -908,15 +913,15 @@ private:
     }
 };
 
-CLASS_SPACE(AbsoluteRangeSense,  "Absolute Range Sense", 3);
-CLASS_SPACE(AbsoluteTimeSense,   "Absolute Time Sense",  3);
-CLASS_SPACE(AnimalFriendship,    "Animal Friendship",    20);
-CLASS_SPACE(BumpOfDirection,     "Bump Of Direction",    3);
-CLASS_SPACE(DoubleJointed,       "Double Jointed",       4);
-CLASS_SPACE(LightningCalculator, "Lightning Calculator", 3);
-CLASS      (Lightsleep,                                  3);
-CLASS_SPACE(OffHandDefense,      "Off-Hand Defense",     2);
-CLASS_SPACE(PerfectPitch,        "Perfect Pitch",        3);
+CLASS_SPACE(AbsoluteRangeSense,  "Absolute Range Sense", 3_cp);
+CLASS_SPACE(AbsoluteTimeSense,   "Absolute Time Sense",  3_cp);
+CLASS_SPACE(AnimalFriendship,    "Animal Friendship",    20_cp);
+CLASS_SPACE(BumpOfDirection,     "Bump Of Direction",    3_cp);
+CLASS_SPACE(DoubleJointed,       "Double Jointed",       4_cp);
+CLASS_SPACE(LightningCalculator, "Lightning Calculator", 3_cp);
+CLASS      (Lightsleep,                                  3_cp);
+CLASS_SPACE(OffHandDefense,      "Off-Hand Defense",     2_cp);
+CLASS_SPACE(PerfectPitch,        "Perfect Pitch",        3_cp);
 
 #undef CLASS
 #undef CLASS_SPACE

@@ -1,8 +1,8 @@
-QT       += core gui
+QT       += core gui printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++17
+CONFIG += c++20
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -20,6 +20,7 @@ SOURCES += \
     option.cpp \
     powerdialog.cpp \
     powers.cpp \
+    printwindow.cpp \
     sheet.cpp \
     skilldialog.cpp \
     skilltalentorperk.cpp
@@ -28,23 +29,35 @@ HEADERS += \
     AccidentalChange.h \
     AdjustmentPowers.h \
     AgilitySkills.h \
+    AttackPowers.h \
+    AutomatonPowers.h \
     BackgroundSkills.h \
+    BodyAffectingPowers.h \
     CombatSkills.h \
+    DefensePowers.h \
     Dependence.h \
     Dependent.h \
     DistinctiveFeature.h \
     Enraged.h \
+    FrameworkPowers.h \
     Hunted.h \
     IntellectSkills.h \
     InteractionSkills.h \
+    MentalPowers.h \
     MiscSkill.h \
     Money.h \
+    MovementPowers.h \
     NegativeReputation.h \
     Perk.h \
     PhysicalComplication.h \
     PsychologicalComplication.h \
     Rivalry.h \
+    SenseAffectingPowers.h \
+    SensoryPowers.h \
+    SkillEnhancers.h \
     SocialComplication.h \
+    SpecialPowers.h \
+    StandardPowers.h \
     Susceptibility.h \
     Talent.h \
     Unluck.h \
@@ -59,6 +72,8 @@ HEADERS += \
     option.h \
     powerdialog.h \
     powers.h \
+    printwindow.h \
+    shared.h \
     sheet.h \
     sheet_ui.h \
     skilldialog.h \
@@ -68,6 +83,7 @@ FORMS += \
     complicationsdialog.ui \
     modifiersdialog.ui \
     powerdialog.ui \
+    printwindow.ui \
     sheet.ui \
     skilldialog.ui
 
@@ -78,3 +94,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     res.qrc
+
+DISTFILES += \
+    TODO

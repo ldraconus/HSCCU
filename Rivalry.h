@@ -27,10 +27,10 @@ public:
     }
 
     QString description() override {
-        static QList<QString> natr { "Professional", "Romantic", "Professional and Romantic" };
-        static QList<QString> powr { "Less Powerful", "As Powerful", "More Powerful", "Significatly More Powerful" };
-        static QList<QString> intn { "Outdo, Embaraass, or Humiliate", "Maim, or Kill" };
-        if (v._nature == -1 || v._power == -1 || v._intensity == -1 || v._who.isEmpty()) return "<incomplete>";
+        static QList<QString> natr { "", "Professional", "Romantic", "Professional and Romantic" };
+        static QList<QString> powr { "", "Less Powerful", "As Powerful", "More Powerful", "Significatly More Powerful" };
+        static QList<QString> intn { "", "Outdo, Embaraass, or Humiliate", "Maim, or Kill" };
+        if (v._nature < 1 || v._power < 1 || v._intensity < 1 || v._who.isEmpty()) return "<incomplete>";
         QString result = QString("Rivalry: %1 (%2; %3; %4").arg(v._who, natr[v._nature], powr[v._power], intn[v._intensity]);
         if (v._unaware) result += "; Unaware";
         if (v._pc) result += "; is a PC";
@@ -38,15 +38,15 @@ public:
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         who       = createLineEdit(parent, layout, "Who is the rival?");
-        nature    = createComboBox(parent, layout, "Nature of the Rivalry", { "Professional", "Romantic", "Professional and Romantic" });
+        nature    = createComboBox(parent, layout, "Nature of the Rivalry", { "", "Professional", "Romantic", "Professional and Romantic" });
         unaware   = createCheckBox(parent, layout, "Rival is Unaware of Rivalry");
         pc        = createCheckBox(parent, layout, "Rival is a PC");
-        power     = createComboBox(parent, layout, "Power of the Rival", { "Less Powerful", "As Powerful", "More Powerful", "Significatly More Powerful" });
-        intensity = createComboBox(parent, layout, "Intesity of Rivalry", { "Outdo, Embaraass, or Humiliate", "Maim, or Kill" });
+        power     = createComboBox(parent, layout, "Power of the Rival", { "", "Less Powerful", "As Powerful", "More Powerful", "Significatly More Powerful" });
+        intensity = createComboBox(parent, layout, "Intesity of Rivalry", { "", "Outdo, Embaraass, or Humiliate", "Maim, or Kill" });
     }
-    int points(bool noStore = false) override {
+    Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return v._intensity * 5 + ((v._nature < 2) ? 5 : 10) + (v._unaware ? 5 : 0) + (v._pc ? 5 : 0) + (v._power * 5 - 5) + v._intensity * 5;
+        return v._intensity * 5_cp + ((v._nature < 3) ? 5_cp : 10_cp) + (v._unaware ? 5_cp : 0_cp) + (v._pc ? 5_cp : 0_cp) + v._power * 5_cp + (v._intensity - 1) * 5_cp;
     }
     void restore() override {
         vars s = v;

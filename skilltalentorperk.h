@@ -1,6 +1,8 @@
 ﻿#ifndef SKILLTALENTORPERK_H
 #define SKILLTALENTORPERK_H
 
+#include "shared.h"
+
 #include <functional>
 
 #include <QCheckBox>
@@ -49,8 +51,8 @@ public:
         skillBase(const skillBase&) { }
         skillBase(skillBase*) { }
 
-        virtual SkillTalentOrPerk* create()                        = 0;
-        virtual SkillTalentOrPerk* create(const QJsonObject& json) = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
     };
 
     template <typename T>
@@ -60,8 +62,8 @@ public:
         skill(const skill& b): skillBase(b) { }
         skill(skill* b): skillBase(b) { }
 
-        SkillTalentOrPerk* create() override                        { return new T; }
-        SkillTalentOrPerk* create(const QJsonObject& json) override { return new T(json); }
+        shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
+        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
     };
 
     class perkBase {
@@ -70,8 +72,8 @@ public:
         perkBase(const perkBase&) { }
         perkBase(perkBase*) { }
 
-        virtual SkillTalentOrPerk* create()                        = 0;
-        virtual SkillTalentOrPerk* create(const QJsonObject& json) = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
     };
 
     template <typename T>
@@ -81,8 +83,8 @@ public:
         perk(const perk& b): perkBase(b) { }
         perk(perk* b): perkBase(b) { }
 
-        SkillTalentOrPerk* create() override                        { return new T; }
-        SkillTalentOrPerk* create(const QJsonObject& json) override { return new T(json); }
+        shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
+        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
     };
 
     class talentBase {
@@ -91,8 +93,8 @@ public:
         talentBase(const talentBase&) { }
         talentBase(talentBase*) { }
 
-        virtual SkillTalentOrPerk* create()                        = 0;
-        virtual SkillTalentOrPerk* create(const QJsonObject& json) = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
     };
 
     template <typename T>
@@ -102,8 +104,29 @@ public:
         talent(const talent& b): talentBase(b) { }
         talent(talentBase* b): talentBase(b) { }
 
-        SkillTalentOrPerk* create() override                        { return new T; }
-        SkillTalentOrPerk* create(const QJsonObject& json) override { return new T(json); }
+        shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
+        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
+    };
+
+    class enhancerBase {
+    public:
+        enhancerBase() { }
+        enhancerBase(const enhancerBase&) { }
+        enhancerBase(enhancerBase*) { }
+
+        virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
+    };
+
+    template <typename T>
+    class enhancer: public enhancerBase {
+    public:
+        enhancer(): enhancerBase() { }
+        enhancer(const enhancer& b): enhancerBase(b) { }
+        enhancer(enhancer* b): enhancerBase(b) { }
+
+        shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
+        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
     };
 
     SkillTalentOrPerk();
@@ -115,11 +138,14 @@ public:
     virtual QString     description(bool roll = false) = 0;
     virtual void        form(QWidget*, QVBoxLayout*)   = 0;
     virtual QString     name()                         = 0;
-    virtual int         points(bool noStore = false)   = 0;
+    virtual Points<>    points(bool noStore = false)   = 0;
     virtual void        restore()                      = 0;
     virtual QString     roll()                         = 0;
     virtual void        store()                        = 0;
     virtual QJsonObject toJson()                       = 0;
+    virtual bool        isSkill()                      { return false; }
+    virtual bool        isPerk()                       { return false; }
+    virtual bool        isTalent()                     { return false; }
 
     virtual void checked(bool) { }
     virtual void numeric(QString) { }
@@ -135,8 +161,9 @@ public:
     static QList<QString>      SkillsAvailable();
     static QList<QString>      TalentsAvailable();
     static QList<QString>      PerksAvailable();
-    static SkillTalentOrPerk*  ByName(QString);
-    static SkillTalentOrPerk*  FromJson(QString, const QJsonObject&);
+
+    static shared_ptr<SkillTalentOrPerk> ByName(QString);
+    static shared_ptr<SkillTalentOrPerk> FromJson(QString, const QJsonObject&);
 
     bool isNumber(QString);
 
@@ -144,9 +171,10 @@ private:
     QLabel* _points;
     QLabel* _description;
 
-    static QMap<QString, skillBase*>  _skills;
-    static QMap<QString, talentBase*> _talents;
-    static QMap<QString, perkBase*>   _perks;
+    static QMap<QString, skillBase*>    _skills;
+    static QMap<QString, talentBase*>   _talents;
+    static QMap<QString, perkBase*>     _perks;
+    static QMap<QString, enhancerBase*> _enhancers;
 };
 
 #endif // SKILLTALENTORPERK_H

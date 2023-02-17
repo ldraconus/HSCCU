@@ -1,0 +1,782 @@
+#ifndef DEFENSE_POWERS_H
+#define DEFENSE_POWERS_H
+
+#include "powers.h"
+
+class Barrier: public AllPowers {
+public:
+    Barrier(): AllPowers("Barrier")                   { }
+    Barrier(const Barrier& s): AllPowers(s)           { }
+    Barrier(Barrier&& s): AllPowers(s)                { }
+    Barrier(const QJsonObject& json): AllPowers(json) { v._length   = json["length"].toInt(0);
+                                                        v._height   = json["height"].toInt(0);
+                                                        v._thick    = json["thick"].toInt(0);
+                                                        v._body     = json["body"].toInt(0);
+                                                        v._pd       = json["pd"].toInt(0);
+                                                        v._ed       = json["ed"].toInt(0);
+                                                        v._config   = json["config"].toBool(false);
+                                                        v._anchor   = json["anchor"].toBool(false);
+                                                        v._trans    = json["trans"].toInt(0);
+                                                        v._to       = json["to"].toString();
+                                                        v._englobe  = json["englobe"].toBool(false);
+                                                        v._feedback = json["feedback"].toBool(false);
+                                                        v._restr    = json["restr"].toBool(false);
+                                                        v._what     = json["what"].toString();
+                                                      }
+    virtual Barrier& operator=(const Barrier& s) {
+        if (this != &s) {
+            AllPowers::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    virtual Barrier& operator=(Barrier&& s) {
+        AllPowers::operator=(s);
+        v = s.v;
+        return *this;
+    }
+
+    Fraction adv() override                                      { return (v._config      ? Fraction(1, 4) : Fraction(0)) +
+                                                                          ((v._trans > 0) ? v._trans * Fraction(1, 2) : Fraction(0)); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
+                                                                   length   = createLineEdit(parent, layout, "Meters long?", std::mem_fn(&Power::numeric));
+                                                                   height   = createLineEdit(parent, layout, "Meters high?", std::mem_fn(&Power::numeric));
+                                                                   thick    = createLineEdit(parent, layout, Fraction(1, 2).toString() + " Meters Thickness",
+                                                                                             std::mem_fn(&Power::numeric));
+                                                                   body     = createLineEdit(parent, layout, "Body?", std::mem_fn(&Power::numeric));
+                                                                   pd       = createLineEdit(parent, layout, "Resistant PD?", std::mem_fn(&Power::numeric));
+                                                                   ed       = createLineEdit(parent, layout, "Resistant ED?", std::mem_fn(&Power::numeric));
+                                                                   config   = createCheckBox(parent, layout, "Configurable");
+                                                                   anchor   = createCheckBox(parent, layout, "Non-Anchored");
+                                                                   trans    = createComboBox(parent, layout, "▲One-way Transparent To?", { "Nothing",
+                                                                                                                                           "A Special Effect",
+                                                                                                                                           "Everything" });
+                                                                   to       = createLineEdit(parent, layout, "To?");
+                                                                   englobe  = createCheckBox(parent, layout, "Cannot Englobe Target");
+                                                                   feedback = createCheckBox(parent, layout, "Cannot Englobe Target");
+                                                                   restr    = createCheckBox(parent, layout, "Restricted Shape");
+                                                                   what     = createLineEdit(parent, layout, "To What Shape?");
+                                                                 }
+    Fraction lim() override                                      { return (v._englobe  ? Fraction(1, 4) : Fraction(0)) +
+                                                                          (v._feedback ? Fraction(1)    : Fraction(0)) +
+                                                                          (v._restr    ? Fraction(1, 4) : Fraction(0)); }
+    Points<> points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return 3_cp + (v._length - 1) + (v._height - 1) + (v._thick - 1) + v._body +
+                                                                          (3_cp * (v._pd + v._ed + 1) / 2) + (v._anchor ? 10_cp : 0_cp); }
+    void     restore() override                                  { vars s = v;
+                                                                   AllPowers::restore();
+                                                                   length->setText(QString("%1").arg(s._length));
+                                                                   height->setText(QString("%1").arg(s._height));
+                                                                   thick->setText(QString("%1").arg(s._thick));
+                                                                   body->setText(QString("%1").arg(s._body));
+                                                                   pd->setText(QString("%1").arg(s._pd));
+                                                                   ed->setText(QString("%1").arg(s._ed));
+                                                                   config->setChecked(s._config);
+                                                                   anchor->setChecked(s._anchor);
+                                                                   trans->setCurrentIndex(s._trans);
+                                                                   to->setText(v._to);
+                                                                   englobe->setChecked(s._englobe);
+                                                                   feedback->setChecked(s._feedback);
+                                                                   restr->setChecked(s._restr);
+                                                                   what->setText(s._what);
+                                                                   v = s;
+                                                                 }
+    void     store() override                                    { AllPowers::store();
+                                                                   v._length   = length->text().toInt();
+                                                                   v._height   = height->text().toInt();
+                                                                   v._thick    = thick->text().toInt();
+                                                                   v._body     = body->text().toInt();
+                                                                   v._pd       = pd->text().toInt();
+                                                                   v._ed       = ed->text().toInt();
+                                                                   v._config   = config->isChecked();
+                                                                   v._anchor   = anchor->isChecked();
+                                                                   v._trans    = trans->currentIndex();
+                                                                   v._to       = to->text();
+                                                                   v._englobe  = englobe->isChecked();
+                                                                   v._feedback = feedback->isChecked();
+                                                                   v._restr    = restr->isChecked();
+                                                                   v._what     = what->text();
+                                                                 }
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+                                                                   obj["length"]   = v._length;
+                                                                   obj["height"]   = v._height;
+                                                                   obj["thick"]    = v._height;
+                                                                   obj["body"]     = v._body;
+                                                                   obj["pd"]       = v._pd;
+                                                                   obj["ed"]       = v._ed;
+                                                                   obj["config"]   = v._config;
+                                                                   obj["anchor"]   = v._anchor;
+                                                                   obj["trans"]    = v._trans;
+                                                                   obj["to"]       = v._to;
+                                                                   obj["englobe"]  = v._englobe;
+                                                                   obj["feedback"] = v._feedback;
+                                                                   obj["rstr"]     = v._restr;
+                                                                   obj["what"]     = v._what;
+                                                                   return obj;
+                                                                 }
+
+    int rPD() override { return v._pd; }
+    int rED() override { return v._ed; }
+
+private:
+    struct vars {
+        int     _length   = 0;
+        int     _height   = 0;
+        int     _thick    = 0;
+        int     _body     = 0;
+        int     _pd       = 0;
+        int     _ed       = 0;
+        bool    _config   = false;
+        bool    _anchor   = false;
+        int     _trans    = -1;
+        QString _to       = "";
+        bool    _englobe  = false;
+        bool    _feedback = false;
+        bool    _restr    = false;
+        QString _what     = "";
+    } v;
+
+    QLineEdit* length;
+    QLineEdit* height;
+    QLineEdit* thick;
+    QLineEdit* pd;
+    QLineEdit* ed;
+    QLineEdit* body;
+    QCheckBox* config;
+    QCheckBox* anchor;
+    QComboBox* trans;
+    QLineEdit* to;
+    QCheckBox* englobe;
+    QCheckBox* feedback;
+    QCheckBox* restr;
+    QLineEdit* what;
+
+    QString optOut(bool showEND) {
+        if (v._length < 1 || v._height < 1 || v._thick < 1 || v._pd + v._ed + v._body < 1 ||
+            v._trans == -1 || (v._trans == 0 && v._to.isEmpty()) ||
+            (v._restr && v._what.isEmpty())) return "<incomplete>";
+        QString res;
+        if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
+        res += QString("%1m x %2m x %3m").arg(v._length).arg(v._height).arg(Fraction(v._thick, 2).toString()) + " Barrier";
+        res += QString("; %1 rPD/%2 rED").arg(v._pd).arg(v._ed);
+        res += QString("; %1 BODY").arg(v._body);
+        if (v._config) res += "; Configurable";
+        if (v._anchor) res += "; Non-Anchored";
+        if (v._trans > 0) {
+            if (v._trans == 1) res += "; ▲One-Way Transparent To " + v._to;
+            else res += ";  ▲One-Way Transparent To Everything";
+        }
+        if (v._englobe) res += "; Cannot Englobe";
+        if (v._feedback) res += "; Feedback";
+        if (v._restr) res += "; Restricted Shape (" + v._what + ")";
+        return res;
+    }
+
+    void numeric(int) override {
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
+        QString txt = edit->text();
+        PowerDialog::ref().updateForm();
+        if (txt.isEmpty() || isNumber(txt)) return;
+        edit->undo();
+    }
+};
+
+class DamageNegation: public AllPowers {
+public:
+    DamageNegation(): AllPowers("Damage Negation▲")          { }
+    DamageNegation(const DamageNegation& s): AllPowers(s)    { }
+    DamageNegation(DamageNegation&& s): AllPowers(s)         { }
+    DamageNegation(const QJsonObject& json): AllPowers(json) { v._dc      = json["dc"].toInt(0);
+                                                               v._against = json["against"].toInt(0);
+                                                               v._what    = json["what"].toString();
+                                                               v._resist  = json["rests"].toBool(false);
+                                                             }
+    virtual DamageNegation& operator=(const DamageNegation& s) {
+        if (this != &s) {
+            AllPowers::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    virtual DamageNegation& operator=(DamageNegation&& s) {
+        AllPowers::operator=(s);
+        v = s.v;
+        return *this;
+    }
+
+    Fraction adv() override                                      { return Fraction(0); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  end() override                                      { return noEnd(); }
+    void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
+                                                                   dc      = createLineEdit(parent, layout, "Damage Classes?", std::mem_fn(&Power::numeric));
+                                                                   against = createComboBox(parent, layout, "Against?", { "Physical Attacks",
+                                                                                                                          "Energy Attacks",
+                                                                                                                          "Mental Attacks",
+                                                                                                                          "A Special Effect" });
+                                                                   what    = createLineEdit(parent, layout, "Special Effect?");
+                                                                   resist  = createCheckBox(parent, layout, "Nonresitant");
+                                                                 }
+    Fraction lim() override                                      { return (v._resist  ? Fraction(1, 4) : Fraction(0)); }
+    Points<> points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return 5_cp * v._dc; }
+    void     restore() override                                  { vars s = v;
+                                                                   AllPowers::restore();
+                                                                   dc->setText(QString("%1").arg(s._dc));
+                                                                   against->setCurrentIndex(s._against);
+                                                                   what->setText(v._what);
+                                                                   resist->setChecked(s._resist);
+                                                                   v = s;
+                                                                 }
+    void     store() override                                    { AllPowers::store();
+                                                                   v._dc      = dc->text().toInt();
+                                                                   v._against = against->currentIndex();
+                                                                   v._what    = what->text();
+                                                                   v._resist  = resist->isChecked();
+                                                                 }
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+                                                                   obj["dc"]      = v._dc;
+                                                                   obj["against"] = v._against;
+                                                                   obj["what"]    = v._what;
+                                                                   obj["resist"]  = v._resist;
+                                                                   return obj;
+                                                                 }
+
+private:
+    struct vars {
+        int     _dc      = 0;
+        int     _against = -1;
+        QString _what    = "";
+        bool    _resist  = false;
+    } v;
+
+    QLineEdit* dc;
+    QComboBox* against;
+    QLineEdit* what;
+    QCheckBox* resist;
+
+    QString optOut(bool showEND) {
+        if (v._dc < 1 || v._against < 0 ||
+            (v._against == 3 && v._what.isEmpty())) return "<incomplete>";
+        QString res;
+        if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
+        res += QString("-%1 DC").arg(v._dc) + " Damage Negation▲ Against";
+        switch (v._against) {
+        case 0: res += " Physical Attacks"; break;
+        case 1: res += " Energy Attacks";   break;
+        case 2: res += " Mental Attacks";   break;
+        case 3: res += " " + v._what;       break;
+        }
+        if (v._resist) res += "; Nonresistant";
+        return res;
+    }
+
+    void numeric(int) override {
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
+        QString txt = edit->text();
+        PowerDialog::ref().updateForm();
+        if (txt.isEmpty() || isNumber(txt)) return;
+        edit->undo();
+    }
+};
+
+class DamageResistance: public AllPowers {
+public:
+    DamageResistance(): AllPowers("Damage Resistance▲")        { }
+    DamageResistance(const DamageResistance& s): AllPowers(s)  { }
+    DamageResistance(DamageResistance&& s): AllPowers(s)       { }
+    DamageResistance(const QJsonObject& json): AllPowers(json) { v._perc    = json["perc"].toInt(0);
+                                                                 v._against = json["against"].toInt(0);
+                                                                 v._what    = json["what"].toString();
+                                                                 v._resist  = json["rests"].toBool(false);
+                                                               }
+    virtual DamageResistance& operator=(const DamageResistance& s) {
+        if (this != &s) {
+            AllPowers::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    virtual DamageResistance& operator=(DamageResistance&& s) {
+        AllPowers::operator=(s);
+        v = s.v;
+        return *this;
+    }
+
+    Fraction adv() override                                      { return Fraction(0); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  end() override                                      { return noEnd(); }
+    void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
+                                                                   perc    = createComboBox(parent, layout, "Damage Percentage0?", { "25%", "50%", "75%" });
+                                                                   against = createComboBox(parent, layout, "Against?", { "Physical Attacks",
+                                                                                                                          "Energy Attacks",
+                                                                                                                          "Mental Attacks",
+                                                                                                                          "A Special Effect" });
+                                                                   what    = createLineEdit(parent, layout, "Special Effect?");
+                                                                   resist  = createCheckBox(parent, layout, "Resistant");
+                                                                 }
+    Fraction lim() override                                      { return Fraction(0); }
+    Points<> points(bool noStore = false) override               { if (!noStore) store();
+                                                                   QList<Points<>> n { 0_cp, 10_cp, 20_cp, 30_cp };
+                                                                   QList<Points<>> r { 0_cp, 15_cp, 30_cp, 60_cp };
+                                                                   return (v._resist || v._against > 1) ? r[v._perc + 1] : n[v._perc + 1]; }
+    void     restore() override                                  { vars s = v;
+                                                                   AllPowers::restore();
+                                                                   perc->setCurrentIndex(s._perc);
+                                                                   against->setCurrentIndex(s._against);
+                                                                   what->setText(v._what);
+                                                                   resist->setChecked(s._resist);
+                                                                   v = s;
+                                                                 }
+    void     store() override                                    { AllPowers::store();
+                                                                   v._perc    = perc->currentIndex();
+                                                                   v._against = against->currentIndex();
+                                                                   v._what    = what->text();
+                                                                   v._resist  = resist->isChecked();
+                                                                 }
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+                                                                   obj["perc"]    = v._perc;
+                                                                   obj["against"] = v._against;
+                                                                   obj["what"]    = v._what;
+                                                                   obj["resist"]  = v._resist;
+                                                                   return obj;
+                                                                 }
+
+private:
+    struct vars {
+        int     _perc    = -1;
+        int     _against = -1;
+        QString _what    = "";
+        bool    _resist  = false;
+    } v;
+
+    QComboBox* perc;
+    QComboBox* against;
+    QLineEdit* what;
+    QCheckBox* resist;
+
+    QString optOut(bool showEND) {
+        if (v._perc < 0 || v._against < 0 ||
+            (v._against == 3 && v._what.isEmpty())) return "<incomplete>";
+        QString res;
+        if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
+        res += QString("%1").arg(v._perc * 25) + "% Damage Resistance▲ Against";
+        switch (v._against) {
+        case 0: res += " Physical Attacks"; break;
+        case 1: res += " Energy Attacks";   break;
+        case 2: res += " Mental Attacks";   break;
+        case 3: res += " " + v._what;       break;
+        }
+        if (v._resist) res += "; Resistant";
+        return res;
+    }
+
+    void numeric(int) override {
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
+        QString txt = edit->text();
+        PowerDialog::ref().updateForm();
+        if (txt.isEmpty() || isNumber(txt)) return;
+        edit->undo();
+    }
+};
+
+class Deflection: public AllPowers {
+public:
+    Deflection(): AllPowers("Deflection▲")        { }
+    Deflection(const Deflection& s): AllPowers(s)  { }
+    Deflection(Deflection&& s): AllPowers(s)       { }
+    Deflection(const QJsonObject& json): AllPowers(json) {
+                                                             }
+
+    Fraction adv() override                                      { return Fraction(0); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    void     form(QWidget*, QVBoxLayout*) override               { }
+    Fraction lim() override                                      { return Fraction(0); }
+    Points<> points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return 20_cp; }
+    void     restore() override                                  { AllPowers::restore();
+                                                                 }
+    void     store() override                                    { AllPowers::store();
+                                                                 }
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+                                                                   return obj;
+                                                                 }
+
+private:
+    QString optOut(bool showEND) {
+        QString res;
+        if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
+        res += "Deflection▲";
+        return res;
+    }
+
+    void numeric(int) override {
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
+        QString txt = edit->text();
+        PowerDialog::ref().updateForm();
+        if (txt.isEmpty() || isNumber(txt)) return;
+        edit->undo();
+    }
+};
+
+class FlashDefense: public AllPowers {
+public:
+    FlashDefense(): AllPowers("Flash Defense")             { }
+    FlashDefense(const FlashDefense& s): AllPowers(s)      { }
+    FlashDefense(FlashDefense&& s): AllPowers(s)           { }
+    FlashDefense(const QJsonObject& json): AllPowers(json) { v._def = json["def"].toInt(0);
+                                                               }
+    virtual FlashDefense& operator=(const FlashDefense& s) {
+        if (this != &s) {
+            AllPowers::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    virtual FlashDefense& operator=(FlashDefense&& s) {
+        AllPowers::operator=(s);
+        v = s.v;
+        return *this;
+    }
+
+    Fraction adv() override                                      { return Fraction(0); }
+    QString  description(bool showEND = false) override          { return (showEND ? "" : "") + optOut(showEND); }
+    QString  end() override                                      { return noEnd(); }
+    void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
+                                                                   def = createLineEdit(parent, layout, "Defense?", std::mem_fn(&Power::numeric));
+                                                                 }
+    Fraction lim() override                                      { return Fraction(0); }
+    Points<> points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return v._def * 1_cp; }
+    void     restore() override                                  { vars s = v;
+                                                                   AllPowers::restore();
+                                                                   def->setText(QString("%1").arg(s._def));
+                                                                   v = s;
+                                                                 }
+    void     store() override                                    { AllPowers::store();
+                                                                   v._def = def->text().toInt();
+                                                                 }
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+                                                                   obj["def"] = v._def;
+                                                                   return obj;
+                                                                 }
+
+    int FD() override { return v._def; }
+
+private:
+    struct vars {
+        int _def = 0;
+    } v;
+
+    QLineEdit* def;
+
+    QString optOut(bool showEND) {
+        if (v._def < 1) return "<incomplete>";
+        QString res;
+        if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
+        res += QString("%1").arg(v._def) + " Flash Defense";
+        return res;
+    }
+
+    void numeric(int) override {
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
+        QString txt = edit->text();
+        PowerDialog::ref().updateForm();
+        if (txt.isEmpty() || isNumber(txt)) return;
+        edit->undo();
+    }
+};
+
+class KnockbackResistance: public AllPowers {
+public:
+    KnockbackResistance(): AllPowers("Knockback Resistance")        { }
+    KnockbackResistance(const KnockbackResistance& s): AllPowers(s) { }
+    KnockbackResistance(KnockbackResistance&& s): AllPowers(s)      { }
+    KnockbackResistance(const QJsonObject& json): AllPowers(json)   { v._pts = json["pts"].toInt(0);
+                                                                        }
+    virtual KnockbackResistance& operator=(const KnockbackResistance& s) {
+        if (this != &s) {
+            AllPowers::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    virtual KnockbackResistance& operator=(KnockbackResistance&& s) {
+        AllPowers::operator=(s);
+        v = s.v;
+        return *this;
+    }
+
+    Fraction adv() override                                      { return Fraction(0); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  end() override                                      { return noEnd(); }
+    void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
+                                                                   pts = createLineEdit(parent, layout, "Points?", std::mem_fn(&Power::numeric));
+                                                                 }
+    Fraction lim() override                                      { return Fraction(0); }
+    Points<> points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return v._pts * 1_cp; }
+    void     restore() override                                  { vars s = v;
+                                                                   AllPowers::restore();
+                                                                   pts->setText(QString("%1").arg(s._pts));
+                                                                   v = s;
+                                                                 }
+    void     store() override                                    { AllPowers::store();
+                                                                   v._pts = pts->text().toInt();
+                                                                 }
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+                                                                   obj["pts"] = v._pts;
+                                                                   return obj;
+                                                                 }
+
+private:
+    struct vars {
+        int _pts = 0;
+    } v;
+
+    QLineEdit* pts;
+
+    QString optOut(bool showEND) {
+        if (v._pts < 1) return "<incomplete>";
+        QString res;
+        if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
+        res += QString("-%1").arg(v._pts) + "m Knockback Resistance";
+        return res;
+    }
+
+    void numeric(int) override {
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
+        QString txt = edit->text();
+        PowerDialog::ref().updateForm();
+        if (txt.isEmpty() || isNumber(txt)) return;
+        edit->undo();
+    }
+};
+
+class MentalDefense: public AllPowers {
+public:
+    MentalDefense(): AllPowers("Mental Defense")            { }
+    MentalDefense(const MentalDefense& s): AllPowers(s)     { }
+    MentalDefense(MentalDefense&& s): AllPowers(s)          { }
+    MentalDefense(const QJsonObject& json): AllPowers(json) { v._def = json["def"].toInt(0);
+                                                                }
+    virtual MentalDefense& operator=(const MentalDefense& s) {
+        if (this != &s) {
+            AllPowers::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    virtual MentalDefense& operator=(MentalDefense&& s) {
+        AllPowers::operator=(s);
+        v = s.v;
+        return *this;
+    }
+
+    Fraction adv() override                                      { return Fraction(0); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  end() override                                      { return noEnd(); }
+    void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
+                                                                   def = createLineEdit(parent, layout, "Defense?", std::mem_fn(&Power::numeric));
+                                                                 }
+    Fraction lim() override                                      { return Fraction(0); }
+    Points<> points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return v._def * 1_cp; }
+    void     restore() override                                  { vars s = v;
+                                                                   AllPowers::restore();
+                                                                   def->setText(QString("%1").arg(s._def));
+                                                                   v = s;
+                                                                 }
+    void     store() override                                    { AllPowers::store();
+                                                                   v._def = def->text().toInt();
+                                                                 }
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+                                                                   obj["def"] = v._def;
+                                                                   return obj;
+                                                                 }
+
+    int MD() override { return v._def; }
+
+private:
+    struct vars {
+        int _def = 0;
+    } v;
+
+    QLineEdit* def;
+
+    QString optOut(bool showEND) {
+        if (v._def < 1) return "<incomplete>";
+        QString res;
+        if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
+        res += QString("%1").arg(v._def) + " Mental Defense";
+        return res;
+    }
+
+    void numeric(int) override {
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
+        QString txt = edit->text();
+        PowerDialog::ref().updateForm();
+        if (txt.isEmpty() || isNumber(txt)) return;
+        edit->undo();
+    }
+};
+
+class PowerDefense: public AllPowers {
+public:
+    PowerDefense(): AllPowers("Power Defense")             { }
+    PowerDefense(const PowerDefense& s): AllPowers(s)      { }
+    PowerDefense(PowerDefense&& s): AllPowers(s)           { }
+    PowerDefense(const QJsonObject& json): AllPowers(json) { v._def = json["def"].toInt(0);
+                                                               }
+    virtual PowerDefense& operator=(const PowerDefense& s) {
+        if (this != &s) {
+            AllPowers::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    virtual PowerDefense& operator=(PowerDefense&& s) {
+        AllPowers::operator=(s);
+        v = s.v;
+        return *this;
+    }
+
+    Fraction adv() override                                      { return Fraction(0); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  end() override                                      { return noEnd(); }
+    void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
+                                                                   def = createLineEdit(parent, layout, "Defense?", std::mem_fn(&Power::numeric));
+                                                                 }
+    Fraction lim() override                                      { return Fraction(0); }
+    Points<> points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return v._def * 1_cp; }
+    void     restore() override                                  { vars s = v;
+                                                                   AllPowers::restore();
+                                                                   def->setText(QString("%1").arg(s._def));
+                                                                   v = s;
+                                                                 }
+    void     store() override                                    { AllPowers::store();
+                                                                   v._def = def->text().toInt();
+                                                                 }
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+                                                                   obj["def"] = v._def;
+                                                                   return obj;
+                                                                 }
+
+private:
+    struct vars {
+        int _def = 0;
+    } v;
+
+    QLineEdit* def;
+
+    QString optOut(bool showEND) {
+        if (v._def < 1) return "<incomplete>";
+        QString res;
+        if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
+        res += QString("%1").arg(v._def) + " Power Defense";
+        return res;
+    }
+
+    void numeric(int) override {
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
+        QString txt = edit->text();
+        PowerDialog::ref().updateForm();
+        if (txt.isEmpty() || isNumber(txt)) return;
+        edit->undo();
+    }
+};
+
+class ResistantDefense: public AllPowers {
+public:
+    ResistantDefense(): AllPowers("Resistant Defense")         { }
+    ResistantDefense(const ResistantDefense& s): AllPowers(s)  { }
+    ResistantDefense(ResistantDefense&& s): AllPowers(s)       { }
+    ResistantDefense(const QJsonObject& json): AllPowers(json) { v._pd      = json["pd"].toInt(0);
+                                                                 v._ed      = json["ed"].toInt(0);
+                                                                 v._imperm  = json["imperm"].toBool(false);
+                                                                 v._protect = json["protect"].toBool(false);
+                                                               }
+    virtual ResistantDefense& operator=(const ResistantDefense& s) {
+        if (this != &s) {
+            AllPowers::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    virtual ResistantDefense& operator=(ResistantDefense&& s) {
+        AllPowers::operator=(s);
+        v = s.v;
+        return *this;
+    }
+
+    Fraction adv() override                                      { return Fraction(0); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  end() override                                      { return noEnd(); }
+    void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
+                                                                   pd      = createLineEdit(parent, layout, "Resistant PD?", std::mem_fn(&Power::numeric));
+                                                                   ed      = createLineEdit(parent, layout, "Resistant ED?", std::mem_fn(&Power::numeric));
+                                                                   imperm  = createCheckBox(parent, layout, "Impermeable");
+                                                                   protect = createCheckBox(parent, layout, "Protects Carried Items");
+                                                                 }
+    Fraction lim() override                                      { return Fraction(0); }
+    Points<> points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return (3_cp * (v._pd + v._ed + 1) / 2) + (v._protect ? 10_cp : 0_cp); }
+    void     restore() override                                  { vars s = v;
+                                                                   AllPowers::restore();
+                                                                   pd->setText(QString("%1").arg(s._pd));
+                                                                   ed->setText(QString("%1").arg(s._ed));
+                                                                   imperm->setChecked(s._imperm);
+                                                                   protect->setChecked(s._protect);
+                                                                   v = s;
+                                                                 }
+    void     store() override                                    { AllPowers::store();
+                                                                   v._pd      = pd->text().toInt();
+                                                                   v._ed      = ed->text().toInt();
+                                                                   v._imperm  = imperm->isChecked();
+                                                                   v._protect = protect->isChecked();
+                                                                 }
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+                                                                   obj["pd"]      = v._pd;
+                                                                   obj["ed"]      = v._ed;
+                                                                   obj["imperm"]  = v._imperm;
+                                                                   obj["protect"] = v._protect;
+                                                                   return obj;
+                                                                 }
+
+    int rPD() override { return v._pd; }
+    int rED() override { return v._ed; }
+
+private:
+    struct vars {
+        int     _pd      = 0;
+        int     _ed      = 0;
+        bool    _imperm  = false;
+        bool    _protect = false;
+    } v;
+
+    QLineEdit* pd;
+    QLineEdit* ed;
+    QCheckBox* imperm;
+    QCheckBox* protect;
+
+    QString optOut(bool showEND) {
+        if (v._pd + v._ed < 1) return "<incomplete>";
+        QString res;
+        if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
+        res += QString("%1 rPD/%2 rED").arg(v._pd).arg(v._ed) + " Resistant Defense";
+        if (v._imperm) res += "; Impermeable";
+        if (v._protect) res += "; Protects Carried Items";
+        return res;
+    }
+
+    void numeric(int) override {
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
+        QString txt = edit->text();
+        PowerDialog::ref().updateForm();
+        if (txt.isEmpty() || isNumber(txt)) return;
+        edit->undo();
+    }
+};
+
+#endif // AllPowers_H

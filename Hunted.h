@@ -36,7 +36,7 @@ public:
         static QList<QString> capa { "Less Powerful", "As Powerful", "More Powerful" };
         static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
         static QList<QString> mtvn { "Watching", "Mildly Punish", "Harsly Punish" };
-        if (v._frequency == -1 || v._capabilities == -1 || v._motivation == -1 || v._who.isEmpty()) return "<incomplete>";
+        if (v._frequency < 0 || v._capabilities < 0 || v._motivation  < 0 || v._who.isEmpty()) return "<incomplete>";
         QString result = QString("Hunted: %1 (%2; %3").arg(v._who, capa[v._capabilities], freq[v._frequency]);
         if (v._nci) result += "; NCI";
         if (v._limited) result += "; Limited geographical area";
@@ -51,9 +51,9 @@ public:
         limited      = createCheckBox(parent, layout, "Limited to a certain geographical area");
         motivation   = createComboBox(parent, layout, "Hunter's motivation", { "Watching", "Mildly punish", "Harshly punish" });
     }
-    int points(bool noStore = false) override {
+    Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._capabilities + 1) * 5 + v._frequency * 5 + (v._easy ? 5 : 0) + (v._nci ? 5 : 0) - (v._limited ? 5 : 0) - (2 - v._motivation) * 5;
+        return (v._capabilities + 1) * 5_cp + v._frequency * 5_cp + (v._easy ? 5_cp : 0_cp) + (v._nci ? 5_cp : 0_cp) - (v._limited ? 5_cp : 0_cp) - (2 - v._motivation) * 5_cp;
     }
     void restore() override {
         vars s = v;

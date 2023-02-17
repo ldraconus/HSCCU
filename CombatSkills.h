@@ -27,10 +27,12 @@ public:
         return *this;
     }
 
+    bool isSkill() override { return true; }
+
     QString description(bool showRoll = false) override { return showRoll ? v._name : v._name; }
     void form(QWidget*, QVBoxLayout*) override          { throw "No options, immediately accept"; }
-    QString name()                                      { return v._name; }
-    int points(bool noStore = false) override           { if (!noStore) store(); return 10; }
+    QString name() override                             { return v._name; }
+    Points<> points(bool noStore = false) override      { if (!noStore) store(); return 10_cp; }
     void restore() override                             { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
@@ -76,16 +78,16 @@ public:
                                                                 }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + CombatSkills::description() + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { accurateSprayfire = createCheckBox(parent, layout, "Accurate Sprayfire");
+    void    form(QWidget* parent, QVBoxLayout* layout) override { accurateSprayfire     = createCheckBox(parent, layout, "Accurate Sprayfire");
                                                                   concentratedSprayfire = createCheckBox(parent, layout, "Concetrated Sprayfire");
-                                                                  rapidAutofire = createCheckBox(parent, layout, "Rapid Autofire");
-                                                                  skipoverSprayfire = createCheckBox(parent, layout, "Skipover Sprayfire");
+                                                                  rapidAutofire         = createCheckBox(parent, layout, "Rapid Autofire");
+                                                                  skipoverSprayfire     = createCheckBox(parent, layout, "Skipover Sprayfire");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return (v._accurateSprayfire ? 5 : 0) +
-                                                                         (v._concentratedSprayfire ? 5 : 0) +
-                                                                         (v._rapidAutofire ? 5 : 0) +
-                                                                         (v._skipoverSprayfire ? 5 : 0); }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return (v._accurateSprayfire ? 5_cp : 0_cp) +
+                                                                         (v._concentratedSprayfire ? 5_cp : 0_cp) +
+                                                                         (v._rapidAutofire ? 5_cp : 0_cp) +
+                                                                         (v._skipoverSprayfire ? 5_cp : 0_cp); }
     void    restore() override                                  { vars s = v;
                                                                   accurateSprayfire->setChecked(s._accurateSprayfire);
                                                                   concentratedSprayfire->setChecked(s._concentratedSprayfire);
@@ -143,15 +145,16 @@ public:
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
-                                                                  size = createComboBox(parent, layout, "Size of affected group", { "Specific",
+                                                                  size = createComboBox(parent, layout, "Size of affected group", { "Single Attack",
                                                                                                                                     "Small Group",
                                                                                                                                     "Large Group",
                                                                                                                                     "All HTH Combat",
                                                                                                                                     "All Ranged Combat",
                                                                                                                                     "All Combat" });
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * QList<int>{ 0, 2, 3, 5, 8, 8, 10 }[v._size + 1]; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points<>> size{ 0_cp, 0_cp, 2_cp, 3_cp, 5_cp, 8_cp, 8_cp, 10_cp };
+                                                                  return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
                                                                   size->setCurrentIndex(s._size);
@@ -182,9 +185,11 @@ private:
     QComboBox* size;
 
     QString optOut() {
-        if (v._plus < 0) return "<incomplete>";
+        if (v._plus < 1) return "<incomplete>";
+        if (v._size < 3 && v._for.isEmpty()) return "<incomplete>";
         QString res = "Combat Skill Levels: ";
         switch (v._size) {
+        case -1:
         case 0: res += QString("+%1 with %2").arg(v._plus).arg(v._for);               break;
         case 1: res += QString("+%1 with small group (%2)").arg(v._plus).arg(v._for); break;
         case 2: res += QString("+%1 with large group (%2)").arg(v._plus).arg(v._for); break;
@@ -217,8 +222,9 @@ public:
                                                                                                                                       "Defense Maneuver III",
                                                                                                                                       "Defense Maneuver IV" });
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return QList<int>{ 0, 3, 5, 8, 10 }[v._which + 1]; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points<>> which{ 0_cp, 3_cp, 5_cp, 8_cp, 10_cp };
+                                                                  return which[v._which + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   which->setCurrentIndex(s._which);
                                                                   v = s;
@@ -298,23 +304,23 @@ public:
                                                                   weaponelements   = createLineEdit(parent, layout, "Weapon Elements", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   weapons          = createLineEdit(parent, layout, "Weapons?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return (v._chokehold ? 4 : 0) +
-                                                                         (v._defensivestrike ? 5 : 0) +
-                                                                         (v._killingstrike ? 4 : 0) +
-                                                                         (v._legsweep ? 3 : 0) +
-                                                                         (v._martialblock ? 4 : 0) +
-                                                                         (v._martialdisarm ? 4 : 0) +
-                                                                         (v._martialdodge ? 4 : 0) +
-                                                                         (v._martialescape ? 4 : 0) +
-                                                                         (v._martialgrab ? 3 : 0) +
-                                                                         (v._martialstrike ? 4 : 0) +
-                                                                         (v._martialthrow ? 3 : 0) +
-                                                                         (v._nervestrike ? 4 : 0) +
-                                                                         (v._offensivestrike ? 5 : 0) +
-                                                                         (v._passingstrike ? 5 : 0) +
-                                                                         (v._sacrifcethrow ? 3 : 0) +
-                                                                         v._extradamageclass * 4 +
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return (v._chokehold ? 4_cp : 0_cp) +
+                                                                         (v._defensivestrike ? 5_cp : 0_cp) +
+                                                                         (v._killingstrike ? 4_cp : 0_cp) +
+                                                                         (v._legsweep ? 3_cp : 0_cp) +
+                                                                         (v._martialblock ? 4_cp : 0_cp) +
+                                                                         (v._martialdisarm ? 4_cp : 0_cp) +
+                                                                         (v._martialdodge ? 4_cp : 0_cp) +
+                                                                         (v._martialescape ? 4_cp : 0_cp) +
+                                                                         (v._martialgrab ? 3_cp : 0_cp) +
+                                                                         (v._martialstrike ? 4_cp : 0_cp) +
+                                                                         (v._martialthrow ? 3_cp : 0_cp) +
+                                                                         (v._nervestrike ? 4_cp : 0_cp) +
+                                                                         (v._offensivestrike ? 5_cp : 0_cp) +
+                                                                         (v._passingstrike ? 5_cp : 0_cp) +
+                                                                         (v._sacrifcethrow ? 3_cp : 0_cp) +
+                                                                         v._extradamageclass * 4_cp +
                                                                          v._weaponelements;
                                                                 }
     void    restore() override                                  { vars s = v;
@@ -472,8 +478,9 @@ public:
                                                                                                                                     "Small Group",
                                                                                                                                     "All MentalCombat" });
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * QList<int>{ 0, 1, 3, 6 }[v._size + 1]; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points<>> size{ 0_cp, 1_cp, 3_cp, 6_cp };
+                                                                  return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(v._plus));
                                                                   size->setCurrentIndex(v._size);
@@ -504,7 +511,7 @@ private:
     QComboBox* size;
 
     QString optOut() {
-        if (v._plus < 0) return "<incomplete>";
+        if (v._plus < 1) return "<incomplete>";
         QString res = "Mental Combat Skill Levels: ";
         switch (v._size) {
         case 0: res += QString("+%1 with %2").arg(v._plus).arg(v._for);               break;
@@ -542,8 +549,9 @@ public:
                                                                                                                              "Group of conditions (DCV)"});
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * QList<int>{ 0, 1, 2, 3, 2, 3 }[v._what + 1]; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points<>> what{ 0_cp, 1_cp, 2_cp, 3_cp, 2_cp, 3_cp };
+                                                                  return v._plus * what[v._what + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
                                                                   what->setCurrentIndex(s._what);
@@ -574,7 +582,7 @@ private:
     QLineEdit* with;
 
     QString optOut() {
-        if (v._plus < 0 || v._with.isEmpty()) return "<incomplete>";
+        if (v._plus < 1 || v._with.isEmpty()) return "<incomplete>";
         QString res = "Penalty Skill Levels: ";
         res += QString("+%1 with ").arg(v._plus);
         switch (v._what) {
@@ -613,8 +621,9 @@ public:
                                                                                                                            "Broad category of weapons"});
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return QList<int>{ 0, 1, 2 }[v._what + 1]; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points<>> what{ 0_cp, 1_cp, 2_cp };
+                                                                  return what[v._what + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   what->setCurrentIndex(s._what);
                                                                   with->setText(s._with);

@@ -1,6 +1,7 @@
 #ifndef SKILLDIALOG_H
 #define SKILLDIALOG_H
 
+#include "shared.h"
 #include "skilltalentorperk.h"
 
 #include <QDialog>
@@ -18,9 +19,9 @@ public:
     explicit SkillDialog(QWidget *parent = nullptr);
     ~SkillDialog();
 
-    SkillTalentOrPerk* skilltalentorperk() { return _skilltalentorperk; }
+    shared_ptr<SkillTalentOrPerk> skilltalentorperk() { return _skilltalentorperk; }
 
-    SkillDialog& skilltalentorperk(SkillTalentOrPerk* s);
+    SkillDialog& skilltalentorperk(shared_ptr<SkillTalentOrPerk> s);
 
 private:
     Ui::SkillDialog *ui;
@@ -30,8 +31,9 @@ private:
     QLabel*            _description;
     QLabel*            _points;
     QPushButton*       _ok;
-    SkillTalentOrPerk* _skilltalentorperk = nullptr;
     bool               _skipUpdate = false;
+
+    shared_ptr<SkillTalentOrPerk> _skilltalentorperk = nullptr;
 
     QLabel* createLabel(QVBoxLayout* parent, QString text, bool wordWrap);
     void    updateForm();

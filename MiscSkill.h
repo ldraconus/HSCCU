@@ -31,10 +31,12 @@ public:
         return *this;
     }
 
+    bool isSkill() override { return true; }
+
     QString description(bool showRoll = false) override { return v._name +  (showRoll ? "" : ""); }
     void form(QWidget*, QVBoxLayout*) override          { }
     QString name() override                             { return v._name; }
-    int points(bool noStore = false) override           { if (!noStore) store(); return 0; }
+    Points<> points(bool noStore = false) override      { if (!noStore) store(); return 0_cp; }
     void restore() override                             { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
@@ -85,8 +87,9 @@ public:
                                                                                                                             "Any mode of movement" });
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * QList<int>{ 0, 2, 3 }[v._size + 1]; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points<>> size { 0_cp,  2_cp, 3_cp };
+                                                                  return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
                                                                   size->setCurrentIndex(s._size);
@@ -117,7 +120,7 @@ private:
     QComboBox* size;
 
     QString optOut() {
-        if (v._plus < 0) return "<incomplete>";
+        if (v._plus < 1 || v._size < 0) return "<incomplete>";
         QString res = "Movement Skill Levels: ";
         switch (v._size) {
         case 0: res += QString("+%1 with %2").arg(v._plus).arg(v._for);           break;
@@ -148,10 +151,10 @@ public:
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v._plus) + ") ": "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { what = createLineEdit(parent, layout, "What power?");
                                                                   plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
-                                                                  stat = createComboBox(parent, layout, "Base on a stat?", { "STR", "DEX", "CON", "INT", "EGO", "PRE"});
+                                                                  stat = createComboBox(parent, layout, "Base on a stat?", { "No", "STR", "DEX", "CON", "INT", "EGO", "PRE"});
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * 2 + 3;
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  return v._plus * 2_cp + 3_cp;
                                                                 }
     void    restore() override                                  { vars s = v;
                                                                   what->setText(s._what);
@@ -159,7 +162,7 @@ public:
                                                                   stat->setCurrentIndex(s._stat);
                                                                   v = s;
                                                                 }
-    QString roll() override                                     { return (v._stat >= 0) ? add(Sheet::ref().character().characteristic(v._stat).roll(), v._plus)
+    QString roll() override                                     { return (v._stat >= 1) ? add(Sheet::ref().character().characteristic(v._stat).roll(), v._plus)
                                                                                         : ""; }
     void    store() override                                    { v._what = what->text();
                                                                   v._plus = plus->text().toInt(0);
@@ -184,8 +187,9 @@ private:
     QComboBox* stat;
 
     QString optOut() {
-        if (v._plus <= 0 || v._what.isEmpty() || v._stat < 0) return "<incomplete>";
-        return QString("+%1 with ").arg(v._plus) + v._what + QStringList { " (STR", " (DEX", " (CON", " (INT", " (EGO", " (PRE" }[v._stat] + " based)";
+        if (v._plus <= 0 || v._what.isEmpty() || v._stat < 1) return "<incomplete>";
+        QStringList stat { "", " (STR", " (DEX", " (CON", " (INT", " (EGO", " (PRE" };
+        return QString("+%1 with ").arg(v._plus) + v._what + stat[v._stat] + ((v._stat != 0) ? " based)" : "");
     }
 
     void numeric(QString) override {
@@ -215,8 +219,9 @@ public:
                                                                                                                   "All Non-Combat Skills",
                                                                                                                   "Overall" });
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * QList<int>{ 0, 2, 3, 4, 6, 10, 12 }[v._size + 1]; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points<>> size { 0_cp, 2_cp, 3_cp, 4_cp, 6_cp, 10_cp, 12_cp };
+                                                                  return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
                                                                   size->setCurrentIndex(s._size);
@@ -247,7 +252,7 @@ private:
     QComboBox* size;
 
     QString optOut() {
-        if (v._plus < 0 || (v._size < 3 && v._for.isEmpty()) || v._size < 0) return "<incomplete>";
+        if (v._plus < 1 || (v._size < 3 && v._for.isEmpty()) || v._size < 0) return "<incomplete>";
         QString res;
         switch (v._size) {
         case 0:

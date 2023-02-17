@@ -11,13 +11,18 @@
 
 #include <cmath>
 
+#include <QBuffer>
 #include <QClipboard>
 #include <QFileDialog>
+#include <QFontDatabase>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QPageSetupDialog>
+#include <QPainter>
+#include <QPrintDialog>
 #include <QScrollBar>
 #include <QStandardPaths>
 
@@ -25,7 +30,8 @@ Sheet* Sheet::_sheet = nullptr;
 
 // --- [static functions] ----------------------------------------------------------------------------------
 
-static int min(const int a, const int b) {
+template <typename T>
+static T min(const T a, const T b) {
     return (a < b) ? a : b;
 }
 
@@ -199,22 +205,29 @@ Sheet::Sheet(QWidget *parent)
     , ui(new Ui::Sheet)
     , Ui(&_Sheet_UI)
 {
+    _sheet = this;
+
     ui->setupUi(this);
     Ui->setupUi(ui->label);
 
-    _sheet = this;
+    printer = new QPrinter(QPrinter::HighResolution);
 
     _dir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
-    _option.totalPoints(400)
-           .complications(75);
+    _option.totalPoints(400_cp)
+           .complications(75_cp);
 
-    connect(ui->menu_File,     SIGNAL(aboutToShow()), this, SLOT(aboutToShowFileMenu()));
-    connect(ui->menu_File,     SIGNAL(aboutToHide()), this, SLOT(aboutToHideFileMenu()));
-    connect(ui->action_New,    SIGNAL(triggered()),   this, SLOT(newchar()));
-    connect(ui->action_Open,   SIGNAL(triggered()),   this, SLOT(open()));
-    connect(ui->action_Save,   SIGNAL(triggered()),   this, SLOT(save()));
-    connect(ui->actionSave_As, SIGNAL(triggered()),   this, SLOT(saveAs()));
+    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*,QWidget*)));
+
+    connect(ui->menu_File,         SIGNAL(aboutToShow()), this, SLOT(aboutToShowFileMenu()));
+    connect(ui->menu_File,         SIGNAL(aboutToHide()), this, SLOT(aboutToHideFileMenu()));
+    connect(ui->action_New,        SIGNAL(triggered()),   this, SLOT(newchar()));
+    connect(ui->action_Open,       SIGNAL(triggered()),   this, SLOT(open()));
+    connect(ui->action_Save,       SIGNAL(triggered()),   this, SLOT(save()));
+    connect(ui->actionSave_As,     SIGNAL(triggered()),   this, SLOT(saveAs()));
+    connect(ui->action_Print,      SIGNAL(triggered()),   this, SLOT(print()));
+    connect(ui->actionPa_ge_Setup, SIGNAL(triggered()),   this, SLOT(pageSetup()));
+    connect(ui->actionE_xit,       SIGNAL(triggered()),   this, SLOT(exitClicked()));
 
     connect(Ui->alternateids,          SIGNAL(textEdited(QString)), this, SLOT(alternateIdsChanged(QString)));
     connect(Ui->bodyval,               SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
@@ -241,6 +254,7 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->egoval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
     connect(Ui->endval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
     connect(Ui->endval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
+    connect(Ui->eyecolor,              SIGNAL(textEdited(QString)), this, SLOT(eyeColorChanged(QString)));
     connect(Ui->gamemaster,            SIGNAL(textEdited(QString)), this, SLOT(gamemasterChanged(QString)));
     connect(Ui->genre,                 SIGNAL(textEdited(QString)), this, SLOT(genreChanged(QString)));
     connect(Ui->haircolor,             SIGNAL(textEdited(QString)), this, SLOT(hairColorChanged(QString)));
@@ -266,6 +280,10 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->totalexperienceearned, SIGNAL(textEdited(QString)), this, SLOT(totalExperienceEarnedChanged(QString)));
     connect(Ui->totalexperienceearned, SIGNAL(editingFinished()),   this, SLOT(totalExperienceEarnedEditingFinished()));
 
+    connect(Ui->image,      SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(imageMenu(QPoint)));
+    connect(Ui->newImage,   SIGNAL(triggered()),                        this, SLOT(newImage()));
+    connect(Ui->clearImage, SIGNAL(triggered()),                        this, SLOT(clearImage()));
+
     connect(Ui->complications,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(complicationDoubleClicked(QTableWidgetItem*)));
     connect(Ui->complications,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(complicationsMenu(QPoint)));
     connect(Ui->complicationsMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowComplicationsMenu()));
@@ -290,17 +308,17 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->moveSkillTalentOrPerkUp,   SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkUp()));
     connect(Ui->moveSkillTalentOrPerkDown, SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkDown()));
 
-    connect(Ui->powersandequipment,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
-    connect(Ui->powersandequipment,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
-    connect(Ui->powersandequipmentMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
-    connect(Ui->newPowerOrEquipment,       SIGNAL(triggered()),                          this, SLOT(newPowerOrEquipment()));
-//    connect(Ui->editSkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(editSkillstalentsandperks()));
-//    connect(Ui->deleteSkillTalentOrPerk,   SIGNAL(triggered()),                          this, SLOT(deleteSkillstalentsandperks()));
-//    connect(Ui->cutSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(cutSkillTalentOrPerk()));
-//    connect(Ui->copySkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(copySkillTalentOrPerk()));
-//    connect(Ui->pasteSkillTalentOrPerk,    SIGNAL(triggered()),                          this, SLOT(pasteSkillTalentOrPerk()));
-//    connect(Ui->moveSkillTalentOrPerkUp,   SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkUp()));
-//    connect(Ui->moveSkillTalentOrPerkDown, SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkDown()));
+    connect(Ui->powersandequipment,       SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
+    connect(Ui->powersandequipment,       SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
+    connect(Ui->powersandequipmentMenu,   SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
+    connect(Ui->newPowerOrEquipment,      SIGNAL(triggered()),                          this, SLOT(newPowerOrEquipment()));
+    connect(Ui->editPowerOrEquipment,     SIGNAL(triggered()),                          this, SLOT(editPowerOrEquipment()));
+    connect(Ui->deletePowerOrEquipment,   SIGNAL(triggered()),                          this, SLOT(deletePowerOrEquipment()));
+    connect(Ui->cutPowerOrEquipment,      SIGNAL(triggered()),                          this, SLOT(cutPowerOrEquipment()));
+    connect(Ui->copyPowerOrEquipment,     SIGNAL(triggered()),                          this, SLOT(copyPowerOrEquipment()));
+    connect(Ui->pastePowerOrEquipment,    SIGNAL(triggered()),                          this, SLOT(pastePowerOrEquipment()));
+    connect(Ui->movePowerOrEquipmentUp,   SIGNAL(triggered()),                          this, SLOT(movePowerOrEquipmentUp()));
+    connect(Ui->movePowerOrEquipmentDown, SIGNAL(triggered()),                          this, SLOT(movePowerOrEquipmentDown()));
 
     _widget2Def = {
         { Ui->strval,  { &_character.STR(),  Ui->strval,  Ui->strpoints, Ui->strroll } },
@@ -327,8 +345,9 @@ Sheet::Sheet(QWidget *parent)
 
 Sheet::~Sheet()
 {
+    delete printer;
     delete ui;
-    // Ui is pointer into ui->label, don't delete it!  Don't worry, it is not allocate either, static global storage with a pointer to it.
+    // Ui's contents are pointed to by ui->label, don't delete it (double deletes)!  Don't worry, it is not allocated either, static global storage with a pointer to it.
 }
 
 // --- [EVENT FILTER] ----------------------------------------------------------------------------------
@@ -339,6 +358,11 @@ bool Sheet::eventFilter(QObject* object, QEvent* event) {
         edit->setText(QString("%1").arg(_widget2Def[edit].characteristic()->base()));
     }
     return false;
+}
+
+void Sheet::closeEvent(QCloseEvent* event) {
+    if (checkClose()) event->accept();
+    else event->ignore();
 }
 
 // --- [WORK] -------------------------------------------------------------------------------------------
@@ -359,22 +383,45 @@ QList<QList<int>> phases {
     { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }
 };
 
+void Sheet::addPower(shared_ptr<Power>& power) {
+    int row = -1;
+    auto selection = Ui->powersandequipment->selectedItems();
+    if (!selection.isEmpty()) {
+        row = selection[0]->row();
+        putPower(row, power);
+    } else _character.powersOrEquipment().append(power);
+
+    power->modifiers().clear();
+    for (const auto& mod: power->advantagesList()) power->modifiers().append(mod);
+    for (const auto& mod: power->limitationsList()) power->modifiers().append(mod);
+
+    updatePowersAndEquipment();
+    updateTotals();
+    _changed = true;
+}
+
 int Sheet::characteristicsCost() {
     int total = 0;
     const auto keys = _widget2Def.keys();
-    for (const auto& key: keys) {
-        auto& def = _widget2Def[key];
-        total += def.characteristic()->points();
-    }
+    for (const auto& key: keys) total += _widget2Def[key].characteristic()->points();
     Ui->totalcost->setText(QString("%1").arg(total));
     return total;
 }
 
 void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
+    if (txt.contains('/')) {
+        auto values = txt.split("/");
+        if (values.count() != 2 ||
+            !numeric(values[0]) || !numeric(values[1])) {
+            val->undo();
+            return;
+        }
+        val->setText(txt = values[0]);
+    }
     if (numeric(txt) || txt.isEmpty()) {
         auto& def = _widget2Def[val];
         int save = def.characteristic()->base();
-        def.characteristic()->base(txt.toInt());
+        if (!txt.isEmpty()) def.characteristic()->base(txt.toInt() - def.characteristic()->primary());
         if (val == Ui->spdval) {
             int primary = def.characteristic()->base() + def.characteristic()->primary();
             int secondary = primary + def.characteristic()->secondary();
@@ -420,22 +467,83 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
           else if (val == Ui->stunval) setMaximum(def, Ui->maximumstun, Ui->currentstun);
           else if (val == Ui->pdval) setDefense(def, 0, 1);
           else if (val == Ui->edval) setDefense(def, 2, 1);
-
         if (update) updateTotals();
-
-        // [TODO] go through powers & skills looking for stat references and update all of them regardless of appropriateness.
     } else val->undo();
 }
 
 void Sheet::characteristicEditingFinished(QLineEdit* val) {
-    characteristicChanged(val, val->text());
-    if (val->text().isEmpty()) {
+    QString txt = val->text();
+    auto value = txt.split("/");
+    characteristicChanged(val, value[0]);
+
+    if (value.isEmpty()) {
         if (sender() == Ui->spdval) {
-            val->setText("1");
-            characteristicChanged(val, "1");
+            txt = "1";
+            characteristicChanged(val, txt);
         }
-        val->setText("0");
+        txt = "0";
     }
+    auto& def = _widget2Def[val];
+    if (def.characteristic()->secondary() != 0) {
+        int primary = def.characteristic()->base() + def.characteristic()->primary();
+        int secondary = def.characteristic()->secondary() + primary;
+        txt = QString("%1/%2").arg(primary).arg(secondary);
+    }
+    val->setText(txt);
+}
+
+bool Sheet::checkClose() {
+    if (_changed) {
+        try {
+            switch (YesNoCancel("Do you want to save your changes first?", "The current character has been changed!")) {
+            case QMessageBox::Yes: save(); break;
+            case QMessageBox::No:  return true;
+            default:               return false;
+            }
+        } catch (...) { return false; }
+        if (_changed) return false;
+    }
+    return true;
+}
+
+void Sheet::delPower(int row) {
+    auto power = getPower(row, _character.powersOrEquipment());
+    if (power->parent() == nullptr) {
+        int realRow = _character.powersOrEquipment().indexOf(power);
+        _character.powersOrEquipment().removeAt(realRow);
+    } else {
+        auto& list = power->parent()->list();
+        int realRow = list.indexOf(power);
+        list.removeAt(realRow);
+    }
+}
+
+int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
+    QFont font = Ui->powersandequipment->font();
+    QFont italic = font;
+    QString descr = pe->description(false);
+    for (const auto& mod: pe->advantagesList()) {
+        if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
+        else descr += "; (+" + mod->fraction(true).toString() + ") ";
+        descr += mod->description(false);
+    }
+    for (const auto& mod: pe->limitationsList()) {
+        descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
+    }
+    Fraction pts(pe->real().points);
+    if ((!pe->isFramework() || pe->isVPP() || pe->isMultipower()) && pts.toInt() == 0) pts = Fraction(1);
+    if (pe->isVPP()) pts += pe->pool().points;
+    if (pts.toInt() != 0) setCell(Ui->powersandequipment, row, 0, QString("%1").arg(pts.toInt()), font);
+    else setCell(Ui->powersandequipment, row, 0, "", font);
+    setCell(Ui->powersandequipment, row, 1, pe->nickname(), italic);
+    setCell(Ui->powersandequipment, row, 2, descr, font, WordWrap);
+    QString end = pe->end();
+    if (end == "-") end = "";
+    setCell(Ui->powersandequipment, row, 3, end, font);
+    pe->row(row);
+    ++row;
+    if (pe->isFramework()) _powersOrEquipmentPoints += pe->display(row, Ui->powersandequipment);
+    return pts.toInt();
 }
 
 QString Sheet::formatLift(int str) {
@@ -449,39 +557,155 @@ QString Sheet::formatLift(int str) {
     return num + " " + units;
 }
 
+shared_ptr<Power>& Sheet::getPower(int row, QList<shared_ptr<Power>>& in) {
+    static shared_ptr<Power> null = nullptr;
+
+    for (auto& power: in) {
+        if (power->row() == row) return power;
+        if (power->isFramework()) {
+            auto& p = getPower(row, power->list());
+            if (p != null) return p;
+        }
+    }
+    return null;
+}
+
+void Sheet::putPower(int row, shared_ptr<Power> power) {
+    shared_ptr<Power> after = getPower(row, _character.powersOrEquipment());
+    if (after == nullptr) {
+        power->parent(nullptr);
+        _character.powersOrEquipment().append(power);
+    } else if (after->isFramework()) {
+        if (power->parent() == after.get()) {
+            int realRow = _character.powersOrEquipment().indexOf(after);
+            power->parent(nullptr);
+            _character.powersOrEquipment().insert(realRow, power);
+        } else after->insert(0, power);
+    } else {
+        auto parent = after->parent();
+        if (parent == nullptr) {
+            int realRow = _character.powersOrEquipment().indexOf(after);
+            if (power->parent() == nullptr) _character.powersOrEquipment().insert(realRow, power);
+            else {
+                power->parent(nullptr);
+                _character.powersOrEquipment().insert(--realRow, power);
+            }
+        } else {
+            int realRow = parent->list().indexOf(after);
+            if (power->parent() == nullptr) parent->list().insert(++realRow, power);
+            else parent->list().insert(realRow, power);
+            power->parent(parent);
+        }
+    }
+}
+
+void Sheet::rebuildCharacteristics() {
+    QList<QLineEdit*> characteristicWidgets {
+        Ui->strval,  Ui->dexval, Ui->conval, Ui->intval,  Ui->egoval,
+        Ui->preval,  Ui->ocvval, Ui->dcvval, Ui->omcvval, Ui->dmcvval,
+        Ui->spdval,  Ui->pdval,  Ui->edval,  Ui->recval,  Ui->endval,
+        Ui->bodyval, Ui->stunval
+    };
+
+    for (int i = 0; i < 17; ++i) {
+        _character.characteristic(i).primary(0);
+        _character.characteristic(i).secondary(0);
+    }
+
+    for (const auto& power: _character.powersOrEquipment()) {
+        if (power->name() == "Density Increase") {
+            _character.STR().secondary(_character.STR().secondary() + power->str());
+            _character.rPD() += power->rPD();
+            _character.rED() += power->rED();
+        } else if (power->name() == "Growth") {
+            auto& sm = power->growthStats();
+            _character.STR().secondary(_character.STR().secondary() + sm._STR);
+            _character.CON().secondary(_character.CON().secondary() + sm._CON);
+            _character.PRE().secondary(_character.PRE().secondary() + sm._PRE);
+            _character.PD().secondary(_character.PD().secondary() + sm._PD);
+            _character.ED().secondary(_character.ED().secondary() + sm._ED);
+            _character.BODY().secondary(_character.BODY().secondary() + sm._BODY);
+            _character.STUN().secondary(_character.STUN().secondary() + sm._STUN);
+        } else if (power->name() == "Characteristics") {
+            int put = power->characteristic(-1);
+            if (put < 1) continue;
+            for (int i = 0; i < 17; ++i) {
+                if (put == 1) _character.characteristic(i).primary(_character.characteristic(i).primary() + power->characteristic(i));
+                else _character.characteristic(i).secondary(_character.characteristic(i).secondary() + power->characteristic(i));
+            }
+        }
+    }
+
+    for (int i = 0; i < 17; ++i) {
+        characteristicWidgets[i]->setText(QString("%1").arg(_character.characteristic(i).primary() + _character.characteristic(i).base()));
+        characteristicEditingFinished(characteristicWidgets[i]);
+    }
+}
+
+QString Sheet::rebuildCombatSkillLevel(shared_ptr<SkillTalentOrPerk> stp) {
+    stp->points(SkillTalentOrPerk::NoStore);
+    if (stp->name() == "Combat Skill Levels" ||
+        (stp->name() == "Skill Levels" && stp->description().contains("Overall"))) return stp->description().mid(stp->name().length() + 2);
+    return "";
+}
+
 void Sheet::rebuildCombatSkillLevels() {
     bool first = true;
     QString csl = "<b>Combat Skill Levels</b> ";
     for (const auto& stp: _character.skillsTalentsOrPerks()) {
-        stp->points(Complication::NoStore);
-        if (stp->name() == "Combat Skill Levels" ||
-            (stp->name() == "Skill Levels" && stp->description().contains("Overall"))) {
+        QString d = rebuildCombatSkillLevel(stp);
+        if (d.isEmpty()) continue;
+        if (first) first = false;
+        else csl += ", ";
+        csl += d;
+    }
+    for (const auto& pow: _character.powersOrEquipment()) {
+        pow->points(Power::NoStore);
+        if (pow->name() == "Skill") {
+            QString d = rebuildCombatSkillLevel(pow->skill());
+            if (d.isEmpty()) continue;
             if (first) first = false;
             else csl += ", ";
-            QString d = stp->description().mid(stp->name().length() + 2);
             csl += d;
         }
     }
     Ui->combatskilllevels->setHtml(csl);
 }
 
-void Sheet::rebuildMartialArts() {
-    /*
-     * { "Block",           "½",     "+0",    "+0",  "Block, abort"             },
-       { "Brace",           "0",     "+2",    "½",   "+2 OCV vs R Mod"          },
-       { "Disarm",          "½",     "-2",    "+0",  "Disarm, STR v. STR"       },
-       { "Dodge",           "½",     "——",    "+3",  "Abort vs. all attacks"    },
-       { "Grab",            "½",     "-1",    "-2",  "Grab 2 limbs"             },
-       { "Grab By",         "½†",    "-3",    "-4",  "Move&Grab;+(v/10) to STR" },
-       { "Haymaker",        "½*",    "+0",    "-5",  "+4 DCs to attack"         },
-       { "Move By",         "½†",    "-2",    "-2",  "STR/2+v/10; take ⅓"       },
-       { "Move Through",    "½†",    "-v/10", "-3",  "STR+v/6; take ½ or full"  },
-       { "Multiple Attack", "1",     "var",   "½",   "Attack multiple times"    },
-       { "Set",             "1",     "+1",    "+0",  "Ranged attacks only"      },
-       { "Shove",           "½",     "-1",    "-1",  "Push 1m per 5 STR"        },
-       { "Strike",          "½",     "+0",    "+0",  "STR or weapon"            },
-       { "Throw",           "½",     "+0",    "+0",  "Throw w/STR dmg"          },
-       { "Trip",            "½",     "-1",    "-2",  "Knock target prone"       } */
+void Sheet::rebuildDefenses() {
+    _character.rPD() = 0;
+    _character.rED() = 0;
+    _character.temprPD() = 0;
+    _character.temprED() = 0;
+    _character.FD() = 0;
+    _character.MD() = 0;
+
+    for (const auto& power: _character.powersOrEquipment()) {
+        if (power->name() == "Density Increase" ||
+            power->name() == "Resistant Defense") {
+            _character.rPD() += power->rPD();
+            _character.rED() += power->rED();
+        } else if (power->name() == "Barrier") {
+            _character.temprPD() += power->rPD();
+            _character.temprED() += power->rED();
+        } else if (power->name() == "Flash Defense") {
+            _character.FD() += power->FD();
+        }
+        else if (power->name() == "Mental Defense") {
+            _character.MD() += power->MD();
+        }
+        else if (power->name() == "Power Defense") {
+            _character.PowD() += power->PowD();
+        }
+    }
+    setResistantDefense(_character.rPD(),  _character.temprPD(), 1, 1);
+    setResistantDefense(_character.rED(),  _character.temprED(), 3, 1);
+    setResistantDefense(_character.FD(),   0,                    6, 1);
+    setResistantDefense(_character.MD(),   0,                    4, 1);
+    setResistantDefense(_character.PowD(), 0,                    5, 1);
+}
+
+void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
     static QMap<QString, QStringList> table = {
         { "Choke Hold",       { "½", "-2", "+0", "Grab 1 limb, 2d6 NND" } },
         { "Defensive Strike", { "½", "+1", "+3", "STR strike" } },
@@ -501,32 +725,108 @@ void Sheet::rebuildMartialArts() {
     };
 
     auto* man = Ui->attacksandmaneuvers;
+    QString d = stp->description().mid(stp->name().length() + 2);
+    auto maneuvers = d.split(", ");
+    for (const auto& m: maneuvers) {
+        int size = man->rowCount();
+        int row;
+        for (row = 15; row < size; ++row) {
+            const auto* cell = man->cellWidget(row, 0);
+            if (static_cast<const QLabel*>(cell)->text() == m) break;
+        }
+        if (row != size) continue;
+        setCellLabel(man, row, 0, m, font);
+        for (int i = 0; i < 4; i++)  setCellLabel(man, row, i + 1, table[m][i], font);
+    }
+}
+
+void Sheet::rebuildMartialArts() {
+    auto* man = Ui->attacksandmaneuvers;
+    QFont font = Ui->smallfont;
     man->setRowCount(15);
     man->update();
 
-    QFont font = ui->label->font();
-    font.setPointSize(8);
-    font.setStretch(QFont::Stretch::Condensed);
     for (const auto& stp: _character.skillsTalentsOrPerks()) {
-        stp->points(Complication::NoStore);
-        if (stp->name() == "Martial Arts") {
-            QString d = stp->description().mid(stp->name().length() + 2);
-            auto maneuvers = d.split(", ");
-            for (const auto& m: maneuvers) {
-                int size = man->rowCount();
-                int row;
-                for (row = 15; row < size; ++row) {
-                    const auto* cell = man->item(row, 0);
-                    if (cell->text() == m) break;
-                }
-                if (row != size) continue;
-                setCell(man, row, 0, m, font);
-                for (int i = 0; i < 4; i++)  setCell(man, row, i + 1, table[m][i], font);
-            }
+        stp->points(SkillTalentOrPerk::NoStore);
+        if (stp->name() == "Martial Arts") rebuildMartialArt(stp, font);
+    }
+    for (const auto& power: _character.powersOrEquipment()) {
+        power->points(Power::NoStore);
+        if (power->name() == "Skill") {
+            const auto& stp = power->skill();
+            if (stp->name() == "Martial Arts") rebuildMartialArt(stp, font);
         }
     }
     man->resizeRowsToContents();
     for (int i = 1; i < man->columnCount(); ++i) man->resizeColumnToContents(i - 1);
+}
+
+void Sheet::rebuildMovement() {
+    _character.running()  = 12;
+    _character.leaping()  = 4;
+    _character.swimming() = 4;
+    QMap<QString, int> movements;
+    QMap<QString, QString> units;
+    QMap<QString, int> doubles;
+
+    for (const auto& power: _character.powersOrEquipment()) {
+        if (power->name() == "Growth") {
+            auto& sm = power->growthStats();
+            _character.running() += sm._running;
+        } else if (power->name() == "Leaping") {
+            _character.leaping() += power->move();
+        } else if (power->name() == "Swimming") {
+            _character.swimming() += power->move();
+        } else if (power->name() == "FTL Travel" ||
+                   power->name() == "Flight" ||
+                   power->name() == "Swinging" ||
+                   power->name() == "Teleportation" ||
+                   power->name() == "Tunneling") {
+            movements[power->name()] += power->move();
+            units[power->name()] = power->units();
+            doubles[power->name()] = power->doubling();
+        }
+    }
+
+    Ui->movement->setRowCount(4);
+    Ui->movement->update();
+
+    QString running = QString("%1m").arg(_character.running());
+    QString ncRunning = QString("%1m").arg(2 * _character.running());
+    QString swimming = QString("%1m").arg(_character.swimming());
+    QString ncSwimming = QString("%1m").arg(2 * _character.swimming());
+    QString hLeaping = QString("%1m").arg(_character.leaping());
+    QString ncHLeaping = QString("%1m").arg(2 * _character.leaping());
+    QString vLeaping = QString("%1m").arg((_character.leaping() + 1) / 2);
+    QString ncVLeaping = QString("%1m").arg(2 * (_character.leaping() + 1) / 2);
+    setCellLabel(Ui->movement, 0, 1, running);
+    setCellLabel(Ui->movement, 0, 2, ncRunning);
+    setCellLabel(Ui->movement, 1, 1, swimming);
+    setCellLabel(Ui->movement, 1, 2, ncSwimming);
+    setCellLabel(Ui->movement, 2, 1, hLeaping);
+    setCellLabel(Ui->movement, 2, 2, ncHLeaping);
+    setCellLabel(Ui->movement, 3, 1, vLeaping);
+    setCellLabel(Ui->movement, 3, 2, ncVLeaping);
+    const auto keys = movements.keys();
+    int row = 4;
+    QFont font = Ui->movement->cellWidget(0, 1)->font();
+    for (const auto& name: keys) {
+        setCellLabel(Ui->movement, row, 0, name,                                                                  font);
+        setCellLabel(Ui->movement, row, 1, QString("%1%2").arg(movements[name]).arg(units[name]),                 font);
+        setCellLabel(Ui->movement, row, 2, QString("%1%2").arg(doubles[name] * movements[name]).arg(units[name]), font);
+        row++;
+    }
+}
+
+void Sheet::rebuildSenses() {
+    QString senses = "<b>Enhanced and Unusual Senses</b>";
+    for (const auto& power: _character.powersOrEquipment()) {
+        if (power->name() == "Enhanced Senses") {
+            const auto& split = power->description(false).split(":");
+            senses += " <small>" + split[1] + "</small>";
+        }
+    }
+    Ui->enhancedandunusualsenses->setText(senses);
 }
 
 void Sheet::setCVs(_CharacteristicDef& def, QLabel* set) {
@@ -546,6 +846,21 @@ void Sheet::setCell(QTableWidget* tbl, int row, int col, QString str, const QFon
     tbl->setItem(row, col, lbl);
 }
 
+void Sheet::setCellLabel(QTableWidget* tbl, int row, int col, QString str, const QFont& font) {
+    QLabel* lbl = new QLabel(str);
+    lbl->setFont(font);
+    if (row >= tbl->rowCount()) tbl->setRowCount(row + 1);
+    tbl->setCellWidget(row, col, lbl);
+}
+
+void Sheet::setCellLabel(QTableWidget* tbl, int row, int col, QString str) {
+    QLabel* lbl = new QLabel(str);
+    if (row >= tbl->rowCount()) tbl->setRowCount(row + 1);
+    QLabel* cell = static_cast<QLabel*>(tbl->cellWidget(row, col));
+    lbl->setFont(cell->font());
+    tbl->setCellWidget(row, col, lbl);
+}
+
 void Sheet::setDamage(_CharacteristicDef& def, QLabel* set) {
     int primary = def.characteristic()->base() + def.characteristic()->primary();
     int secondary = primary + def.characteristic()->secondary();
@@ -559,7 +874,13 @@ void Sheet::setDefense(_CharacteristicDef& def, int r, int c) {
     int secondary = primary + def.characteristic()->secondary();
     QString defense = QString("%1").arg(primary);
     if (primary != secondary) defense += QString("/%1").arg(secondary);
-    setCell(Ui->defenses, r, c, defense, Ui->defenses->font());
+    setCellLabel(Ui->defenses, r, c, defense);
+}
+
+void Sheet::setResistantDefense(int def, int temp, int r, int c) {
+    QString defense = QString("%1").arg(def);
+    if (temp != 0) defense += QString("/%1").arg(temp + def);
+    setCellLabel(Ui->defenses, r, c, defense);
 }
 
 void Sheet::setMaximum(_CharacteristicDef& def, QLabel* set, QLineEdit* cur) {
@@ -593,26 +914,86 @@ void Sheet::updateCharacter() {
     Ui->campaignname->setText(_character.campaignName());
     Ui->genre->setText(_character.genre());
     Ui->gamemaster->setText(_character.gamemaster());
-    Ui->totalexperienceearned->setText(QString("%1").arg(_character.xp()));
+    Ui->totalexperienceearned->setText(QString("%1").arg(_character.xp().points));
+    QPixmap pic;
+    pic.loadFromData(_character.imageData());
+    Ui->image->setPixmap(pic);
 }
 
 void Sheet::updateComplications() {
     Ui->complications->setRowCount(0);
     Ui->complications->update();
 
-    _complicationPoints = 0;
+    _complicationPoints = 0_cp;
     QFont font = Ui->complications->font();
     int row = 0;
     for (const auto& complication: _character.complications()) {
-        int pts = complication->points(Complication::NoStore);
-        setCell(Ui->complications, row, 0, QString("%1").arg(pts), font);
+        Points<> pts = complication->points(Complication::NoStore);
+        setCell(Ui->complications, row, 0, QString("%1").arg(pts.points), font);
         setCell(Ui->complications, row, 1, complication->description(), font, WordWrap);
         _complicationPoints += pts;
         ++row;
     }
     Ui->complications->resizeRowsToContents();
 
-    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
+    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints.points).arg(_option.complications().points));
+}
+
+void Sheet::updateDisplay() {
+    updateCharacter();
+    rebuildCharacteristics();
+    updateCharacteristics();
+    updateComplications();
+    updatePowersAndEquipment();
+    updateSkillsTalentsAndPerks();
+    rebuildCombatSkillLevels();
+    rebuildDefenses();
+    rebuildMartialArts();
+    rebuildMovement();
+
+    updateTotals();
+}
+
+void Sheet::updatePower(shared_ptr<Power> power) {
+    if (power->name() == "Skill") updateSkills(power->skill());
+    else if (power->name() == "Density Increase") {
+        rebuildCharacteristics();
+        rebuildDefenses();
+    } else if (power->name() == "Growth") {
+        rebuildCharacteristics();
+        rebuildMovement();
+    } else if (power->name() == "Barrier" ||
+               power->name() == "Flash Defense" ||
+               power->name() == "Mental Defense" ||
+               power->name() == "Power Defense" ||
+               power->name() == "Resistant Defense") {
+        rebuildDefenses();
+    } else if (power->name() == "FTL Travel" ||
+               power->name() == "Flight" ||
+               power->name() == "Leaping" ||
+               power->name() == "Running" ||
+               power->name() == "Swimming" ||
+               power->name() == "Swinging" ||
+               power->name() == "Teleportation" ||
+               power->name() == "Tunneling") {
+        rebuildMovement();
+    } else if (power->name() == "Enhanced Senses") {
+        rebuildSenses();
+    } else if (power->name() == "Characteristics") {
+        rebuildCharacteristics();
+    }
+}
+
+void Sheet::updatePowersAndEquipment(){
+    Ui->powersandequipment->setRowCount(0);
+    Ui->powersandequipment->update();
+
+    _powersOrEquipmentPoints = 0_cp;
+    int row = 0;
+    for (const auto& pe: _character.powersOrEquipment()) _powersOrEquipmentPoints += Points<>(displayPowerAndEquipment(row, pe));
+    Ui->powersandequipment->resizeRowsToContents();
+
+    Ui->totalpowersandequipmentcost->setText(QString("%1").arg(_powersOrEquipmentPoints.points));
 }
 
 void Sheet::updateSkillRolls() {
@@ -629,61 +1010,50 @@ void Sheet::updateSkillRolls() {
 void Sheet::updateSkillsTalentsAndPerks(){
     Ui->skillstalentsandperks->setRowCount(0);
     Ui->skillstalentsandperks->update();
+    _character.clearEnhancers();
+    for (const auto& stp: _character.skillsTalentsOrPerks()) {
+        if (stp->name() == "Jack Of All Trades")  _character.hasJackOfAllTrades() = true;
+        else if (stp->name() == "Linguist")       _character.hasLinguist() = true;
+        else if (stp->name() == "Scholar")        _character.hasScholar() = true;
+        else if (stp->name() == "Scientist")      _character.hasScientist() = true;
+        else if (stp->name() == "Traveler")       _character.hasTraveler() = true;
+        else if (stp->name() == "Well-Connected") _character.hasWellConnected() = true;
+    }
 
-    _skillsTalentsOrPerksPoints = 0;
+    _skillsTalentsOrPerksPoints = 0_cp;
     QFont font = Ui->skillstalentsandperks->font();
     int row = 0;
     for (const auto& stp: _character.skillsTalentsOrPerks()) {
-        int pts = stp->points(Complication::NoStore);
-        setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(pts), font);
-        setCell(Ui->skillstalentsandperks, row, 1, stp->description(), font, WordWrap);
-        setCell(Ui->skillstalentsandperks, row, 2, stp->roll(), font);
+        Points<> pts = stp->points(Complication::NoStore);
+        setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(pts.points), font);
+        setCell(Ui->skillstalentsandperks, row, 1, stp->description(),            font, WordWrap);
+        setCell(Ui->skillstalentsandperks, row, 2, stp->roll(),                   font);
         _skillsTalentsOrPerksPoints += pts;
         ++row;
     }
     Ui->skillstalentsandperks->resizeRowsToContents();
 
-    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));
+    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints.points));
 }
 
-void Sheet::updatePowersAndEquipment(){
-    Ui->powersandequipment->setRowCount(0);
-    Ui->powersandequipment->update();
-
-    _powersOrEquiomentPoints = 0;
-    QFont font = Ui->powersandequipment->font();
-    int row = 0;
-    for (const auto& pe: _character.powersOrEquipment()) {
-        int pts = pe->points(Power::NoStore);
-        setCell(Ui->powersandequipment, row, 0, QString("%1").arg(pts), font);
-        setCell(Ui->powersandequipment, row, 1, pe->nickname(), font);
-        setCell(Ui->powersandequipment, row, 2, pe->description(), font, WordWrap);
-        setCell(Ui->powersandequipment, row, 3, pe->end(), font);
-        _skillsTalentsOrPerksPoints += pts;
-        ++row;
-    }
-    Ui->powersandequipment->resizeRowsToContents();
-
-    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_powersOrEquiomentPoints));
-}
-
-void Sheet::updateDisplay() {
-    updateCharacter();
-    updateCharacteristics();
-    updateComplications();
-    updatePowersAndEquipment();
-    updateSkillsTalentsAndPerks();
-    rebuildCombatSkillLevels();
-    rebuildMartialArts();
-
-    updateTotals();
+void Sheet::updateSkills(shared_ptr<SkillTalentOrPerk> skilltalentorperk) {
+    if (skilltalentorperk->name() == "Combat Skill Levels" ||
+        skilltalentorperk->name() == "Range Skill Levels" ||
+        skilltalentorperk->name() == "Skill Levels") rebuildCombatSkillLevels();
+    else if (skilltalentorperk->name() == "Martial Arts") rebuildMartialArts();
+    else if (skilltalentorperk->name() == "Jack Of All Trades" ||
+             skilltalentorperk->name() == "Linguist" ||
+             skilltalentorperk->name() == "Scholar" ||
+             skilltalentorperk->name() == "Scientist" ||
+             skilltalentorperk->name() == "Traveler" ||
+             skilltalentorperk->name() == "Well-Connected") updateSkillsTalentsAndPerks();
 }
 
 void Sheet::updateTotals() {
-    _totalPoints = characteristicsCost() + _skillsTalentsOrPerksPoints + _powersOrEquiomentPoints;
+    _totalPoints = characteristicsCost() + _skillsTalentsOrPerksPoints + _powersOrEquipmentPoints;
     Ui->totalpoints->setText(QString("%1/%2")
-                             .arg(_totalPoints)
-                             .arg(_option.totalPoints() - _option.complications() + min(_option.complications(), _complicationPoints)));
+                             .arg(_totalPoints.points)
+                             .arg((_option.totalPoints() - _option.complications()).points + min(_option.complications().points, _complicationPoints.points)));
     totalExperienceEarnedEditingFinished();
 }
 
@@ -722,7 +1092,21 @@ void Sheet::aboutToShowFileMenu() {
 }
 
 void Sheet::aboutToShowPowersAndEquipmentMenu() {
-    // [TODO] - Basically copy one the following function ;-)
+    const auto selection = Ui->powersandequipment->selectedItems();
+    bool show = !selection.isEmpty();
+    int row = -1;
+    if (show) row = selection[0]->row();
+    Ui->editPowerOrEquipment->setEnabled(show);
+    Ui->deletePowerOrEquipment->setEnabled(show);
+    Ui->cutPowerOrEquipment->setEnabled(show);
+    Ui->copyPowerOrEquipment->setEnabled(show);
+    Ui->movePowerOrEquipmentUp->setEnabled(show && row != 0);
+    auto power = getPower(row, _character.powersOrEquipment());
+    Ui->movePowerOrEquipmentDown->setEnabled(show && (row != Ui->powersandequipment->rowCount() - 1 || power->parent() != nullptr));
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    const QMimeData* clip = clipboard->mimeData();
+    bool canPaste = clip->hasFormat("application/powerorequipment");
+    Ui->pastePowerOrEquipment->setEnabled(canPaste);
 }
 
 void Sheet::aboutToShowSkillsPerksAndTalentsMenu() {
@@ -758,17 +1142,39 @@ void Sheet::characterNameChanged(QString txt) {
     _changed = true;
 }
 
+void Sheet::clearImage() {
+    Ui->image->clear();
+    _character.image() = "";
+    _character.imageData().clear();
+    _changed = true;
+}
+
 void Sheet::copyComplication() {
     QClipboard* clip = QGuiApplication::clipboard();
     QMimeData* data = new QMimeData();
     auto selection = Ui->complications->selectedItems();
     int row = selection[0]->row();
-    Complication* complication = _character.complications()[row];
+    shared_ptr<Complication> complication = _character.complications()[row];
     QJsonObject obj = complication->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
     data->setData("application/complication", doc.toJson());
-    QString text = QString("%1\t%2").arg(complication->points(Complication::NoStore)).arg(complication->description());
+    QString text = QString("%1\t%2").arg(complication->points(Complication::NoStore).points).arg(complication->description());
+    data->setData("text/plain", text.toUtf8());
+    clip->setMimeData(data);
+}
+
+void Sheet::copyPowerOrEquipment() {
+    QClipboard* clip = QGuiApplication::clipboard();
+    QMimeData* data = new QMimeData();
+    auto selection = Ui->powersandequipment->selectedItems();
+    int row = selection[0]->row();
+    shared_ptr<Power> power = getPower(row, _character.powersOrEquipment());
+    QJsonObject obj = power->toJson();
+    QJsonDocument doc;
+    doc.setObject(obj);
+    data->setData("application/powerorequipment", doc.toJson());
+    QString text = QString("%1\t%2").arg(power->points(Power::NoStore).points).arg(power->description());
     data->setData("text/plain", text.toUtf8());
     clip->setMimeData(data);
 }
@@ -778,12 +1184,12 @@ void Sheet::copySkillTalentOrPerk() {
     QMimeData* data = new QMimeData();
     auto selection = Ui->skillstalentsandperks->selectedItems();
     int row = selection[0]->row();
-    SkillTalentOrPerk* skilltalentorperk = _character.skillsTalentsOrPerks()[row];
+    shared_ptr<SkillTalentOrPerk> skilltalentorperk = _character.skillsTalentsOrPerks()[row];
     QJsonObject obj = skilltalentorperk->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
     data->setData("application/skillperkortalent", doc.toJson());
-    QString text = QString("%1\t%2\t%3").arg(skilltalentorperk->points(SkillTalentOrPerk::NoStore))
+    QString text = QString("%1\t%2\t%3").arg(skilltalentorperk->points(SkillTalentOrPerk::NoStore).points)
             .arg(skilltalentorperk->description(), skilltalentorperk->roll());
     data->setData("text/plain", text.toUtf8());
     clip->setMimeData(data);
@@ -827,6 +1233,11 @@ void Sheet::cutComplication() {
     deleteComplication();
 }
 
+void Sheet::cutPowerOrEquipment() {
+    copyPowerOrEquipment();
+    deletePowerOrEquipment();
+}
+
 void Sheet::cutSkillTalentOrPerk() {
     copySkillTalentOrPerk();
     deleteSkillstalentsandperks();
@@ -835,27 +1246,34 @@ void Sheet::cutSkillTalentOrPerk() {
 void Sheet::deleteComplication() {
     auto selection = Ui->complications->selectedItems();
     int row = selection[0]->row();
-    Complication* complication = _character.complications().takeAt(row);
+    shared_ptr<Complication> complication = _character.complications().takeAt(row);
     _complicationPoints -= complication->points(Complication::NoStore);
     Ui->complications->removeRow(row);
-    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
+    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints.points).arg(_option.complications().points));
     updateTotals();
+    _changed = true;
+}
+
+void Sheet::deletePowerOrEquipment() {
+    auto selection = Ui->powersandequipment->selectedItems();
+    int row = selection[0]->row();
+    auto power = getPower(row, _character.powersOrEquipment());
+    delPower(row);
+    _powersOrEquipmentPoints -= power->points(Power::NoStore);
+    updateDisplay();
     _changed = true;
 }
 
 void Sheet::deleteSkillstalentsandperks() {
     auto selection = Ui->skillstalentsandperks->selectedItems();
     int row = selection[0]->row();
-    SkillTalentOrPerk* skilltalentorperk = _character.skillsTalentsOrPerks().takeAt(row);
+    shared_ptr<SkillTalentOrPerk> skilltalentorperk = _character.skillsTalentsOrPerks().takeAt(row);
     _skillsTalentsOrPerksPoints -= skilltalentorperk->points(Complication::NoStore);
 
-    if (skilltalentorperk->name() == "Combat Skill Levels" ||
-        skilltalentorperk->name() == "Range Skill Levels" ||
-        skilltalentorperk->name() == "Skill Levels") rebuildCombatSkillLevels();
-    if (skilltalentorperk->name() == "Martial Arts") rebuildMartialArts();
+    updateSkills(skilltalentorperk);
 
     Ui->skillstalentsandperks->removeRow(row);
-    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));
+    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints.points));
     updateTotals();
     _changed = true;
 }
@@ -863,55 +1281,75 @@ void Sheet::deleteSkillstalentsandperks() {
 void Sheet::editComplication() {
     auto selection = Ui->complications->selectedItems();
     int row = selection[0]->row();
-    Complication* complication = _character.complications()[row];
+    shared_ptr<Complication> complication = _character.complications()[row];
     ComplicationsDialog dlg(this);
     dlg.complication(complication);
-    int old = complication->points();
+    auto old = complication->points();
 
     if (dlg.exec() == QDialog::Rejected) return;
     if (complication->description().isEmpty()) return;
 
     QFont font = Ui->complications->font();
-    setCell(Ui->complications, row, 0, QString("%1").arg(complication->points()), font);
-    setCell(Ui->complications, row, 1, complication->description(),               font, WordWrap);
+    setCell(Ui->complications, row, 0, QString("%1").arg(complication->points().points), font);
+    setCell(Ui->complications, row, 1, complication->description(),                      font, WordWrap);
 
     Ui->complications->resizeRowsToContents();
     _complicationPoints += complication->points() - old;
-    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
+    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints.points).arg(_option.complications().points));
     updateTotals();
     _changed = true;
 }
 
 void Sheet::editPowerOrEquipment() {
-    // [TODO] Pretty much copy the method below, changing the names of the innocent ;-)
+    auto selection = Ui->powersandequipment->selectedItems();
+    int row = selection[0]->row();
+    shared_ptr<Power>& power = getPower(row, _character.powersOrEquipment());
+    QJsonObject json = power->toJson();
+    shared_ptr<Power> work = Power::FromJson(json["name"].toString(), json);
+    work->parent(power->parent());
+    PowerDialog dlg(this);
+    dlg.powerorequipment(work);
+
+    if (dlg.exec() == QDialog::Rejected) return;
+    if (work->description().isEmpty()) return;
+    if (power->parent() != nullptr) {
+        Power* group = power->parent();
+        if (!group->isValid(work)) return;
+    }
+
+    power = Power::FromJson(work->name(), work->toJson());
+    power->modifiers().clear();
+    for (const auto& mod: power->advantagesList()) power->modifiers().append(mod);
+    for (const auto& mod: power->limitationsList()) power->modifiers().append(mod);
+
+    updatePowersAndEquipment();
+    updateTotals();
+    _changed = true;
 }
 
 void Sheet::editSkillstalentsandperks() {
     auto selection = Ui->skillstalentsandperks->selectedItems();
     int row = selection[0]->row();
-    SkillTalentOrPerk* skilltalentorperk = _character.skillsTalentsOrPerks()[row];
+    shared_ptr<SkillTalentOrPerk> skilltalentorperk = _character.skillsTalentsOrPerks()[row];
     SkillDialog dlg(this);
     dlg.skilltalentorperk(skilltalentorperk);
-    int old = skilltalentorperk->points();
+    Points<> old = skilltalentorperk->points();
 
     if (dlg.exec() == QDialog::Rejected) return;
     if (skilltalentorperk->description().isEmpty()) return;
 
     QFont font = Ui->skillstalentsandperks->font();
-    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(skilltalentorperk->points()), font);
-    setCell(Ui->skillstalentsandperks, row, 1, skilltalentorperk->description(),               font, WordWrap);
-    setCell(Ui->skillstalentsandperks, row, 2, skilltalentorperk->roll(),                      font);
+    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(skilltalentorperk->points().points), font);
+    setCell(Ui->skillstalentsandperks, row, 1, skilltalentorperk->description(),                      font, WordWrap);
+    setCell(Ui->skillstalentsandperks, row, 2, skilltalentorperk->roll(),                             font);
 
-    if (skilltalentorperk->name() == "Combat Skill Levels" ||
-        skilltalentorperk->name() == "Skill Levels") rebuildCombatSkillLevels();
-    if (skilltalentorperk->name() == "Martial Arts") rebuildMartialArts();
+    updateSkills(skilltalentorperk);
 
     Ui->skillstalentsandperks->resizeRowsToContents();
     _skillsTalentsOrPerksPoints += skilltalentorperk->points() - old;
-    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));
+    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints.points));
     updateTotals();
     _changed = true;
-
 }
 
 void Sheet::eyeColorChanged(QString txt) {
@@ -920,8 +1358,28 @@ void Sheet::eyeColorChanged(QString txt) {
 }
 
 void Sheet::gamemasterChanged(QString txt) {
-    _character.genre(txt);
+    _character.gamemaster(txt);
     _changed = true;
+}
+
+void Sheet::focusChanged(QWidget*, QWidget* focus) {
+    if (focus == Ui->strval  ||
+        focus == Ui->dexval  ||
+        focus == Ui->conval  ||
+        focus == Ui->intval  ||
+        focus == Ui->egoval  ||
+        focus == Ui->preval  ||
+        focus == Ui->ocvval  ||
+        focus == Ui->dcvval  ||
+        focus == Ui->omcvval ||
+        focus == Ui->dmcvval ||
+        focus == Ui->spdval  ||
+        focus == Ui->pdval   ||
+        focus == Ui->edval   ||
+        focus == Ui->recval  ||
+        focus == Ui->endval  ||
+        focus == Ui->bodyval ||
+        focus == Ui->stunval) characteristicChanged(static_cast<QLineEdit*>(focus), "", DontUpdateTotal);
 }
 
 void Sheet::genreChanged(QString txt) {
@@ -934,11 +1392,16 @@ void Sheet::hairColorChanged(QString txt) {
     _changed = true;
 }
 
+void Sheet::imageMenu(QPoint pos) {
+    Ui->imageMenu->exec(mapToGlobal(pos + Ui->image->pos() -
+                                    QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+}
+
 void Sheet::moveComplicationDown() {
     auto selection = Ui->complications->selectedItems();
     int row = selection[0]->row();
     auto& complications = _character.complications();
-    Complication* complication = complications.takeAt(row);
+    shared_ptr<Complication> complication = complications.takeAt(row);
     complications.insert(row + 1, complication);
     updateComplications();
 }
@@ -947,16 +1410,36 @@ void Sheet::moveComplicationUp() {
     auto selection = Ui->complications->selectedItems();
     int row = selection[0]->row();
     auto& complications = _character.complications();
-    Complication* complication = complications.takeAt(row);
+    shared_ptr<Complication> complication = complications.takeAt(row);
     complications.insert(row - 1, complication);
     updateComplications();
+}
+
+void Sheet::movePowerOrEquipmentDown() {
+    auto selection = Ui->powersandequipment->selectedItems();
+    int row = selection[0]->row();
+    auto& powers = _character.powersOrEquipment();
+    auto power = getPower(row, powers);
+    delPower(row);
+    putPower(row + 2, power);
+    updatePowersAndEquipment();
+}
+
+void Sheet::movePowerOrEquipmentUp() {
+    auto selection = Ui->powersandequipment->selectedItems();
+    int row = selection[0]->row();
+    auto& powers = _character.powersOrEquipment();
+    auto power = getPower(row, powers);
+    delPower(row);
+    putPower(row - 1, power);
+    updatePowersAndEquipment();
 }
 
 void Sheet::moveSkillTalentOrPerkDown() {
     auto selection = Ui->skillstalentsandperks->selectedItems();
     int row = selection[0]->row();
     auto& stps = _character.skillsTalentsOrPerks();
-    auto* stp = stps.takeAt(row);
+    auto stp = stps.takeAt(row);
     stps.insert(row + 1, stp);
     updateSkillsTalentsAndPerks();
 }
@@ -965,7 +1448,7 @@ void Sheet::moveSkillTalentOrPerkUp() {
     auto selection = Ui->skillstalentsandperks->selectedItems();
     int row = selection[0]->row();
     auto& skillstalentsorperks = _character.skillsTalentsOrPerks();
-    SkillTalentOrPerk* skilltalentorperk = skillstalentsorperks.takeAt(row);
+    shared_ptr<SkillTalentOrPerk> skilltalentorperk = skillstalentsorperks.takeAt(row);
     skillstalentsorperks.insert(row - 1, skilltalentorperk);
     updateSkillsTalentsAndPerks();
 }
@@ -990,68 +1473,84 @@ void Sheet::newComplication() {
     ComplicationsDialog dlg(this);
 
     if (dlg.exec() == QDialog::Rejected) return;
-    Complication* complication = dlg.complication();
+    shared_ptr<Complication> complication = dlg.complication();
     if (complication->description().isEmpty()) return;
 
     _character.complications().append(complication);
 
     int row = Ui->complications->rowCount();
     QFont font = Ui->complications->font();
-    setCell(Ui->complications, row, 0, QString("%1").arg(complication->points()), font);
-    setCell(Ui->complications, row, 1, complication->description(), font, WordWrap);
+    setCell(Ui->complications, row, 0, QString("%1").arg(complication->points().points), font);
+    setCell(Ui->complications, row, 1, complication->description(),                      font, WordWrap);
     Ui->complications->resizeRowsToContents();
 
     _complicationPoints += complication->points();
-    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
+    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints.points).arg(_option.complications().points));
     updateTotals();
     _changed = true;
 }
 
-void Sheet::newPowerOrEquipment() {
-    PowerDialog dlg(this);
-
-    if (dlg.exec() == QDialog::Rejected) return;
-    Power* powerorequipment = dlg.powerorequipment();
-    if (powerorequipment->description().isEmpty()) return;
-
-    _character.powersOrEquipment().append(powerorequipment);
-
-    int row = Ui->powersandequipment->rowCount();
-    QFont font = Ui->powersandequipment->font();
-    setCell(Ui->powersandequipment, row, 0, QString("%1").arg(powerorequipment->points()), font);
-    setCell(Ui->powersandequipment, row, 1, QString("%1").arg(powerorequipment->nickname()), font);
-    setCell(Ui->powersandequipment, row, 2, powerorequipment->description(), font, WordWrap);
-    setCell(Ui->powersandequipment, row, 3, powerorequipment->end(), font);
-    Ui->powersandequipment->resizeRowsToContents();
-
-    _powersOrEquiomentPoints += powerorequipment->points();
-    Ui->totalpowersandequipmentcost->setText(QString("%1").arg(_powersOrEquiomentPoints));
-    updateTotals();
+void Sheet::newImage() {
+    QString filename = QFileDialog::getOpenFileName(this, "New Image", _dir, "Images (*.png *.xpm *jpg)");
+    if (filename.isEmpty()) return;
+    clearImage();
+    QPixmap pixmap;
+    pixmap.load(filename);
+    QPixmap scaled = pixmap.scaledToWidth(Ui->image->width());
+    if (scaled.height() > Ui->image->height()) scaled = pixmap.scaledToHeight(Ui->image->height());
+    Ui->image->setPixmap(scaled);
+    _character.image() = filename;
+    QByteArray sync;
+    QBuffer buffer(&sync);
+    buffer.open(QIODevice::WriteOnly);
+    scaled.save(&buffer, "PNG");
+    buffer.close();
+    _character.imageData() = sync;
     _changed = true;
+}
 
+void Sheet::newPowerOrEquipment() {
+    bool framework = false;
+    auto selection = Ui->powersandequipment->selectedItems();
+    if (!selection.isEmpty()) {
+        shared_ptr<Power> work = getPower(selection[0]->row(), _character.powersOrEquipment());
+        if (work == nullptr) framework = false;
+        else if (work->isFramework()) framework = work->isMultipower();
+        else {
+            auto parent = work->parent();
+            framework = parent != nullptr && parent->isMultipower();
+        }
+    }
+
+    PowerDialog dlg(this);
+    if (framework) dlg.multipower();
+    if (dlg.exec() == QDialog::Rejected) return;
+    shared_ptr<Power> power = dlg.powerorequipment();
+    if (power->description().isEmpty()) return;
+
+    addPower(power);
 }
 
 void Sheet::newSkillTalentOrPerk() {
     SkillDialog dlg(this);
 
     if (dlg.exec() == QDialog::Rejected) return;
-    SkillTalentOrPerk* skilltalentorperk = dlg.skilltalentorperk();
+    shared_ptr<SkillTalentOrPerk> skilltalentorperk = dlg.skilltalentorperk();
     if (skilltalentorperk->description().isEmpty()) return;
 
     _character.skillsTalentsOrPerks().append(skilltalentorperk);
 
     int row = Ui->skillstalentsandperks->rowCount();
     QFont font = Ui->skillstalentsandperks->font();
-    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(skilltalentorperk->points()), font);
+    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(skilltalentorperk->points().points), font);
     setCell(Ui->skillstalentsandperks, row, 1, skilltalentorperk->description(), font, WordWrap);
     setCell(Ui->skillstalentsandperks, row, 2, skilltalentorperk->roll(), font);
     Ui->skillstalentsandperks->resizeRowsToContents();
-    if (skilltalentorperk->name() == "Combat Skill Levels" ||
-        skilltalentorperk->name() == "Skill Levels") rebuildCombatSkillLevels();
-    if (skilltalentorperk->name() == "Martial Arts") rebuildMartialArts();
+
+    updateSkills(skilltalentorperk);
 
     _skillsTalentsOrPerksPoints += skilltalentorperk->points();
-    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));
+    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints.points));
     updateTotals();
     _changed = true;
 }
@@ -1087,6 +1586,11 @@ void Sheet::open() {
     }
 }
 
+void Sheet::pageSetup() {
+    QPageSetupDialog dlg(printer, this);
+    dlg.exec();
+}
+
 void Sheet::pasteComplication() {
     QClipboard* clip = QGuiApplication::clipboard();
     const QMimeData* data = clip->mimeData();
@@ -1095,19 +1599,31 @@ void Sheet::pasteComplication() {
     QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
     QJsonObject obj = json.object();
     QString name = obj["name"].toString();
-    Complication* complication = Complication::FromJson(name, obj);
+    shared_ptr<Complication> complication = Complication::FromJson(name, obj);
     _character.complications().append(complication);
 
     int row = Ui->complications->rowCount();
     QFont font = Ui->complications->font();
-    setCell(Ui->complications, row, 0, QString("%1").arg(complication->points(Complication::NoStore)), font);
-    setCell(Ui->complications, row, 1, complication->description(), font, WordWrap);
+    setCell(Ui->complications, row, 0, QString("%1").arg(complication->points(Complication::NoStore).points), font);
+    setCell(Ui->complications, row, 1, complication->description(),                                           font, WordWrap);
     Ui->complications->resizeRowsToContents();
 
     _complicationPoints += complication->points(Complication::NoStore);
-    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints).arg(_option.complications()));
+    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints.points).arg(_option.complications().points));
     updateTotals();
     _changed = true;
+}
+
+void Sheet::pastePowerOrEquipment() {
+    QClipboard* clip = QGuiApplication::clipboard();
+    const QMimeData* data = clip->mimeData();
+    QByteArray byteArray = data->data("application/powerorequipment");
+    QString jsonStr(byteArray);
+    QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
+    QJsonObject obj = json.object();
+    QString name = obj["name"].toString();
+    shared_ptr<Power> power = Power::FromJson(name, obj);
+    addPower(power);
 }
 
 void Sheet::pasteSkillTalentOrPerk() {
@@ -1118,22 +1634,20 @@ void Sheet::pasteSkillTalentOrPerk() {
     QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
     QJsonObject obj = json.object();
     QString name = obj["name"].toString();
-    SkillTalentOrPerk* stp = SkillTalentOrPerk::FromJson(name, obj);
+    shared_ptr<SkillTalentOrPerk> stp = SkillTalentOrPerk::FromJson(name, obj);
     _character.skillsTalentsOrPerks().append(stp);
 
     int row = Ui->skillstalentsandperks->rowCount();
     QFont font = Ui->skillstalentsandperks->font();
-    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(stp->points(Complication::NoStore)), font);
+    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(stp->points(Complication::NoStore).points), font);
     setCell(Ui->skillstalentsandperks, row, 1, stp->description(), font, WordWrap);
     setCell(Ui->skillstalentsandperks, row, 2, stp->roll(), font);
     Ui->skillstalentsandperks->resizeRowsToContents();
 
-    if (stp->name() == "Combat Skill Levels" ||
-        stp->name() == "Skill Levels") rebuildCombatSkillLevels();
-    if (stp->name() == "Martial Arts") rebuildMartialArts();
+    updateSkills(stp);
 
     _skillsTalentsOrPerksPoints += stp->points(Complication::NoStore);
-    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints));
+    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints.points));
     updateTotals();
     _changed = true;
 }
@@ -1149,13 +1663,95 @@ void Sheet::powersandequipmentMenu(QPoint pos) {
                                                  - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
 }
 
+void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
+    QString oldStyle = widget->styleSheet();
+
+    QLabel* label = dynamic_cast<QLabel*>(widget);
+    if (label) {
+        QString style = "QLabel { background: transparent;"
+                              "   border-style: none;"
+                              " }";
+        label->setStyleSheet(style);
+    }
+    QLineEdit* lineEdit = dynamic_cast<QLineEdit*>(widget);
+    if (lineEdit) {
+        QString style = "QLineEdit { background: white;"
+                                 "   border-style: none;"
+                                 " }";
+        lineEdit->setStyleSheet(style);
+    }
+    QTableWidget* table = dynamic_cast<QTableWidget*>(widget);
+    if (table) {
+        QFont font = table->font();
+        QString family = font.family();
+        int pnt = font.pointSize();
+        QString style ="QTableWidget { gridline-color: white;"
+                                   "   background-color: white;"
+                                   "   border-style: none;"
+                         + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
+                                   "   color: black;"
+                                   " } "
+                       "QHeaderView::section { background-color: white;"
+                                           "   border-style: none;"
+                                           "   color: black;" +
+                                   QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
+                                           " }";
+        table->setStyleSheet(style);
+
+    }
+    QPoint move { widget->x() - offset.x(), widget->y() - offset.y() };
+    painter.translate(move);
+    widget->render(&painter);
+    painter.translate(-move);
+    widget->setStyleSheet(oldStyle);
+}
+
+void Sheet::print() {
+    QPrintDialog dlg(printer, this);
+    dlg.setWindowTitle("Print Character");
+    if (dlg.exec() != QDialog::Accepted) return;
+
+    QPixmap page1(QString(":/gfx/Page1.png"));
+    QPixmap page2(QString(":/gfx/Page2.png"));
+
+    auto pageLayout = printer->pageLayout();
+    pageLayout.setOrientation(QPageLayout::Orientation::Portrait);
+    printer->setPageLayout(pageLayout);
+    printer->setFullPage(false);
+    QPainter painter;
+    painter.begin(printer);
+    QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
+    double pnt = pageRect.height() / (11.0 * 72.0);
+    double xscale = (pageRect.width() - 72.0 * pnt) / page1.width();
+    double yscale = (pageRect.height() - 72.0 * pnt) / page1.height();
+    double scale = qMin(xscale, yscale);
+    painter.translate(QPoint({ (int) (36 * pnt), (int) (36 * pnt) }));
+    painter.scale(scale, scale);
+
+    QPoint offset { 55, 48 };
+    painter.drawImage(QPointF { 0.0, 0.0 }, page1.toImage());
+    for (const auto& widget: Ui->widgets) {
+        if (widget == nullptr || widget->y() > 1250) continue; // skip things we can't render and are on the seecond page
+        print(painter, offset, widget);
+    }
+    printer->newPage();
+
+    offset = QPoint({ 50, 1352 });
+    painter.drawImage(QPointF { 0.0, 0.0 }, page2.toImage());
+    for (const auto& widget: Ui->widgets) {
+        if (widget == nullptr || widget->y() < 1250) continue; // skip things we can't render and are on the seecond page
+        print(painter, offset, widget);
+    }
+    painter.end();
+}
+
 void Sheet::save() {
     if (!_changed) return;
     if (_filename.isEmpty()) {
         QString oldname = _filename;
         _filename = Ui->charactername->text();
         saveAs();
-        if (_filename == "") _filename = oldname;
+        if (_filename.isEmpty()) _filename = oldname;
         return;
     }
 
@@ -1190,16 +1786,15 @@ void Sheet::skillstalentsandperksMenu(QPoint pos) {
 
 void Sheet::totalExperienceEarnedChanged(QString txt) {
     if (numeric(txt) || txt.isEmpty()) {
-        _character.xp(txt.toInt());
+        _character.xp(Points<>(txt.toInt()));
 
-        int total = _option.totalPoints() - _option.complications() + _character.xp() + min(_option.complications(), _complicationPoints);
-        int remaining = total - _totalPoints;
-        int spent;
-        if (_totalPoints < _option.totalPoints()) spent = 0;
-        else spent = _totalPoints - _option.totalPoints();
+        Points<> total = _option.totalPoints() - _option.complications() + _character.xp() + min(_option.complications().points, _complicationPoints.points);
+        Points<> remaining = total - _totalPoints;
+        Points<> spent(0_cp);
+        if (_totalPoints > _option.totalPoints()) spent = _totalPoints - _option.totalPoints();
 
-        Ui->experiencespent->setText(QString("%1").arg(spent));
-        Ui->experienceunspent->setText(QString("%1").arg(remaining));
+        Ui->experiencespent->setText(QString("%1").arg(spent.points));
+        Ui->experienceunspent->setText(QString("%1").arg(remaining.points));
         _changed = true;
     } else Ui->totalexperienceearned->undo();
 }

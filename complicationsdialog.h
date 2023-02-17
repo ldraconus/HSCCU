@@ -18,19 +18,19 @@ public:
     explicit ComplicationsDialog(QWidget *parent = nullptr);
     ~ComplicationsDialog();
 
-    Complication* complication()                       { return _complication; }
-    ComplicationsDialog& complication(Complication* c);
+    shared_ptr<Complication> complication() { return _complication; }
+    ComplicationsDialog& complication(shared_ptr<Complication>& c);
 
 private:
     Ui::ComplicationsDialog *ui;
 
     static const bool WordWrap = true;
 
-    Complication* _complication = nullptr;
-    QLabel*       _description;
-    QPushButton*  _ok;
-    QLabel*       _points;
-    bool          _skipUpdate = false;
+    shared_ptr<Complication> _complication;
+    QLabel*                  _description;
+    QPushButton*             _ok;
+    QLabel*                  _points;
+    bool                     _skipUpdate = false;
 
     QLabel* createLabel(QVBoxLayout*, QString, bool wordWrap = false);
     void    updateForm();

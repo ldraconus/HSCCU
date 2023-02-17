@@ -2,5 +2,10 @@
     <qresource prefix="/gfx">
         <file>Sheet.png</file>
         <file>HeroSystem.ico</file>
+        <file>Page1.png</file>
+        <file>Page2.png</file>
+    </qresource>
+    <qresource prefix="/font">
+        <file>SegoeUIHS.ttf</file>
     </qresource>
 </RCC>

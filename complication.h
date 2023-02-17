@@ -1,6 +1,8 @@
 #ifndef COMPLICATION_H
 #define COMPLICATION_H
 
+#include "shared.h"
+
 #include <functional>
 
 #include <QCheckBox>
@@ -35,7 +37,7 @@ public:
 
     virtual QString     description()                = 0;
     virtual void        form(QWidget*, QVBoxLayout*) = 0;
-    virtual int         points(bool noStore = false) = 0;
+    virtual Points<>    points(bool noStore = false) = 0;
     virtual void        restore()                    = 0;
     virtual void        store()                      = 0;
     virtual QJsonObject toJson()                     = 0;
@@ -48,8 +50,8 @@ public:
     void createForm(QWidget*, QVBoxLayout*);
 
     static QList<QString> Available();
-    static Complication*  ByIndex(int);
-    static Complication*  FromJson(QString, const QJsonObject&);
+    static shared_ptr<Complication> ByIndex(int);
+    static shared_ptr<Complication> FromJson(QString, const QJsonObject&);
 
     bool isNumber(QString);
 

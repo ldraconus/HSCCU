@@ -29,7 +29,7 @@ public:
     QString description() override {
         static QList<QString> impr { "Barely", "Slightly", "Greatly", "Fully" };
         static QList<QString> freq { "Infrequently", "Frequently", "Very Frequently", "Always" };
-        if (v._frequency == -1 || v._impairs == -1 || v._what.isEmpty()) return "<incomplete>";
+        if (v._frequency < 0 || v._impairs < 0 || v._what.isEmpty()) return "<incomplete>";
         return QString("Physical Complication: %1 (%2; %3 imparing)").arg(v._what, freq[v._frequency], impr[v._impairs]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
@@ -37,9 +37,9 @@ public:
         frequency    = createComboBox(parent, layout, "How often does it affect you?", { "Infrequently", "Frequently", "Very Frequently", "All The Time" });
         impairs      = createComboBox(parent, layout, "How badly does it affect you?", { "Barely", "Slightly", "Greatly", "Fully" });
     }
-    int points(bool noStore = false) override {
+    Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._frequency + 1) * 5 + v._impairs * 5;
+        return (v._frequency + 1) * 5_cp + v._impairs * 5_cp;
     }
     void restore() override {
         vars s = v;

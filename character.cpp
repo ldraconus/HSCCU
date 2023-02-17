@@ -6,23 +6,23 @@
 #include <QJsonObject>
 
 Character::Character()
-    : _STR(Characteristic(10, 1))
-    , _DEX(Characteristic(10, 2))
-    , _CON(Characteristic(10, 1))
-    , _INT(Characteristic(10, 1))
-    , _EGO(Characteristic(10, 1))
-    , _PRE(Characteristic(10, 1))
-    , _OCV(Characteristic(3, 5))
-    , _DCV(Characteristic(3, 5))
-    , _OMCV(Characteristic(3, 3))
-    , _DMCV(Characteristic(3, 3))
-    , _SPD(Characteristic(2, 10))
-    , _PD(Characteristic(2, 1))
-    , _ED(Characteristic(2, 1))
-    , _REC(Characteristic(4, 1))
-    , _END(Characteristic(20, 1, 5))
-    , _BODY(Characteristic(10, 1))
-    , _STUN(Characteristic(20, 1, 2)) { }
+    : _STR(Characteristic(10, 1_cp))
+    , _DEX(Characteristic(10, 2_cp))
+    , _CON(Characteristic(10, 1_cp))
+    , _INT(Characteristic(10, 1_cp))
+    , _EGO(Characteristic(10, 1_cp))
+    , _PRE(Characteristic(10, 1_cp))
+    , _OCV(Characteristic(3, 5_cp))
+    , _DCV(Characteristic(3, 5_cp))
+    , _OMCV(Characteristic(3, 3_cp))
+    , _DMCV(Characteristic(3, 3_cp))
+    , _SPD(Characteristic(2, 10_cp))
+    , _PD(Characteristic(2, 1_cp))
+    , _ED(Characteristic(2, 1_cp))
+    , _REC(Characteristic(4, 1_cp))
+    , _END(Characteristic(20, 1_cp, 5))
+    , _BODY(Characteristic(10, 1_cp))
+    , _STUN(Characteristic(20, 1_cp, 2)) { }
 
 Character::Character(const Character& c)
     : _STR(c._STR), _DEX(c._DEX), _CON(c._CON)
@@ -38,6 +38,8 @@ Character::Character(const Character& c)
     _hairColor     = c._hairColor;
     _playerName    = c._playerName;
     _xp            = c._xp;
+    _rPD           = c._rPD;
+    _rED           = c._rED;
 }
 
 Character& Character::operator=(const Character& c) {
@@ -118,7 +120,7 @@ void Character::erase() {
     _genre         = "";
     _hairColor     = "";
     _playerName    = "";
-    _xp            = 0;
+    _xp            = 0_cp;
     _STR.base(_STR.init());
     _DEX.base(_DEX.init());
     _CON.base(_CON.init());
@@ -136,10 +138,15 @@ void Character::erase() {
     _END.base(_END.init());
     _BODY.base(_BODY.init());
     _STUN.base(_STUN.init());
-    for (const auto& x: _complications) delete x;
+    for (int i = 0; i < 17; ++i) {
+        characteristic(i).primary(0);
+        characteristic(i).secondary(0);
+    }
     _complications.clear();
-    for (const auto& x: _skillsTalentsOrPerks) delete x;
     _skillsTalentsOrPerks.clear();
+    _powers.clear();
+    _image = "";
+    _imageData.clear();
 }
 
 bool Character::load(QString filename) {
@@ -162,9 +169,9 @@ bool Character::load(QString filename) {
     _genre         = top["genre"].toString("");
     _hairColor     = top["hairColor"].toString("");
     _playerName    = top["playerName"].toString("");
-    _xp            = top["xp"].toInt(0);
+    _xp            = Points<>(top["xp"].toInt(0));
 
-    QJsonObject characteristics = top["characteristics"].toObject();
+    const QJsonObject& characteristics = top["characteristics"].toObject();
     _STR  = Characteristic(characteristics["STR"].toObject());
     _DEX  = Characteristic(characteristics["DEX"].toObject());
     _CON  = Characteristic(characteristics["CON"].toObject());
@@ -201,6 +208,10 @@ bool Character::load(QString filename) {
         _skillsTalentsOrPerks.append(SkillTalentOrPerk::FromJson(obj["name"].toString(), obj));
     }
 
+    QJsonObject image = top["image"].toObject();
+    _image = image["filename"].toString();
+    _imageData = QByteArray::fromHex(image["data"].toString().toUtf8());
+
     return true;
 }
 
@@ -214,7 +225,7 @@ bool Character::store(QString filename) {
     top.insert("genre",         _genre);
     top.insert("hairColor",     _hairColor);
     top.insert("playerName",    _playerName);
-    top.insert("xp", _xp);
+    top.insert("xp",            qlonglong(_xp.points));
 
     QJsonObject characteristics;
     characteristics.insert("STR",  _STR.toJson());
@@ -247,6 +258,12 @@ bool Character::store(QString filename) {
     QJsonArray skillsTalentsOrPerks;
     for (int i = 0; i < _skillsTalentsOrPerks.count(); ++i) skillsTalentsOrPerks.append(_skillsTalentsOrPerks[i]->toJson());
     top.insert("skillsTalentsOrPerks", skillsTalentsOrPerks);
+
+    QJsonObject image;
+    image["filename"] = _image;
+    QString x = _imageData.toHex().toStdString().c_str();
+    image["data"] = x;
+    top.insert("image", image);
 
     QJsonDocument json;
     json.setObject(top);

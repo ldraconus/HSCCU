@@ -8,7 +8,7 @@ static long gcd(long a, long b) {
 }
 
 void Fraction::reduce() {
-    long g = gcd(_numerator % _denominator, std::abs(_denominator));
+    long g = gcd(::abs(_numerator) % ::abs(_denominator), std::abs(_denominator));
     _numerator /= g;
     _denominator /= g;
 }
@@ -27,14 +27,27 @@ static QString toSub(const QString& n) {
     return res;
 }
 
-QString Fraction::toString() {
-    QString w = QString("%1").arg(abs(_numerator / _denominator));
-    QString n = QString("%1").arg(abs(_numerator % _denominator));
-    QString d = QString("%1").arg(_denominator);
-    return ((_numerator < 0) ? "-" : "") + ((w != "0") ? w : "") + toSuper(n) + "⁄" + toSub(d);
+Fraction Fraction::abs() {
+    Fraction n(::abs(_numerator), _denominator);
+    return n;
 }
 
-Fraction operator+(long x, const Fraction& f) { return Fraction(x) + f; }
-Fraction operator-(long x, const Fraction& f) { return Fraction(x) - f; }
-Fraction operator*(long x, const Fraction& f) { return Fraction(x) * f; }
-Fraction operator/(long x, const Fraction& f) { return Fraction(x) / f; }
+QString Fraction::toString() {
+    QString w = QString("%1").arg(::abs(_numerator / _denominator));
+    QString n = QString("%1").arg(::abs(_numerator % _denominator));
+    QString d = QString("%1").arg(::abs(_denominator));
+    return ((_numerator < 0) ? "-" : "") + ((w != "0") ? w : "") + ((n != "0") ? toSuper(n) + "⁄" + toSub(d) : ((w == "0") ? "0" : ""));
+}
+
+long&    operator+=(long& x, const Fraction f) { x += f.toInt(); return x; }
+long&    operator-=(long& x, const Fraction f) { x -= f.toInt(); return x; }
+long&    operator*=(long& x, const Fraction f) { x += f.toInt(); return x; }
+Fraction operator+(long x,   const Fraction f) { return Fraction(x) + f; }
+Fraction operator-(long x,   const Fraction f) { return Fraction(x) - f; }
+Fraction operator*(long x,   const Fraction f) { return Fraction(x) * f; }
+Fraction operator/(long x,   const Fraction f) { return Fraction(x) / f; }
+bool     operator<(long x,   const Fraction f) { return Fraction(x) < f; }
+bool     operator<=(long x,  const Fraction f) { return Fraction(x) <= f; }
+bool     operator==(long x,  const Fraction f) { return Fraction(x) == f; }
+bool     operator>=(long x,  const Fraction f) { return Fraction(x) >= f; }
+bool     operator>(long x,   const Fraction f) { return Fraction(x) > f; }

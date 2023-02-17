@@ -33,9 +33,9 @@ public:
     void form(QWidget* parent, QVBoxLayout* layout) override {
         dice = createLineEdit(parent, layout, "How many dice of unluck?", std::mem_fn(&Complication::numeric));
     }
-    int points(bool noStore = false) override {
+    Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return v._dice * 5;
+        return v._dice * 5_cp;
     }
     void restore() override {
         vars s = v;

@@ -9,6 +9,9 @@ SkillDialog::SkillDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    QFont font({ QString("Segoe UIHS") });
+    setFont(font);
+
     connect(ui->skillTalentOrPerkComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickType(int)));
     connect(ui->availableComboBox,         SIGNAL(currentIndexChanged(int)), this, SLOT(pickOne(int)));
 
@@ -43,8 +46,6 @@ void SkillDialog::pickOne(int) {
         ui->form->setLayout(layout);
     }
 
-    if (_skilltalentorperk) delete _skilltalentorperk;
-
     _skilltalentorperk = SkillTalentOrPerk::ByName(ui->availableComboBox->currentText());
     try { _skilltalentorperk->createForm(this, layout); } catch (...) { accept(); }
 
@@ -62,6 +63,13 @@ void SkillDialog::pickType(int type) {
     case 0: available = SkillTalentOrPerk::SkillsAvailable();  break;
     case 1: available = SkillTalentOrPerk::TalentsAvailable(); break;
     case 2: available = SkillTalentOrPerk::PerksAvailable();   break;
+    case 3: available = { "Jack of All Trades",
+                          "Linguist",
+                          "Scholar",
+                          "Scientist",
+                          "Traveller",
+                          "Well-Connected"
+                        };                                     break;
     }
 
     for (const auto& skilltalentorperk: available) ui->availableComboBox->addItem(skilltalentorperk);
@@ -78,13 +86,12 @@ void SkillDialog::pickType(int type) {
         ui->form->setLayout(layout);
     }
 
-    if (_skilltalentorperk) delete _skilltalentorperk;
     _skilltalentorperk = nullptr;
 
     SkillTalentOrPerk::ClearForm(layout);
 }
 
-SkillDialog& SkillDialog::skilltalentorperk(SkillTalentOrPerk* s) {
+SkillDialog& SkillDialog::skilltalentorperk(shared_ptr<SkillTalentOrPerk> s) {
     QJsonObject obj = s->toJson();
     QString name = obj["name"].toString();
     if (name.isEmpty()) return *this;
@@ -136,7 +143,7 @@ void SkillDialog::textChanged(QString) {
 }
 
 void SkillDialog::updateForm() {
-    _points->setText(QString("%1 points").arg(_skilltalentorperk->points()));
+    _points->setText(QString("%1 points").arg(_skilltalentorperk->points().points));
     _description->setText(_skilltalentorperk->description(SkillTalentOrPerk::ShowRoll));
     _ok->setEnabled(_skilltalentorperk->description() != "<incomplete>");
 }

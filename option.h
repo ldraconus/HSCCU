@@ -1,6 +1,8 @@
 #ifndef OPTION_H
 #define OPTION_H
 
+#include "shared.h"
+
 #include <QObject>
 
 class Option
@@ -8,14 +10,14 @@ class Option
 public:
     Option();
 
-    int     complications()      { return _complications; }
-    Option& complications(int x) { _complications = x; return *this; }
-    int     totalPoints()        { return _totalPoints; }
-    Option& totalPoints(int x)   { _totalPoints = x; return *this; }
+    Points<> complications()           { return _complications; }
+    Option&  complications(Points<> x) { _complications = x; return *this; }
+    Points<> totalPoints()             { return _totalPoints; }
+    Option&  totalPoints(Points<> x)   { _totalPoints = x; return *this; }
 
 private:
-    int _totalPoints;
-    int _complications;
+    Points<> _totalPoints;
+    Points<> _complications;
 };
 
 #endif // OPTION_H

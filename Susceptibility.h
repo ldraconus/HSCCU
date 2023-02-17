@@ -32,20 +32,20 @@ public:
         static QList<QString> evry { " Instantly", "/Segment", "/Phase", "/Turn", "/Minute", "/5 Minutes",
                                      "/20 Minutes", "/Hour", "/6 Hours", "/Day" };
         static QList<QString> prxm { "within 8m", "contact", "internal" };
-        if (v._frequency == -1 || v._every == -1 || v._dice == -1 || v._proximity == -1 || v._what.isEmpty()) return "<incomplete>";
+        if (v._frequency < 1 || v._every < 1 || v._dice < 1 || v._proximity < 1 || v._what.isEmpty()) return "<incomplete>";
         return QString("Susceptibility: %1 (%2; %3%4; %5)").arg(v._what, freq[v._frequency], dice[v._dice], evry[v._every], prxm[v._proximity]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what      = createLineEdit(parent, layout, "What are you susceptible to?");
-        frequency = createComboBox(parent, layout, "How common is it?", { "Uncommon", "Common", "Uncommon" });
+        frequency = createComboBox(parent, layout, "How common is it?", { "Uncommon", "Common", "Very Common" });
         every     = createComboBox(parent, layout, "How often do you take damage?", { "Effect is Instant", "Segment", "Phase", "Turn", "1 Minute", "5 Minutes",
                                                                                       "20 Minutes", "1 Hour", "6 Hours", "1 Day" });
         dice      = createComboBox(parent, layout, "How many dice of damage?", { "1d6", "2d6", "3d6" });
         proximity = createComboBox(parent, layout, "How close do you have to be?", { "Within 8m", "Touching Skin", "Ingested/Injected" });
     }
-    int points(bool noStore = false) override {
+    Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._every == 0 ? 0 : (15 - (v._every - 1) * 5)) * 5 + (v._frequency + 1) * 5 + v._dice * 5 - v._proximity * 5;
+        return (v._every == 0 ? 0_cp : (25_cp - (v._every - 2) * 5_cp)) * 5_cp + (v._frequency + 1) * 5_cp + v._dice * 5_cp - v._proximity * 5_cp;
     }
     void restore() override {
         vars s = v;

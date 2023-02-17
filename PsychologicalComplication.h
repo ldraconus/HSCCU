@@ -29,17 +29,17 @@ public:
     QString description() override {
         static QList<QString> ints { "Moderate", "Strong", "Total" };
         static QList<QString> freq { "Uncommon", "Common", "Very Common" };
-        if (v._frequency == -1 || v._intensity == -1 || v._what.isEmpty()) return "<incomplete>";
+        if (v._frequency < 0 || v._intensity < 0 || v._what.isEmpty()) return "<incomplete>";
         return QString("Pychological Complication: %1 (%2; %3)").arg(v._what, freq[v._frequency], ints[v._intensity]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what         = createLineEdit(parent, layout, "What is the complication?");
-        frequency    = createComboBox(parent, layout, "How often does it come up?", { "Uncommon", "Common", "Very Common" });
-        intensity    = createComboBox(parent, layout, "How commited are you?", { "Moderate", "Strong", "Total" });
+        frequency    = createComboBox(parent, layout, "How often does it come up?", { "", "Uncommon", "Common", "Very Common" });
+        intensity    = createComboBox(parent, layout, "How commited are you?", { "", "Moderate", "Strong", "Total" });
     }
-    int points(bool noStore = false) override {
+    Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._frequency + 1) * 5 + v._intensity * 5;
+        return (v._frequency + 1) * 5_cp + v._intensity * 5_cp;
     }
     void restore() override {
         vars s = v;
@@ -66,7 +66,7 @@ private:
     struct vars {
         int     _frequency = -1;
         int     _intensity = -1;
-        QString _what = "";
+        QString _what      = "";
     } v;
 
     QComboBox* frequency;

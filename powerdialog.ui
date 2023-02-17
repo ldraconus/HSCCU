@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>PIck A Power</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -19,12 +23,70 @@
      <property name="currentIndex">
       <number>-1</number>
      </property>
+     <property name="maxVisibleItems">
+      <number>25</number>
+     </property>
      <property name="placeholderText">
       <string>Type of Power?</string>
      </property>
      <item>
       <property name="text">
        <string>Adjustment Powers</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Attack Powers</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Automaton Powersϴ</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Body Affecting Powers</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Defense Powers</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Mental Powers</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Movement Powers</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Sense Affecting Powers</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Sensory Powers</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Special Powers</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Standard Powers</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Groups &amp; Pools</string>
       </property>
      </item>
     </widget>
@@ -80,7 +142,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

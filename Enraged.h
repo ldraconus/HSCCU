@@ -34,7 +34,7 @@ public:
         static QList<QString> freq { "Uncommon", "Common", "Very Common" };
         static QList<QString> chnc { "8-", "11-", "14-" };
         static QList<QString> regn { "14-", "11-", "8-" };
-        if (v._frequency == -1 || v._chance == -1 || v._regain == -1 || v._what.isEmpty()) return "<incomplete>";
+        if (v._frequency < 0 || v._chance < 0 || v._regain < 0 || v._what.isEmpty()) return "<incomplete>";
         return QString("%1: %2 (%3 Go: %4; Recover: %5)").arg(v._type ? "Berserk" : "Enraged", v._what, freq[v._frequency], chnc[v._chance], regn[v._regain]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
@@ -44,9 +44,9 @@ public:
         regain    = createComboBox(parent, layout, "How easily do you recover?", { "On a 14-", "On an 11-", "On an 8-" });
         type      = createCheckBox(parent, layout, "Berserk");
     }
-    int points(bool noStore = false) override {
+    Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._frequency + 1) * 5 + v._chance * 5 + v._regain * 5 + (v._type ? 10 : 0);
+        return (v._frequency + 1) * 5_cp + v._chance * 5_cp + v._regain * 5_cp + (v._type ? 10_cp : 0_cp);
     }
     void restore() override {
         vars s = v;

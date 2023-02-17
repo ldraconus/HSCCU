@@ -11,6 +11,9 @@ ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    QFont font({ QString("Segoe UIHS") });
+    setFont(font);
+
     connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickComplication(int)));
 
     QList<QString> complications = Complication::Available();
@@ -25,7 +28,7 @@ ComplicationsDialog::~ComplicationsDialog()
     delete ui;
 }
 
-ComplicationsDialog& ComplicationsDialog::complication(Complication* c) {
+ComplicationsDialog& ComplicationsDialog::complication(shared_ptr<Complication>& c) {
     QJsonObject obj = c->toJson();
     QString name = obj["name"].toString();
     if (name.isEmpty()) return *this;
@@ -69,7 +72,6 @@ void ComplicationsDialog::pickComplication(int idx) {
         ui->form->setLayout(layout);
     }
 
-    if (_complication) delete _complication;
     _complication = Complication::ByIndex(idx);
     _complication->createForm(this, layout);
     createLabel(layout, "");
@@ -93,7 +95,7 @@ void ComplicationsDialog::textChanged(QString) {
 }
 
 void ComplicationsDialog::updateForm() {
-    _points->setText(QString("%1 points").arg(_complication->points()));
+    _points->setText(QString("%1 points").arg(_complication->points().points));
     _description->setText(_complication->description());
     _ok->setEnabled(_complication->description() != "<incomplete>");
 }

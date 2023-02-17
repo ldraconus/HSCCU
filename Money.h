@@ -3,26 +3,26 @@
 
 #include "complication.h"
 
-class Money: public Complication {
+class MoneyComp: public Complication {
 public:
-    Money(): Complication() { }
-    Money(const Money& d)
+    MoneyComp(): Complication() { }
+    MoneyComp(const MoneyComp& d)
         : Complication()
         , v(d.v) { }
-    Money(Money&& d)
+    MoneyComp(MoneyComp&& d)
         : Complication()
         , v(d.v) { }
-    Money(const QJsonObject& json)
+    MoneyComp(const QJsonObject& json)
         : Complication()
         , v { json["amount"].toInt(0) } { }
 
-    Money& operator=(const Money& d) {
+    MoneyComp& operator=(const MoneyComp& d) {
         if (this != &d) {
             v = d.v;
         }
         return *this;
     }
-    Money& operator=(Money&& d) {
+    MoneyComp& operator=(MoneyComp&& d) {
         v = d.v;
         return *this;
     }
@@ -36,9 +36,9 @@ public:
     void form(QWidget* parent, QVBoxLayout* layout) override {
         amount = createComboBox(parent, layout, "How Poor is the PC?", { "Destitute ($3,000 or less)", "Poor ($10,000 or less)" });
     }
-    int points(bool noStore = false) override {
+    Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._amount < 0) ? 0 : ((2 - v._amount) * 5);
+        return (v._amount < 0) ? 0_cp : ((2 - v._amount) * 5_cp);
     }
     void restore() override {
         vars s = v;

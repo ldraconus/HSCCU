@@ -3,17 +3,19 @@
 #include "AgilitySkills.h"
 #include "BackgroundSkills.h"
 #include "CombatSkills.h"
+#include "SkillEnhancers.h"
 #include "IntellectSkills.h"
 #include "InteractionSkills.h"
 #include "MiscSkill.h"
 #include "Perk.h"
 #include "Talent.h"
 
-#define MAKE(x)        SkillTalentOrPerk::skill<x> _##x
-#define MAKE_PERK(x)   SkillTalentOrPerk::perk<x> _##x
-#define MAKE_TALENT(x) SkillTalentOrPerk::talent<x> _##x
-#define LINK(x)        #x, &statics::_##x
-#define SPCS(x,y)      x, &statics::_##y
+#define MAKE(x)          SkillTalentOrPerk::skill<x> _##x
+#define MAKE_PERK(x)     SkillTalentOrPerk::perk<x> _##x
+#define MAKE_TALENT(x)   SkillTalentOrPerk::talent<x> _##x
+#define MAKE_ENHANCER(x) SkillTalentOrPerk::enhancer<x> _##x
+#define LINK(x)          #x, &statics::_##x
+#define SPCS(x,y)        x, &statics::_##y
 
 namespace statics {
     // SKILLS
@@ -123,6 +125,14 @@ namespace statics {
     MAKE_TALENT(StrikingAppearence);
     MAKE_TALENT(UniversalTranslator);
     MAKE_TALENT(Weaponmaster);
+
+    // ENHANCERS
+    MAKE_ENHANCER(JackOfAllTrades);
+    MAKE_ENHANCER(Linguist);
+    MAKE_ENHANCER(Scholar);
+    MAKE_ENHANCER(Scientist);
+    MAKE_ENHANCER(Traveler);
+    MAKE_ENHANCER(WellConnected);
 }
 
 QMap<QString, SkillTalentOrPerk::skillBase*> SkillTalentOrPerk::_skills {
@@ -235,6 +245,14 @@ QMap<QString, SkillTalentOrPerk::perkBase*> SkillTalentOrPerk::_perks {
     { SPCS("Vehicles And Bases", VehiclesAndBases) }
 };
 
+QMap<QString, SkillTalentOrPerk::enhancerBase*> SkillTalentOrPerk::_enhancers {
+    { SPCS("Jack Of All Trades", JackOfAllTrades) },
+    { LINK(Linguist) },
+    { LINK(Scholar) },
+    { LINK(Scientist) },
+    { LINK(Traveler) },
+    { SPCS("Well-Connected", WellConnected) }
+};
 
 SkillTalentOrPerk::SkillTalentOrPerk() { }
 
@@ -359,16 +377,18 @@ QList<QString> SkillTalentOrPerk::PerksAvailable() {
 }
 
 
-SkillTalentOrPerk* SkillTalentOrPerk::ByName(QString name) {
+shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::ByName(QString name) {
     if (_skills.find(name) != _skills.end()) return _skills[name]->create();
     else if (_talents.find(name) != _talents.end()) return _talents[name]->create();
     else if (_perks.find(name) != _perks.end()) return _perks[name]->create();
+    else if (_enhancers.find(name) != _enhancers.end()) return _enhancers[name]->create();
     else return nullptr;
 }
 
-SkillTalentOrPerk* SkillTalentOrPerk::FromJson(QString name, const QJsonObject& json) {
+shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::FromJson(QString name, const QJsonObject& json) {
     if (_skills.find(name) != _skills.end()) return _skills[name]->create(json);
     else if (_talents.find(name) != _talents.end()) return _talents[name]->create(json);
     else if (_perks.find(name) != _perks.end()) return _perks[name]->create(json);
+    else if (_enhancers.find(name) != _enhancers.end()) return _enhancers[name]->create(json);
     else return nullptr;
 }

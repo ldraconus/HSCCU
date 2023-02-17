@@ -29,10 +29,12 @@ public:
         return *this;
     }
 
+    bool isSkill() override { return true; }
+
     QString description(bool showRoll = false) override { return showRoll ? v._name : v._name; }
     void form(QWidget*, QVBoxLayout*) override          { }
     QString name() override                             { return v._name; }
-    int points(bool noStore = false) override           { return noStore ? 0 : 0; }
+    Points<> points(bool noStore = false) override      { return noStore ? 0_cp : 0_cp; }
     void restore() override                             { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
@@ -85,9 +87,13 @@ public:
                                                                   type = createComboBox(parent, layout, "Type of Knowledge Skill", { "Group", "People", "Areas", "City", "Things" });
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * 2 + (v._introll ? 3 : 2);
-    }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  auto pts = v._plus * 2_cp + (v._introll ? 3_cp : 2_cp);
+                                                                  if (Sheet::ref().character().hasScholar()  && (v._type == 1 || v._type == 4)) pts -= 1_cp;
+                                                                  if (Sheet::ref().character().hasTraveler() && v._type != 1  && v._type != 4)  pts -= 1_cp;
+                                                                  if (pts < 1_cp) pts = 1_cp;
+                                                                  return pts;
+                                                                }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
                                                                   type->setCurrentIndex(s._type);
@@ -95,7 +101,7 @@ public:
                                                                   introll->setChecked(s._introll);
                                                                   v = s;
                                                                 }
-    QString roll() override                                     { return v._introll ? add(Sheet::ref().character().DEX().roll(), v._plus) : QString("%1-").arg(11 + v._plus); }
+    QString roll() override                                     { return v._introll ? add(Sheet::ref().character().INT().roll(), v._plus) : QString("%1-").arg(11 + v._plus); }
     void    store() override                                    { v._plus    = plus->text().toInt(0);
                                                                   v._for     = forwhat->text();
                                                                   v._type    = type->currentIndex();
@@ -111,7 +117,7 @@ public:
 
 private:
     struct vars {
-        int     _introll = -1;
+        bool    _introll = false;
         int     _plus    = 0;
         QString _for     = "";
         int     _type    = -1;
@@ -123,17 +129,22 @@ private:
     QComboBox* type;
 
     QString optOut() {
-        if (v._plus < 0 || v._for.isEmpty()) return "<incomplete>";
+        if (v._for.isEmpty()) return "<incomplete>";
         QString res;
+        QString prefix = "";
         switch (v._type) {
         case 0:
         case 1:
-        case 4: res += QString("KS: %2 (+%1)").arg(v._plus).arg(v._for); break;
-        case 2: res += QString("AK: %2 (+%1)").arg(v._plus).arg(v._for); break;
-        case 3: res += QString("CK: %2 (+%1)").arg(v._plus).arg(v._for); break;
+        case 4: prefix = "KS: "; break;
+        case 2: prefix = "AK: "; break;
+        case 3: prefix = "CK: "; break;
         default: return "<incomplete>";
         }
-
+        res += prefix + v._for;
+        QString sep = " (";
+        if (v._introll) { res += sep + "INT"; sep = ", "; }
+        if (v._plus > 0) { res += sep + QString("+%1").arg(v._plus); sep = ", "; }
+        if (sep != " (") res += ")";
         return res;
     }
 
@@ -146,7 +157,7 @@ private:
 
 class Language: public BackgroundSkill {
 public:
-    Language(): BackgroundSkill("Language")           { }
+    Language(): BackgroundSkill("Language")            { }
     Language(const Language& s): BackgroundSkill(s)    { }
     Language(Language&& s): BackgroundSkill(s)         { }
     Language(const QJsonObject& json): BackgroundSkill(json) { v._which    = json["which"].toString("");
@@ -156,12 +167,16 @@ public:
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { which    = createLineEdit(parent, layout, "Which language?");
-                                                                  level    = createComboBox(parent, layout, "Fluency", { });
+                                                                  level    = createComboBox(parent, layout, "Fluency", { "Basic", "Fluent", "Fluent w/accent",
+                                                                                                                         "Idiomatic", "Imitate Dialects" });
                                                                   literate = createCheckBox(parent, layout, "Literate (If not standard)");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._level + 1 + (v._literate ? 1 : 0);
-    }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  auto pts = v._level + 1_cp + (v._literate ? 1_cp : 0_cp);
+                                                                  if (Sheet::ref().character().hasLinguist()) pts -= 1_cp;
+                                                                  if (pts < 1_cp) pts = 1_cp;
+                                                                  return pts;
+                                                                }
     void    restore() override                                  { vars s = v;
                                                                   which->setText(s._which);
                                                                   level->setCurrentIndex(s._level);
@@ -192,8 +207,8 @@ private:
     QCheckBox* literate;
 
     QString optOut() {
-        if (v._level < 0 || v._which.isEmpty()) return "<incomplete>";
-        return "Language: " + v._which + " (" + QStringList{ "Basic", "Fluent", "Fluent w/accent1", "Idiomatic", "Imitate Dialects" }[v._level] + (v._literate ? ", Literate)" : ")");
+        if (v._level < 1 || v._which.isEmpty()) return "<incomplete>";
+        return "Language: " + v._which + " (" + QStringList{ "Basic", "Fluent", "Fluent w/accent", "Idiomatic", "Imitate Dialects" }[v._level] + (v._literate ? ", Literate)" : ")");
     }
 };
 
@@ -210,10 +225,13 @@ public:
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v._plus) + ") ": "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { what = createLineEdit(parent, layout, "What profession?");
                                                                   plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
-                                                                  stat = createComboBox(parent, layout, "Base on a stat?", { "STR", "DEX", "CON", "INT", "EGO", "PRE"});
+                                                                  stat = createComboBox(parent, layout, "Base on a stat?", { "", "STR", "DEX", "CON", "INT", "EGO", "PRE"});
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * 2 + (2 + ((v._stat >= 0) ? 1 : 0));
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  auto pts = v._plus * 1_cp + (2_cp + ((v._stat >= 1) ? 1_cp : 0_cp));
+                                                                  if (Sheet::ref().character().hasJackOfAllTrades()) pts -= 1_cp;
+                                                                  if (pts < 1_cp) pts = 1_cp;
+                                                                  return pts;
                                                                 }
     void    restore() override                                  { vars s = v;
                                                                   what->setText(s._what);
@@ -221,7 +239,7 @@ public:
                                                                   stat->setCurrentIndex(s._stat);
                                                                   v = s;
                                                                 }
-    QString roll() override                                     { return (v._stat >= 0) ? add(Sheet::ref().character().characteristic(v._stat).roll(), v._plus)
+    QString roll() override                                     { return (v._stat >= 1) ? add(Sheet::ref().character().characteristic(v._stat - 1).roll(), v._plus)
                                                                                         : QString("%1-").arg(11 + v._plus); }
     void    store() override                                    { v._what = what->text();
                                                                   v._plus = plus->text().toInt(0);
@@ -246,8 +264,15 @@ private:
     QComboBox* stat;
 
     QString optOut() {
-        if (v._plus <= 0 || v._what.isEmpty()) return "<incomplete>";
-        return "PS: " + v._what + ((v._stat != -1) ? QStringList { " (STR)", " (DEX)", " (CON)", " (INT)", " (EGO)", " (PRE)" }[v._stat] : "");
+        if (v._what.isEmpty()) return "<incomplete>";
+        QString res = "PS: " + v._what + ((v._stat > 0) ? QStringList { "", " (STR", " (DEX", " (CON", " (INT", " (EGO", " (PRE" }[v._stat] : "");
+        if (v._plus != 0) {
+            if (v._stat > 0) res += ", ";
+            else res += " (";
+            res += QString("+%1").arg(v._plus);
+        }
+        if (v._plus > 0 || v._stat > 0) res += ")";
+        return res;
     }
 
     void numeric(QString) override {
@@ -272,8 +297,11 @@ public:
                                                                   plus    = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   intstat = createCheckBox(parent, layout, "Based on INT");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return v._plus * 2 + (2 + (v._int ? 1 : 0));
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  auto pts = v._plus * 1_cp + (2_cp + (v._int ? 1_cp : 0_cp));
+                                                                  if (Sheet::ref().character().hasScientist()) pts -= 1_cp;
+                                                                  if (pts < 1_cp) pts = 1_cp;
+                                                                  return pts;
                                                                 }
     void    restore() override                                  { vars s = v;
                                                                   what->setText(s._what);
@@ -306,8 +334,15 @@ private:
     QCheckBox* intstat;
 
     QString optOut() {
-        if (v._plus <= 0 || v._what.isEmpty()) return "<incomplete>";
-        return "SS: " + v._what + (v._int ? " (INT)" : "");
+        if (v._what.isEmpty()) return "<incomplete>";
+        QString res = "SS: " + v._what + (v._int ? " (INT" : "");
+        if (v._plus != 0) {
+            if (v._int) res += ", ";
+            else res += " (";
+            res += QString("+%1").arg(v._plus);
+        }
+        if (v._plus > 0 || v._int) res += ")";
+        return res;
     }
 
     void numeric(QString) override {
@@ -331,8 +366,9 @@ public:
                                                                                                                            "Broad category of conveyances"});
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
                                                                 }
-    int     points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return QList<int>{ 0, 1, 2 }[v._what + 1]; }
+    Points<> points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points<>> cost { 0_cp, 1_cp, 2_cp };
+                                                                  return cost[v._what + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   what->setCurrentIndex(s._what);
                                                                   with->setText(s._with);
