@@ -33,7 +33,7 @@ public:
     int             secondary()      { return _secondary; }
     Characteristic& secondary(int n) { _secondary = n; return *this; }
 
-    int         points();
+    Points<>    points();
     QString     roll();
     QJsonObject toJson();
     QString     value();

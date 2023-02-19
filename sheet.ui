@@ -129,7 +129,8 @@
     <addaction name="action_Cut"/>
     <addaction name="actionC_opy"/>
     <addaction name="action_Paste"/>
-    <addaction name="action_Delete"/>
+    <addaction name="separator"/>
+    <addaction name="actionOptions"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Edit"/>
@@ -228,6 +229,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Del</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>-</string>
+   </property>
+  </action>
+  <action name="actionOptions">
+   <property name="text">
+    <string>&amp;Options</string>
    </property>
   </action>
  </widget>

@@ -5,6 +5,7 @@
 
 #include "characteristic.h"
 #include "complication.h"
+#include "option.h"
 #include "powers.h"
 #include "skilltalentorperk.h"
 
@@ -102,11 +103,15 @@ public:
     bool&  hasLinguist()        { return _hasLinguist; }
     bool&  hasScholar()         { return _hasScholar; }
     bool&  hasScientist()       { return _hasScientist; }
+    bool&  hasTakesNoSTUN()     { return _hasTakesNoSTUN; }
     bool&  hasTraveler()        { return _hasTraveler; }
     bool&  hasWellConnected()   { return _hasWellConnected; }
-    void   erase();
-    bool   load(QString);
-    bool   store(QString);
+
+    QJsonDocument copy(Option&);
+    void          erase();
+    bool          load(Option&, QString);
+    void          paste(Option&, QJsonDocument&);
+    bool          store(Option&, QString);
 
 private:
     Characteristic _STR;
@@ -144,6 +149,7 @@ private:
     bool _hasScientist       = false;
     bool _hasTraveler        = false;
     bool _hasWellConnected   = false;
+    bool _hasTakesNoSTUN     = false;
 
     QList<shared_ptr<Complication>>      _complications;
     QList<shared_ptr<SkillTalentOrPerk>> _skillsTalentsOrPerks;
@@ -161,6 +167,9 @@ private:
 
     QString    _image     = "";
     QByteArray _imageData;
+
+    void          fromJson(Option&, QJsonDocument& doc);
+    QJsonDocument toJson(Option&);
 };
 
 #endif // CHARACTER_H

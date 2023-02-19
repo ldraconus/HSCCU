@@ -1,5 +1,6 @@
 #include "complicationsdialog.h"
 #include "complication.h"
+#include "optiondialog.h"
 #include "powers.h"
 #include "powerdialog.h"
 #include "skilldialog.h"
@@ -214,8 +215,7 @@ Sheet::Sheet(QWidget *parent)
 
     _dir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
-    _option.totalPoints(400_cp)
-           .complications(75_cp);
+    _option.load();
 
     connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*,QWidget*)));
 
@@ -228,6 +228,13 @@ Sheet::Sheet(QWidget *parent)
     connect(ui->action_Print,      SIGNAL(triggered()),   this, SLOT(print()));
     connect(ui->actionPa_ge_Setup, SIGNAL(triggered()),   this, SLOT(pageSetup()));
     connect(ui->actionE_xit,       SIGNAL(triggered()),   this, SLOT(exitClicked()));
+
+    connect(ui->menu_Edit,     SIGNAL(aboutToShow()), this, SLOT(aboutToShowEditMenu()));
+    connect(ui->menu_Edit,     SIGNAL(aboutToHide()), this, SLOT(aboutToHideEditMenu()));
+    connect(ui->action_Cut,    SIGNAL(triggered()),   this, SLOT(cutCharacter()));
+    connect(ui->actionC_opy,   SIGNAL(triggered()),   this, SLOT(copyCharacter()));
+    connect(ui->action_Paste,  SIGNAL(triggered()),   this, SLOT(pasteCharacter()));
+    connect(ui->actionOptions, SIGNAL(triggered()),   this, SLOT(options()));
 
     connect(Ui->alternateids,          SIGNAL(textEdited(QString)), this, SLOT(alternateIdsChanged(QString)));
     connect(Ui->bodyval,               SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
@@ -395,16 +402,16 @@ void Sheet::addPower(shared_ptr<Power>& power) {
     for (const auto& mod: power->advantagesList()) power->modifiers().append(mod);
     for (const auto& mod: power->limitationsList()) power->modifiers().append(mod);
 
-    updatePowersAndEquipment();
+    updatePower(power);
     updateTotals();
     _changed = true;
 }
 
-int Sheet::characteristicsCost() {
-    int total = 0;
+Points<> Sheet::characteristicsCost() {
+    Points<> total = 0_cp;
     const auto keys = _widget2Def.keys();
     for (const auto& key: keys) total += _widget2Def[key].characteristic()->points();
-    Ui->totalcost->setText(QString("%1").arg(total));
+    Ui->totalcost->setText(QString("%1").arg(total.points));
     return total;
 }
 
@@ -431,7 +438,7 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
                 return;
             }
         }
-        def.points()->setText(QString("%1").arg(def.characteristic()->points()));
+        def.points()->setText(QString("%1").arg(def.characteristic()->points().points));
         if (def.roll()) {
             def.roll()->setText(def.characteristic()->roll());
             updateSkillRolls();
@@ -555,6 +562,63 @@ QString Sheet::formatLift(int str) {
     else num = QString("%1").arg(formatNumber(lift / 1000000.0));
     if (num.right(2) == ".0") num = num.left(num.length() - 2);
     return num + " " + units;
+}
+
+QString Sheet::getCharacter() {
+    QString out;
+    out += _character.characterName();
+    if (!_character.alternateIds().isEmpty()) out += " (" + _character.alternateIds() + ")\n\n";
+
+    QStringList names { "STR", "DEX", "CON", "INT", "EGO", "PRE", "OCV", "DCV", "OMCV", "DMCV", "SPD", "PD", "ED", "REC", "END", "BODY", "STUN" };
+    for (int i = 0; i < 17; ++i) {
+        auto characteristic = _character.characteristic(i);
+        int primary = characteristic.base() + characteristic.primary();
+        int secondary = primary + characteristic.secondary();
+        if (primary != secondary) out += QString("%1/%2\t").arg(primary).arg(secondary);
+        else out += QString("%1\t").arg(primary);
+        out += names[i] + QString("\t%1\t").arg(characteristic.points().points);
+        if (i < 6) out += characteristic.roll();
+        if (names[i] == "BODY") out += "Total Cost";
+        if (names[i] == "STUN") out += Ui->totalcost->text();
+        out += "\n";
+    }
+    out += "\n";
+
+    out += QString("Perception Roll:\t%1\n\n").arg(_character.INT().roll());
+
+    int pd = _character.PD().primary() + _character.PD().base() + _character.PD().secondary();
+    int rPd = _character.rPD();
+    out += QString("PD/rPD:\t%1/%2\n").arg(pd).arg(rPd);
+    int ed = _character.ED().primary() + _character.ED().base() + _character.ED().secondary();
+    int rEd = _character.rED();
+    out += QString("ED/rED:\t%1/%2\n").arg(ed).arg(rEd);
+    out += QString("MD:\t%1\n").arg(_character.MD());
+    out += QString("PowD:\t%1\n").arg(_character.PowD());
+    out += QString("FD:\t%1\n").arg(_character.FD());
+    out += "\n";
+
+    out += "Skills, Talents, and Perks\n";
+    for (const auto& skill: _character.skillsTalentsOrPerks()) out += QString("%1\t%2\n").arg(skill->points(SkillTalentOrPerk::NoStore).points).arg(skill->description());
+    out += QString("%1\tTotal Skills, Talents, and Perks\n\n").arg(Ui->totalskillstalentsandperkscost->text());
+
+    out += "Powers and Equipment\n";
+    for (const auto& power: _character.powersOrEquipment()) {
+        QString end = power->end();
+        if (end == "-") end = "";
+        out += QString("%1\t%2%3\n").arg(power->points(Power::NoStore).points).arg(power->description(), end.isEmpty() ? "" : "\t[" + end + "]");
+        if (power->isFramework()) power->display(out);
+    }
+    out += QString("%1\tTotal Powers and Equipment\n\n").arg(Ui->totalpowersandequipmentcost->text());
+
+    out += "Complications\n";
+    for (const auto& complication: _character.complications()) out += QString("%1\t%2\n").arg(complication->points(Complication::NoStore).points).arg(complication->description());
+    out += QString("%1\tTotal Complications Points\n\n").arg(Ui->totalcomplicationpts->text());
+
+    out += QString("%1\tTotal Points\n").arg(Ui->totalpoints->text());
+    out += QString("%1\tTotal Experience Earned\n").arg(Ui->totalexperienceearned->text());
+    out += QString("%1\tExperience Spent\n").arg(Ui->experiencespent->text());
+    out += QString("%1\tExperience Unspent\n").arg(Ui->experienceunspent->text());
+    return out;
 }
 
 shared_ptr<Power>& Sheet::getPower(int row, QList<shared_ptr<Power>>& in) {
@@ -818,6 +882,56 @@ void Sheet::rebuildMovement() {
     }
 }
 
+void Sheet::rebuildPowers(bool addTakesNoSTUN) {
+    if (addTakesNoSTUN) _character.hasTakesNoSTUN() = true;
+    else {
+        _character.hasTakesNoSTUN() = false;
+        for (const auto& power: _character.powersOrEquipment()) {
+            if (power->name() == "Takes No STUNϴ") {
+                _character.hasTakesNoSTUN() = true;
+                break;
+            }
+            if (power->isFramework()) {
+                for (const auto& pwr: power->list()) {
+                    if (pwr->name() == "Takes No STUNϴ") {
+                        _character.hasTakesNoSTUN() = true;
+                        break;
+                    }
+                }
+                if (_character.hasTakesNoSTUN()) break;
+            }
+        }
+    }
+
+    if (_character.hasTakesNoSTUN()) {
+        _character.PD().base(1);
+        _character.PD().init(1);
+        _character.PD().cost(3_cp);
+        _character.ED().base(1);
+        _character.ED().init(1);
+        _character.ED().cost(3_cp);
+        _character.DCV().cost(15_cp);
+        _character.DMCV().cost(9_cp);
+        Ui->pdval->setToolTip("Physical Defense: 3 points");
+        Ui->edval->setToolTip("Energy Defense: 3 points");
+        Ui->dcvval->setToolTip("Defensive Combat Value: 15 points");
+        Ui->dmcvval->setToolTip("Defensive Mental Combat Value: 9 points");
+    } else {
+        _character.PD().base(2);
+        _character.PD().init(2);
+        _character.PD().cost(1_cp);
+        _character.ED().base(2);
+        _character.ED().init(2);
+        _character.ED().cost(1_cp);
+        _character.DCV().cost(5_cp);
+        _character.DMCV().cost(3_cp);
+        Ui->pdval->setToolTip("Physical Defense: 1 point");
+        Ui->edval->setToolTip("Energy Defense: 1 point");
+        Ui->dcvval->setToolTip("Defensive Combat Value: 5 points");
+        Ui->dmcvval->setToolTip("Defensive Mental Combat Value: 3 points");
+    }
+}
+
 void Sheet::rebuildSenses() {
     QString senses = "<b>Enhanced and Unusual Senses</b>";
     for (const auto& power: _character.powersOrEquipment()) {
@@ -941,6 +1055,7 @@ void Sheet::updateComplications() {
 
 void Sheet::updateDisplay() {
     updateCharacter();
+    rebuildPowers(false);
     rebuildCharacteristics();
     updateCharacteristics();
     updateComplications();
@@ -950,7 +1065,6 @@ void Sheet::updateDisplay() {
     rebuildDefenses();
     rebuildMartialArts();
     rebuildMovement();
-
     updateTotals();
 }
 
@@ -981,6 +1095,11 @@ void Sheet::updatePower(shared_ptr<Power> power) {
         rebuildSenses();
     } else if (power->name() == "Characteristics") {
         rebuildCharacteristics();
+    } else if (power->name() == "Takes No STUNϴ") {
+        rebuildPowers(true);
+        rebuildCharacteristics();
+        rebuildDefenses();
+        updatePowersAndEquipment();
     }
 }
 
@@ -1066,6 +1185,10 @@ QString Sheet::valueToDice(int value) {
 
 // ---[SLOTS] --------------------------------------------------------------------------------------------
 
+void Sheet::aboutToHideEditMenu() {
+    ui->action_Paste->setEnabled(true);
+}
+
 void Sheet::aboutToHideFileMenu() {
     ui->action_Save->setEnabled(true);
 }
@@ -1085,6 +1208,13 @@ void Sheet::aboutToShowComplicationsMenu() {
     const QMimeData* clip = clipboard->mimeData();
     bool canPaste = clip->hasFormat("application/complication");
     Ui->pasteComplication->setEnabled(canPaste);
+}
+
+void Sheet::aboutToShowEditMenu() {
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    const QMimeData* clip = clipboard->mimeData();
+    bool canPaste = clip->hasFormat("application/hsccuchar");
+    ui->action_Paste->setEnabled(canPaste);
 }
 
 void Sheet::aboutToShowFileMenu() {
@@ -1147,6 +1277,16 @@ void Sheet::clearImage() {
     _character.image() = "";
     _character.imageData().clear();
     _changed = true;
+}
+
+void Sheet::copyCharacter() {
+    QJsonDocument doc = _character.copy(_option);
+    QClipboard* clip = QGuiApplication::clipboard();
+    QMimeData* data = new QMimeData();
+    data->setData("application/complication", doc.toJson());
+    QString text = getCharacter();
+    data->setData("text/plain", text.toUtf8());
+    clip->setMimeData(data);
 }
 
 void Sheet::copyComplication() {
@@ -1226,6 +1366,11 @@ void Sheet::currentSTUNChanged(QString txt) {
 void Sheet::currentSTUNEditingFinished() {
     currentSTUNChanged(Ui->currentstun->text());
     if (Ui->currentstun->text().isEmpty()) Ui->currentstun->setText("0");
+}
+
+void Sheet::cutCharacter() {
+    copyCharacter();
+    newchar();
 }
 
 void Sheet::cutComplication() {
@@ -1579,16 +1724,51 @@ void Sheet::open() {
         _filename = _filename.mid(sep + 1);
     }
 
-    if (!_character.load(_dir + "/" + _filename)) OK("Can't load \"" + _filename + ".hsccu\" from the \"" + _dir + "\" folder.");
+    if (!_character.load(_option, _dir + "/" + _filename)) OK("Can't load \"" + _filename + ".hsccu\" from the \"" + _dir + "\" folder.");
     else {
         updateDisplay();
         _changed = false;
     }
 }
 
+void Sheet::options() {
+    optionDialog dlg;
+    dlg.setComplications(_option.complications().points);
+    dlg.setTotalPoints(_option.totalPoints().points);
+    if (dlg.exec() != QDialog::Accepted) return;
+    _option.complications(Points<>(dlg.complications()));
+    _option.totalPoints(Points<>(dlg.totalPoints()));
+    _option.store();
+    updateDisplay();
+    _changed = true;
+}
+
 void Sheet::pageSetup() {
     QPageSetupDialog dlg(printer, this);
     dlg.exec();
+}
+
+void Sheet::pasteCharacter() {
+    try {
+        if (_changed) {
+            switch (YesNoCancel("Do you want to save your changes first?", "The current sheet has been changed!")) {
+            case QMessageBox::Yes:    save(); break;
+            case QMessageBox::Cancel:         return;
+            default:                          break;
+            }
+        }
+    } catch (...) { return; }
+
+    QClipboard* clip = QGuiApplication::clipboard();
+    const QMimeData* data = clip->mimeData();
+    QByteArray byteArray = data->data("application/hsccucharacter");
+    QString jsonStr(byteArray);
+    if (byteArray.isEmpty()) return;
+    QJsonDocument doc = QJsonDocument::fromJson(jsonStr.toUtf8());
+    _character.erase();
+    _character.paste(_option, doc);
+    updateDisplay();
+    _changed = true;
 }
 
 void Sheet::pasteComplication() {
@@ -1755,7 +1935,7 @@ void Sheet::save() {
         return;
     }
 
-    if (!_character.store(_dir + "/" + _filename)) {
+    if (!_character.store(_option, _dir + "/" + _filename)) {
         OK("Can't save to \"" + _filename + ".hsccu\" in the \"" + _dir + "\" folder.");
         throw "";
     }

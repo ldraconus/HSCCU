@@ -82,7 +82,7 @@ private:
     QMap<QObject*, _CharacteristicDef> _widget2Def;
 
     void               addPower(shared_ptr<Power>&);
-    int                characteristicsCost();
+    Points<>           characteristicsCost();
     void               characteristicChanged(QLineEdit*, QString, bool update = true);
     void               characteristicEditingFinished(QLineEdit*);
     bool               checkClose();
@@ -90,6 +90,7 @@ private:
     int                displayPowerAndEquipment(int& row, shared_ptr<Power> pe);
     bool               eventFilter(QObject* object, QEvent*) override;
     QString            formatLift(int);
+    QString            getCharacter();
     shared_ptr<Power>& getPower(int, QList<shared_ptr<Power>>&);
     void               putPower(int, shared_ptr<Power>);
     void               print(QPainter&, QPoint&, QWidget*);
@@ -100,6 +101,7 @@ private:
     void               rebuildMartialArt(shared_ptr<SkillTalentOrPerk>, QFont&);
     void               rebuildMartialArts();
     void               rebuildMovement();
+    void               rebuildPowers(bool);
     void               rebuildSenses();
     void               setCVs(_CharacteristicDef&, QLabel*);
     void               setDamage(_CharacteristicDef&, QLabel*);
@@ -127,8 +129,10 @@ public slots:
     void valChanged(QString txt)                               { characteristicChanged(dynamic_cast<QLineEdit*>(sender()), txt); }
     void valEditingFinished()                                  { characteristicEditingFinished(dynamic_cast<QLineEdit*>(sender())); }
 
+    void aboutToHideEditMenu();
     void aboutToHideFileMenu();
     void aboutToShowComplicationsMenu();
+    void aboutToShowEditMenu();
     void aboutToShowFileMenu();
     void aboutToShowPowersAndEquipmentMenu();
     void aboutToShowSkillsPerksAndTalentsMenu();
@@ -137,6 +141,7 @@ public slots:
     void characterNameChanged(QString);
     void clearImage();
     void complicationsMenu(QPoint);
+    void copyCharacter();
     void copyComplication();
     void copyPowerOrEquipment();
     void copySkillTalentOrPerk();
@@ -146,6 +151,7 @@ public slots:
     void currentENDEditingFinished();
     void currentSTUNChanged(QString);
     void currentSTUNEditingFinished();
+    void cutCharacter();
     void cutComplication();
     void cutPowerOrEquipment();
     void cutSkillTalentOrPerk();
@@ -173,7 +179,9 @@ public slots:
     void newPowerOrEquipment();
     void newSkillTalentOrPerk();
     void open();
+    void options();
     void pageSetup();
+    void pasteCharacter();
     void pasteComplication();
     void pastePowerOrEquipment();
     void pasteSkillTalentOrPerk();

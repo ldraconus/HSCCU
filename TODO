@@ -4,10 +4,12 @@
 [X] Multipower
 [X] Variable Power Pool
 [X] Printing
-[ ] TeaParty or Lua or Python custom powers/skills/talents/perks/complications
-[ ] Option setting
+[X] Option setting
+[X] Cut/Copy Character should include a text version of the character
+[X] "Takes No STUN" Effects on costs
+[ ] Windows Icon Association
+[ ] Lua custom powers/skills/talents/perks/complications
 [ ] Test! Test!! Test!!!
 [ ] Alpha Testing
 [ ] Beta Testing
 [ ] Release
-[ ] "Takes No STUN" Effects on costs

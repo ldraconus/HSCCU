@@ -2,6 +2,7 @@
 #define DEFENSE_POWERS_H
 
 #include "powers.h"
+#include "sheet.h"
 
 class Barrier: public AllPowers {
 public:
@@ -62,8 +63,11 @@ public:
                                                                           (v._feedback ? Fraction(1)    : Fraction(0)) +
                                                                           (v._restr    ? Fraction(1, 4) : Fraction(0)); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
+                                                                   Points<> defCost = 0_cp;
+                                                                   if (Sheet::ref().character().hasTakesNoSTUN()) defCost = 3_cp * (3_cp * (v._pd + v._ed) + 1) / 2;
+                                                                   else defCost = 3_cp * (v._pd + v._ed + 1) / 2;
                                                                    return 3_cp + (v._length - 1) + (v._height - 1) + (v._thick - 1) + v._body +
-                                                                          (3_cp * (v._pd + v._ed + 1) / 2) + (v._anchor ? 10_cp : 0_cp); }
+                                                                           defCost + (v._anchor ? 10_cp : 0_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    length->setText(QString("%1").arg(s._length));
@@ -219,7 +223,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v._resist  ? Fraction(1, 4) : Fraction(0)); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 5_cp * v._dc; }
+                                                                   return (Sheet::ref().character().hasTakesNoSTUN() ? 15_cp : 5_cp) * v._dc; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dc->setText(QString("%1").arg(s._dc));
@@ -319,7 +323,8 @@ public:
     Points<> points(bool noStore = false) override               { if (!noStore) store();
                                                                    QList<Points<>> n { 0_cp, 10_cp, 20_cp, 30_cp };
                                                                    QList<Points<>> r { 0_cp, 15_cp, 30_cp, 60_cp };
-                                                                   return (v._resist || v._against > 1) ? r[v._perc + 1] : n[v._perc + 1]; }
+                                                                   return (Sheet::ref().character().hasTakesNoSTUN() ? 3 : 1) *
+                                                                          ((v._resist || v._against > 1) ? r[v._perc + 1] : n[v._perc + 1]); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    perc->setCurrentIndex(s._perc);
@@ -393,7 +398,7 @@ public:
     void     form(QWidget*, QVBoxLayout*) override               { }
     Fraction lim() override                                      { return Fraction(0); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 20_cp; }
+                                                                   return Sheet::ref().character().hasTakesNoSTUN() ? 60_cp : 20_cp; }
     void     restore() override                                  { AllPowers::restore();
                                                                  }
     void     store() override                                    { AllPowers::store();
@@ -447,7 +452,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._def * 1_cp; }
+                                                                   return v._def * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    def->setText(QString("%1").arg(s._def));
@@ -493,7 +498,7 @@ public:
     KnockbackResistance(const KnockbackResistance& s): AllPowers(s) { }
     KnockbackResistance(KnockbackResistance&& s): AllPowers(s)      { }
     KnockbackResistance(const QJsonObject& json): AllPowers(json)   { v._pts = json["pts"].toInt(0);
-                                                                        }
+                                                                    }
     virtual KnockbackResistance& operator=(const KnockbackResistance& s) {
         if (this != &s) {
             AllPowers::operator=(s);
@@ -515,7 +520,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._pts * 1_cp; }
+                                                                   return v._pts * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    pts->setText(QString("%1").arg(s._pts));
@@ -559,7 +564,7 @@ public:
     MentalDefense(const MentalDefense& s): AllPowers(s)     { }
     MentalDefense(MentalDefense&& s): AllPowers(s)          { }
     MentalDefense(const QJsonObject& json): AllPowers(json) { v._def = json["def"].toInt(0);
-                                                                }
+                                                            }
     virtual MentalDefense& operator=(const MentalDefense& s) {
         if (this != &s) {
             AllPowers::operator=(s);
@@ -581,7 +586,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._def * 1_cp; }
+                                                                   return v._def * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    def->setText(QString("%1").arg(s._def));
@@ -649,7 +654,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._def * 1_cp; }
+                                                                   return v._def * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    def->setText(QString("%1").arg(s._def));
@@ -721,7 +726,10 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return (3_cp * (v._pd + v._ed + 1) / 2) + (v._protect ? 10_cp : 0_cp); }
+                                                                   Points<> defCost = 0_cp;
+                                                                   if (Sheet::ref().character().hasTakesNoSTUN()) defCost = (3_cp * (3 * (v._pd + v._ed) + 1) / 2);
+                                                                   else defCost = (3_cp * (v._pd + v._ed + 1) / 2);
+                                                                   return defCost + (v._protect ? 10_cp : 0_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    pd->setText(QString("%1").arg(s._pd));

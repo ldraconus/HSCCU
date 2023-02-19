@@ -149,18 +149,13 @@ void Character::erase() {
     _imageData.clear();
 }
 
-bool Character::load(QString filename) {
-    QFile file(filename + ".hsccu");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+QJsonDocument Character::copy(Option& opt) {
+    return toJson(opt);
+}
 
-    QByteArray data(file.readAll());
-    QString jsonStr(data);
-    file.close();
-    QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
-
-    erase();
-
-    const QJsonObject& top = json.object();
+void Character::fromJson(Option& opt, QJsonDocument& doc) {
+    const QJsonObject& top = doc.object();
+    opt = Option(top);
     _alternateIds  = top["alternateIds"].toString("");
     _campaignName  = top["campaignName"].toString("");
     _characterName = top["characterName"].toString("");
@@ -211,12 +206,42 @@ bool Character::load(QString filename) {
     QJsonObject image = top["image"].toObject();
     _image = image["filename"].toString();
     _imageData = QByteArray::fromHex(image["data"].toString().toUtf8());
+}
+
+bool Character::load(Option& opt, QString filename) {
+    QFile file(filename + ".hsccu");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+
+    QByteArray data(file.readAll());
+    QString jsonStr(data);
+    file.close();
+    QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
+
+    erase();
+    fromJson(opt, json);
 
     return true;
 }
 
-bool Character::store(QString filename) {
+void Character::paste(Option& opt, QJsonDocument& doc) {
+    erase();
+
+    fromJson(opt, doc);
+}
+
+bool Character::store(Option& opt, QString filename) {
+    QJsonDocument json = toJson(opt);
+    QFile file(filename + ".hsccu");
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) return false;
+    QTextStream out(&file);
+    out << json.toJson();
+    file.close();
+    return true;
+}
+
+QJsonDocument Character::toJson(Option& opt) {
     QJsonObject top;
+    opt.toJson(top);
     top.insert("alternateIds",  _alternateIds);
     top.insert("campaignName",  _campaignName);
     top.insert("characterName", _characterName);
@@ -267,10 +292,6 @@ bool Character::store(QString filename) {
 
     QJsonDocument json;
     json.setObject(top);
-    QFile file(filename + ".hsccu");
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) return false;
-    QTextStream out(&file);
-    out << json.toJson();
-    file.close();
-    return true;
+
+    return json;
 }

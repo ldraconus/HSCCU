@@ -18,6 +18,7 @@ SOURCES += \
     modifier.cpp \
     modifiersdialog.cpp \
     option.cpp \
+    optiondialog.cpp \
     powerdialog.cpp \
     powers.cpp \
     printwindow.cpp \
@@ -70,6 +71,7 @@ HEADERS += \
     modifier.h \
     modifiersdialog.h \
     option.h \
+    optiondialog.h \
     powerdialog.h \
     powers.h \
     printwindow.h \
@@ -82,6 +84,7 @@ HEADERS += \
 FORMS += \
     complicationsdialog.ui \
     modifiersdialog.ui \
+    optiondialog.ui \
     powerdialog.ui \
     printwindow.ui \
     sheet.ui \

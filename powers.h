@@ -217,6 +217,7 @@ public:
     virtual void                      append(shared_ptr<Power>)      { }
     virtual void                      insert(int, shared_ptr<Power>) { }
     virtual Points<>                  display(int&, QTableWidget*)   { return 0_cp; }
+    virtual Points<>                  display(QString&)              { return 0_cp; }
     virtual void                      remove(int)                    { }
     virtual void                      remove(shared_ptr<Power>)      { }
     virtual QList<shared_ptr<Power>>& list()                         { static QList<shared_ptr<Power>> l; return l; }

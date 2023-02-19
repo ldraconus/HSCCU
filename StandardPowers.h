@@ -66,8 +66,11 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 1_cp * (v._str + v._con + v._int + v._ego + v._pre + v._pd + v._ed + v._rec + v._body) + 2_cp * v._dex +
-                                                                          5_cp * (v._ocv + v._dcv) + 3_cp * (v._omcv + v._dmcv) + 10_cp * v._spd + (v._end + 2) / 5 + (v._stun + 1) / 2;
+                                                                   Points<> defCost = 0_cp;
+                                                                   if (Sheet::ref().character().hasTakesNoSTUN()) defCost = 3_cp * (v._pd + v._ed) + 9_cp * v._dmcv + 15_cp * v._dcv;
+                                                                   else defCost = 1_cp * (v._pd + v._ed) + 3_cp * v._dmcv + 5_cp * v._dcv;
+                                                                   return 1_cp * (v._str + v._con + v._int + v._ego + v._pre + v._rec + v._body) + 2_cp * v._dex + defCost +
+                                                                          5_cp * v._ocv + 3_cp * v._omcv + 10_cp * v._spd + (v._end + 2) / 5 + (v._stun + 1) / 2;
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
