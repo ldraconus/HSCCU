@@ -1,5 +1,6 @@
 #include "complicationsdialog.h"
 #include "complication.h"
+#include "modifier.h"
 #include "optiondialog.h"
 #include "powers.h"
 #include "powerdialog.h"
@@ -210,6 +211,8 @@ Sheet::Sheet(QWidget *parent)
     Ui->setupUi(ui->label);
     setupIcons();
     setUnifiedTitleAndToolBarOnMac(true);
+
+    Modifiers mods;
 
     printer = new QPrinter(QPrinter::HighResolution);
 

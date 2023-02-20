@@ -57,11 +57,11 @@ public:
                                                                    pre    = createCheckBox(p, l, "Precognition");
                                                                    retro  = createCheckBox(p, l, "Retrocognition");
                                                                    mult   = createLineEdit(p, l, "Range Muiltiplier?", std::mem_fn(&Power::numeric));
-                                                                   mobile = createLineEdit(p, l, "Mobile Movement Muiltiplier?", std::mem_fn(&Power::numeric));
+                                                                   mobile = createLineEdit(p, l, "Mobile Movement Meters?", std::mem_fn(&Power::numeric));
                                                                    attack = createCheckBox(p, l, "Attack Roll Required");
                                                                    black  = createCheckBox(p, l, "Blackout");
                                                                    fixed  = createCheckBox(p, l, "Fixed Perception Point");
-                                                                   only   = createComboBox(p, l, "Only Through The Sense Of?", { "Anywhere",
+                                                                   only   = createComboBox(p, l, "Only Through The Sense Of?", { "",
                                                                                                                                  "Any Creature",
                                                                                                                                  "Limited Group Of Creatures",
                                                                                                                                  "A Single Creature" });
@@ -152,7 +152,10 @@ private:
             } else p += 5_cp;
         }
 
-        return p + ((v._pre || v._retro) ? 20_cp : 0_cp) + v._mult * 5_cp + v._mobile * 5_cp;
+        int mult = (int) (log((double) v._mobile / 12) / log(2.0));
+        if (v._mobile > 0 && mult < 1) mult = 1;
+        if (mult < 0) mult = 0;
+        return p + ((v._pre || v._retro) ? 20_cp : 0_cp) + mult * 5_cp;
     }
 
     struct vars {
@@ -193,7 +196,7 @@ private:
         QStringList groups = { "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
         bool group = false;
         for (const auto& str: v._what) if (groups.contains(str)) { group = true; break; }
-        if (v._what.size() < 1 || (one && group) || (one && v._what.size() > 1) || !group || (v._only > 0 && v._crit.isEmpty())) return "<incomplete>";
+        if (v._what.size() < 1 || (v._one && group) || (v._one && v._what.size() > 1) || !group || (v._only > 0 && v._crit.isEmpty())) return "<incomplete>";
         if (v._porr && (v._mult > 0 || !(v._pre || v._retro))) return "<incomplete>";
         if (v._dreams && !(v._pre || v._retro)) return "<incomplete>";
         if (v._time && !(v._pre || v._retro)) return "<incomplete>";
@@ -211,7 +214,7 @@ private:
         if (v._pre) res += "; Precognition";
         if (v._retro) res += "; Retrocognition";
         if (v._mult > 0) res += QString("; x%1 Range").arg((int) pow(2, v._mult));
-        if (v._mobile > 0) res += QString("; Mobile Perception Point (%1m)").arg(12 * pow(2, v._mobile));
+        if (v._mobile > 0) res += QString("; Mobile Perception Point (%1m)").arg(v._mobile);
         if (v._attack) res += "; Attack Roll Required";
         if (v._black) res += "; Blackout";
         if (v._fixed) res += "; Fixed Perception Point";

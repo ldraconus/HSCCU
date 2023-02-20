@@ -511,6 +511,24 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
     return *this;
 }
 
+void PowerDialog::itemChanged(QTreeWidgetItem* itm, int) {
+    QTreeWidget* tree = itm->treeWidget();
+    _power->callback(tree);
+    updateForm();
+}
+
+void PowerDialog::currentIndexChanged(int) {
+    QComboBox* comboBox = static_cast<QComboBox*>(sender());
+    _power->callback(comboBox);
+    updateForm();
+}
+
+void PowerDialog::itemSelectionChanged() {
+    QTreeWidget* tree = static_cast<QTreeWidget*>(sender());
+    _power->callback(tree);
+    updateForm();
+}
+
 void PowerDialog::stateChanged(int) {
     QCheckBox* checkBox = static_cast<QCheckBox*>(sender());
     _power->callback(checkBox);

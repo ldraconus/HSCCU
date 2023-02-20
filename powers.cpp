@@ -696,7 +696,8 @@ Points<> Power::real(Fraction add, Points<> mod, Fraction sub) {
 }
 
 Points<> Power::acting(Fraction add, Points<> mod) {
-    Fraction pnts(points(NoStore).points);
+    int base = points(NoStore).points;
+    Fraction pnts(base);
     Fraction advantages(0);
     if (add == 0) advantages = Fraction(1);
     advantages += adv() + add;

@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QLabel>
 #include <QTableWidget>
+#include <QTreeWidgetItem>
+#include <QTreeWidget>
 #include <QVBoxLayout>
 
 #include "shared.h"
@@ -99,19 +101,21 @@ private:
 public slots:
     void advantageDoubleClicked(QTableWidgetItem*)  { editAdvantage(); }
     void limitationDoubleClicked(QTableWidgetItem*) { editLimitation(); }
-    void currentIndexChanged(int)                   { updateForm(); }
 
     void aboutToShowAdvantagesMenu();
     void aboutToShowLimitationsMenu();
     void advantagesMenu(QPoint);
     void copyAdvantage();
     void copyLimitation();
+    void currentIndexChanged(int);
     void cutAdvantage();
     void cutLimitation();
     void deleteAdvantage();
     void deleteLimitation();
     void editAdvantage();
     void editLimitation();
+    void itemChanged(QTreeWidgetItem*,int);
+    void itemSelectionChanged();
     void limitationsMenu(QPoint);
     void moveAdvantageDown();
     void moveLimitationDown();
