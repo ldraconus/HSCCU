@@ -564,6 +564,7 @@ public:
     MentalDefense(const MentalDefense& s): AllPowers(s)     { }
     MentalDefense(MentalDefense&& s): AllPowers(s)          { }
     MentalDefense(const QJsonObject& json): AllPowers(json) { v._def = json["def"].toInt(0);
+                                                              v._put = json["put"].toInt(1);
                                                             }
     virtual MentalDefense& operator=(const MentalDefense& s) {
         if (this != &s) {
@@ -583,6 +584,7 @@ public:
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    def = createLineEdit(parent, layout, "Defense?", std::mem_fn(&Power::numeric));
+                                                                   put = createComboBox(parent, layout, "Add to?", { "Nothing", "Primary", "Secondary" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
@@ -590,24 +592,30 @@ public:
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    def->setText(QString("%1").arg(s._def));
+                                                                   put->setCurrentIndex(s._put);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
                                                                    v._def = def->text().toInt();
+                                                                   v._put = put->currentIndex();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["def"] = v._def;
+                                                                   obj["put"] = v._put;
                                                                    return obj;
                                                                  }
 
-    int MD() override { return v._def; }
+    int MD() override    { return v._def; }
+    int place() override { return v._put; }
 
 private:
     struct vars {
         int _def = 0;
+        int _put = 0;
     } v;
 
     QLineEdit* def;
+    QComboBox* put;
 
     QString optOut(bool showEND) {
         if (v._def < 1) return "<incomplete>";
@@ -701,6 +709,7 @@ public:
                                                                  v._ed      = json["ed"].toInt(0);
                                                                  v._imperm  = json["imperm"].toBool(false);
                                                                  v._protect = json["protect"].toBool(false);
+                                                                 v._put     = json["put"].toInt(0);
                                                                }
     virtual ResistantDefense& operator=(const ResistantDefense& s) {
         if (this != &s) {
@@ -721,17 +730,19 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    pd      = createLineEdit(parent, layout, "Resistant PD?", std::mem_fn(&Power::numeric));
                                                                    ed      = createLineEdit(parent, layout, "Resistant ED?", std::mem_fn(&Power::numeric));
+                                                                   put     = createComboBox(parent, layout, "Add to?", { "Nothing", "Primary", "Secondary" });
                                                                    imperm  = createCheckBox(parent, layout, "Impermeable");
                                                                    protect = createCheckBox(parent, layout, "Protects Carried Items");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
                                                                    Points<> defCost = 0_cp;
-                                                                   if (Sheet::ref().character().hasTakesNoSTUN()) defCost = (3_cp * (3 * (v._pd + v._ed) + 1) / 2);
-                                                                   else defCost = (3_cp * (v._pd + v._ed + 1) / 2);
+                                                                   if (Sheet::ref().character().hasTakesNoSTUN()) defCost = (3_cp * (3 * ((v._pd + v._ed) + 1)) / 2);
+                                                                   else defCost = (3_cp * ((v._pd + v._ed + 1) / 2));
                                                                    return defCost + (v._protect ? 10_cp : 0_cp); }
-    void     restore() override                                  { vars s = v;
+    void     restore() override                                  { vars s = v;                                                                   
                                                                    AllPowers::restore();
+                                                                   put->setCurrentIndex(s._put);
                                                                    pd->setText(QString("%1").arg(s._pd));
                                                                    ed->setText(QString("%1").arg(s._ed));
                                                                    imperm->setChecked(s._imperm);
@@ -739,6 +750,7 @@ public:
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
+                                                                   v._put     = put->currentIndex();
                                                                    v._pd      = pd->text().toInt();
                                                                    v._ed      = ed->text().toInt();
                                                                    v._imperm  = imperm->isChecked();
@@ -746,25 +758,29 @@ public:
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["pd"]      = v._pd;
+                                                                   obj["put"]     = v._put;
                                                                    obj["ed"]      = v._ed;
                                                                    obj["imperm"]  = v._imperm;
                                                                    obj["protect"] = v._protect;
                                                                    return obj;
                                                                  }
 
-    int rPD() override { return v._pd; }
-    int rED() override { return v._ed; }
+    int rPD() override   { return v._pd; }
+    int rED() override   { return v._ed; }
+    int place() override { return v._put; }
 
 private:
     struct vars {
         int     _pd      = 0;
         int     _ed      = 0;
+        int     _put     = -1;
         bool    _imperm  = false;
         bool    _protect = false;
     } v;
 
     QLineEdit* pd;
     QLineEdit* ed;
+    QComboBox* put;
     QCheckBox* imperm;
     QCheckBox* protect;
 

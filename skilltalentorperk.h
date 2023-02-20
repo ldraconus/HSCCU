@@ -146,6 +146,9 @@ public:
     virtual bool        isSkill()                      { return false; }
     virtual bool        isPerk()                       { return false; }
     virtual bool        isTalent()                     { return false; }
+    virtual int         rED()                          { return 0; }
+    virtual int         rPD()                          { return 0; }
+    virtual int         place()                        { return 1; }
 
     virtual void checked(bool) { }
     virtual void numeric(QString) { }

@@ -120,32 +120,43 @@ public:
     CombatLuck(const CombatLuck& s): Talent(s)        { }
     CombatLuck(CombatLuck&& s): Talent(s)             { }
     CombatLuck(const QJsonObject& json): Talent(json) { v._levels = json["levels"].toInt(0);
+                                                        v._put = json["put"].toInt(1);
                                                       }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { levels = createLineEdit(parent, layout, "Levels of Combat Luck?", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  put    = createComboBox(parent, layout, "Add to?", { "Nothing", "Primary", "Secondary" });
                                                                 }
     Points<> points(bool noStore = false) override              { if (!noStore) store();
                                                                   return 6_cp * v._levels; }
     void    restore() override                                  { vars s = v;
                                                                   QString msg = QString("%1").arg(s._levels);
                                                                   levels->setText(msg);
+                                                                  put->setCurrentIndex(s._put);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
     void    store() override                                    { v._levels = levels->text().toInt(0);
+                                                                  v._put    = put->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
                                                                   obj["levels"] = v._levels;
+                                                                  obj["put"]    = v._put;
                                                                   return obj;
                                                                 }
+
+    int rED() override   { return v._levels * 3; }
+    int rPD() override   { return rED(); }
+    int place() override { return v._put; }
 
 private:
     struct vars {
         int _levels = 0;
+        int _put    = -1;
     } v;
 
     QLineEdit* levels;
+    QComboBox* put;
 
     QString optOut() {
         return "Combat Luck: " + QString("+%1 rPD/+%1 rED").arg(v._levels * 3);
@@ -665,10 +676,10 @@ public:
     void    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                 }
     Points<> points(bool noStore = false) override              { if (!noStore) store();
-                                                                  return v._plus * 3_cp; }
+                                                                  return (v._plus + 1) * 3_cp; }
     void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
                                                                 }
-    QString roll() override                                     { return ""; }
+    QString roll() override                                     { return add(Sheet::ref().character().EGO().roll(), v._plus); }
     void    store() override                                    { v._plus = plus->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
@@ -684,9 +695,9 @@ private:
     QLineEdit* plus;
 
     QString optOut() {
-        if (v._plus < 1) return "<incomplete>";
-        QString res = "Simulate Death: ";
-        res += QString("%1 to EGO roll to simulate death").arg(v._plus);
+        if (v._plus < 0) return "<incomplete>";
+        QString res = "Simulate Death";
+        if (v._plus > 0) res += QString(": +%1 to EGO").arg(v._plus);
         return res;
     }
 

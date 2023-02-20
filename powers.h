@@ -232,6 +232,7 @@ public:
     virtual sizeMods&                     growthStats() { static sizeMods sm; return sm; }
     virtual int                           move()        { return 0; }
     virtual QString                       units()       { return "m"; }
+    virtual int                           place()       { return 1; }
 
     int doubling();
 

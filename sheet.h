@@ -103,11 +103,12 @@ private:
     void               rebuildMovement();
     void               rebuildPowers(bool);
     void               rebuildSenses();
+    void               setupIcons();
     void               setCVs(_CharacteristicDef&, QLabel*);
     void               setDamage(_CharacteristicDef&, QLabel*);
     void               setDefense(_CharacteristicDef&, int, int);
+    void               setDefense(int, int, int, int);
     void               setMaximum(_CharacteristicDef&, QLabel*, QLineEdit*);
-    void               setResistantDefense(int, int, int, int);
     void               updateCharacteristics();
     void               updateCharacter();
     void               updateComplications();
