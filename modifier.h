@@ -3544,7 +3544,7 @@ private:
                                      "Power loses almost all of its overall effectiveness" };
         static QStringList Conditional { "", "Very Uncommon", "Uncommon", "Common", "Very Common", "Very Uncommon", "Ubiquitous" };
         Fraction f(fraction(true));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "-") + f.toString() + ") " : "") +
                  "Limited Power (";
         if (v._conditional) desc += Conditional[v._how];
         else desc += Limited[v._how];

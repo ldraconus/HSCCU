@@ -134,9 +134,9 @@ private:
 
 class CSL: public CombatSkills {
 public:
-    CSL(): CombatSkills("Combat Skill Levels")           { }
-    CSL(const CSL& s): CombatSkills(s)    { }
-    CSL(CSL&& s): CombatSkills(s)         { }
+    CSL(): CombatSkills("Combat Skill Levels")       { }
+    CSL(const CSL& s): CombatSkills(s)               { }
+    CSL(CSL&& s): CombatSkills(s)                    { }
     CSL(const QJsonObject& json): CombatSkills(json) { v._plus = json["plus"].toInt(1);
                                                        v._for  = json["for"].toString("");
                                                        v._size = json["size"].toInt(0);
@@ -153,7 +153,7 @@ public:
                                                                                                                                     "All Combat" });
                                                                 }
     Points<> points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points<>> size{ 0_cp, 0_cp, 2_cp, 3_cp, 5_cp, 8_cp, 8_cp, 10_cp };
+                                                                  QList<Points<>> size{ 0_cp, 2_cp, 3_cp, 5_cp, 8_cp, 8_cp, 10_cp };
                                                                   return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
@@ -189,7 +189,6 @@ private:
         if (v._size < 3 && v._for.isEmpty()) return "<incomplete>";
         QString res = "Combat Skill Levels: ";
         switch (v._size) {
-        case -1:
         case 0: res += QString("+%1 with %2").arg(v._plus).arg(v._for);               break;
         case 1: res += QString("+%1 with small group (%2)").arg(v._plus).arg(v._for); break;
         case 2: res += QString("+%1 with large group (%2)").arg(v._plus).arg(v._for); break;

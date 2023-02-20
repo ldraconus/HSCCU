@@ -99,6 +99,11 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
     tablewidget->setRowCount(0);
     tablewidget->setToolTip(w);
     if (h != -1) r.setHeight(h);
+
+    int total = 0;
+    for (int i = 1; i < tablewidget->columnCount(); ++i) total += tablewidget->columnWidth(i - 1);
+    horizontalHeader->setMaximumSectionSize(tablewidget->width() - total);
+
     tablewidget->setGeometry(r);
     layout->addWidget(tablewidget);
 
@@ -352,8 +357,8 @@ void PowerDialog::newAdvantage() {
 void PowerDialog::newLimitation() {
     ModifiersDialog dlg(ModifiersDialog::Limitation);
     if (dlg.exec() != QDialog::Accepted) return;
-    if (dlg.modifier()->type() == ModifierBase::isBoth && dlg.modifier()->fraction(Modifier::NoStore) < 0) _power->limitationsList().append(dlg.modifier());
-    else _power->advantagesList().append(dlg.modifier());
+    if (dlg.modifier()->type() == ModifierBase::isBoth && dlg.modifier()->fraction(Modifier::NoStore) > 0) _power->advantagesList().append(dlg.modifier());
+    else _power->limitationsList().append(dlg.modifier());
     updateForm();
 }
 
@@ -581,9 +586,7 @@ void PowerDialog::updateForm() {
         setCellLabel(_advantages, row, 1, mod->description(), font);
         row++;
     }
-    _advantages->resizeColumnsToContents();
     _advantages->resizeRowsToContents();
-    setColumns(_advantages);
 
     _limitations->setRowCount(0);
     _limitations->update();
@@ -594,7 +597,6 @@ void PowerDialog::updateForm() {
         setCellLabel(_limitations, row, 1, lim->description(), font);
         row++;
     }
-    _limitations->resizeColumnsToContents();
     _limitations->resizeRowsToContents();
 
     _description->setText(descr);

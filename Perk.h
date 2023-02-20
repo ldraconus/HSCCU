@@ -575,7 +575,7 @@ public:
                                                                                                                                                 });
                                                                 }
     Points<> points(bool noStore = false) override              { if (!noStore) store();
-                                                                  return ((v._amount < 0) ? 0_cp : ((v._amount < 10) ? v._amount * 1_cp : 15_cp)); }
+                                                                  return ((v._amount < 0) ? 0_cp : ((v._amount < 10) ? (v._amount + 1) * 1_cp : 15_cp)); }
     void    restore() override                                  { vars s = v; amount->setCurrentIndex(s._amount); v = s;
                                                                 }
     QString roll() override                                     { return ""; }

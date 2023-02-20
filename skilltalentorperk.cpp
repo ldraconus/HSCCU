@@ -175,7 +175,7 @@ QMap<QString, SkillTalentOrPerk::skillBase*> SkillTalentOrPerk::_skills {
     { LINK(Mimicry) },
     { LINK(Mechanics) },
     { SPCS("Mental Combat Skill Levels", MCSL) },
-    { SPCS("Movement Skill Level", MSL) },
+    { SPCS("Movement Skill Levels", MSL) },
     { LINK(Navigation) },
     { LINK(Oratory) },
     { LINK(Paramedics) },

@@ -36,7 +36,7 @@ public:
     QString description() override {
         static QList<QString> comp { "Incompetent", "Normal", "Slightly Less Powerful Then The PC", "As Powerful As The PC" };
         static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
-        if (v._multiples < 1 || v._frequency < 0 || v._competence < 0 || v._who.isEmpty()) return "<incomplete>";
+        if (v._frequency < 0 || v._competence < 0 || v._who.isEmpty()) return "<incomplete>";
         QString result = "Dependent NPC: " + v._who + " (" + freq[v._frequency];
         result += "; " + comp[v._competence];
         if (v._unaware) result += "; DNPC is unaware of character's adventuring";
@@ -56,6 +56,7 @@ public:
     Points<> points(bool noStore = false) override {
         if (!noStore) store();
         int mult = (int) (log((double) v._multiples) / log(2.0));
+        if (mult < 0) mult = 0;
         return 10_cp - (v._competence < 0 ? 0 : v._competence) * 5_cp + (v._useful ? 5_cp : 0_cp) + 5_cp * (v._frequency + 1) + (v._unaware ? 5_cp : 0_cp) + mult * 5_cp;
     }
     void restore() override {

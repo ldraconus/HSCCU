@@ -10,24 +10,24 @@ public:
     Characteristics(const Characteristics& s): AllPowers(s)   { }
     Characteristics(Characteristics&& s): AllPowers(s)        { }
     Characteristics(const QJsonObject& json): AllPowers(json) { v._str  = json["str"].toInt(0);
-                                                                     v._dex  = json["dex"].toInt(0);
-                                                                     v._con  = json["con"].toInt(0);
-                                                                     v._int  = json["int"].toInt(0);
-                                                                     v._ego  = json["ego"].toInt(0);
-                                                                     v._pre  = json["pre"].toInt(0);
-                                                                     v._ocv  = json["ocv"].toInt(0);
-                                                                     v._dcv  = json["dcv"].toInt(0);
-                                                                     v._omcv = json["omcv"].toInt(0);
-                                                                     v._dmcv = json["dmcv"].toInt(0);
-                                                                     v._spd  = json["spd"].toInt(0);
-                                                                     v._pd   = json["pd"].toInt(0);
-                                                                     v._ed   = json["ed"].toInt(0);
-                                                                     v._rec  = json["rec"].toInt(0);
-                                                                     v._end  = json["end"].toInt(0);
-                                                                     v._body = json["body"].toInt(0);
-                                                                     v._stun = json["stun"].toInt(0);
-                                                                     v._put  = json["put"].toInt(0);
-                                                                   }
+                                                                v._dex  = json["dex"].toInt(0);
+                                                                v._con  = json["con"].toInt(0);
+                                                                v._int  = json["int"].toInt(0);
+                                                                v._ego  = json["ego"].toInt(0);
+                                                                v._pre  = json["pre"].toInt(0);
+                                                                v._ocv  = json["ocv"].toInt(0);
+                                                                v._dcv  = json["dcv"].toInt(0);
+                                                                v._omcv = json["omcv"].toInt(0);
+                                                                v._dmcv = json["dmcv"].toInt(0);
+                                                                v._spd  = json["spd"].toInt(0);
+                                                                v._pd   = json["pd"].toInt(0);
+                                                                v._ed   = json["ed"].toInt(0);
+                                                                v._rec  = json["rec"].toInt(0);
+                                                                v._end  = json["end"].toInt(0);
+                                                                v._body = json["body"].toInt(0);
+                                                                v._stun = json["stun"].toInt(0);
+                                                                v._put  = json["put"].toInt(0);
+                                                              }
     virtual Characteristics& operator=(const Characteristics& s) {
         if (this != &s) {
             AllPowers::operator=(s);
@@ -91,7 +91,7 @@ public:
                                                                    labeledEdit(End)->setText(QString("%1").arg(s._end));
                                                                    labeledEdit(body)->setText(QString("%1").arg(s._body));
                                                                    labeledEdit(stun)->setText(QString("%1").arg(s._stun));
-                                                                   put->setCurrentIndex(v._put);
+                                                                   put->setCurrentIndex(s._put);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
@@ -135,6 +135,8 @@ public:
                                                                    obj["put"]  = v._put;
                                                                    return obj;
                                                                  }
+
+int place() override { return v._put; }
 
 private:
     struct vars {
