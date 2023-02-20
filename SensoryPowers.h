@@ -301,34 +301,34 @@ public:
                                                                                                       { "Smell/Taste", { "Normal Smell",
                                                                                                                          "Normal Taste" } },
                                                                                                       { "Touch",       { "Normal Touch" } } });
-                                                                   detect = createComboBox(p, l, "Detect?", { "Not detecting",
+                                                                   detect = createComboBox(p, l, "Detect?", { "",
                                                                                                               "One Thing",
                                                                                                               "A Class Of Things",
                                                                                                               "A Large Class Of Things" });
                                                                    thing  = createLineEdit(p, l, "Thing(s)?");
                                                                    spatl  = createCheckBox(p, l, "Spatial Awareness");
-                                                                   enhanc = createComboBox(p, l, "Enhanced Perception?", { "Not Enhanced",
+                                                                   enhanc = createComboBox(p, l, "Enhanced Perception?", { "",
                                                                                                                            "One Sense",
                                                                                                                            "One Sense Group",
                                                                                                                            "All Senses" });
                                                                    senses = createLineEdit(p, l, "Which sense(s)");
                                                                    amount = createLineEdit(p, l, "Plusses?", std::mem_fn(&Power::numeric));
-                                                                   adj    = createComboBox(p, l, "Adjacent?", { "Non-adjacesnt",
+                                                                   adj    = createComboBox(p, l, "Adjacent?", { "",
                                                                                                                 "Fixed Point Within 2m",
                                                                                                                 "Any Point Withing 2m" });
                                                                    anlz   = createCheckBox(p, l, "Analyize");
                                                                    conc   = createLineEdit(p, l, "Concealment Modifier?", std::mem_fn(&Power::numeric));
                                                                    discr  = createCheckBox(p, l, "Discriminatory");
-                                                                   dim    = createComboBox(p, l, "Dimensional?", { "Non-Dimensional",
+                                                                   dim    = createComboBox(p, l, "Dimensional?", { "",
                                                                                                                    "Single Other Dimension",
                                                                                                                    "Related Group Of Dimensions",
                                                                                                                    "Any Dimension" });
                                                                    which  = createLineEdit(p, l, "Dimension(s)?");
-                                                                   incr   = createComboBox(p, l, "Increased Arc Of Perception?", { "Normal",
+                                                                   incr   = createComboBox(p, l, "Increased Arc Of Perception?", { "",
                                                                                                                                    "240 Degrees",
                                                                                                                                    "360 Degrees" });
                                                                    mic    = createLineEdit(p, l, "Microscropic x10 Magnification?", std::mem_fn(&Power::numeric));
-                                                                   pen    = createComboBox(p, l, "Penetrative?", { "Not",
+                                                                   pen    = createComboBox(p, l, "Penetrative?", { "",
                                                                                                                    "Partially",
                                                                                                                    "Fully" });
                                                                    range  = createCheckBox(p, l, "Ranged");

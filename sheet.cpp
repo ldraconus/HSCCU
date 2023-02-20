@@ -10,7 +10,7 @@
 #include "ui_sheet.h"
 #include "sheet_ui.h"
 
-#ifdef _WINDOWS_
+#ifdef _WIN64
 #include <Shlobj.h>
 #endif
 #include <cmath>
@@ -490,11 +490,7 @@ void Sheet::characteristicEditingFinished(QLineEdit* val) {
         txt = "0";
     }
     auto& def = _widget2Def[val];
-    int primary = def.characteristic()->base() + def.characteristic()->primary();
-    if (def.characteristic()->secondary() != 0) {
-        int secondary = def.characteristic()->secondary() + primary;
-        txt = QString("%1/%2").arg(primary).arg(secondary);
-    } else txt = QString("%1").arg(primary);
+    txt = def.characteristic()->value();
     val->setText(txt);
 }
 
@@ -793,9 +789,9 @@ void Sheet::rebuildDefenses() {
 
     setDefense(_character.rPD(),  _character.temprPD(), 1, 1);
     setDefense(_character.rED(),  _character.temprED(), 3, 1);
-    setDefense(_character.FD(),   0,                    6, 1);
     setDefense(_character.MD(),   0,                    4, 1);
     setDefense(_character.PowD(), 0,                    5, 1);
+    setDefense(_character.FD(),   0,                    6, 1);
 }
 
 void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
@@ -973,7 +969,7 @@ void Sheet::rebuildSenses() {
 }
 
 void Sheet::setupIcons() {
-#ifdef _WINDOWS_
+#ifdef _WIN64
     QSettings s("HKEY_CURRENT_USER\\SOFTWARE\\CLASSES", QSettings::NativeFormat);
 
     QString path = QDir::toNativeSeparators(qApp->applicationFilePath());
@@ -1050,13 +1046,9 @@ void Sheet::updateCharacteristics() {
     const auto keys = _widget2Def.keys();
     for (const auto& key: keys) {
         auto& def = _widget2Def[key];
-        int primary = def.characteristic()->base() + def.characteristic()->primary();
-        int secondary = primary + def.characteristic()->secondary();
         QLineEdit* characteristic = dynamic_cast<QLineEdit*>(key);
-        QString value = QString("%1").arg(primary);
-        if (primary != secondary) value += QString("/%1").arg(secondary);
+        QString value = def.characteristic()->value();
         characteristic->setText(value);
-        characteristicEditingFinished(characteristic);
     }
 }
 
@@ -2020,7 +2012,8 @@ void Sheet::totalExperienceEarnedChanged(QString txt) {
         _character.xp(Points<>(txt.toInt()));
 
         Points<> total = _option.totalPoints() - _option.complications() + _character.xp() + min(_option.complications(), _complicationPoints);
-        Points<> remaining = total - _totalPoints;
+        Points<> remaining(0_cp);
+        if (total > _totalPoints) remaining = total - _totalPoints;
         Points<> spent(0_cp);
         if (_totalPoints > _option.totalPoints()) spent = _totalPoints - _option.totalPoints();
 

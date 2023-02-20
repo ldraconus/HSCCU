@@ -7,7 +7,7 @@ Characteristic::Characteristic(const QJsonObject& c)
         c.find("primary")   == c.end() ||
         c.find("secondary") == c.end()) throw("");
 
-    _base      = c["base"].toInt(10);
+    _base      = c["base"].toInt(0);
     _primary   = c["primary"].toInt(0);
     _secondary = c["secondary"].toInt(0);
 }

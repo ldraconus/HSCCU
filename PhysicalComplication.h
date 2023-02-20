@@ -39,7 +39,7 @@ public:
     }
     Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._frequency + 1) * 5_cp + v._impairs * 5_cp;
+        return (v._frequency + 1) * 5_cp + (v._impairs < 0 ? 0 : v._impairs) * 5_cp;
     }
     void restore() override {
         vars s = v;

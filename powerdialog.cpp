@@ -177,37 +177,37 @@ void PowerDialog::setCellLabel(QTableWidget* tbl, int row, int col, QString str,
 }
 
 void PowerDialog::aboutToShowAdvantagesMenu() {
-    const auto selection = _advantages->selectedItems();
+    const auto selection = _advantages->selectedRanges();
     bool show = !selection.isEmpty();
     int row = -1;
-    if (show) row = selection[0]->row();
-    _advantages->setEnabled(show);
-    _advantages->setEnabled(show);
-    _advantages->setEnabled(show);
-    _advantages->setEnabled(show);
-    _advantages->setEnabled(show && row != 0);
-    _advantages->setEnabled(show && row != _advantages->rowCount() - 1);
+    if (show) row = selection[0].topRow();
+    _editAdvantage->setEnabled(show);
+    _deleteAdvantage->setEnabled(show);
+    _cutAdvantage->setEnabled(show);
+    _copyAdvantage->setEnabled(show);
+    _moveAdvantageUp->setEnabled(show && row != 0);
+    _moveAdvantageDown->setEnabled(show && row != _advantages->rowCount() - 1);
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
     bool canPaste = clip->hasFormat("application/advantage");
-    _advantages->setEnabled(canPaste);
+    _pasteAdvantage->setEnabled(canPaste);
 }
 
 void PowerDialog::aboutToShowLimitationsMenu() {
-    const auto selection = _limitations->selectedItems();
+    const auto selection = _limitations->selectedRanges();
     bool show = !selection.isEmpty();
     int row = -1;
-    if (show) row = selection[0]->row();
-    _limitations->setEnabled(show);
-    _limitations->setEnabled(show);
-    _limitations->setEnabled(show);
-    _limitations->setEnabled(show);
-    _limitations->setEnabled(show && row != 0);
-    _limitations->setEnabled(show && row != _limitations->rowCount() - 1);
+    if (show) row = selection[0].topRow();
+    _editLimitation->setEnabled(show);
+    _deleteLimitation->setEnabled(show);
+    _cutLimitation->setEnabled(show);
+    _copyLimitation->setEnabled(show);
+    _moveLimitationUp->setEnabled(show && row != 0);
+    _moveLimitationDown->setEnabled(show && row != _limitations->rowCount() - 1);
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
     bool canPaste = clip->hasFormat("application/limitation");
-    _limitations->setEnabled(canPaste);
+    _pasteLimitation->setEnabled(canPaste);
 }
 
 void PowerDialog::advantagesMenu(QPoint pos) {
@@ -219,8 +219,8 @@ void PowerDialog::advantagesMenu(QPoint pos) {
 void PowerDialog::copyAdvantage() {
     QClipboard* clip = QGuiApplication::clipboard();
     QMimeData* data = new QMimeData();
-    auto selection = _advantages->selectedItems();
-    int row = selection[0]->row();
+    auto selection = _advantages->selectedRanges();
+    int row = selection[0].topRow();
     shared_ptr<Modifier> advantage = _power->advantagesList()[row];
     QJsonObject obj = advantage->toJson();
     QJsonDocument doc;
@@ -234,8 +234,8 @@ void PowerDialog::copyAdvantage() {
 void PowerDialog::copyLimitation() {
     QClipboard* clip = QGuiApplication::clipboard();
     QMimeData* data = new QMimeData();
-    auto selection = _limitations->selectedItems();
-    int row = selection[0]->row();
+    auto selection = _limitations->selectedRanges();
+    int row = selection[0].topRow();
     shared_ptr<Modifier> limitation = _power->limitationsList()[row];
     QJsonObject obj = limitation->toJson();
     QJsonDocument doc;
@@ -257,24 +257,24 @@ void PowerDialog::cutLimitation() {
 }
 
 void PowerDialog::deleteAdvantage() {
-    auto selection = _advantages->selectedItems();
-    int row = selection[0]->row();
+    auto selection = _advantages->selectedRanges();
+    int row = selection[0].topRow();
     shared_ptr<Modifier> advantage = _power->advantagesList().takeAt(row);
     _advantages->removeRow(row);
     updateForm();
 }
 
 void PowerDialog::deleteLimitation() {
-    auto selection = _limitations->selectedItems();
-    int row = selection[0]->row();
+    auto selection = _limitations->selectedRanges();
+    int row = selection[0].topRow();
     shared_ptr<Modifier> limitation = _power->limitationsList().takeAt(row);
     _limitations->removeRow(row);
     updateForm();
 }
 
 void PowerDialog::editAdvantage() {
-    auto selection = _advantages->selectedItems();
-    int row = selection[0]->row();
+    auto selection = _advantages->selectedRanges();
+    int row = selection[0].topRow();
     shared_ptr<Modifier> advantage = _power->advantagesList()[row];
     ModifiersDialog dlg(ModifiersDialog::Advantage);
     dlg.modifier(advantage);
@@ -286,8 +286,8 @@ void PowerDialog::editAdvantage() {
 }
 
 void PowerDialog::editLimitation() {
-    auto selection = _limitations->selectedItems();
-    int row = selection[0]->row();
+    auto selection = _limitations->selectedRanges();
+    int row = selection[0].topRow();
     shared_ptr<Modifier> limitation = _power->limitationsList()[row];
     ModifiersDialog dlg(ModifiersDialog::Limitation);
     dlg.modifier(limitation);
@@ -306,8 +306,8 @@ void PowerDialog::limitationsMenu(QPoint pos) {
 }
 
 void PowerDialog::moveAdvantageDown() {
-    auto selection = _advantages->selectedItems();
-    int row = selection[0]->row();
+    auto selection = _advantages->selectedRanges();
+    int row = selection[0].topRow();
     auto& advantages = _power->advantagesList();
     shared_ptr<Modifier> advantage = advantages.takeAt(row);
     advantages.insert(row + 1, advantage);
@@ -315,8 +315,8 @@ void PowerDialog::moveAdvantageDown() {
 }
 
 void PowerDialog::moveLimitationDown() {
-    auto selection = _limitations->selectedItems();
-    int row = selection[0]->row();
+    auto selection = _limitations->selectedRanges();
+    int row = selection[0].topRow();
     auto& limitations = _power->limitationsList();
     shared_ptr<Modifier> limitation = limitations.takeAt(row);
     limitations.insert(row + 1, limitation);
@@ -324,8 +324,8 @@ void PowerDialog::moveLimitationDown() {
 }
 
 void PowerDialog::moveAdvantageUp() {
-    auto selection = _advantages->selectedItems();
-    int row = selection[0]->row();
+    auto selection = _advantages->selectedRanges();
+    int row = selection[0].topRow();
     auto& advantages = _power->advantagesList();
     shared_ptr<Modifier> advantage = advantages.takeAt(row);
     advantages.insert(row - 1, advantage);
@@ -333,8 +333,8 @@ void PowerDialog::moveAdvantageUp() {
 }
 
 void PowerDialog::moveLimitationUp() {
-    auto selection = _limitations->selectedItems();
-    int row = selection[0]->row();
+    auto selection = _limitations->selectedRanges();
+    int row = selection[0].topRow();
     auto& limitations = _power->limitationsList();
     shared_ptr<Modifier> limitation = limitations.takeAt(row);
     limitations.insert(row - 1, limitation);
@@ -524,6 +524,8 @@ void PowerDialog::textChanged(QString) {
 }
 
 void PowerDialog::setColumns(QTableWidget* tablewidget) {
+    if (tablewidget->rowCount() < 1) return;
+
     QFont font = tablewidget->font();
     int pnt = font.pointSize();
     int sz = pnt * 2;
@@ -576,7 +578,6 @@ void PowerDialog::updateForm() {
     }
     _limitations->resizeColumnsToContents();
     _limitations->resizeRowsToContents();
-    setColumns(_limitations);
 
     _description->setText(descr);
     _ok->setEnabled(_power->description() != "<incomplete>");

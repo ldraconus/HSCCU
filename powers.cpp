@@ -692,7 +692,7 @@ Points<> Power::real(Fraction add, Points<> mod, Fraction sub) {
     limits += lim() + sub;
     for (const auto& mod: limitationsList()) limits += mod->fraction(NoStore).abs();
     pnts = pnts / limits;
-    return Points<>(pnts.toInt());
+    return Points<>(pnts.toInt(true));
 }
 
 Points<> Power::acting(Fraction add, Points<> mod) {
@@ -705,7 +705,7 @@ Points<> Power::acting(Fraction add, Points<> mod) {
         if (mod->isAdder()) pnts += mod->points().points;
         else advantages += mod->fraction(NoStore);
     pnts = pnts * advantages;
-    return Points<>(pnts.toInt());
+    return Points<>(pnts.toInt(true));
 }
 
 Points<> Power::active() {

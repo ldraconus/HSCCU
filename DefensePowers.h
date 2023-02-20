@@ -676,6 +676,8 @@ public:
                                                                    return obj;
                                                                  }
 
+    int PowD() override { return v._def; }
+
 private:
     struct vars {
         int _def = 0;

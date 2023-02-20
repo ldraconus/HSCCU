@@ -128,7 +128,10 @@ public:
     }
     bool     operator>(const long n) { return *this > Fraction(n); }
 
-    int toInt() const { return (_numerator + (_denominator / 2)) / _denominator; }
+    int toInt(bool down = false) const {
+        if (down && _denominator % 2 == 0) return (_numerator + (_denominator / 2) - 1) / _denominator;
+        return (_numerator + (_denominator / 2)) / _denominator;
+    }
 
     Fraction abs();
     QString  toString();

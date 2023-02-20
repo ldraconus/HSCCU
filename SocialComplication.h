@@ -29,7 +29,7 @@ public:
     QString description() override {
         static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)",  "Very Frequently (14-)" };
         static QList<QString> effc { "Minor", "Major", "Severe" };
-        if (v._what.isEmpty() || v._frequency < 1 || v._effects < 1) return "<incomplete>";
+        if (v._what.isEmpty() || v._frequency < 0 || v._effects < 0) return "<incomplete>";
         return "Social Complication: " + v._what + " (" + freq[v._frequency] + "; " + effc[v._effects] +
                 (v._notRestrictive ? "; Not Resrtictive in Some Cultures" : "") + ")";
     }
@@ -41,7 +41,8 @@ public:
     }
     Points<> points(bool noStore = false) override {
         if (!noStore) store();
-        return 5_cp * (v._frequency + 1) + v._effects * 5_cp - (v._notRestrictive ? 5_cp : 0_cp);
+        auto pnts = 5_cp * (v._frequency + 1) + (v._effects < 0 ? 0 : v._effects) * 5_cp - (v._notRestrictive ? 5_cp : 0_cp);
+        return pnts;
     }
     void restore() override {
         vars s = v;
