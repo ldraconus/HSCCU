@@ -464,7 +464,7 @@ public:
                                                                                                                                           "Only Target Can Attack" });
                                                                    part  = createCheckBox(parent, layout, "Partial Effect");
                                                                  }
-    Fraction lim() override                                      { return v._cant * Fraction(1, 2) + (v._part ? Fraction(1, 2) : Fraction(0)); }
+    Fraction lim() override                                      { return ((v._cant > 0) ? v._cant * Fraction(1, 2) : Fraction(0)) + (v._part ? Fraction(1, 2) : Fraction(0)); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * 5_cp + v._bonus * 2_cp; }
     void     restore() override                                  { vars s = v;

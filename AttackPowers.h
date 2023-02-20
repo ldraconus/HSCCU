@@ -1132,7 +1132,7 @@ public:
     Fraction lim() override                                      { return (v._whole ? Fraction(1, 4) : Fraction(0)) +
                                                                           ((v._limit > 0) ? v._limit * Fraction(1, 2) : Fraction(0)); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 3_cp * (v._str + 1) / 2 + (v._fine ? 10_cp : 0_cp); }
+                                                                   return 3_cp * ((v._str + 1) / 2) + (v._fine ? 10_cp : 0_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    STR->setText(QString("%1").arg(s._str));
@@ -1150,7 +1150,7 @@ public:
                                                                    v._what  = what->text();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["STR"]   = v._str;
+                                                                   obj["str"]   = v._str;
                                                                    obj["fine"]  = v._fine;
                                                                    obj["whole"] = v._whole;
                                                                    obj["limit"] = v._limit;
@@ -1174,7 +1174,7 @@ private:
     QLineEdit* what;
 
     QString optOut(bool showEND) {
-        if (v._str < 1 || (v._limit <= 0 && v._what.isEmpty())) return "<incomplete>";
+        if (v._str < 1 || (v._limit >= 1 && v._what.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("%1").arg(v._str) + " STR Telekinesis";

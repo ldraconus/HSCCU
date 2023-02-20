@@ -8,6 +8,10 @@
 [X] Cut/Copy Character should include a text version of the character
 [X] "Takes No STUN" Effects on costs
 [X] Windows Icon Association
+[ ] Fix Experience Unspent
+[ ] Power Defense not showing up in defenses
+[ ] CLairsentience is completely hosed
+[ ] Advantages and Limitations tables are vanishing when picked ... why?
 [ ] Lua custom powers/skills/talents/perks/complications
 [ ] Test! Test!! Test!!!
 [ ] Alpha Testing
