@@ -11,7 +11,9 @@
 #include <QMenu>
 #include <QMimeData>
 #include <QPushButton>
+#include <QScreen>
 #include <QScrollBar>
+#include <QTimer>
 
 PowerDialog*     PowerDialog::_ptr;
 Ui::PowerDialog* PowerDialog::ui;
@@ -34,6 +36,8 @@ PowerDialog::PowerDialog(QWidget *parent) :
 
     _ok = ui->buttonBox->button(QDialogButtonBox::Ok);
     _ok->setEnabled(false);
+
+    QTimer::singleShot(100, this, &PowerDialog::doUpdate);
 }
 
 PowerDialog::~PowerDialog()
@@ -65,20 +69,19 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
     QRect r = tablewidget->geometry();
     QFont font = tablewidget->font();
     int pnt = font.pointSize();
-    int sz = pnt * 2;
-    int len = r.width();
     verticalHeader->setVisible(false);
-    verticalHeader->setMinimumSectionSize(pnt * 2);
-    verticalHeader->setMaximumSectionSize(len);
-    verticalHeader->setDefaultSectionSize(pnt * 2);
+    verticalHeader->setMinimumSectionSize(1);
+    verticalHeader->setMaximumSectionSize(h != -1 ? h : r.height());
+    verticalHeader->setDefaultSectionSize(1);
     verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
     auto horizontalHeader = tablewidget->horizontalHeader();
     horizontalHeader->setVisible(false);
+    horizontalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
     horizontalHeader->setStretchLastSection(true);
-    horizontalHeader->setMaximumSectionSize(len);
+    horizontalHeader->setMaximumSectionSize(r.width());
     horizontalHeader->setDefaultSectionSize(10);
     horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
-    horizontalHeader->setMaximumSize(len, sz);
+    horizontalHeader->setMaximumSize(r.width(), h != -1 ? h : r.height());
     tablewidget->setSelectionMode(QAbstractItemView::SingleSelection);
     tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     tablewidget->setFont(font);
@@ -97,12 +100,14 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
                                                    " }");
     tablewidget->setColumnCount(columns.count());
     tablewidget->setRowCount(0);
+
     tablewidget->setToolTip(w);
+
     if (h != -1) r.setHeight(h);
 
     int total = 0;
     for (int i = 1; i < tablewidget->columnCount(); ++i) total += tablewidget->columnWidth(i - 1);
-    horizontalHeader->setMaximumSectionSize(tablewidget->width() - total);
+    tablewidget->setColumnWidth(columns.count() - 1, r.width() - total);
 
     tablewidget->setGeometry(r);
     layout->addWidget(tablewidget);
@@ -174,10 +179,10 @@ QTableWidget* PowerDialog::createLimitations(QWidget* parent, QVBoxLayout* layou
     return tablewidget;
 }
 
-void PowerDialog::setCellLabel(QTableWidget* tbl, int row, int col, QString str, QFont& font) {
+void PowerDialog::setCellLabel(QTableWidget* tbl, int row, int col, QString str, QFont&) {
     QLabel* lbl = new QLabel(str);
     if (row >= tbl->rowCount()) tbl->setRowCount(row + 1);
-    lbl->setFont(font);
+    lbl->setWordWrap(true);
     tbl->setCellWidget(row, col, lbl);
 }
 
@@ -555,6 +560,7 @@ void PowerDialog::setColumns(QTableWidget* tablewidget) {
 
     int total = 0;
     int len = tablewidget->width();
+    int hgt = tablewidget->height();
     for (int i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
     for (int i = 1; i < tablewidget->columnCount(); ++i) total += tablewidget->columnWidth(i - 1);
     tablewidget->setColumnWidth(tablewidget->columnCount() - 1, len - total);
@@ -565,8 +571,12 @@ void PowerDialog::setColumns(QTableWidget* tablewidget) {
     horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
     horizontalHeader->setMaximumSize(len, sz);
 
+    auto verticalHeader = tablewidget->verticalHeader();
+    verticalHeader->setMaximumSectionSize(hgt);
 }
 void PowerDialog::updateForm() {
+    if (_power == nullptr) return;
+
     _power->store();
     Points<> pts = _power->real();
     if ((!_power->isFramework() || _power->isVPP() || _power->isMultipower()) && pts.points == 0) pts = 1_cp;
@@ -579,14 +589,14 @@ void PowerDialog::updateForm() {
     int row = 0;
     for (const auto& mod: _power->advantagesList()) {
         QString val;
-        if (mod->isAdder()) val = QString("%1").arg(mod->points().points);
+        if (mod->isAdder()) val = QString("%1").arg(mod->points(Modifier::NoStore).points);
         else val = mod->fraction(Modifier::NoStore).toString();
         descr += "; (+" + val + ") " + mod->description();
         setCellLabel(_advantages, row, 0, "+" + val, font);
         setCellLabel(_advantages, row, 1, mod->description(), font);
         row++;
     }
-    _advantages->resizeRowsToContents();
+    setColumns(_advantages);
 
     _limitations->setRowCount(0);
     _limitations->update();
@@ -597,7 +607,7 @@ void PowerDialog::updateForm() {
         setCellLabel(_limitations, row, 1, lim->description(), font);
         row++;
     }
-    _limitations->resizeRowsToContents();
+    setColumns(_limitations);
 
     _description->setText(descr);
     _ok->setEnabled(_power->description() != "<incomplete>");

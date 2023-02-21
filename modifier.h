@@ -286,6 +286,14 @@ public:
         : Modifier(n, m, isAnAdder)
         , _value(Fraction(0))
         , _points(p) { }
+    NoFormModifier(const NoFormModifier& m)
+        : Modifier(m)
+        , _value(m._value)
+        , _points(m._points) { }
+    NoFormModifier(NoFormModifier&& m)
+        : Modifier(m)
+        , _value(m._value)
+        , _points(m._points) { }
     NoFormModifier(QJsonObject json)
         : Modifier(json["name"].toString(""),
                    ModifierType(json["type"].toInt(0)),
@@ -324,6 +332,12 @@ public:
     Ablative()
         : Modifier("Ablative", isLimitation, isModifier)
         , v({ false }) { }
+    Ablative(const Ablative& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Ablative(Ablative&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Ablative(QJsonObject json)
         : Modifier(json["name"].toString("Ablative"),
                    ModifierType(json["type"].toInt(0)),
@@ -369,6 +383,12 @@ public:
     AffectedAsAnotherSense()
         : Modifier("Affected As Another Sense", isLimitation, isModifier)
         , v({ -1 }) { }
+    AffectedAsAnotherSense(const AffectedAsAnotherSense& m)
+        : Modifier(m)
+        , v(m.v) { }
+    AffectedAsAnotherSense(AffectedAsAnotherSense&& m)
+        : Modifier(m)
+        , v(m.v) { }
     AffectedAsAnotherSense(QJsonObject json)
         : Modifier(json["name"].toString(""),
                    ModifierType(json["type"].toInt(0)),
@@ -415,6 +435,12 @@ public:
     AffectedAsMoreThanOneSense()
         : Modifier("Affected as More Than One Sense", isLimitation, isModifier)
         , v({ false, "" }) { }
+    AffectedAsMoreThanOneSense(const AffectedAsMoreThanOneSense& m)
+        : Modifier(m)
+        , v(m.v) { }
+    AffectedAsMoreThanOneSense(AffectedAsMoreThanOneSense&& m)
+        : Modifier(m)
+        , v(m.v) { }
     AffectedAsMoreThanOneSense(QJsonObject json)
         : Modifier(json["name"].toString("Affected as More Than One Sense"),
                    ModifierType(json["type"].toInt(0)),
@@ -469,6 +495,12 @@ public:
     AffectsDesolid()
         : Modifier("Affects Desolid", isAdvantage, isModifier)
         , v({ false, "" }) { }
+    AffectsDesolid(const AffectsDesolid& m)
+        : Modifier(m)
+        , v(m.v) { }
+    AffectsDesolid(AffectsDesolid&& m)
+        : Modifier(m)
+        , v(m.v) { }
     AffectsDesolid(QJsonObject json)
         : Modifier(json["name"].toString("Affects Desolid"),
                    ModifierType(json["type"].toInt(0)),
@@ -524,6 +556,10 @@ public:
         : NoFormModifier("Affects Physical World", isAdvantage, Fraction(2)) { }
     AffectsPhysicalWorld(QJsonObject json)
         : NoFormModifier(json) { }
+    AffectsPhysicalWorld(const AffectsPhysicalWorld& m)
+        : NoFormModifier(m) { }
+    AffectsPhysicalWorld(AffectsPhysicalWorld&& m)
+        : NoFormModifier(m) { }
     virtual ~AffectsPhysicalWorld() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<AffectsPhysicalWorld>(*this); }
@@ -536,6 +572,10 @@ public:
         : NoFormModifier("Allocatable▲", isAdvantage, Fraction(1, 4)) { }
     Allocatable(QJsonObject json)
         : NoFormModifier(json) { }
+    Allocatable(const Allocatable& m)
+        : NoFormModifier(m) { }
+    Allocatable(Allocatable&& m)
+        : NoFormModifier(m) { }
     virtual ~Allocatable() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Allocatable>(*this); }
@@ -548,6 +588,10 @@ public:
         : NoFormModifier("Alterable Origin Point", isAdvantage, 5_cp) { }
     AlterableOriginPoint(QJsonObject json)
         : NoFormModifier(json) { }
+    AlterableOriginPoint(const AlterableOriginPoint& m)
+        : NoFormModifier(m) { }
+    AlterableOriginPoint(AlterableOriginPoint&& m)
+        : NoFormModifier(m) { }
     virtual ~AlterableOriginPoint() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<AlterableOriginPoint>(*this); }
@@ -560,6 +604,10 @@ public:
         : NoFormModifier("Alterable Size", isAdvantage, 5_cp) { }
     AlterableSize(QJsonObject json)
         : NoFormModifier(json) { }
+    AlterableSize(const AlterableSize& m)
+        : NoFormModifier(m) { }
+    AlterableSize(AlterableSize&& m)
+        : NoFormModifier(m) { }
     virtual ~AlterableSize() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<AlterableSize>(*this); }
@@ -571,6 +619,12 @@ public:
     AlternateCombatValue()
         : Modifier("Alternate Combat Value▲", isBoth, isModifier)
         , v({ -1 }) { }
+    AlternateCombatValue(const AlternateCombatValue& m)
+        : Modifier(m)
+        , v(m.v) { }
+    AlternateCombatValue(AlternateCombatValue&& m)
+        : Modifier(m)
+        , v(m.v) { }
     AlternateCombatValue(QJsonObject json)
         : Modifier(json["name"].toString("Alternate Combat Value▲"),
                    ModifierType(json["type"].toInt(0)),
@@ -635,6 +689,10 @@ public:
         : NoFormModifier("Always On", isLimitation, Fraction(1, 2)) { }
     AlwaysOn(QJsonObject json)
         : NoFormModifier(json) { }
+    AlwaysOn(const AlwaysOn& m)
+        : NoFormModifier(m) { }
+    AlwaysOn(AlwaysOn&& m)
+        : NoFormModifier(m) { }
     virtual ~AlwaysOn() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<AlwaysOn>(*this); }
@@ -646,6 +704,12 @@ public:
     AreaOfEffect()
         : Modifier("Area Of Effect", isAdvantage, isModifier)
         , v({ -1, false, "", false, false, false, false, false, false, false, 0 }) { }
+    AreaOfEffect(const AreaOfEffect& m)
+        : Modifier(m)
+        , v(m.v) { }
+    AreaOfEffect(AreaOfEffect&& m)
+        : Modifier(m)
+        , v(m.v) { }
     AreaOfEffect(QJsonObject json)
         : Modifier(json["name"].toString("Area Of Effect"),
                    ModifierType(json["type"].toInt(0)),
@@ -859,6 +923,12 @@ public:
     ArmorPiercing()
         : Modifier("Armor Piercing", isAdvantage, isModifier)
         , v({ 1 }) { }
+    ArmorPiercing(const ArmorPiercing& m)
+        : Modifier(m)
+        , v(m.v) { }
+    ArmorPiercing(ArmorPiercing&& m)
+        : Modifier(m)
+        , v(m.v) { }
     ArmorPiercing(QJsonObject json)
         : Modifier(json["name"].toString(""),
                    ModifierType(json["type"].toInt(0)),
@@ -925,6 +995,12 @@ public:
     AVAD()
         : Modifier("Attack Versus Alternate Defense▲", isBoth, isModifier)
         , v({ -1, -1, "", false }) { }
+    AVAD(const AVAD& m)
+        : Modifier(m)
+        , v(m.v) { }
+    AVAD(AVAD&& m)
+        : Modifier(m)
+        , v(m.v) { }
     AVAD(QJsonObject json)
         : Modifier(json["name"].toString("Attack Versus Alternate Defense▲"),
                    ModifierType(json["type"].toInt(0)),
@@ -1103,6 +1179,10 @@ public:
         : NoFormModifier("Backlash", isAdvantage, Fraction(1, 2)) { }
     Backlash(QJsonObject json)
         : NoFormModifier(json) { }
+    Backlash(const Backlash& m)
+        : NoFormModifier(m) { }
+    Backlash(Backlash&& m)
+        : NoFormModifier(m) { }
     virtual ~Backlash() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Backlash>(*this); }
@@ -1115,6 +1195,10 @@ public:
         : NoFormModifier("Based On CON", isLimitation, Fraction(1)) { }
     BasedOnCON(QJsonObject json)
         : NoFormModifier(json) { }
+    BasedOnCON(const BasedOnCON& m)
+        : NoFormModifier(m) { }
+    BasedOnCON(BasedOnCON&& m)
+        : NoFormModifier(m) { }
     virtual ~BasedOnCON() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<BasedOnCON>(*this); }
@@ -1127,6 +1211,10 @@ public:
         : NoFormModifier("Beam", isLimitation, Fraction(1, 4)) { }
     Beam(QJsonObject json)
         : NoFormModifier(json) { }
+    Beam(const Beam& m)
+        : NoFormModifier(m) { }
+    Beam(Beam&& m)
+        : NoFormModifier(m) { }
     virtual ~Beam() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Beam>(*this); }
@@ -1139,6 +1227,10 @@ public:
         : NoFormModifier("BODY Only", isLimitation, Fraction(1, 2)) { }
     BodyOnly(QJsonObject json)
         : NoFormModifier(json) { }
+    BodyOnly(const BodyOnly& m)
+        : NoFormModifier(m) { }
+    BodyOnly(BodyOnly&& m)
+        : NoFormModifier(m) { }
     virtual ~BodyOnly() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<BodyOnly>(*this); }
@@ -1151,6 +1243,10 @@ public:
         : NoFormModifier("Can Apply/Remove Adders", isAdvantage, Fraction(1)) { }
     CanApplyRemoveAdders(QJsonObject json)
         : NoFormModifier(json) { }
+    CanApplyRemoveAdders(const CanApplyRemoveAdders& m)
+        : NoFormModifier(m) { }
+    CanApplyRemoveAdders(CanApplyRemoveAdders&& m)
+        : NoFormModifier(m) { }
     virtual ~CanApplyRemoveAdders() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<CanApplyRemoveAdders>(*this); }
@@ -1163,6 +1259,10 @@ public:
         : NoFormModifier("Can Be Deflected/Reflected", isLimitation, Fraction(1, 4)) { }
     CanBeDeflectedReflected(QJsonObject json)
         : NoFormModifier(json) { }
+    CanBeDeflectedReflected(const CanBeDeflectedReflected& m)
+        : NoFormModifier(m) { }
+    CanBeDeflectedReflected(CanBeDeflectedReflected&& m)
+        : NoFormModifier(m) { }
     virtual ~CanBeDeflectedReflected() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<CanBeDeflectedReflected>(*this); }
@@ -1175,6 +1275,10 @@ public:
         : NoFormModifier("Can Be Dispelled", isLimitation, Fraction(1, 4)) { }
     CanBeDispelled(QJsonObject json)
         : NoFormModifier(json) { }
+    CanBeDispelled(const CanBeDispelled& m)
+        : NoFormModifier(m) { }
+    CanBeDispelled(CanBeDispelled&& m)
+        : NoFormModifier(m) { }
     virtual ~CanBeDispelled() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<CanBeDispelled>(*this); }
@@ -1187,6 +1291,10 @@ public:
         : NoFormModifier("Can Heal Limbs", isAdvantage, 5_cp) { }
     CanHealLimbs(QJsonObject json)
         : NoFormModifier(json) { }
+    CanHealLimbs(const CanHealLimbs& m)
+        : NoFormModifier(m) { }
+    CanHealLimbs(CanHealLimbs&& m)
+        : NoFormModifier(m) { }
     virtual ~CanHealLimbs() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<CanHealLimbs>(*this); }
@@ -1198,6 +1306,12 @@ public:
     CanOnlyBeUsedThroughMindLink()
         : Modifier("Can Only Be Used Through MindLink", isLimitation, isModifier)
         , v({ -1 }) { }
+    CanOnlyBeUsedThroughMindLink(const CanOnlyBeUsedThroughMindLink& m)
+        : Modifier(m)
+        , v(m.v) { }
+    CanOnlyBeUsedThroughMindLink(CanOnlyBeUsedThroughMindLink&& m)
+        : Modifier(m)
+        , v(m.v) { }
     CanOnlyBeUsedThroughMindLink(QJsonObject json)
         : Modifier(json["name"].toString("CanOnlyBeUsedThroughMindLink"),
                    ModifierType(json["type"].toInt(0)),
@@ -1255,6 +1369,10 @@ public:
         : NoFormModifier("Cannot Be Escaped With Teleportation", isAdvantage, Fraction(1, 4)) { }
     CannotBeEscapedWithTeleportation(QJsonObject json)
         : NoFormModifier(json) { }
+    CannotBeEscapedWithTeleportation(const CannotBeEscapedWithTeleportation& m)
+        : NoFormModifier(m) { }
+    CannotBeEscapedWithTeleportation(CannotBeEscapedWithTeleportation&& m)
+        : NoFormModifier(m) { }
     virtual ~CannotBeEscapedWithTeleportation() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<CannotBeEscapedWithTeleportation>(*this); }
@@ -1267,6 +1385,10 @@ public:
         : NoFormModifier("Cannot Be Used Through Mind Link", isLimitation, Fraction(1, 4)) { }
     CannotBeUsedThroughMindLink(QJsonObject json)
         : NoFormModifier(json) { }
+    CannotBeUsedThroughMindLink(const CannotBeUsedThroughMindLink& m)
+        : NoFormModifier(m) { }
+    CannotBeUsedThroughMindLink(CannotBeUsedThroughMindLink&& m)
+        : NoFormModifier(m) { }
     virtual ~CannotBeUsedThroughMindLink() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<CannotBeUsedThroughMindLink>(*this); }
@@ -1278,6 +1400,12 @@ public:
     CannotBeUsedWith()
         : Modifier("Cannot Be Used With ...", isLimitation, isModifier)
         , v({ false, "" }) { }
+    CannotBeUsedWith(const CannotBeUsedWith& m)
+        : Modifier(m)
+        , v(m.v) { }
+    CannotBeUsedWith(CannotBeUsedWith&& m)
+        : Modifier(m)
+        , v(m.v) { }
     CannotBeUsedWith(QJsonObject json)
         : Modifier(json["name"].toString("Cannot Be Used With ..."),
                    ModifierType(json["type"].toInt(0)),
@@ -1336,6 +1464,10 @@ public:
         : NoFormModifier("Cannot Use Targeting", isLimitation, Fraction(1, 2)) { }
     CannotUseTargeting(QJsonObject json)
         : NoFormModifier(json) { }
+    CannotUseTargeting(const CannotUseTargeting& m)
+        : NoFormModifier(m) { }
+    CannotUseTargeting(CannotUseTargeting&& m)
+        : NoFormModifier(m) { }
     virtual ~CannotUseTargeting() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<CannotUseTargeting>(*this); }
@@ -1364,6 +1496,12 @@ public:
     Charges()
         : Modifier("Charges", isBoth, isModifier)
         , v({ 0, 0, false, 0, false, false, -1, false, -1 }) { }
+    Charges(const Charges& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Charges(Charges&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Charges(QJsonObject json)
         : Modifier(json["name"].toString("Charges"),
                    ModifierType(json["type"].toInt(0)),
@@ -1532,6 +1670,10 @@ public:
         : NoFormModifier("Combat Acceleration/Decelleration", isAdvantage, Fraction(1, 4)) { }
     CombatAccelerationDecelleration(QJsonObject json)
         : NoFormModifier(json) { }
+    CombatAccelerationDecelleration(const CombatAccelerationDecelleration& m)
+        : NoFormModifier(m) { }
+    CombatAccelerationDecelleration(CombatAccelerationDecelleration&& m)
+        : NoFormModifier(m) { }
     virtual ~CombatAccelerationDecelleration() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<CombatAccelerationDecelleration>(*this); }
@@ -1543,6 +1685,12 @@ public:
     Concentration()
         : Modifier("Concentration", isLimitation, isModifier)
         , v({ false, false, false }) { }
+    Concentration(const Concentration& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Concentration(Concentration&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Concentration(QJsonObject json)
         : Modifier(json["name"].toString("Concentration"),
                    ModifierType(json["type"].toInt(0)),
@@ -1615,6 +1763,10 @@ public:
         : NoFormModifier("Constant", isAdvantage, Fraction(1, 2)) { }
     Constant(QJsonObject json)
         : NoFormModifier(json) { }
+    Constant(const Constant& m)
+        : NoFormModifier(m) { }
+    Constant(Constant&& m)
+        : NoFormModifier(m) { }
     virtual ~Constant() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Constant>(*this); }
@@ -1626,6 +1778,12 @@ public:
     CostsEndurance()
         : Modifier("Costs Endurance", isLimitation, isModifier)
         , v({ -1 }) { }
+    CostsEndurance(const CostsEndurance& m)
+        : Modifier(m)
+        , v(m.v) { }
+    CostsEndurance(CostsEndurance&& m)
+        : Modifier(m)
+        , v(m.v) { }
     CostsEndurance(QJsonObject json)
         : Modifier(json["name"].toString("CostsEndurance"),
                    ModifierType(json["type"].toInt(0)),
@@ -1684,6 +1842,10 @@ public:
         : NoFormModifier("Costs Endurance Only To Activate▲", isAdvantage, Fraction(1, 4)) { }
     CostsEnduranceOnlyToActivate(QJsonObject json)
         : NoFormModifier(json) { }
+    CostsEnduranceOnlyToActivate(const CostsEnduranceOnlyToActivate& m)
+        : NoFormModifier(m) { }
+    CostsEnduranceOnlyToActivate(CostsEnduranceOnlyToActivate&& m)
+        : NoFormModifier(m) { }
     virtual ~CostsEnduranceOnlyToActivate() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<CostsEnduranceOnlyToActivate>(*this); }
@@ -1695,6 +1857,12 @@ public:
     CostsEnduranceToMaintain()
         : Modifier("Costs Endurance To Maintain", isLimitation, isModifier)
         , v({ -1 }) { }
+    CostsEnduranceToMaintain(const CostsEnduranceToMaintain& m)
+        : Modifier(m)
+        , v(m.v) { }
+    CostsEnduranceToMaintain(CostsEnduranceToMaintain&& m)
+        : Modifier(m)
+        , v(m.v) { }
     CostsEnduranceToMaintain(QJsonObject json)
         : Modifier(json["name"].toString("CostsEnduranceToMaintain"),
                    ModifierType(json["type"].toInt(0)),
@@ -1753,6 +1921,10 @@ public:
         : NoFormModifier("Cumulative▲", isAdvantage, Fraction(1, 2)) { }
     Cumulative(QJsonObject json)
         : NoFormModifier(json) { }
+    Cumulative(const Cumulative& m)
+        : NoFormModifier(m) { }
+    Cumulative(Cumulative&& m)
+        : NoFormModifier(m) { }
     virtual ~Cumulative() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Cumulative>(*this); }
@@ -1796,6 +1968,12 @@ public:
     DamageOverTime()
         : Modifier("Damage Over Time▲", isBoth, isModifier)
         , v({ 0, -1, false, false }) { }
+    DamageOverTime(const DamageOverTime& m)
+        : Modifier(m)
+        , v(m.v) { }
+    DamageOverTime(DamageOverTime&& m)
+        : Modifier(m)
+        , v(m.v) { }
     DamageOverTime(QJsonObject json)
         : Modifier(json["name"].toString("Damage Over Time▲"),
                    ModifierType(json["type"].toInt(0)),
@@ -1890,6 +2068,12 @@ public:
     DecreasedAccelerationDeceleration()
         : Modifier("Decreased Acceleration/Deceleration", isLimitation, isModifier)
         , v({ -1 }) { }
+    DecreasedAccelerationDeceleration(const DecreasedAccelerationDeceleration& m)
+        : Modifier(m)
+        , v(m.v) { }
+    DecreasedAccelerationDeceleration(DecreasedAccelerationDeceleration&& m)
+        : Modifier(m)
+        , v(m.v) { }
     DecreasedAccelerationDeceleration(QJsonObject json)
         : Modifier(json["name"].toString("Decreased Acceleration/Deceleration"),
                    ModifierType(json["type"].toInt(0)),
@@ -1946,6 +2130,12 @@ public:
     DelayedEffect()
         : Modifier("Delayed EffectꚚ", isAdvantage, isModifier)
         , v({ 0 }) { }
+    DelayedEffect(const DelayedEffect& m)
+        : Modifier(m)
+        , v(m.v) { }
+    DelayedEffect(DelayedEffect&& m)
+        : Modifier(m)
+        , v(m.v) { }
     DelayedEffect(QJsonObject json)
         : Modifier(json["name"].toString("Delayed EffectꚚ"),
                    ModifierType(json["type"].toInt(0)),
@@ -2004,6 +2194,12 @@ public:
     DelayedFadeReturnRate()
         : Modifier("Delayed Fade/Return Rate▲", isAdvantage, isModifier)
         , v({ -1 }) { }
+    DelayedFadeReturnRate(const DelayedFadeReturnRate& m)
+        : Modifier(m)
+        , v(m.v) { }
+    DelayedFadeReturnRate(DelayedFadeReturnRate&& m)
+        : Modifier(m)
+        , v(m.v) { }
     DelayedFadeReturnRate(QJsonObject json)
         : Modifier(json["name"].toString("Delayed Fade/Return Rate▲"),
                    ModifierType(json["type"].toInt(0)),
@@ -2062,6 +2258,12 @@ public:
     DifficultToDispel()
         : Modifier("Difficult To Dispel", isAdvantage, isModifier)
         , v({ 0 }) { }
+    DifficultToDispel(const DifficultToDispel& m)
+        : Modifier(m)
+        , v(m.v) { }
+    DifficultToDispel(DifficultToDispel&& m)
+        : Modifier(m)
+        , v(m.v) { }
     DifficultToDispel(QJsonObject json)
         : Modifier(json["name"].toString("Difficult To Dispel"),
                    ModifierType(json["type"].toInt(0)),
@@ -2121,6 +2323,10 @@ public:
         : NoFormModifier("Dismissible▲", isAdvantage, 5_cp) { }
     Dismissible(QJsonObject json)
         : NoFormModifier(json) { }
+    Dismissible(const Dismissible& m)
+        : NoFormModifier(m) { }
+    Dismissible(Dismissible&& m)
+        : NoFormModifier(m) { }
     virtual ~Dismissible() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Dismissible>(*this); }
@@ -2133,6 +2339,10 @@ public:
         : NoFormModifier("DividedEffect", isLimitation, Fraction(1, 4)) { }
     DividedEffect(QJsonObject json)
         : NoFormModifier(json) { }
+    DividedEffect(const DividedEffect& m)
+        : NoFormModifier(m) { }
+    DividedEffect(DividedEffect&& m)
+        : NoFormModifier(m) { }
     virtual ~DividedEffect() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<DividedEffect>(*this); }
@@ -2145,6 +2355,10 @@ public:
         : NoFormModifier("Does BODYϴ", isAdvantage, Fraction(1, 1)) { }
     DoesBODY(QJsonObject json)
         : NoFormModifier(json) { }
+    DoesBODY(const DoesBODY& m)
+        : NoFormModifier(m) { }
+    DoesBODY(DoesBODY&& m)
+        : NoFormModifier(m) { }
     virtual ~DoesBODY() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<DoesBODY>(*this); }
@@ -2157,6 +2371,10 @@ public:
         : NoFormModifier("Does Knockback", isAdvantage, Fraction(1, 4)) { }
     DoesKnockback(QJsonObject json)
         : NoFormModifier(json) { }
+    DoesKnockback(const DoesKnockback& m)
+        : NoFormModifier(m) { }
+    DoesKnockback(DoesKnockback&& m)
+        : NoFormModifier(m) { }
     virtual ~DoesKnockback() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<DoesKnockback>(*this); }
@@ -2168,6 +2386,12 @@ public:
     DoesntWorkOnDefinedDamage()
         : Modifier("Doesn't Work On [Defined] Damage", isLimitation, isModifier)
         , v({ "", -1 }) { }
+    DoesntWorkOnDefinedDamage(const DoesntWorkOnDefinedDamage& m)
+        : Modifier(m)
+        , v(m.v) { }
+    DoesntWorkOnDefinedDamage(DoesntWorkOnDefinedDamage&& m)
+        : Modifier(m)
+        , v(m.v) { }
     DoesntWorkOnDefinedDamage(QJsonObject json)
         : Modifier(json["name"].toString("Doesn't Work On [Defined] Damage"),
                    ModifierType(json["type"].toInt(0)),
@@ -2233,6 +2457,10 @@ public:
         : NoFormModifier("Doesn't Work While Duplicat Exists", isLimitation, Fraction(1, 4)) { }
     DoesntWorkWhileDuplicatExists(QJsonObject json)
         : NoFormModifier(json) { }
+    DoesntWorkWhileDuplicatExists(const DoesntWorkWhileDuplicatExists& m)
+        : NoFormModifier(m) { }
+    DoesntWorkWhileDuplicatExists(DoesntWorkWhileDuplicatExists&& m)
+        : NoFormModifier(m) { }
     virtual ~DoesntWorkWhileDuplicatExists() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<DoesntWorkWhileDuplicatExists>(*this); }
@@ -2245,6 +2473,10 @@ public:
         : NoFormModifier("Double Knockback", isAdvantage, Fraction(1, 2)) { }
     DoubleKnockback(QJsonObject json)
         : NoFormModifier(json) { }
+    DoubleKnockback(const DoubleKnockback& m)
+        : NoFormModifier(m) { }
+    DoubleKnockback(DoubleKnockback&& m)
+        : NoFormModifier(m) { }
     virtual ~DoubleKnockback() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<DoubleKnockback>(*this); }
@@ -2256,6 +2488,12 @@ public:
     ExpandedEffect()
         : Modifier("Expanded Effect▲", isAdvantage, isModifier)
         , v({ "", -1 }) { }
+    ExpandedEffect(const ExpandedEffect& m)
+        : Modifier(m)
+        , v(m.v) { }
+    ExpandedEffect(ExpandedEffect&& m)
+        : Modifier(m)
+        , v(m.v) { }
     ExpandedEffect(QJsonObject json)
         : Modifier(json["name"].toString("Expanded Effect▲"),
                    ModifierType(json["type"].toInt(0)),
@@ -2320,6 +2558,12 @@ public:
     ExtraTime()
         : Modifier("Extra Time", isLimitation, isModifier)
         , v({ -1, false, false }) { }
+    ExtraTime(const ExtraTime& m)
+        : Modifier(m)
+        , v(m.v) { }
+    ExtraTime(ExtraTime&& m)
+        : Modifier(m)
+        , v(m.v) { }
     ExtraTime(QJsonObject json)
         : Modifier(json["name"].toString("Extra Time"),
                    ModifierType(json["type"].toInt(0)),
@@ -2409,6 +2653,12 @@ public:
     EyeContactRequired()
         : Modifier("Eye Contact Required", isLimitation, isModifier)
         , v({ false }) { }
+    EyeContactRequired(const EyeContactRequired& m)
+        : Modifier(m)
+        , v(m.v) { }
+    EyeContactRequired(EyeContactRequired&& m)
+        : Modifier(m)
+        , v(m.v) { }
     EyeContactRequired(QJsonObject json)
         : Modifier(json["name"].toString("Eye Contact Required"),
                    ModifierType(json["type"].toInt(0)),
@@ -2467,6 +2717,12 @@ public:
     Focus()
         : Modifier("Focus", isLimitation, isModifier)
         , v({ -1, -1, -1, -1, false }) { }
+    Focus(const Focus& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Focus(Focus&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Focus(QJsonObject json)
         : Modifier(json["name"].toString("Focus"),
                    ModifierType(json["type"].toInt(0)),
@@ -2569,6 +2825,12 @@ public:
     Gestures()
         : Modifier("Gestures", isLimitation, isModifier)
         , v({ false, false }) { }
+    Gestures(const Gestures& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Gestures(Gestures&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Gestures(QJsonObject json)
         : Modifier(json["name"].toString("Gestures"),
                    ModifierType(json["type"].toInt(0)),
@@ -2639,6 +2901,10 @@ public:
         : NoFormModifier("Hardened", isAdvantage, Fraction(1, 4)) { }
     Hardened(QJsonObject json)
         : NoFormModifier(json) { }
+    Hardened(const Hardened& m)
+        : NoFormModifier(m) { }
+    Hardened(Hardened&& m)
+        : NoFormModifier(m) { }
     virtual ~Hardened() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Hardened>(*this); }
@@ -2650,6 +2916,12 @@ public:
     HoleInTheMiddle()
         : Modifier("Hole In The Middle", isAdvantage, isModifier)
         , v({ false, "" }) { }
+    HoleInTheMiddle(const HoleInTheMiddle& m)
+        : Modifier(m)
+        , v(m.v) { }
+    HoleInTheMiddle(HoleInTheMiddle&& m)
+        : Modifier(m)
+        , v(m.v) { }
     HoleInTheMiddle(QJsonObject json)
         : Modifier(json["name"].toString("Hole In The Middle"),
                    ModifierType(json["type"].toInt(0)),
@@ -2723,6 +2995,10 @@ public:
         : NoFormModifier("Impenetrable", isAdvantage, Fraction(1, 4)) { }
     Impenetrable(QJsonObject json)
         : NoFormModifier(json) { }
+    Impenetrable(const Impenetrable& m)
+        : NoFormModifier(m) { }
+    Impenetrable(Impenetrable&& m)
+        : NoFormModifier(m) { }
     virtual ~Impenetrable() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Impenetrable>(*this); }
@@ -2734,11 +3010,17 @@ public:
     ImprovedNoncombatMovement()
         : Modifier("Improved Noncombat Movement", isAdvantage, isAnAdder)
         , v({ 0 }) { }
+    ImprovedNoncombatMovement(const ImprovedNoncombatMovement& m)
+        : Modifier(m)
+        , v(m.v) { }
+    ImprovedNoncombatMovement(ImprovedNoncombatMovement&& m)
+        : Modifier(m)
+        , v(m.v) { }
     ImprovedNoncombatMovement(QJsonObject json)
         : Modifier(json["name"].toString("Improved Noncombat Movement"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._doubling  = json["doubling"].toBool(false);
-                                                }
+                   json["adder"].toBool(true)) { v._doubling  = json["doubling"].toInt(0);
+                                               }
     virtual ~ImprovedNoncombatMovement() { }
 
     shared_ptr<Modifier> create() override                         { return make_shared<ImprovedNoncombatMovement>(*this); }
@@ -2748,7 +3030,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { dbling = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
+    void          form(QWidget* p, QVBoxLayout* l) override { dbling = createLineEdit(p, l, "How many doublings?", std::mem_fn(&ModifierBase::numeric));
                                                             }
     void          restore() override                        { vars s = v;
                                                               dbling->setText(QString("%1").arg(s._doubling));
@@ -2791,6 +3073,12 @@ public:
     Inaccurate()
         : Modifier("Inaccurate", isLimitation, isModifier)
         , v({ false }) { }
+    Inaccurate(const Inaccurate& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Inaccurate(Inaccurate&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Inaccurate(QJsonObject json)
         : Modifier(json["name"].toString("Inaccurate"),
                    ModifierType(json["type"].toInt(0)),
@@ -2850,6 +3138,12 @@ public:
     Incantations()
         : Modifier("Incantations", isLimitation, isModifier)
         , v({ false }) { }
+    Incantations(const Incantations& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Incantations(Incantations&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Incantations(QJsonObject json)
         : Modifier(json["name"].toString("Incantations"),
                    ModifierType(json["type"].toInt(0)),
@@ -2910,6 +3204,12 @@ public:
     IncreasedENDCost()
         : Modifier("Increased END Cost", isLimitation, isModifier)
         , v({ -1, -1 }) { }
+    IncreasedENDCost(const IncreasedENDCost& m)
+        : Modifier(m)
+        , v(m.v) { }
+    IncreasedENDCost(IncreasedENDCost&& m)
+        : Modifier(m)
+        , v(m.v) { }
     IncreasedENDCost(QJsonObject json)
         : Modifier(json["name"].toString("Increased END Cost"),
                    ModifierType(json["type"].toInt(0)),
@@ -2996,6 +3296,12 @@ public:
     IncreasedMass()
         : Modifier("Increased Mass", isAdvantage, isAnAdder)
         , v({ 0 }) { }
+    IncreasedMass(const IncreasedMass& m)
+        : Modifier(m)
+        , v(m.v) { }
+    IncreasedMass(IncreasedMass&& m)
+        : Modifier(m)
+        , v(m.v) { }
     IncreasedMass(QJsonObject json)
         : Modifier(json["name"].toString("Increased Mass"),
                    ModifierType(json["type"].toInt(0)),
@@ -3051,6 +3357,12 @@ public:
     IncreasedMaximumEffect()
         : Modifier("Increased Maximum Effect", isAdvantage, isModifier)
         , v({ 0 }) { }
+    IncreasedMaximumEffect(const IncreasedMaximumEffect& m)
+        : Modifier(m)
+        , v(m.v) { }
+    IncreasedMaximumEffect(IncreasedMaximumEffect&& m)
+        : Modifier(m)
+        , v(m.v) { }
     IncreasedMaximumEffect(QJsonObject json)
         : Modifier(json["name"].toString("Increased Maximum Effect"),
                    ModifierType(json["type"].toInt(0)),
@@ -3106,6 +3418,12 @@ public:
     IncreasedMaximumRange()
         : Modifier("Increased Maximum Range", isAdvantage, isModifier)
         , v({ 0 }) { }
+    IncreasedMaximumRange(const IncreasedMaximumRange& m)
+        : Modifier(m)
+        , v(m.v) { }
+    IncreasedMaximumRange(IncreasedMaximumRange&& m)
+        : Modifier(m)
+        , v(m.v) { }
     IncreasedMaximumRange(QJsonObject json)
         : Modifier(json["name"].toString("Increased Maximum Range"),
                    ModifierType(json["type"].toInt(0)),
@@ -3161,6 +3479,12 @@ public:
     Indirect()
         : Modifier("Indirect", isLimitation, isModifier)
         , v({ -1, "", -1 }) { }
+    Indirect(const Indirect& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Indirect(Indirect&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Indirect(QJsonObject json)
         : Modifier(json["name"].toString("Indirect"),
                    ModifierType(json["type"].toInt(0)),
@@ -3249,6 +3573,10 @@ public:
         : NoFormModifier("Inherent", isAdvantage, Fraction(1, 4)) { }
     Inherent(QJsonObject json)
         : NoFormModifier(json) { }
+    Inherent(const Inherent& m)
+        : NoFormModifier(m) { }
+    Inherent(Inherent&& m)
+        : NoFormModifier(m) { }
     virtual ~Inherent() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Inherent>(*this); }
@@ -3261,6 +3589,10 @@ public:
         : NoFormModifier("Instant", isLimitation, Fraction(1, 2)) { }
     Instant(QJsonObject json)
         : NoFormModifier(json) { }
+    Instant(const Instant& m)
+        : NoFormModifier(m) { }
+    Instant(Instant&& m)
+        : NoFormModifier(m) { }
     virtual ~Instant() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Instant>(*this); }
@@ -3272,6 +3604,12 @@ public:
     InvisiblePowerEffects()
         : Modifier("Invisible Power Effects", isAdvantage, isModifier)
         , v({ false, -1, "", -1 }) { }
+    InvisiblePowerEffects(const InvisiblePowerEffects& m)
+        : Modifier(m)
+        , v(m.v) { }
+    InvisiblePowerEffects(InvisiblePowerEffects&& m)
+        : Modifier(m)
+        , v(m.v) { }
     InvisiblePowerEffects(QJsonObject json)
         : Modifier(json["name"].toString("Invisible Power Effects"),
                    ModifierType(json["type"].toInt(0)),
@@ -3396,6 +3734,12 @@ public:
     LimitedEffect()
         : Modifier("Limited Effect", isLimitation, isModifier)
         , v({ "" }) { }
+    LimitedEffect(const LimitedEffect& m)
+        : Modifier(m)
+        , v(m.v) { }
+    LimitedEffect(LimitedEffect&& m)
+        : Modifier(m)
+        , v(m.v) { }
     LimitedEffect(QJsonObject json)
         : Modifier(json["name"].toString("Limited Effect"),
                    ModifierType(json["type"].toInt(0)),
@@ -3453,6 +3797,10 @@ public:
         : NoFormModifier("Limited Maneuverability", isLimitation, Fraction(1, 4)) { }
     LimitedManeuverability(QJsonObject json)
         : NoFormModifier(json) { }
+    LimitedManeuverability(const LimitedManeuverability& m)
+        : NoFormModifier(m) { }
+    LimitedManeuverability(LimitedManeuverability&& m)
+        : NoFormModifier(m) { }
     virtual ~LimitedManeuverability() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<LimitedManeuverability>(*this); }
@@ -3464,6 +3812,12 @@ public:
     LimitedPower()
         : Modifier("Limited Power", isLimitation, isModifier)
         , v({ false, -1, "" }) { }
+    LimitedPower(const LimitedPower& m)
+        : Modifier(m)
+        , v(m.v) { }
+    LimitedPower(LimitedPower&& m)
+        : Modifier(m)
+        , v(m.v) { }
     LimitedPower(QJsonObject json)
         : Modifier(json["name"].toString("Limited Power"),
                    ModifierType(json["type"].toInt(0)),
@@ -3575,6 +3929,12 @@ public:
     LimitedRange()
         : Modifier("Limited Range", isBoth, isModifier)
         , v({ false }) { }
+    LimitedRange(const LimitedRange& m)
+        : Modifier(m)
+        , v(m.v) { }
+    LimitedRange(LimitedRange&& m)
+        : Modifier(m)
+        , v(m.v) { }
     LimitedRange(QJsonObject json)
         : Modifier(json["name"].toString("Limited Range"),
                    ModifierType(json["type"].toInt(0)),
@@ -3632,6 +3992,12 @@ public:
     LimitedSpecialEffect()
         : Modifier("Limited Special Effect", isLimitation, isModifier)
         , v({ -1, "" }) { }
+    LimitedSpecialEffect(const LimitedSpecialEffect& m)
+        : Modifier(m)
+        , v(m.v) { }
+    LimitedSpecialEffect(LimitedSpecialEffect&& m)
+        : Modifier(m)
+        , v(m.v) { }
     LimitedSpecialEffect(QJsonObject json)
         : Modifier(json["name"].toString("Limited Special Effect"),
                    ModifierType(json["type"].toInt(0)),
@@ -3704,7 +4070,10 @@ public:
         : NoFormModifier("Line Of Sight▲", isAdvantage, Fraction(1, 2)) { }
     LineOfSight(QJsonObject json)
         : NoFormModifier(json) { }
-
+    LineOfSight(const LineOfSight& m)
+        : NoFormModifier(m) { }
+    LineOfSight(LineOfSight&& m)
+        : NoFormModifier(m) { }
     virtual ~LineOfSight() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<LineOfSight>(*this); }
@@ -3716,6 +4085,12 @@ public:
     Linked()
         : Modifier("Linked", isBoth, isModifier)
         , v({ false, false, false, false, false, false, "" }) { }
+    Linked(const Linked& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Linked(Linked&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Linked(QJsonObject json)
         : Modifier(json["name"].toString("Linked"),
                    ModifierType(json["type"].toInt(0)),
@@ -3829,6 +4204,10 @@ public:
         : NoFormModifier("Lockout", isLimitation, Fraction(1, 2)) { }
     Lockout(QJsonObject json)
         : NoFormModifier(json) { }
+    Lockout(const Lockout& m)
+        : NoFormModifier(m) { }
+    Lockout(Lockout&& m)
+        : NoFormModifier(m) { }
     virtual ~Lockout() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Lockout>(*this); }
@@ -3840,6 +4219,12 @@ public:
     MandatoryEffect()
         : Modifier("Mandatory Effect", isLimitation, isModifier)
         , v({ -1, "" }) { }
+    MandatoryEffect(const MandatoryEffect& m)
+        : Modifier(m)
+        , v(m.v) { }
+    MandatoryEffect(MandatoryEffect&& m)
+        : Modifier(m)
+        , v(m.v) { }
     MandatoryEffect(QJsonObject json)
         : Modifier(json["name"].toString("Mandatory Effect"),
                    ModifierType(json["type"].toInt(0)),
@@ -3912,6 +4297,12 @@ public:
     Mass()
         : Modifier("MassꚚ", isLimitation, isModifier)
         , v({ -1 }) { }
+    Mass(const Mass& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Mass(Mass&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Mass(QJsonObject json)
         : Modifier(json["name"].toString("MassꚚ"),
                    ModifierType(json["type"].toInt(0)),
@@ -3975,6 +4366,12 @@ public:
     Megascale()
         : Modifier("Megascaleϴ", isAdvantage, isModifier)
         , v({ -1, false }) { }
+    Megascale(const Megascale& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Megascale(Megascale&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Megascale(QJsonObject json)
         : Modifier(json["name"].toString("Megascaleϴ"),
                    ModifierType(json["type"].toInt(0)),
@@ -4055,6 +4452,10 @@ public:
         : NoFormModifier("Mental Defense Adds To EGO", isLimitation, Fraction(1, 2)) { }
     MentalDefenseAddsToEGO(QJsonObject json)
         : NoFormModifier(json) { }
+    MentalDefenseAddsToEGO(const MentalDefenseAddsToEGO& m)
+        : NoFormModifier(m) { }
+    MentalDefenseAddsToEGO(MentalDefenseAddsToEGO&& m)
+        : NoFormModifier(m) { }
     virtual ~MentalDefenseAddsToEGO() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<MentalDefenseAddsToEGO>(*this); }
@@ -4066,6 +4467,12 @@ public:
     NoConciousControl()
         : Modifier("No Concious Control▲", isLimitation, isModifier)
         , v({ false, false }) { }
+    NoConciousControl(const NoConciousControl& m)
+        : Modifier(m)
+        , v(m.v) { }
+    NoConciousControl(NoConciousControl&& m)
+        : Modifier(m)
+        , v(m.v) { }
     NoConciousControl(QJsonObject json)
         : Modifier(json["name"].toString("No Concious Control▲"),
                    ModifierType(json["type"].toInt(0)),
@@ -4136,6 +4543,10 @@ public:
         : NoFormModifier("No Gravity Penalty", isAdvantage, Fraction(1, 2)) { }
     NoGravityPenalty(QJsonObject json)
         : NoFormModifier(json) { }
+    NoGravityPenalty(const NoGravityPenalty& m)
+        : NoFormModifier(m) { }
+    NoGravityPenalty(NoGravityPenalty&& m)
+        : NoFormModifier(m) { }
     virtual ~NoGravityPenalty() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<NoGravityPenalty>(*this); }
@@ -4148,6 +4559,10 @@ public:
         : NoFormModifier("No Knockback", isLimitation, Fraction(1, 4)) { }
     NoKnockback(QJsonObject json)
         : NoFormModifier(json) { }
+    NoKnockback(const NoKnockback& m)
+        : NoFormModifier(m) { }
+    NoKnockback(NoKnockback&& m)
+        : NoFormModifier(m) { }
     virtual ~NoKnockback() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<NoKnockback>(*this); }
@@ -4160,6 +4575,10 @@ public:
         : NoFormModifier("No Noncombat Movement", isLimitation, Fraction(1, 4)) { }
     NoNoncombatMovement(QJsonObject json)
         : NoFormModifier(json) { }
+    NoNoncombatMovement(const NoNoncombatMovement& m)
+        : NoFormModifier(m) { }
+    NoNoncombatMovement(NoNoncombatMovement&& m)
+        : NoFormModifier(m) { }
     virtual ~NoNoncombatMovement() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<NoNoncombatMovement>(*this); }
@@ -4172,6 +4591,10 @@ public:
         : NoFormModifier("No Range", isLimitation, Fraction(1, 2)) { }
     NoRange(QJsonObject json)
         : NoFormModifier(json) { }
+    NoRange(const NoRange& m)
+        : NoFormModifier(m) { }
+    NoRange(NoRange&& m)
+        : NoFormModifier(m) { }
     virtual ~NoRange() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<NoRange>(*this); }
@@ -4184,6 +4607,10 @@ public:
         : NoFormModifier("No Turn Mode▲", isAdvantage, Fraction(1, 4)) { }
     NoTurnMode(QJsonObject json)
         : NoFormModifier(json) { }
+    NoTurnMode(const NoTurnMode& m)
+        : NoFormModifier(m) { }
+    NoTurnMode(NoTurnMode&& m)
+        : NoFormModifier(m) { }
     virtual ~NoTurnMode() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<NoTurnMode>(*this); }
@@ -4196,6 +4623,10 @@ public:
         : NoFormModifier("Noncombat Acceleration/Decelleration", isAdvantage, Fraction(1)) { }
     NoncombatAccelerationDecelleration(QJsonObject json)
         : NoFormModifier(json) { }
+    NoncombatAccelerationDecelleration(const NoncombatAccelerationDecelleration& m)
+        : NoFormModifier(m) { }
+    NoncombatAccelerationDecelleration(NoncombatAccelerationDecelleration&& m)
+        : NoFormModifier(m) { }
     virtual ~NoncombatAccelerationDecelleration() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<NoncombatAccelerationDecelleration>(*this); }
@@ -4208,6 +4639,10 @@ public:
         : NoFormModifier("Nonpersistent", isLimitation, Fraction(1, 4)) { }
     Nonpersistent(QJsonObject json)
         : NoFormModifier(json) { }
+    Nonpersistent(const Nonpersistent& m)
+        : NoFormModifier(m) { }
+    Nonpersistent(Nonpersistent&& m)
+        : NoFormModifier(m) { }
     virtual ~Nonpersistent() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Nonpersistent>(*this); }
@@ -4220,6 +4655,10 @@ public:
         : NoFormModifier("Nonresistent Defenses", isLimitation, Fraction(1, 4)) { }
     NonresistentDefenses(QJsonObject json)
         : NoFormModifier(json) { }
+    NonresistentDefenses(const NonresistentDefenses& m)
+        : NoFormModifier(m) { }
+    NonresistentDefenses(NonresistentDefenses&& m)
+        : NoFormModifier(m) { }
     virtual ~NonresistentDefenses() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<NonresistentDefenses>(*this); }
@@ -4232,6 +4671,10 @@ public:
         : NoFormModifier("One Use At A Time", isLimitation, Fraction(1)) { }
     OneUseAtATime(QJsonObject json)
         : NoFormModifier(json) { }
+    OneUseAtATime(const OneUseAtATime& m)
+        : NoFormModifier(m) { }
+    OneUseAtATime(OneUseAtATime&& m)
+        : NoFormModifier(m) { }
     virtual ~OneUseAtATime() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<OneUseAtATime>(*this); }
@@ -4243,6 +4686,12 @@ public:
     OnlyInAlternateID()
         : Modifier("Only In Alternate Identity", isLimitation, isModifier)
         , v({ "" }) { }
+    OnlyInAlternateID(const OnlyInAlternateID& m)
+        : Modifier(m)
+        , v(m.v) { }
+    OnlyInAlternateID(OnlyInAlternateID&& m)
+        : Modifier(m)
+        , v(m.v) { }
     OnlyInAlternateID(QJsonObject json)
         : Modifier(json["name"].toString("Only In Alternate Identity"),
                    ModifierType(json["type"].toInt(0)),
@@ -4301,6 +4750,10 @@ public:
         : NoFormModifier("Only Protects Baarrier", isLimitation, Fraction(1)) { }
     OnlyProtectsBarrier(QJsonObject json)
         : NoFormModifier(json) { }
+    OnlyProtectsBarrier(const OnlyProtectsBarrier& m)
+        : NoFormModifier(m) { }
+    OnlyProtectsBarrier(OnlyProtectsBarrier&& m)
+        : NoFormModifier(m) { }
     virtual ~OnlyProtectsBarrier() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<OnlyProtectsBarrier>(*this); }
@@ -4313,6 +4766,10 @@ public:
         : NoFormModifier("Only Restores To Starting Values", isLimitation, Fraction(1, 2)) { }
     OnlyRestoresToStartingValues(QJsonObject json)
         : NoFormModifier(json) { }
+    OnlyRestoresToStartingValues(const OnlyRestoresToStartingValues& m)
+        : NoFormModifier(m) { }
+    OnlyRestoresToStartingValues(OnlyRestoresToStartingValues&& m)
+        : NoFormModifier(m) { }
     virtual ~OnlyRestoresToStartingValues() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<OnlyRestoresToStartingValues>(*this); }
@@ -4324,6 +4781,12 @@ public:
     OnlyWorksAgainstDefined()
         : Modifier("Only Works Against [Defined]", isLimitation, isModifier)
         , v({ "", -1 }) { }
+    OnlyWorksAgainstDefined(const OnlyWorksAgainstDefined& m)
+        : Modifier(m)
+        , v(m.v) { }
+    OnlyWorksAgainstDefined(OnlyWorksAgainstDefined&& m)
+        : Modifier(m)
+        , v(m.v) { }
     OnlyWorksAgainstDefined(QJsonObject json)
         : Modifier(json["name"].toString("Only Works Against [Defined]"),
                    ModifierType(json["type"].toInt(0)),
@@ -4388,6 +4851,12 @@ public:
     Opaque()
         : Modifier("Opaque", isAdvantage, isAnAdder)
         , v() { }
+    Opaque(const Opaque& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Opaque(Opaque&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Opaque(QJsonObject json)
         : Modifier(json["name"].toString("Opaque"),
                    ModifierType(json["type"].toInt(0)),
@@ -4480,6 +4949,10 @@ public:
         : NoFormModifier("Penetrating", isAdvantage, Fraction(1, 2)) { }
     Penetrating(QJsonObject json)
         : NoFormModifier(json) { }
+    Penetrating(const Penetrating& m)
+        : NoFormModifier(m) { }
+    Penetrating(Penetrating&& m)
+        : NoFormModifier(m) { }
     virtual ~Penetrating() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Penetrating>(*this); }
@@ -4491,6 +4964,12 @@ public:
     Perceivable()
         : Modifier("Perceivable", isLimitation, isModifier)
         , v({ false }) { }
+    Perceivable(const Perceivable& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Perceivable(Perceivable&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Perceivable(QJsonObject json)
         : Modifier(json["name"].toString("Perceivable"),
                    ModifierType(json["type"].toInt(0)),
@@ -4549,6 +5028,10 @@ public:
         : NoFormModifier("Persistant", isAdvantage, Fraction(1, 4)) { }
     Persistant(QJsonObject json)
         : NoFormModifier(json) { }
+    Persistant(const Persistant& m)
+        : NoFormModifier(m) { }
+    Persistant(Persistant&& m)
+        : NoFormModifier(m) { }
     virtual ~Persistant() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Persistant>(*this); }
@@ -4561,6 +5044,10 @@ public:
         : NoFormModifier("Personal Immunity", isAdvantage, Fraction(1, 4)) { }
     PersonalImmunity(QJsonObject json)
         : NoFormModifier(json) { }
+    PersonalImmunity(const PersonalImmunity& m)
+        : NoFormModifier(m) { }
+    PersonalImmunity(PersonalImmunity&& m)
+        : NoFormModifier(m) { }
     virtual ~PersonalImmunity() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<PersonalImmunity>(*this); }
@@ -4573,6 +5060,10 @@ public:
         : NoFormModifier("Physical Manifestation", isLimitation, Fraction(1, 4)) { }
     PhysicalManifestation(QJsonObject json)
         : NoFormModifier(json) { }
+    PhysicalManifestation(const PhysicalManifestation& m)
+        : NoFormModifier(m) { }
+    PhysicalManifestation(PhysicalManifestation&& m)
+        : NoFormModifier(m) { }
     virtual ~PhysicalManifestation() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<PhysicalManifestation>(*this); }
@@ -4585,6 +5076,10 @@ public:
         : NoFormModifier("Position Shift", isLimitation, 5_cp) { }
     PositionShift(QJsonObject json)
         : NoFormModifier(json) { }
+    PositionShift(const PositionShift& m)
+        : NoFormModifier(m) { }
+    PositionShift(PositionShift&& m)
+        : NoFormModifier(m) { }
     virtual ~PositionShift() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<PositionShift>(*this); }
@@ -4596,6 +5091,12 @@ public:
     RangeBasedOnSTR()
         : Modifier("Range Based On STR", isBoth, isModifier)
         , v({ false }) { }
+    RangeBasedOnSTR(const RangeBasedOnSTR& m)
+        : Modifier(m)
+        , v(m.v) { }
+    RangeBasedOnSTR(RangeBasedOnSTR&& m)
+        : Modifier(m)
+        , v(m.v) { }
     RangeBasedOnSTR(QJsonObject json)
         : Modifier(json["name"].toString("Range Based On STR"),
                    ModifierType(json["type"].toInt(0)),
@@ -4654,6 +5155,10 @@ public:
         : NoFormModifier("Ranged", isAdvantage, Fraction(1, 2)) { }
     Ranged(QJsonObject json)
         : NoFormModifier(json) { }
+    Ranged(const Ranged& m)
+        : NoFormModifier(m) { }
+    Ranged(Ranged&& m)
+        : NoFormModifier(m) { }
     virtual ~Ranged() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Ranged>(*this); }
@@ -4666,6 +5171,10 @@ public:
         : NoFormModifier("Rapid Noncombat Movement", isAdvantage, Fraction(1, 2)) { }
     RapidNoncombatMovement(QJsonObject json)
         : NoFormModifier(json) { }
+    RapidNoncombatMovement(const RapidNoncombatMovement& m)
+        : NoFormModifier(m) { }
+    RapidNoncombatMovement(RapidNoncombatMovement&& m)
+        : NoFormModifier(m) { }
     virtual ~RapidNoncombatMovement() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<RapidNoncombatMovement>(*this); }
@@ -4678,6 +5187,10 @@ public:
         : NoFormModifier("Real Armor", isLimitation, Fraction(1, 4)) { }
     RealArmor(QJsonObject json)
         : NoFormModifier(json) { }
+    RealArmor(const RealArmor& m)
+        : NoFormModifier(m) { }
+    RealArmor(RealArmor&& m)
+        : NoFormModifier(m) { }
     virtual ~RealArmor() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<RealArmor>(*this); }
@@ -4690,6 +5203,10 @@ public:
         : NoFormModifier("Real Weapon", isLimitation, Fraction(1, 4)) { }
     RealWeapon(QJsonObject json)
         : NoFormModifier(json) { }
+    RealWeapon(const RealWeapon& m)
+        : NoFormModifier(m) { }
+    RealWeapon(RealWeapon&& m)
+        : NoFormModifier(m) { }
     virtual ~RealWeapon() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<RealWeapon>(*this); }
@@ -4702,6 +5219,10 @@ public:
         : NoFormModifier("Reduced By Range", isLimitation, Fraction(1, 4)) { }
     ReducedByRange(QJsonObject json)
         : NoFormModifier(json) { }
+    ReducedByRange(const ReducedByRange& m)
+        : NoFormModifier(m) { }
+    ReducedByRange(ReducedByRange&& m)
+        : NoFormModifier(m) { }
     virtual ~ReducedByRange() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<ReducedByRange>(*this); }
@@ -4714,6 +5235,10 @@ public:
         : NoFormModifier("Reduced By Shrinking", isLimitation, Fraction(1, 4)) { }
     ReducedByShrinking(QJsonObject json)
         : NoFormModifier(json) { }
+    ReducedByShrinking(const ReducedByShrinking& m)
+        : NoFormModifier(m) { }
+    ReducedByShrinking(ReducedByShrinking&& m)
+        : NoFormModifier(m) { }
     virtual ~ReducedByShrinking() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<ReducedByShrinking>(*this); }
@@ -4725,6 +5250,12 @@ public:
     ReducedEndurance()
         : Modifier("Reduced Endurance", isAdvantage, isModifier)
         , v({ false }) { }
+    ReducedEndurance(const ReducedEndurance& m)
+        : Modifier(m)
+        , v(m.v) { }
+    ReducedEndurance(ReducedEndurance&& m)
+        : Modifier(m)
+        , v(m.v) { }
     ReducedEndurance(QJsonObject json)
         : Modifier(json["name"].toString("Reduced Endurance"),
                    ModifierType(json["type"].toInt(0)),
@@ -4784,6 +5315,12 @@ public:
     ReducedNegation()
         : Modifier("Reduced Negation", isAdvantage, isAnAdder)
         , v({ 0 }) { }
+    ReducedNegation(const ReducedNegation& m)
+        : Modifier(m)
+        , v(m.v) { }
+    ReducedNegation(ReducedNegation&& m)
+        : Modifier(m)
+        , v(m.v) { }
     ReducedNegation(QJsonObject json)
         : Modifier(json["name"].toString("Reduced Negation"),
                    ModifierType(json["type"].toInt(0)),
@@ -4840,6 +5377,10 @@ public:
         : NoFormModifier("Reduced Penetration", isLimitation, Fraction(1, 4)) { }
     ReducedPenetration(QJsonObject json)
         : NoFormModifier(json) { }
+    ReducedPenetration(const ReducedPenetration& m)
+        : NoFormModifier(m) { }
+    ReducedPenetration(ReducedPenetration&& m)
+        : NoFormModifier(m) { }
     virtual ~ReducedPenetration() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<ReducedPenetration>(*this); }
@@ -4851,6 +5392,12 @@ public:
     ReducedRangeModifier()
         : Modifier("Reduced Range Modifier", isAdvantage, isModifier)
         , v({ false }) { }
+    ReducedRangeModifier(const ReducedRangeModifier& m)
+        : Modifier(m)
+        , v(m.v) { }
+    ReducedRangeModifier(ReducedRangeModifier&& m)
+        : Modifier(m)
+        , v(m.v) { }
     ReducedRangeModifier(QJsonObject json)
         : Modifier(json["name"].toString("Reduced Range Modifier"),
                    ModifierType(json["type"].toInt(0)),
@@ -4908,6 +5455,12 @@ public:
     RequiredHands()
         : Modifier("Required HandsꚚ", isLimitation, isModifier)
         , v({ -1 }) { }
+    RequiredHands(const RequiredHands& m)
+        : Modifier(m)
+        , v(m.v) { }
+    RequiredHands(RequiredHands&& m)
+        : Modifier(m)
+        , v(m.v) { }
     RequiredHands(QJsonObject json)
         : Modifier(json["name"].toString("Required HandsꚚ"),
                    ModifierType(json["type"].toInt(0)),
@@ -4966,6 +5519,12 @@ public:
     RequiresARoll()
         : Modifier("Requires A Roll", isLimitation, isModifier)
         , v({ false, false, -1, "", false, false, -1 }) { }
+    RequiresARoll(const RequiresARoll& m)
+        : Modifier(m)
+        , v(m.v) { }
+    RequiresARoll(RequiresARoll&& m)
+        : Modifier(m)
+        , v(m.v) { }
     RequiresARoll(QJsonObject json)
         : Modifier(json["name"].toString("Requires A Roll"),
                    ModifierType(json["type"].toInt(0)),
@@ -5115,6 +5674,12 @@ public:
     RequiresMultipleCharges()
         : Modifier("Requires Multiple Charges", isLimitation, isAnAdder)
         , v({ 0, 0 }) { }
+    RequiresMultipleCharges(const RequiresMultipleCharges& m)
+        : Modifier(m)
+        , v(m.v) { }
+    RequiresMultipleCharges(RequiresMultipleCharges&& m)
+        : Modifier(m)
+        , v(m.v) { }
     RequiresMultipleCharges(QJsonObject json)
         : Modifier(json["name"].toString("Requires Multiple Charges"),
                    ModifierType(json["type"].toInt(0)),
@@ -5188,6 +5753,12 @@ public:
     RequiresMultipleUsers()
         : Modifier("Requires Multiple Users", isLimitation, isAnAdder)
         , v({ 0 }) { }
+    RequiresMultipleUsers(const RequiresMultipleUsers& m)
+        : Modifier(m)
+        , v(m.v) { }
+    RequiresMultipleUsers(RequiresMultipleUsers&& m)
+        : Modifier(m)
+        , v(m.v) { }
     RequiresMultipleUsers(QJsonObject json)
         : Modifier(json["name"].toString("Requires Multiple Users"),
                    ModifierType(json["type"].toInt(0)),
@@ -5252,6 +5823,10 @@ public:
         : NoFormModifier("Resistant", isAdvantage, Fraction(1, 4)) { }
     Resistant(QJsonObject json)
         : NoFormModifier(json) { }
+    Resistant(const Resistant& m)
+        : NoFormModifier(m) { }
+    Resistant(Resistant&& m)
+        : NoFormModifier(m) { }
     virtual ~Resistant() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Resistant>(*this); }
@@ -5263,6 +5838,12 @@ public:
     Restrainable()
         : Modifier("Restrainable", isLimitation, isModifier)
         , v({ false, "" }) { }
+    Restrainable(const Restrainable& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Restrainable(Restrainable&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Restrainable(QJsonObject json)
         : Modifier(json["name"].toString("Restrainable"),
                    ModifierType(json["type"].toInt(0)),
@@ -5334,6 +5915,10 @@ public:
         : NoFormModifier("Ressurection", isAdvantage, 20_cp) { }
     Ressurection(QJsonObject json)
         : NoFormModifier(json) { }
+    Ressurection(const Ressurection& m)
+        : NoFormModifier(m) { }
+    Ressurection(Ressurection&& m)
+        : NoFormModifier(m) { }
     virtual ~Ressurection() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Ressurection>(*this); }
@@ -5345,6 +5930,12 @@ public:
     RessurectionOnly()
         : Modifier("Ressurection Only", isLimitation, isModifier)
         , v({ false }) { }
+    RessurectionOnly(const RessurectionOnly& m)
+        : Modifier(m)
+        , v(m.v) { }
+    RessurectionOnly(RessurectionOnly&& m)
+        : Modifier(m)
+        , v(m.v) { }
     RessurectionOnly(QJsonObject json)
         : Modifier(json["name"].toString("Ressurection Only"),
                    ModifierType(json["type"].toInt(0)),
@@ -5402,6 +5993,10 @@ public:
         : NoFormModifier("Safe Blind Travel", isAdvantage, Fraction(1, 4)) { }
     SafeBlindTravel(QJsonObject json)
         : NoFormModifier(json) { }
+    SafeBlindTravel(const SafeBlindTravel& m)
+        : NoFormModifier(m) { }
+    SafeBlindTravel(SafeBlindTravel&& m)
+        : NoFormModifier(m) { }
     virtual ~SafeBlindTravel() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<SafeBlindTravel>(*this); }
@@ -5413,6 +6008,12 @@ public:
     SideEffects()
         : Modifier("Side Effects", isLimitation, isModifier)
         , v({ -1, "", -1, -1, false, false }) { }
+    SideEffects(const SideEffects& m)
+        : Modifier(m)
+        , v(m.v) { }
+    SideEffects(SideEffects&& m)
+        : Modifier(m)
+        , v(m.v) { }
     SideEffects(QJsonObject json)
         : Modifier(json["name"].toString("Side Effects"),
                    ModifierType(json["type"].toInt(0)),
@@ -5537,6 +6138,10 @@ public:
         : NoFormModifier("Skin Contact Required", isLimitation, Fraction(1)) { }
     SkinContactRequired(QJsonObject json)
         : NoFormModifier(json) { }
+    SkinContactRequired(const SkinContactRequired& m)
+        : NoFormModifier(m) { }
+    SkinContactRequired(SkinContactRequired&& m)
+        : NoFormModifier(m) { }
     virtual ~SkinContactRequired() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<SkinContactRequired>(*this); }
@@ -5548,6 +6153,12 @@ public:
     StandardRange()
         : Modifier("Standard Range", isLimitation, isModifier)
         , v({ false }) { }
+    StandardRange(const StandardRange& m)
+        : Modifier(m)
+        , v(m.v) { }
+    StandardRange(StandardRange&& m)
+        : Modifier(m)
+        , v(m.v) { }
     StandardRange(QJsonObject json)
         : Modifier(json["name"].toString("Standard Range"),
                    ModifierType(json["type"].toInt(0)),
@@ -5605,6 +6216,12 @@ public:
     StopsWorkingIfKnockedOutStunned()
         : Modifier("Stops Working If Knocked Out/Stunned", isLimitation, isModifier)
         , v({ false }) { }
+    StopsWorkingIfKnockedOutStunned(const StopsWorkingIfKnockedOutStunned& m)
+        : Modifier(m)
+        , v(m.v) { }
+    StopsWorkingIfKnockedOutStunned(StopsWorkingIfKnockedOutStunned&& m)
+        : Modifier(m)
+        , v(m.v) { }
     StopsWorkingIfKnockedOutStunned(QJsonObject json)
         : Modifier(json["name"].toString("Stops Working If Knocked Out/Stunned"),
                    ModifierType(json["type"].toInt(0)),
@@ -5663,6 +6280,10 @@ public:
         : NoFormModifier("Sticky", isAdvantage, Fraction(1, 2)) { }
     Sticky(QJsonObject json)
         : NoFormModifier(json) { }
+    Sticky(const Sticky& m)
+        : NoFormModifier(m) { }
+    Sticky(Sticky&& m)
+        : NoFormModifier(m) { }
     virtual ~Sticky() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Sticky>(*this); }
@@ -5674,6 +6295,12 @@ public:
     STRMinimum()
         : Modifier("STR MinimumꚚ", isAdvantage, isModifier)
         , v({ 1 }) { }
+    STRMinimum(const STRMinimum& m)
+        : Modifier(m)
+        , v(m.v) { }
+    STRMinimum(STRMinimum&& m)
+        : Modifier(m)
+        , v(m.v) { }
     STRMinimum(QJsonObject json)
         : Modifier(json["name"].toString("STR MinimumꚚ"),
                    ModifierType(json["type"].toInt(0)),
@@ -5743,6 +6370,10 @@ public:
         : NoFormModifier("STUN Only", isLimitation, Fraction(1, 4)) { }
     STUNOnly(QJsonObject json)
         : NoFormModifier(json) { }
+    STUNOnly(const STUNOnly& m)
+        : NoFormModifier(m) { }
+    STUNOnly(STUNOnly&& m)
+        : NoFormModifier(m) { }
     virtual ~STUNOnly() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<STUNOnly>(*this); }
@@ -5755,6 +6386,10 @@ public:
         : NoFormModifier("Subject To Range Modifier", isLimitation, Fraction(1, 4)) { }
     SubjectToRangeModifier(QJsonObject json)
         : NoFormModifier(json) { }
+    SubjectToRangeModifier(const SubjectToRangeModifier& m)
+        : NoFormModifier(m) { }
+    SubjectToRangeModifier(SubjectToRangeModifier&& m)
+        : NoFormModifier(m) { }
     virtual ~SubjectToRangeModifier() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<SubjectToRangeModifier>(*this); }
@@ -5766,6 +6401,12 @@ public:
     TimeLimit()
         : Modifier("Time Limit", isBoth, isModifier)
         , v({ -1, -1 }) { }
+    TimeLimit(const TimeLimit& m)
+        : Modifier(m)
+        , v(m.v) { }
+    TimeLimit(TimeLimit&& m)
+        : Modifier(m)
+        , v(m.v) { }
     TimeLimit(QJsonObject json)
         : Modifier(json["name"].toString("Time Limit"),
                    ModifierType(json["type"].toInt(0)),
@@ -5877,6 +6518,12 @@ public:
     Transdimensional()
         : Modifier("Transdimensionalϴ", isAdvantage, isModifier)
         , v({ -1, "" }) { }
+    Transdimensional(const Transdimensional& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Transdimensional(Transdimensional&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Transdimensional(QJsonObject json)
         : Modifier(json["name"].toString("Transdimensionalϴ"),
                    ModifierType(json["type"].toInt(0)),
@@ -5952,6 +6599,12 @@ public:
     Trigger()
         : Modifier("Trigger", isAdvantage, isModifier)
         , v({ false, "", false, -1, -1, false, false }) { }
+    Trigger(const Trigger& m)
+        : Modifier(m)
+        , v(m.v) { }
+    Trigger(Trigger&& m)
+        : Modifier(m)
+        , v(m.v) { }
     Trigger(QJsonObject json)
         : Modifier(json["name"].toString("Trigger"),
                    ModifierType(json["type"].toInt(0)),
@@ -6067,6 +6720,10 @@ public:
         : NoFormModifier("Turn Mode", isLimitation, Fraction(1, 4)) { }
     TurnMode(QJsonObject json)
         : NoFormModifier(json) { }
+    TurnMode(const TurnMode& m)
+        : NoFormModifier(m) { }
+    TurnMode(TurnMode&& m)
+        : NoFormModifier(m) { }
     virtual ~TurnMode() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<TurnMode>(*this); }
@@ -6079,6 +6736,10 @@ public:
         : NoFormModifier("Uncontrolledϴ", isAdvantage, Fraction(1, 2)) { }
     Uncontrolled(QJsonObject json)
         : NoFormModifier(json) { }
+    Uncontrolled(const Uncontrolled& m)
+        : NoFormModifier(m) { }
+    Uncontrolled(Uncontrolled&& m)
+        : NoFormModifier(m) { }
     virtual ~Uncontrolled() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Uncontrolled>(*this); }
@@ -6091,6 +6752,10 @@ public:
         : NoFormModifier("Unified Power▲", isLimitation, Fraction(1, 4)) { }
     UnifiedPower(QJsonObject json)
         : NoFormModifier(json) { }
+    UnifiedPower(const UnifiedPower& m)
+        : NoFormModifier(m) { }
+    UnifiedPower(UnifiedPower&& m)
+        : NoFormModifier(m) { }
     virtual ~UnifiedPower() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<UnifiedPower>(*this); }
@@ -6102,6 +6767,12 @@ public:
     UsableAsMovement()
         : Modifier("Usable As [Movement]", isAdvantage, isModifier)
         , v({ 0, "" }) { }
+    UsableAsMovement(const UsableAsMovement& m)
+        : Modifier(m)
+        , v(m.v) { }
+    UsableAsMovement(UsableAsMovement&& m)
+        : Modifier(m)
+        , v(m.v) { }
     UsableAsMovement(QJsonObject json)
         : Modifier(json["name"].toString("Usable As [Movement]"),
                    ModifierType(json["type"].toInt(0)),
@@ -6164,6 +6835,12 @@ public:
     UsableByOthers()
         : Modifier("Usable On Othersϴ", isAdvantage, isModifier)
         , v({ 0, false, false, false, -1, false, -1, -1 }) { }
+    UsableByOthers(const UsableByOthers& m)
+        : Modifier(m)
+        , v(m.v) { }
+    UsableByOthers(UsableByOthers&& m)
+        : Modifier(m)
+        , v(m.v) { }
     UsableByOthers(QJsonObject json)
         : Modifier(json["name"].toString("Usable On Othersϴ"),
                    ModifierType(json["type"].toInt(0)),
@@ -6313,6 +6990,12 @@ public:
     VariableAdvantage()
         : Modifier("Variable Advantageϴ", isAdvantage, isModifier)
         , v({ 0, false, false, false, "" }) { }
+    VariableAdvantage(const VariableAdvantage& m)
+        : Modifier(m)
+        , v(m.v) { }
+    VariableAdvantage(VariableAdvantage&& m)
+        : Modifier(m)
+        , v(m.v) { }
     VariableAdvantage(QJsonObject json)
         : Modifier(json["name"].toString("Variable Advantageϴ"),
                    ModifierType(json["type"].toInt(0)),
@@ -6405,6 +7088,12 @@ public:
     VariableEffect()
         : Modifier("Variable Effect▲", isAdvantage, isModifier)
         , v({ "" }) { }
+    VariableEffect(const VariableEffect& m)
+        : Modifier(m)
+        , v(m.v) { }
+    VariableEffect(VariableEffect&& m)
+        : Modifier(m)
+        , v(m.v) { }
     VariableEffect(QJsonObject json)
         : Modifier(json["name"].toString("Variable Effect▲"),
                    ModifierType(json["type"].toInt(0)),
@@ -6456,6 +7145,12 @@ public:
     VariableLimitations()
         : Modifier("Variable Limitations▲", isAdvantage, isModifier)
         , v({ 0, false, false }) { }
+    VariableLimitations(const VariableLimitations& m)
+        : Modifier(m)
+        , v(m.v) { }
+    VariableLimitations(VariableLimitations&& m)
+        : Modifier(m)
+        , v(m.v) { }
     VariableLimitations(QJsonObject json)
         : Modifier(json["name"].toString("Variable Limitations▲"),
                    ModifierType(json["type"].toInt(0)),
@@ -6530,6 +7225,12 @@ public:
     VariableSpecialEffects()
         : Modifier("Variable Special Effects", isAdvantage, isModifier)
         , v({ "" }) { }
+    VariableSpecialEffects(const VariableSpecialEffects& m)
+        : Modifier(m)
+        , v(m.v) { }
+    VariableSpecialEffects(VariableSpecialEffects&& m)
+        : Modifier(m)
+        , v(m.v) { }
     VariableSpecialEffects(QJsonObject json)
         : Modifier(json["name"].toString("Variable Special Effects"),
                    ModifierType(json["type"].toInt(0)),
@@ -6583,6 +7284,12 @@ public:
     WorksAgainstEGONotCharacteristic()
         : Modifier("Works Against EGO Not [Characteristic]▲", isAdvantage, isModifier)
         , v({ -1 }) { }
+    WorksAgainstEGONotCharacteristic(const WorksAgainstEGONotCharacteristic& m)
+        : Modifier(m)
+        , v(m.v) { }
+    WorksAgainstEGONotCharacteristic(WorksAgainstEGONotCharacteristic&& m)
+        : Modifier(m)
+        , v(m.v) { }
     WorksAgainstEGONotCharacteristic(QJsonObject json)
         : Modifier(json["name"].toString("Works Against EGO Not [Characteristic]▲"),
                    ModifierType(json["type"].toInt(0)),

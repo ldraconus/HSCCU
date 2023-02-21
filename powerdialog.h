@@ -101,6 +101,7 @@ private:
 public slots:
     void advantageDoubleClicked(QTableWidgetItem*)  { editAdvantage(); }
     void limitationDoubleClicked(QTableWidgetItem*) { editLimitation(); }
+    void doUpdate()                                 { updateForm(); }
 
     void aboutToShowAdvantagesMenu();
     void aboutToShowLimitationsMenu();

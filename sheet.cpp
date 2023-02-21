@@ -528,12 +528,12 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
     QFont italic = font;
     QString descr = pe->description(false);
     for (const auto& mod: pe->advantagesList()) {
-        if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
-        else descr += "; (+" + mod->fraction(true).toString() + ") ";
+        if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Power::NoStore).points) + " pts) ";
+        else descr += "; (+" + mod->fraction(Power::NoStore).toString() + ") ";
         descr += mod->description(false);
     }
     for (const auto& mod: pe->limitationsList()) {
-        descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
+        descr += "; (-" + mod->fraction(Power::NoStore).abs().toString() + ") " + mod->description(false);
     }
     Fraction pts(pe->real().points);
     if ((!pe->isFramework() || pe->isVPP() || pe->isMultipower()) && pts.toInt() == 0) pts = Fraction(1);

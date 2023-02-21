@@ -612,7 +612,7 @@ QString Power::end() {
     Points<> active(points(NoStore));
     for (const auto& mod: advantagesList()) {
         if (name() == "Reduced Endurance") continue;
-        else if (mod->isAdder()) active += mod->points();
+        else if (mod->isAdder()) active += mod->points(Modifier::NoStore);
     }
     auto adv = this->endLessActing();
     if (_parent != nullptr && _parent->isVPP()) adv -= _parent->adv();
@@ -642,7 +642,7 @@ QString Power::end() {
     }
 
     int end = 0;
-    if (per != 0) end = (active.points + per / 2) / per;
+    if (per != 0) end = (active.points + per / 2 - 1) / per;
     return (end == 0) ? "-" : QString("%1").arg(end);
 }
 
@@ -703,7 +703,7 @@ Points<> Power::acting(Fraction add, Points<> mod) {
     advantages += adv() + add;
     pnts += Fraction(mod.points);
     for (const auto& mod: advantagesList())
-        if (mod->isAdder()) pnts += mod->points().points;
+        if (mod->isAdder()) pnts += mod->points(NoStore).points;
         else advantages += mod->fraction(NoStore);
     pnts = pnts * advantages;
     return Points<>(pnts.toInt(true));
