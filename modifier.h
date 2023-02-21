@@ -628,7 +628,7 @@ public:
     AlternateCombatValue(QJsonObject json)
         : Modifier(json["name"].toString("Alternate Combat Value▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._is = json["is"].toBool(); }
+                   json["adder"].toBool(false)) { v._is = json["is"].toInt(0); }
     virtual ~AlternateCombatValue() { }
 
     shared_ptr<Modifier> create() override                         { return make_shared<AlternateCombatValue>(*this); }
@@ -717,7 +717,6 @@ public:
                                                   v._explosion = json["explosion"].toBool(false);
                                                   v._fixedShape = json["fixedShape"].toBool(false);
                                                   v._shape = json["shape"].toString("");
-                                                  v._explosion = json["explosion"].toBool(false);
                                                   v._nonselective = json["nonselective"].toBool(false);
                                                   v._selective = json["selective"].toBool(false);
                                                   v._mobile = json["mobile"].toBool(false);
@@ -1737,8 +1736,8 @@ public:
                                                             }
 
     struct vars {
-        int  _zeroDCV;
-        int  _unaware;
+        bool _zeroDCV;
+        bool _unaware;
         bool _constant;
     } v;
     QCheckBox* zeroDCV;
@@ -1787,7 +1786,7 @@ public:
     CostsEndurance(QJsonObject json)
         : Modifier(json["name"].toString("CostsEndurance"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._howMuch  = json["howMuch"].toBool(false);
+                   json["adder"].toBool(false)) { v._howMuch  = json["howMuch"].toInt(0);
                                                 }
     virtual ~CostsEndurance() { }
 
@@ -1866,7 +1865,7 @@ public:
     CostsEnduranceToMaintain(QJsonObject json)
         : Modifier(json["name"].toString("CostsEnduranceToMaintain"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._howMuch  = json["howMuch"].toBool(false);
+                   json["adder"].toBool(false)) { v._howMuch  = json["howMuch"].toInt(0);
                                                 }
     virtual ~CostsEnduranceToMaintain() { }
 
@@ -2077,7 +2076,7 @@ public:
     DecreasedAccelerationDeceleration(QJsonObject json)
         : Modifier(json["name"].toString("Decreased Acceleration/Deceleration"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._howMuch  = json["howMuch"].toBool(false);
+                   json["adder"].toBool(false)) { v._howMuch  = json["howMuch"].toInt(0);
                                                 }
     virtual ~DecreasedAccelerationDeceleration() { }
 
