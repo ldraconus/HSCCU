@@ -76,7 +76,7 @@ public:
     Fraction limitations() {
         Fraction limits(1);
         limits += lim();
-        for (const auto& mod: limitationsList()) limits += mod->fraction(true).abs();
+        for (const auto& mod: limitationsList()) limits += mod->fraction(Power::NoStore).abs();
         return limits;
     }
 
@@ -84,7 +84,7 @@ public:
         Fraction advants(1);
         advants += adv();
         for (const auto& mod: advantagesList())
-            if (!mod->isAdder()) advants += mod->fraction(true);
+            if (!mod->isAdder()) advants += mod->fraction(Power::NoStore);
         return advants;
     }
 

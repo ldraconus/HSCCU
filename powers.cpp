@@ -601,10 +601,16 @@ Fraction Power::endLessActing() {
     advantages += adv();
     for (const auto& mod: advantagesList()) {
         if (mod->name() == "Reduced Endurance") continue;
-        else advantages += mod->fraction(NoStore);
+        advantages += mod->fraction(NoStore);
     }
     Power* parent = _parent;
-    if (parent != nullptr) advantages += static_cast<class FrameworkPowers*>(parent)->advantages() - Fraction(1);
+    if (parent != nullptr) {
+        for (const auto& mod: parent->advantagesList())
+            if (!mod->isAdder()) {
+                if (mod->name() == "Reduced Endurance") continue;
+                advantages += mod->fraction(Power::NoStore);
+            }
+    }
     return advantages;
 }
 
@@ -616,7 +622,6 @@ QString Power::end() {
     }
     Fraction reduced(1);
     auto adv = this->endLessActing();
-    if (_parent != nullptr && _parent->isVPP()) adv -= _parent->adv();
     active = Points<>((active.points * adv).toInt());
     int per = 10;
     if (findModifier("Charges") != _modifiers.end()) per = 0;
@@ -653,8 +658,11 @@ QString Power::end() {
 
 QString Power::noEnd() {
     Points<> active(points(NoStore));
+    for (const auto& mod: advantagesList()) {
+        if (mod->name() == "Reduced Endurance") continue;
+        else if (mod->isAdder()) active += mod->points(Modifier::NoStore);
+    }
     auto adv = this->endLessActing();
-    if (_parent != nullptr && _parent->isVPP()) adv -= _parent->adv();
     active = Points<>((active.points * adv).toInt());
     int end = 0;
     int per = 0;
@@ -687,6 +695,10 @@ QString Power::noEnd() {
 QList<shared_ptr<Modifier>>::iterator Power::findModifier(QString name) {
     for (auto mod = _modifiers.begin(); mod != _modifiers.end(); ++mod)
         if ((*mod)->name() == name) return mod;
+    if (_parent != nullptr) {
+        for (auto mod = _parent->_modifiers.begin(); mod != _parent->_modifiers.end(); ++mod)
+            if ((*mod)->name() == name) return mod;
+    }
     return _modifiers.end();
 }
 

@@ -703,7 +703,7 @@ class AreaOfEffect: public Modifier {
 public:
     AreaOfEffect()
         : Modifier("Area Of Effect", isAdvantage, isModifier)
-        , v({ -1, false, "", false, false, false, false, false, false, false, 0 }) { }
+        , v({ -1, false, "", false, false, false, false, false, false, false, 1 }) { }
     AreaOfEffect(const AreaOfEffect& m)
         : Modifier(m)
         , v(m.v) { }
@@ -732,8 +732,7 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { kind = createComboBox(p, l, "Kind of Area?", { "",
-                                                                                                             "Radius",
+    void          form(QWidget* p, QVBoxLayout* l) override { kind = createComboBox(p, l, "Kind of Area?", { "Radius",
                                                                                                              "Cone",
                                                                                                              "Line",
                                                                                                              "Surface",
@@ -748,7 +747,7 @@ public:
                                                               accurate = createCheckBox(p, l, "Accurate", std::mem_fn(&ModifierBase::checked));
                                                               thinCone = createCheckBox(p, l, "Thin Cone", std::mem_fn(&ModifierBase::checked));
                                                               damageShield = createCheckBox(p, l, "Damage Shield", std::mem_fn(&ModifierBase::checked));
-                                                              multiplier = createLineEdit(p, l, "Multiples", std::mem_fn(&ModifierBase::changed));
+                                                              multiplier = createLineEdit(p, l, "m Length?", std::mem_fn(&ModifierBase::changed));
                                                               fixedShape->setEnabled(false);
                                                               shape->setEnabled(false);
                                                               explosion->setEnabled(false);
@@ -805,7 +804,16 @@ public:
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        f *= v._multiplier;
+        int steps = 0;
+        if (v._multiplier < 1) v._multiplier = 1;
+        switch (v._kind) {
+        case 0: steps = (int) (log((double) (v._multiplier - 1) / 4 + 1)  / log(2.0)); break;
+        case 1: steps = (int) (log((double) (v._multiplier - 1) / 8 + 1)  / log(2.0)); break;
+        case 2: steps = (int) (log((double) (v._multiplier - 1) / 16 + 1) / log(2.0)); break;
+        case 3: steps = (int) (log((double) (v._multiplier - 1) / 2 + 1)  / log(2.0)); break;
+        case 4: steps = (int) (log((double) (v._multiplier - 1) / 2 + 1)  / log(2.0)); break;
+        }
+        f *= steps + 1;
         if (v._explosion) f -= Fraction(1, 2);
         if (v._nonselective) f -= Fraction(1, 4);
         if (v._selective) f += Fraction(1, 4);
@@ -868,43 +876,40 @@ private:
             damageShield->setEnabled(false);
             switch (kind->currentIndex()) {
             case 0: accurate->setEnabled(true);
-                    multiplier->setPlaceholderText("doublings of 4m radius");
+                    multiplier->setPlaceholderText("m radius");
                     break;
             case 1: thinCone->setEnabled(true);
-                    multiplier->setPlaceholderText("doublings of 8m side");
+                    multiplier->setPlaceholderText("m side");
                     break;
-            case 2: multiplier->setPlaceholderText("doublings of 16 length");
+            case 2: multiplier->setPlaceholderText("m length");
                     break;
             case 3: damageShield->setEnabled(true);
-                    multiplier->setPlaceholderText("doublings of 2m area");
+                    multiplier->setPlaceholderText("m area");
                     break;
             case 4: fixedShape->setEnabled(true);
-                    multiplier->setPlaceholderText("Doublings of 2x2m areas");
+                    multiplier->setPlaceholderText("x m areas");
                     shape->setEnabled(true);
                     break;
             default: return;
             }
-            multiplier->setText("");
+            multiplier->setText(QString("%1").arg(v._multiplier));
         }
         ModifiersDialog::ref().updateForm();
     }
 
     QString optOut(bool show) {
         QStringList kind = {
-            "", "Radius", "Cone", "Line", "Surface", "Any Area"
+            "Radius", "Cone", "Line", "Surface", "Any Area"
         };
         QStringList size = {
             "m radius", "m sides", "m long", "m area", "m area"
         };
-        QList<int> base = { 1, 2, 4, 1, 1 };
-        if (v._kind < 1 || (v._fixedShape && v._shape.isEmpty())) return "<incomplete>";
+        if (v._kind < 0 || (v._fixedShape && v._shape.isEmpty())) return "<incomplete>";
         if (v._multiplier < 1) v._multiplier = 1;
         Fraction f(fraction(true));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Area Of Effect: " + kind[v._kind];
-        if (v._kind == 4) {
-            int val = (int) std::pow(2, base[v._kind] + v._multiplier);
-            desc += QString(" (%1x%1%2)").arg(val).arg(size[v._kind]);
-        } else desc += QString(" (%1%2)").arg((int) std::pow(2, base[v._kind] + v._multiplier)).arg(size[v._kind]);
+        if (v._kind == 4) desc += QString(" (%1x%1%2)").arg(v._multiplier).arg(size[v._kind]);
+        else desc += QString(" (%1%2)").arg(v._multiplier).arg(size[v._kind]);
         if (v._fixedShape) desc += "; Fixed Shape(" + v._shape + ")";
         if (v._accurate) desc += "; Accurate";
         if (v._explosion) desc += "; Explosion";
