@@ -254,7 +254,7 @@ public:
     virtual int         doubling()                     { return 2; }
 
     virtual QString  description(bool show = false) override { return ModifierBase::description(show); }
-    virtual Fraction fraction(bool noStore = false)          { return noStore ? Fraction(1) : Fraction(1); }
+    virtual Fraction fraction(bool noStore = false)          { return noStore ? Fraction(0) : Fraction(0); }
     virtual Points<> points(bool noStore = false)            { return noStore ? 0_cp : 0_cp; }
     virtual Fraction endChange()                             { return Fraction(1); }
 
@@ -4475,7 +4475,7 @@ public:
     NoConciousControl(QJsonObject json)
         : Modifier(json["name"].toString("No Concious Control▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._activation = json["activation"].toInt(0);
+                   json["adder"].toBool(false)) { v._activation = json["activation"].toBool(false);
                                                   v._effects    = json["effects"].toBool(false);
                                                 }
     virtual ~NoConciousControl() { }

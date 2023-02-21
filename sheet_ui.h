@@ -672,7 +672,7 @@ public:
         createLabel(widget, smallBoldWideFont, "SKILLS, PERKS, & TALENTS", { 83, 1495 }, { 250, 20 });
         createLabel(widget, smallBoldNarrowFont, "Total Skills,Perks,& Talents Cost", { 112, 2057 }, { 300, 22 });
 
-        skillstalentsandperks         = createTableWidget(widget, tableFont, { "Cost", "Name                            ", "Roll" },
+        skillstalentsandperks         = createTableWidget(widget, tableFont, { "Cost", "Name                        ", "Roll" },
                                                           { }, { 73, 1521 }, { 265, 535 }, "Things your character is skilled at or has a gift for", Selectable);
         totalskillstalentsandperkscost = createLabel(widget, font, "0", { 73, 2058 }, 20);
         skillstalentsandperksMenu      = createMenu(skillstalentsandperks, font, { { "New",       &newSkillTalentOrPerk },

@@ -545,10 +545,10 @@ private:
     QLineEdit* where;
 
     QString optOut(bool showEND) {
-        if (!v._fixed && v._where.isEmpty()) return "<incomplete>";
+        if (v._fixed && v._where.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Skill" + (v._fixed ? "(" + v._where + ")" : "");
+        res += "Teleport Location " + (v._fixed ? "(" + v._where + ")" : "(Floating)");
         return res;
     }
 

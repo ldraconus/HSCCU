@@ -600,7 +600,7 @@ Fraction Power::endLessActing() {
     Fraction advantages(1);
     advantages += adv();
     for (const auto& mod: advantagesList()) {
-        if (name() == "Reduced Endurance") continue;
+        if (mod->name() == "Reduced Endurance") continue;
         else advantages += mod->fraction(NoStore);
     }
     Power* parent = _parent;
@@ -611,9 +611,10 @@ Fraction Power::endLessActing() {
 QString Power::end() {
     Points<> active(points(NoStore));
     for (const auto& mod: advantagesList()) {
-        if (name() == "Reduced Endurance") continue;
+        if (mod->name() == "Reduced Endurance") continue;
         else if (mod->isAdder()) active += mod->points(Modifier::NoStore);
     }
+    Fraction reduced(1);
     auto adv = this->endLessActing();
     if (_parent != nullptr && _parent->isVPP()) adv -= _parent->adv();
     active = Points<>((active.points * adv).toInt());
@@ -622,13 +623,10 @@ QString Power::end() {
     auto mod = findModifier("Costs Endurance");
     if (mod != _modifiers.end()) {
         per = 10;
-        if ((*mod)->endChange() == Fraction(1, 2)) active = (active + 1) / 2_cp;
+        if ((*mod)->endChange() == Fraction(1, 2)) active = active / 2_cp;
     }
     mod = findModifier("Reduced Endurance");
-    if (mod != _modifiers.end()) {
-        if ((*mod)->endChange() == Fraction(1, 2)) active = (active + 1) / 2_cp;
-        else per = 0;
-    }
+    if (mod != _modifiers.end() && (*mod)->endChange() != Fraction(1, 2)) per = 0;
     mod = findModifier("Increased END Cost");
     if (mod != _modifiers.end()) {
         if (per == 0) per = 10;
@@ -642,7 +640,14 @@ QString Power::end() {
     }
 
     int end = 0;
-    if (per != 0) end = (active.points + per / 2 - 1) / per;
+    if (per != 0) {
+        int acting = active.points;
+        if (per % 2 == 0) end = (acting + per / 2 - 1) / per;
+        else end = (acting + per / 2) / per;
+        mod = findModifier("Reduced Endurance");
+        if (mod != _modifiers.end() && (*mod)->endChange() == Fraction(1, 2)) end = end / 2;
+        if (end < 1) end = 1;
+    }
     return (end == 0) ? "-" : QString("%1").arg(end);
 }
 
@@ -657,7 +662,7 @@ QString Power::noEnd() {
     auto mod = findModifier("Costs Endurance");
     if (mod != _modifiers.end()) {
         per = 10;
-        if ((*mod)->endChange() == Fraction(1, 2)) active = (active + 1) / 2_cp;
+        if ((*mod)->endChange() == Fraction(1, 2)) active = active / 2_cp;
     }
     mod = findModifier("Increased END Cost");
     if (mod != _modifiers.end()) {
@@ -672,7 +677,7 @@ QString Power::noEnd() {
     }
     mod = findModifier("Reduced Endurance");
     if (mod != _modifiers.end() && per != 0) {
-        if ((*mod)->endChange() == Fraction(1, 2)) active = (active + 1) / 2_cp;
+        if ((*mod)->endChange() == Fraction(1, 2)) active = active / 2_cp;
     }
 
     if (per != 0) end = (active.points + per / 2) / per;
