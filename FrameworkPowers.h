@@ -210,9 +210,8 @@ public:
 
     bool isMultipower() override { return true; }
     bool isValid(shared_ptr<Power> power) override {
-        auto advtg = advantages();
-        auto modif = modifiers();
-        return power->acting(advtg, modif).points <= v._points;
+        auto points = power->acting();
+        return points.points <= v._points;
     }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -255,17 +254,18 @@ public:
                 descr += mod->description(false);
             }
             for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
+            Fraction cost(pe->real().points);
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pe->varying()) pts = pts / 5;
             else pts = pts / 10;
-            if (pts.toInt() == 0) pts = Fraction(1);
-            Sheet::ref().setCell(tbl, row, 0, QString("%1%2").arg(pts.toInt()).arg(pe->varying() ? "v" : "f"), font);
+            if (pts.toInt(true) == 0) pts = Fraction(1);
+            Sheet::ref().setCell(tbl, row, 0, QString("%1%2").arg(pts.toInt(true)).arg(pe->varying() ? "v" : "f"), font);
             Sheet::ref().setCell(tbl, row, 1, " " + pe->nickname(), italic);
-            Sheet::ref().setCell(tbl, row, 2, QString("%1) %2").arg(r).arg(pe->description() + descr), font, Sheet::WordWrap);
+            Sheet::ref().setCell(tbl, row, 2, QString("%1) [%3] %2").arg(r).arg(pe->description() + descr).arg(cost.toInt(true)), font, Sheet::WordWrap);
             QString end = pe->end();
             if (end == "-") end = "";
             Sheet::ref().setCell(tbl, row, 3, end, font);
-            points += Points<>(pts.toInt());
+            points += Points<>(pts.toInt(true));
             pe->row(row);
             ++row;
             ++r;
@@ -345,9 +345,7 @@ public:
 
     bool isVPP() override { return true; }
     bool isValid(shared_ptr<Power> power) override {
-        auto advtg = advantages() - adv();
-        auto modif = modifiers();
-        return power->acting(advtg, modif).points <= v._pool;
+        return power->acting().points <= v._pool;
     }
     Points<> pool() override { return Points<>(v._pool); }
 

@@ -9,9 +9,9 @@ public:
     Blast(const Blast& s): AllPowers(s)             { }
     Blast(Blast&& s): AllPowers(s)                  { }
     Blast(const QJsonObject& json): AllPowers(json) { v._dice = json["dice"].toInt(0);
-                                                         v._pded = json["pded"].toInt(0);
-                                                         v._stun = json["stun"].toBool(false);
-                                                       }
+                                                      v._pded = json["pded"].toInt(0);
+                                                      v._stun = json["stun"].toBool(false);
+                                                    }
     virtual Blast& operator=(const Blast& s) {
         if (this != &s) {
             AllPowers::operator=(s);

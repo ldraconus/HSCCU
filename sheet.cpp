@@ -526,6 +526,7 @@ void Sheet::delPower(int row) {
 int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
     QFont font = Ui->powersandequipment->font();
     QFont italic = font;
+    italic.setItalic(true);
     QString descr = pe->description(false);
     for (const auto& mod: pe->advantagesList()) {
         if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Power::NoStore).points) + " pts) ";
