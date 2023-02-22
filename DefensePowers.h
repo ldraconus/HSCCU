@@ -395,7 +395,8 @@ public:
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
-    void     form(QWidget*, QVBoxLayout*) override               { }
+    void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
+                                                                 }
     Fraction lim() override                                      { return Fraction(0); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
                                                                    return Sheet::ref().character().hasTakesNoSTUN() ? 60_cp : 20_cp; }

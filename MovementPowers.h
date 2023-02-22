@@ -336,6 +336,7 @@ public:
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  end() override                                      { return v._glide ? noEnd() : Power::end(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    speed   = createLineEdit(parent, layout, "Velocity?", std::mem_fn(&Power::numeric));
                                                                    hover   = createComboBox(parent, layout, "Cannot Hover?", { "", "2m/Phase", "Half-Move/Phase" });
@@ -413,7 +414,7 @@ public:
     Leaping(const Leaping& s): AllPowers(s)           { }
     Leaping(Leaping&& s): AllPowers(s)                { }
     Leaping(const QJsonObject& json): AllPowers(json) { v._speed    = json["speed"].toInt(0);
-                                                        v._accurate = json["accurate"].toInt(0);
+                                                        v._accurate = json["accurate"].toBool(false);
                                                         v._limit    = json["limit"].toInt(0);
                                                       }
     virtual Leaping& operator=(const Leaping& s) {
@@ -477,7 +478,7 @@ private:
         if (v._speed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1m Leap").arg(v._speed);
+        res += QString("+%1m Leap").arg(v._speed);
         if (v._accurate) res += "; Accurate Leap";
         if (v._limit == 1) res += "; Upward Movement Only";
         if (v._limit == 2) res += "; Forward Movement Only";
@@ -563,7 +564,7 @@ private:
         if (v._speed < 1 || (v._correct && v._terrain.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1m Running").arg(v._speed);
+        res += QString("+%1m Running").arg(v._speed);
         if (v._correct) res += "; Only On Appropriate Terrain (" + v._terrain + ")";
         return res;
     }

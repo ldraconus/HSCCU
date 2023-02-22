@@ -866,6 +866,8 @@ void Sheet::rebuildMovement() {
         if (power->name() == "Growth") {
             auto& sm = power->growthStats();
             _character.running() += sm._running;
+        } else if (power->name() == "Running") {
+            _character.running() += power->move();
         } else if (power->name() == "Leaping") {
             _character.leaping() += power->move();
         } else if (power->name() == "Swimming") {
@@ -946,12 +948,16 @@ void Sheet::rebuildPowers(bool addTakesNoSTUN) {
         Ui->dcvval->setToolTip("Defensive Combat Value: 15 points");
         Ui->dmcvval->setToolTip("Defensive Mental Combat Value: 9 points");
     } else {
-        _character.PD().base(2);
-        _character.PD().init(2);
-        _character.PD().cost(1_cp);
-        _character.ED().base(2);
-        _character.ED().init(2);
-        _character.ED().cost(1_cp);
+        if (_character.PD().cost() == 3_cp) {
+            _character.PD().base(2);
+            _character.PD().init(2);
+            _character.PD().cost(1_cp);
+        }
+        if (_character.ED().cost() == 3_cp) {
+            _character.ED().base(2);
+            _character.ED().init(2);
+            _character.ED().cost(1_cp);
+        }
         _character.DCV().cost(5_cp);
         _character.DMCV().cost(3_cp);
         Ui->pdval->setToolTip("Physical Defense: 1 point");
@@ -1094,13 +1100,13 @@ void Sheet::updateComplications() {
 void Sheet::updateDisplay() {
     updateCharacter();
     rebuildPowers(false);
+    rebuildDefenses();
     rebuildCharacteristics();
     updateCharacteristics();
     updateComplications();
     updatePowersAndEquipment();
     updateSkillsTalentsAndPerks();
     rebuildCombatSkillLevels();
-    rebuildDefenses();
     rebuildMartialArts();
     rebuildMovement();
     updateTotals();

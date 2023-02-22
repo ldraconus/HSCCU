@@ -2,6 +2,7 @@
 #define ATTACKPOWERS_H
 
 #include "powers.h"
+#include "sheet.h"
 
 class Blast: public AllPowers {
 public:
@@ -908,17 +909,17 @@ private:
 
 class KillingAttack: public AllPowers {
 public:
-    KillingAttack(): AllPowers("Killin gAttack")            { }
+    KillingAttack(): AllPowers("Killing Attack")            { }
     KillingAttack(const KillingAttack& s): AllPowers(s)     { }
     KillingAttack(KillingAttack&& s): AllPowers(s)          { }
     KillingAttack(const QJsonObject& json): AllPowers(json) { v._dice  = json["dice"].toInt(0);
-                                                                 v._range = json["range"].toBool(false);
-                                                                 v._extra = json["extra"].toInt(0);
-                                                                 v._pded  = json["pded"].toInt(0);
-                                                                 v._incr  = json["incr"].toInt(0);
-                                                                 v._decr  = json["decr"].toInt(0);
-                                                                 v._str   = json["str"].toBool(false);
-                                                               }
+                                                              v._range = json["range"].toBool(false);
+                                                              v._extra = json["extra"].toInt(0);
+                                                              v._pded  = json["pded"].toInt(0);
+                                                              v._incr  = json["incr"].toInt(0);
+                                                              v._decr  = json["decr"].toInt(0);
+                                                              v._str   = json["str"].toBool(false);
+                                                            }
     virtual KillingAttack& operator=(const KillingAttack& s) {
         if (this != &s) {
             AllPowers::operator=(s);
@@ -996,12 +997,44 @@ private:
     QComboBox* decr;
     QCheckBox* str;
 
+    QString KAwSTR() {
+        int STR = Sheet::ref().character().STR().base() +
+                  Sheet::ref().character().STR().primary() +
+                  Sheet::ref().character().STR().secondary();
+        int dice = v._dice + STR / 15;
+        int rem = STR % 15;
+        int extra = rem / 10 + 1;
+        if (extra == 1) {
+            if (rem >= 5) extra = 1;
+            else extra = 0;
+        }
+        dice += v._dice;
+        switch (v._extra) {
+        case 0: break;
+        case 1:
+            switch (extra) {
+            case 0:                    break;
+            case 1: extra = 2;         break;
+            case 2: dice++; extra = 0; break;
+            }
+            break;
+        case 2:
+            switch (extra) {
+            case 0:                    break;
+            case 1: dice++; extra = 0; break;
+            case 2: dice++; extra = 1; break;
+            }
+            break;
+        }
+        return QString("%1%2d6%3").arg(dice).arg((extra == 2) ? Fraction(1, 2).toString() : "").arg((extra == 1) ? "+1" : "");
+    }
+
     QString optOut(bool showEND) {
-        if (v._dice < 1 || v._pded == -1) return "<incomplete>";
+        if ((v._dice < 1 && v._extra < 1) || v._pded == -1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1%2d6%3 %4").arg(v._dice).arg((v._extra == 2) ? Fraction(1, 2).toString() : "").arg((v._extra == 1) ? "+1" : "").arg(v._range ? "R" : "H") + "KA vs " +
-                ((v._pded == 0) ? "PD" : "ED");
+               ((v._pded == 0) ? "PD, " : "ED, ") + KAwSTR() + " w/STR";
         if (v._incr > 0) res += "; " + QString("+%1 Increased STUN Multiplier").arg(v._incr);
         if (v._decr > 0) res += "; "+ QString("-%1 Decreased STUN Multipier").arg(v._decr + 1);
         if (v._str) res += "; No STR Bonus";

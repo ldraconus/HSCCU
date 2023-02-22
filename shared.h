@@ -40,6 +40,10 @@ inline bool operator<(int a, Points<> b)      { return a < b.points; }
 inline bool operator<(Points<> a, int b)      { return a.points < b; }
 inline bool operator<(Points<> a, Points<> b) { return a.points < b.points; }
 
+inline bool operator==(int a, Points<> b)      { return a == b.points; }
+inline bool operator==(Points<> a, int b)      { return a.points == b; }
+inline bool operator==(Points<> a, Points<> b) { return a.points == b.points; }
+
 inline bool operator>(int a, Points<> b)      { return a > b.points; }
 inline bool operator>(Points<> a, int b)      { return a.points > b; }
 inline bool operator>(Points<> a, Points<> b) { return a.points > b.points; }
