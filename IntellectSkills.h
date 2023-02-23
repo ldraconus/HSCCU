@@ -36,7 +36,7 @@ public:
     void form(QWidget* parent, QVBoxLayout* layout) override { topic = createLineEdit(parent, layout, "Specific Topic?");
                                                                plus  = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric)); }
     QString name() override                                  { return v._name; }
-    Points points(bool noStore = false) override           { if (!noStore) store(); return 3_cp + v._plus * 2_cp; }
+    Points points(bool noStore = false) override             { if (!noStore) store(); return 3_cp + v._plus * 2_cp; }
     void restore() override                                  { vars s = v;
                                                                topic->setText(v._topic);
                                                                plus->setText(QString("%1").arg(s._plus));

@@ -254,7 +254,7 @@ public:
 
     virtual QString  description(bool show = false) override { return ModifierBase::description(show); }
     virtual Fraction fraction(bool noStore = false)          { return noStore ? Fraction(0) : Fraction(0); }
-    virtual Points points(bool noStore = false)            { return noStore ? 0_cp : 0_cp; }
+    virtual Points   points(bool noStore = false)            { return noStore ? 0_cp : 0_cp; }
     virtual Fraction endChange()                             { return Fraction(1); }
 
     static void ClearForm(QVBoxLayout* layout);
@@ -307,7 +307,7 @@ public:
     QString       description(bool show = false) override  { return QString(show ? fraction(true).toString() + " ": "") + name(); }
     void          form(QWidget*, QVBoxLayout*) override    { throw "No form"; }
     Fraction      fraction(bool noStore = false) override  { return noStore ? _value : _value; }
-    Points      points(bool noStore = false) override    { return noStore ? _points : _points; }
+    Points      points(bool noStore = false) override      { return noStore ? _points : _points; }
     void          restore() override                       { }
     void          store() override                         { }
     QJsonObject   toJson() override                        { QJsonObject obj;
@@ -405,7 +405,7 @@ public:
                                                               return Fraction(1, 4); }
     void          restore() override                        { vars s = v;
                                                               sense->setCurrentIndex(s._sense);
-                                                            v = s; }
+                                                              v = s; }
     void          store() override                          { v._sense = sense->currentIndex(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"] = name();
