@@ -90,6 +90,10 @@ FORMS += \
     sheet.ui \
     skilldialog.ui
 
+wasm {
+    QMAKE_LFLAGS += -sASYNCIFY -Os
+}
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin

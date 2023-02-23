@@ -9,7 +9,7 @@ public:
     FrameworkPowers(): Power() { }
     FrameworkPowers(QString name)
         : Power()
-        , v { name, "" } { }
+        , v { name, "", { } } { }
     FrameworkPowers(const FrameworkPowers& s)
         : Power(s)
         , v(s.v) { }
@@ -18,7 +18,7 @@ public:
         , v(s.v) { }
     FrameworkPowers(const QJsonObject& json)
         : Power()
-        , v { json["name"].toString(), json["powerName"].toString("") } { loadPowers(json["powers"].toArray()); }
+        , v { json["name"].toString(), json["powerName"].toString(""), { } } { loadPowers(json["powers"].toArray()); }
 
     virtual FrameworkPowers& operator=(const FrameworkPowers& s) {
         if (this != &s) v = s.v;
@@ -212,7 +212,7 @@ public:
     bool isMultipower() override { return true; }
     bool isValid(shared_ptr<Power> power) override {
         auto points = power->acting();
-        return points.points <= v._points;
+        return points <= v._points;
     }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -346,7 +346,7 @@ public:
 
     bool isVPP() override { return true; }
     bool isValid(shared_ptr<Power> power) override {
-        return power->acting().points <= v._pool;
+        return power->acting() <= v._pool;
     }
     Points<> pool() override { return Points<>(v._pool); }
 

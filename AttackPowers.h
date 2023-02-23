@@ -91,6 +91,13 @@ private:
         int             level;
         QList<QWidget*> widgets;
         QString         val;
+
+        effects(int w, int i, int l, QList<QWidget*> wl, QString v = "")
+            : which(w)
+            , idx(i)
+            , level(l)
+            , widgets(wl)
+            , val(v) { }
     };
     bool _create = true;
     bool _data   = true;
@@ -252,7 +259,7 @@ private:
         for (auto& effect: v._effects) {
             for (const auto& wgt: effect.widgets) if (w == wgt) return effect;
         }
-        static effects none { -1, -1, { } };
+        static effects none { -1, -1, -1, { }, "" };
         return none;
     }
 

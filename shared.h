@@ -7,6 +7,10 @@
 using std::shared_ptr;
 using std::make_shared;
 
+#ifdef __wasm__
+#define _Mem_fn __mem_fn
+#endif
+
 template <class Value = std::ratio<1>> struct Points {
     unsigned long long points;
     explicit constexpr Points(const unsigned long long x)
@@ -36,17 +40,25 @@ inline Points<> operator-(int a, Points<> b)      { return Points<>(a - b.points
 inline Points<> operator-(Points<> a, int b)      { return Points<>(a.points - b); }
 inline Points<> operator-(Points<> a, Points<> b) { return Points<>(a.points - b.points); }
 
-inline bool operator<(int a, Points<> b)      { return a < b.points; }
-inline bool operator<(Points<> a, int b)      { return a.points < b; }
+inline bool operator<(int a, Points<> b)      { return a < (int) b.points; }
+inline bool operator<(Points<> a, int b)      { return (int) a.points < b; }
 inline bool operator<(Points<> a, Points<> b) { return a.points < b.points; }
 
-inline bool operator==(int a, Points<> b)      { return a == b.points; }
-inline bool operator==(Points<> a, int b)      { return a.points == b; }
+inline bool operator<=(int a, Points<> b)      { return a <= (int) b.points; }
+inline bool operator<=(Points<> a, int b)      { return (int) a.points <= b; }
+inline bool operator<=(Points<> a, Points<> b) { return a.points <= b.points; }
+
+inline bool operator==(int a, Points<> b)      { return a == (int) b.points; }
+inline bool operator==(Points<> a, int b)      { return (int) a.points == b; }
 inline bool operator==(Points<> a, Points<> b) { return a.points == b.points; }
 
-inline bool operator>(int a, Points<> b)      { return a > b.points; }
-inline bool operator>(Points<> a, int b)      { return a.points > b; }
+inline bool operator>(int a, Points<> b)      { return a > (int) b.points; }
+inline bool operator>(Points<> a, int b)      { return (int) a.points > b; }
 inline bool operator>(Points<> a, Points<> b) { return a.points > b.points; }
+
+inline bool operator>=(int a, Points<> b)      { return a >= (int) b.points; }
+inline bool operator>=(Points<> a, int b)      { return (int) a.points >= b; }
+inline bool operator>=(Points<> a, Points<> b) { return a.points >= b.points; }
 
 
 class At {

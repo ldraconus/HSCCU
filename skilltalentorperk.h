@@ -171,9 +171,6 @@ public:
     bool isNumber(QString);
 
 private:
-    QLabel* _points;
-    QLabel* _description;
-
     static QMap<QString, skillBase*>    _skills;
     static QMap<QString, talentBase*>   _talents;
     static QMap<QString, perkBase*>     _perks;

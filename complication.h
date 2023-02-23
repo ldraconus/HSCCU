@@ -54,10 +54,6 @@ public:
     static shared_ptr<Complication> FromJson(QString, const QJsonObject&);
 
     bool isNumber(QString);
-
-private:
-    QLabel* _points;
-    QLabel* _description;
 };
 
 #endif // COMPLICATION_H

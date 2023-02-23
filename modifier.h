@@ -28,8 +28,7 @@ typedef variant<Fraction, int> value;
 class ModifierBase {
 public:
     enum ModifierType { isLimitation = 1, isAdvantage = 2, isBoth = 3 };
-    static const bool isAnAdder  = true;
-    static const bool isModifier = false;
+    enum AdderType { isModifier = false, isAnAdder = true };
 
     class base {
     public:
@@ -3214,7 +3213,7 @@ class IncreasedENDCost: public Modifier {
 public:
     IncreasedENDCost()
         : Modifier("Increased END Cost", isLimitation, isModifier)
-        , v({ -1, -1 }) { }
+        , v({ -1, -1, "" }) { }
     IncreasedENDCost(const IncreasedENDCost& m)
         : Modifier(m)
         , v(m.v) { }
@@ -5529,7 +5528,7 @@ class RequiresARoll: public Modifier {
 public:
     RequiresARoll()
         : Modifier("Requires A Roll", isLimitation, isModifier)
-        , v({ false, false, -1, "", false, false, -1 }) { }
+        , v({ false, false, -1, "", false, false, -1, -1 }) { }
     RequiresARoll(const RequiresARoll& m)
         : Modifier(m)
         , v(m.v) { }
