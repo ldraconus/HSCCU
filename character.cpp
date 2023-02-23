@@ -273,15 +273,27 @@ QJsonDocument Character::toJson(Option& opt) {
     top.insert("characteristics", characteristics);
 
     QJsonArray complications;
-    for (int i = 0; i < _complications.count(); ++i) complications.append(_complications[i]->toJson());
+    for (int i = 0; i < _complications.count(); ++i) {
+        if (_complications[i] == nullptr) continue;
+
+        complications.append(_complications[i]->toJson());
+    }
     top.insert("complications", complications);
 
     QJsonArray powers;
-    for (int i = 0; i < _powers.count(); ++i) powers.append(_powers[i]->toJson());
+    for (int i = 0; i < _powers.count(); ++i) {
+        if (_powers[i] == nullptr) continue;
+
+        powers.append(_powers[i]->toJson());
+    }
     top.insert("powers", powers);
 
     QJsonArray skillsTalentsOrPerks;
-    for (int i = 0; i < _skillsTalentsOrPerks.count(); ++i) skillsTalentsOrPerks.append(_skillsTalentsOrPerks[i]->toJson());
+    for (int i = 0; i < _skillsTalentsOrPerks.count(); ++i) {
+        if (_skillsTalentsOrPerks[i] == nullptr) continue;
+
+        skillsTalentsOrPerks.append(_skillsTalentsOrPerks[i]->toJson());
+    }
     top.insert("skillsTalentsOrPerks", skillsTalentsOrPerks);
 
     QJsonObject image;

@@ -97,6 +97,7 @@ private:
     void               rebuildCharFromPowers(QList<shared_ptr<Power>>&);
     void               rebuildCharacteristics();
     QString            rebuildCombatSkillLevel(shared_ptr<SkillTalentOrPerk>);
+    void               rebuildCSLPower(QList<shared_ptr<Power>>&, bool&, QString&);
     void               rebuildCombatSkillLevels();
     void               rebuildDefFromPowers(QList<shared_ptr<Power>>&);
     void               rebuildDefenses();
