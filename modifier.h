@@ -2720,7 +2720,7 @@ class Focus: public Modifier {
 public:
     Focus()
         : Modifier("Focus", isLimitation, isModifier)
-        , v({ -1, -1, -1, -1, false }) { }
+        , v({ "", -1, -1, -1, -1, false }) { }
     Focus(const Focus& m)
         : Modifier(m)
         , v(m.v) { }
@@ -2730,7 +2730,8 @@ public:
     Focus(QJsonObject json)
         : Modifier(json["name"].toString("Focus"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._type          = json["Type"].toInt(-1);
+                   json["adder"].toBool(false)) { v._what          = json["what"].toString();
+                                                  v._type          = json["Type"].toInt(-1);
                                                   v._mobility      = json["mobility"].toInt(0);
                                                   v._expendability = json["expendability"].toInt(0);
                                                   v._durability    = json["durability"].toInt(0);
@@ -2745,7 +2746,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { ntype         = createComboBox(p, l, "Type Of Focus?", { "", "Inobvious, Inaccessable", "Inobvious, Accessable",
+    void          form(QWidget* p, QVBoxLayout* l) override { what          = createLineEdit(p, l, "What is the fopcus?", std::mem_fn(&ModifierBase::changed));
+                                                              ntype         = createComboBox(p, l, "Type Of Focus?", { "Inobvious, Inaccessable", "Inobvious, Accessable",
                                                                                                                        "Obvious, Inaccessable", "Obvious, Accessable" },
                                                                                                                        std::mem_fn(&ModifierBase::index));
                                                               mobility      = createComboBox(p, l, "Mobility?", { "", "Bulky", "Immobile", "Arrangement" },
@@ -2758,6 +2760,7 @@ public:
                                                               universal     = createCheckBox(p, l, "Universal Focus", std::mem_fn(&ModifierBase::checked));
                                                             }
     void          restore() override                        { vars s = v;
+                                                              what->setText(s._what);
                                                               ntype->setCurrentIndex(s._type);
                                                               mobility->setCurrentIndex(s._mobility);
                                                               expendability->setCurrentIndex(s._expendability);
@@ -2765,7 +2768,8 @@ public:
                                                               universal->setChecked(s._universal);
                                                               v = s;
                                                             }
-    void          store() override                          { v._type          = ntype->currentIndex();
+    void          store() override                          { v._what          = what->text();
+                                                              v._type          = ntype->currentIndex();
                                                               v._mobility      = mobility->currentIndex();
                                                               v._expendability = expendability->currentIndex();
                                                               v._durability    = durability->currentIndex();
@@ -2774,6 +2778,7 @@ public:
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]          = name();
                                                               obj["type"]          = type();
+                                                              obj["what"]          = v._what;
                                                               obj["adder"]         = isAdder();
                                                               obj["Type"]          = v._type;
                                                               obj["mobiliity"]     = v._mobility;
@@ -2786,21 +2791,23 @@ public:
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         static QList<Fraction> Type          { { 0, 1 }, { 1, 4 }, { 1, 2 }, { 1, 2 }, { 1, 1 } };
-        static QList<Fraction> Mobility      { { 0, 1 }, { 1, 2 }, { 1, 1 }, { 1, 4 } };
-        static QList<Fraction> Expendability { { 0, 1 }, { 1, 4 }, { 1, 2 }, { 1, 1 } };
-        static QList<Fraction> Durability    { { 0, 1 }, { 1, 4 }, { 0, 1 }, { 0, 1 } };
-        return Type[v._type] + Mobility[v._mobility] + Expendability[v._expendability] + Durability[v._durability];
+        static QList<Fraction> Mobility      { { 0, 1 }, { 0, 1 }, { 1, 2 }, { 1, 1 }, { 1, 4 } };
+        static QList<Fraction> Expendability { { 0, 1 }, { 0, 1 }, { 1, 4 }, { 1, 2 }, { 1, 1 } };
+        static QList<Fraction> Durability    { { 0, 1 }, { 0, 1 }, { 1, 4 }, { 0, 1 }, { 0, 1 } };
+        return Type[v._type + 1] + Mobility[v._mobility + 1] + Expendability[v._expendability + 1] + Durability[v._durability + 1];
     }
 
 private:
     struct vars {
-        int  _type;
-        int  _mobility;
-        int  _expendability;
-        int  _durability;
-        bool _universal;
+        QString _what;
+        int     _type;
+        int     _mobility;
+        int     _expendability;
+        int     _durability;
+        bool    _universal;
     } v;
 
+    QLineEdit* what;
     QComboBox* ntype;
     QComboBox* mobility;
     QComboBox* expendability;
@@ -2808,18 +2815,18 @@ private:
     QCheckBox* universal;
 
     QString optOut(bool show) {
-        if (v._type < 1 || v._mobility == -1 || v._expendability == -1 || v._durability == -1) return "<incomplete>";
-        QStringList Type { "", "IIF", "IAF", "OIF", "OAF" };
+        if (v._what.isEmpty() || v._type < 0) return "<incomplete>";
+        QStringList Type { "IIF", "IAF", "OIF", "OAF" };
         QStringList Mobiillity { "", "Bulky", "Immobile", "Arrangement" };
         QStringList Expendability { "", "Difficult To Obtain", "Very Difficult To Obtain", "Extremely Difficult To Obtain" };
         QStringList Durability { "", "Fragile", "Durable", "Unbreakable" };
         Fraction f = fraction(true);
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + Type[v._type];
-        QString sep = " (";
-        if (Mobiillity[v._mobility] != "") { desc += sep + Mobiillity[v._mobility]; sep = "; "; }
-        if (Expendability[v._expendability] != "") { desc += sep + Expendability[v._expendability]; sep = "; "; }
-        if (Durability[v._durability] != "") { desc += sep + Durability[v._durability]; sep = "; "; }
-        if (sep == "; ") desc += ")";
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + Type[v._type] + " (" + v._what;
+        QString sep = "; ";
+        if (v._mobility > 0) desc += sep + Mobiillity[v._mobility];
+        if (v._expendability > 0) desc += sep + Expendability[v._expendability]; sep = "; ";
+        if (v._durability > 0) desc += sep + Durability[v._durability]; sep = "; ";
+        desc += ")";
         return desc;
     }
 };
