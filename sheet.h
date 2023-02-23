@@ -68,10 +68,10 @@ private:
     static const bool DontUpdateTotal = false;
 
     bool     _changed                    = false;
-    Points<> _complicationPoints         = 0_cp;
-    Points<> _powersOrEquipmentPoints    = 0_cp;
-    Points<> _skillsTalentsOrPerksPoints = 0_cp;
-    Points<> _totalPoints                = 0_cp;
+    Points _complicationPoints         = 0_cp;
+    Points _powersOrEquipmentPoints    = 0_cp;
+    Points _skillsTalentsOrPerksPoints = 0_cp;
+    Points _totalPoints                = 0_cp;
 
     Character _character;
     QString   _dir;
@@ -82,7 +82,7 @@ private:
     QMap<QObject*, _CharacteristicDef> _widget2Def;
 
     void               addPower(shared_ptr<Power>&);
-    Points<>           characteristicsCost();
+    Points           characteristicsCost();
     void               characteristicChanged(QLineEdit*, QString, bool update = true);
     void               characteristicEditingFinished(QLineEdit*);
     bool               checkClose();

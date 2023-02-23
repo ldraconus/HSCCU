@@ -164,7 +164,7 @@ void Character::fromJson(Option& opt, QJsonDocument& doc) {
     _genre         = top["genre"].toString("");
     _hairColor     = top["hairColor"].toString("");
     _playerName    = top["playerName"].toString("");
-    _xp            = Points<>(top["xp"].toInt(0));
+    _xp            = Points(top["xp"].toInt(0));
 
     const QJsonObject& characteristics = top["characteristics"].toObject();
     _STR  = Characteristic(characteristics["STR"].toObject());

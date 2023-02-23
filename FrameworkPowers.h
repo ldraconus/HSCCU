@@ -30,7 +30,7 @@ public:
     }
 
     QString     description(bool roll = false) override { return roll ? "" : ""; }
-    Points<>    points(bool noStore = false) override   { return noStore ? 0_cp : 0_cp; }
+    Points    points(bool noStore = false) override   { return noStore ? 0_cp : 0_cp; }
 
     void loadPowers(QJsonArray powers) {
         for (const auto& power: powers) {
@@ -88,7 +88,7 @@ public:
         return advants;
     }
 
-    Points<> modifiers() {
+    Points modifiers() {
         Points pts(0);
         for (const auto& mod: advantagesList())
             if (mod->isAdder()) pts += mod->points();
@@ -120,7 +120,7 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { FrameworkPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 0_cp; }
     void     restore() override                                  { FrameworkPowers::restore();
                                                                  }
@@ -130,8 +130,8 @@ public:
                                                                    return obj;
                                                                  }
 
-    Points<> display(int& row, QTableWidget* tbl) override {
-        Points<> points = 0_cp;
+    Points display(int& row, QTableWidget* tbl) override {
+        Points points = 0_cp;
         QFont font = tbl->font();
         QFont italic = font;
         italic.setItalic(true);
@@ -156,7 +156,7 @@ public:
             QString end = pe->end();
             if (end == "-") end = "";
             Sheet::ref().setCell(tbl, row, 3, end, font);
-            points += Points<>(pts.toInt());
+            points += Points(pts.toInt());
             pe->row(row);
             ++row;
             ++r;
@@ -164,8 +164,8 @@ public:
         return points;
     }
 
-    Points<> display(QString& out) override {
-        Points<> points = 0_cp;
+    Points display(QString& out) override {
+        Points points = 0_cp;
         auto limit = limitations();
         auto advtg = advantages();
         auto modif = modifiers();
@@ -186,7 +186,7 @@ public:
             QString end = pe->end();
             if (end == "-") end = "";
             out += QString("%1").arg(end.isEmpty() ? "" : " [" + end +"]");
-            points += Points<>(pts.toInt());
+            points += Points(pts.toInt());
             ++r;
         }
         return points;
@@ -222,8 +222,8 @@ public:
                                                                    pnts = createLineEdit(parent, layout, "Points in the pool?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points<>(v._points); }
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return Points(v._points); }
     void     restore() override                                  { vars s = v;
                                                                    FrameworkPowers::restore();
                                                                    pnts->setText(QString("%1").arg(s._points));
@@ -237,8 +237,8 @@ public:
                                                                    return obj;
                                                                  }
 
-    Points<> display(int& row, QTableWidget* tbl) override {
-        Points<> points = 0_cp;
+    Points display(int& row, QTableWidget* tbl) override {
+        Points points = 0_cp;
         QFont font = tbl->font();
         QFont italic = font;
         italic.setItalic(true);
@@ -266,7 +266,7 @@ public:
             QString end = pe->end();
             if (end == "-") end = "";
             Sheet::ref().setCell(tbl, row, 3, end, font);
-            points += Points<>(pts.toInt(true));
+            points += Points(pts.toInt(true));
             pe->row(row);
             ++row;
             ++r;
@@ -274,8 +274,8 @@ public:
         return points;
     }
 
-    Points<> display(QString& out) override {
-        Points<> points = 0_cp;
+    Points display(QString& out) override {
+        Points points = 0_cp;
         int r = 1;
         auto limit = limitations();
         auto advtg = advantages();
@@ -298,7 +298,7 @@ public:
             QString end = pe->end();
             if (end == "-") end = "";
             out += QString("%1").arg(end.isEmpty() ? "" : " [" + end +"]");
-            points += Points<>(pts.toInt());
+            points += Points(pts.toInt());
             ++r;
         }
         return points;
@@ -348,7 +348,7 @@ public:
     bool isValid(shared_ptr<Power> power) override {
         return power->acting() <= v._pool;
     }
-    Points<> pool() override { return Points<>(v._pool); }
+    Points pool() override { return Points(v._pool); }
 
     Fraction adv() override                                      { return ((v._time > 3) ? Fraction(1, 2) * (v._time - 3) : Fraction(0)) +
                                                                           (v._noSkill    ? Fraction(1)                    : Fraction(0)); }
@@ -391,7 +391,7 @@ public:
                                                                           ((v._one == 1)   ? Fraction(1, 2)              : Fraction(0)) +
                                                                           ((v._one == 2)   ? Fraction(1)                 : Fraction(0)) +
                                                                           ((v._one == 3)   ? Fraction(1, Fraction(1, 2)) : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v._control + 1_cp) / 2; }
     void     restore() override                                  { vars s = v;
                                                                    FrameworkPowers::restore();
@@ -439,8 +439,8 @@ public:
                                                                    return obj;
                                                                  }
 
-    Points<> display(int& row, QTableWidget* tbl) override {
-        Points<> points = 0_cp;
+    Points display(int& row, QTableWidget* tbl) override {
+        Points points = 0_cp;
         QFont font = tbl->font();
         QFont italic = font;
         italic.setItalic(true);
@@ -472,8 +472,8 @@ public:
         return points;
     }
 
-    Points<> display(QString& out) override {
-        Points<> points = 0_cp;
+    Points display(QString& out) override {
+        Points points = 0_cp;
         int r = 1;
         auto limit = limitations() - lim();
         auto advtg = advantages() - adv();

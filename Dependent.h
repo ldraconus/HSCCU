@@ -53,7 +53,7 @@ public:
         unaware    = createCheckBox(parent, layout, "DNPC is unaware of character's adventuring");
         multiples  = createLineEdit(parent, layout, "How many dependants?", std::mem_fn(&Complication::numeric));
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         int mult = (int) (log((double) v._multiples) / log(2.0));
         if (mult < 0) mult = 0;

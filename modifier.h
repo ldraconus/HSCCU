@@ -254,7 +254,7 @@ public:
 
     virtual QString  description(bool show = false) override { return ModifierBase::description(show); }
     virtual Fraction fraction(bool noStore = false)          { return noStore ? Fraction(0) : Fraction(0); }
-    virtual Points<> points(bool noStore = false)            { return noStore ? 0_cp : 0_cp; }
+    virtual Points points(bool noStore = false)            { return noStore ? 0_cp : 0_cp; }
     virtual Fraction endChange()                             { return Fraction(1); }
 
     static void ClearForm(QVBoxLayout* layout);
@@ -281,7 +281,7 @@ public:
         : Modifier(n, m, isModifier)
         , _value(v)
         , _points(0_cp) { }
-    NoFormModifier(QString n, ModifierType m, Points<> p)
+    NoFormModifier(QString n, ModifierType m, Points p)
         : Modifier(n, m, isAnAdder)
         , _value(Fraction(0))
         , _points(p) { }
@@ -307,7 +307,7 @@ public:
     QString       description(bool show = false) override  { return QString(show ? fraction(true).toString() + " ": "") + name(); }
     void          form(QWidget*, QVBoxLayout*) override    { throw "No form"; }
     Fraction      fraction(bool noStore = false) override  { return noStore ? _value : _value; }
-    Points<>      points(bool noStore = false) override    { return noStore ? _points : _points; }
+    Points      points(bool noStore = false) override    { return noStore ? _points : _points; }
     void          restore() override                       { }
     void          store() override                         { }
     QJsonObject   toJson() override                        { QJsonObject obj;
@@ -323,7 +323,7 @@ public:
                                                            }
 private:
     Fraction _value;
-    Points<> _points;
+    Points _points;
 };
 
 class Ablative: public Modifier {
@@ -3056,7 +3056,7 @@ public:
                                                               return obj;
                                                             }
 
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return 5_cp * v._doubling;
     }
@@ -3071,7 +3071,7 @@ private:
     QLineEdit* dbling;
 
     QString optOut(bool show) {
-        Points<> p(points(true));
+        Points p(points(true));
         QString desc = (show ? QString("(%1").arg((p < 0) ? "" : "+") + QString("%1").arg(p.points) + ") " : "") +
                  "Improved Noncombat Movement (" + QString("x%1").arg(2 * (int) pow(2, v._doubling)) + ")";
         return desc;
@@ -3342,7 +3342,7 @@ public:
                                                               return obj;
                                                             }
 
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return 5_cp * v._doubling;
     }
@@ -3355,7 +3355,7 @@ private:
     QLineEdit* doubling;
 
     QString optOut(bool show) {
-        Points<> p(points(true));
+        Points p(points(true));
         QString desc = (show ? QString("(%1").arg((p < 0) ? "" : "+") + QString("%1").arg(p.points) + ") " : "") +
                  "Increased Mass (" + QString("x%1, %2 kg").arg((int) pow(2, v._doubling)).arg(200 * (int) pow(2, v._doubling)) + ")";
         return desc;
@@ -4912,9 +4912,9 @@ public:
                                                               return obj;
                                                             }
 
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
-        Points<> p(0);
+        Points p(0);
         QStringList groups = { "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
         QStringList senses = { "Normal Hearing", "Active Sonar", "Ultrasonic Perception", "Mental Awareness", "Mind Scan", "Radio Perception", "Radar", "Normal Sight",
                                "Nightvision", "Infrared Pereception", "Ultraviolet Perception", "Normal Smell", "Normal Taste", "Normal Touch" };
@@ -4934,7 +4934,7 @@ private:
 
     QString optOut(bool show) {
         if (v._what.isEmpty()) return "<incomplete>";
-        Points<> p(points(true));
+        Points p(points(true));
         QString desc = (show ? QString("(+%1) ").arg(p.points) : "") + "Opaque to " + v._what[0];
         int len = v._what.length();
         for (int i = 1; i < len; ++i) {
@@ -5361,7 +5361,7 @@ public:
                                                               return obj;
                                                             }
 
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return 2_cp * v._reduced;
     }
@@ -5375,7 +5375,7 @@ private:
 
     QString optOut(bool show) {
         if (v._reduced < 1) return "<incomplete>";
-        Points<> p(points(true));
+        Points p(points(true));
         QString desc = (show ? QString("(+%1) ").arg(p.points) : "")  + QString("Reduced Negation (-%1)").arg(v._reduced);
         return desc;
     }

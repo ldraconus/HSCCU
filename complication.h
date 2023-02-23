@@ -37,7 +37,7 @@ public:
 
     virtual QString     description()                = 0;
     virtual void        form(QWidget*, QVBoxLayout*) = 0;
-    virtual Points<>    points(bool noStore = false) = 0;
+    virtual Points      points(bool noStore = false) = 0;
     virtual void        restore()                    = 0;
     virtual void        store()                      = 0;
     virtual QJsonObject toJson()                     = 0;

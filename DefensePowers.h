@@ -62,8 +62,8 @@ public:
     Fraction lim() override                                      { return (v._englobe  ? Fraction(1, 4) : Fraction(0)) +
                                                                           (v._feedback ? Fraction(1)    : Fraction(0)) +
                                                                           (v._restr    ? Fraction(1, 4) : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   Points<> defCost = 0_cp;
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   Points defCost = 0_cp;
                                                                    if (Sheet::ref().character().hasTakesNoSTUN()) defCost = 3_cp * (3_cp * ((v._pd + v._ed) / 2));
                                                                    else defCost = 3_cp * ((v._pd + v._ed) / 2);
                                                                    return 3_cp + (v._length - 1) + (v._height - 1) + (v._thick - 1) + v._body +
@@ -222,7 +222,7 @@ public:
                                                                    resist  = createCheckBox(parent, layout, "Nonresitant");
                                                                  }
     Fraction lim() override                                      { return (v._resist  ? Fraction(1, 4) : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (Sheet::ref().character().hasTakesNoSTUN() ? 15_cp : 5_cp) * v._dc; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -320,9 +320,9 @@ public:
                                                                    resist  = createCheckBox(parent, layout, "Resistant");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   QList<Points<>> n { 0_cp, 10_cp, 20_cp, 30_cp };
-                                                                   QList<Points<>> r { 0_cp, 15_cp, 30_cp, 60_cp };
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   QList<Points> n { 0_cp, 10_cp, 20_cp, 30_cp };
+                                                                   QList<Points> r { 0_cp, 15_cp, 30_cp, 60_cp };
                                                                    return (Sheet::ref().character().hasTakesNoSTUN() ? 3 : 1) *
                                                                           ((v._resist || v._against > 1) ? r[v._perc + 1] : n[v._perc + 1]); }
     void     restore() override                                  { vars s = v;
@@ -398,7 +398,7 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return Sheet::ref().character().hasTakesNoSTUN() ? 60_cp : 20_cp; }
     void     restore() override                                  { AllPowers::restore();
                                                                  }
@@ -452,7 +452,7 @@ public:
                                                                    def = createLineEdit(parent, layout, "Defense?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._def * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -520,7 +520,7 @@ public:
                                                                    pts = createLineEdit(parent, layout, "Points?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._pts * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -588,7 +588,7 @@ public:
                                                                    put = createComboBox(parent, layout, "Add to?", { "Nothing", "Primary", "Secondary" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._def * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -662,7 +662,7 @@ public:
                                                                    def = createLineEdit(parent, layout, "Defense?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._def * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -738,8 +738,8 @@ public:
                                                                    protect = createCheckBox(parent, layout, "Protects Carried Items");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   Points<> defCost = 0_cp;
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   Points defCost = 0_cp;
                                                                    if (Sheet::ref().character().hasTakesNoSTUN()) defCost = (3_cp * (3 * ((v._pd + v._ed) + 1)) / 2);
                                                                    else defCost = (3_cp * ((v._pd + v._ed + 1) / 2));
                                                                    return defCost + (v._protect ? 10_cp : 0_cp); }

@@ -44,7 +44,7 @@ public:
         regain    = createComboBox(parent, layout, "How easily do you recover?", { "On a 14-", "On an 11-", "On an 8-" });
         type      = createCheckBox(parent, layout, "Berserk");
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return (v._frequency + 1) * 5_cp + v._chance * 5_cp + v._regain * 5_cp + (v._type ? 10_cp : 0_cp);
     }

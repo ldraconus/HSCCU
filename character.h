@@ -38,8 +38,8 @@ public:
     Character& hairColor(QString n)     { _hairColor = n; return *this; }
     QString    playerName()             { return _playerName; }
     Character& playerName(QString n)    { _playerName = n; return *this; }
-    Points<>   xp()                     { return _xp; }
-    Character& xp(Points<> n)           { _xp = n; return *this; }
+    Points   xp()                     { return _xp; }
+    Character& xp(Points n)           { _xp = n; return *this; }
 
     Characteristic& STR()  { return _STR; }
     Characteristic& DEX()  { return _DEX; }
@@ -163,7 +163,7 @@ private:
     QString  _genre         = "";
     QString  _hairColor     = "";
     QString  _playerName    = "";
-    Points<> _xp            = 0_cp;
+    Points _xp            = 0_cp;
 
     QString    _image     = "";
     QByteArray _imageData;

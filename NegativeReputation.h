@@ -37,7 +37,7 @@ public:
         extreme   = createCheckBox(parent, layout, "Extreme Reputation");
         limited   = createCheckBox(parent, layout, "Known only to a limited group");
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return (v._extreme ? 5_cp : 0_cp) + (v._frequency + 1) * 5_cp - (v._limited ? 5_cp : 0_cp);
     }

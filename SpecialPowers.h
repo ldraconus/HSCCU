@@ -50,7 +50,7 @@ public:
                                                                                             "1 Century" });
                                                                  }
     Fraction lim() override                                      { return (v._restr.isEmpty() ? Fraction(0) : Fraction(1, 4)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    QList<Fraction> limit { { 0, 1 }, { 0, 1 },
                                                                        { 2, { 0, 1 } }, { 1, { 3, 4 } }, { 1, { 1, 2 } }, { 1, { 1, 4 } },
                                                                        { 1, { 0, 1 } },      { 3, 4 },        { 1, 2 },        { 1, 4 }
@@ -188,12 +188,12 @@ public:
                                                                    pow = createComboBox(parent, layout, "or Power?", getPowers());
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    if (v._mod == nullptr) return 0_cp;
                                                                    if (v._mod->isAdder()) return v._mod->points(Modifier::NoStore);
                                                                    else if (v._pow != nullptr) {
-                                                                       Points<> active = v._pow->acting();
-                                                                       Points<> newActive = active * (Fraction(1) + v._mod->fraction(Modifier::NoStore)).toInt();
+                                                                       Points active = v._pow->acting();
+                                                                       Points newActive = active * (Fraction(1) + v._mod->fraction(Modifier::NoStore)).toInt();
                                                                        return newActive - active;
                                                                    }
                                                                    return 0_cp; // get value of power before adv, then after, then return difference
@@ -288,7 +288,7 @@ public:
                                                                    dice = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 5_cp * v._dice;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -358,7 +358,7 @@ public:
                                                                                                                    "Hour", "Turn" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._body * v._time * 2_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -434,7 +434,7 @@ public:
                                                                    skll = createPushButton(parent, layout, "Skill, Talent, or Perk?", std::mem_fn(&Power::clicked));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    if (v._skill) return v._skill->points(SkillTalentOrPerk::NoStore);
                                                                    else return 0_cp;
                                                                  }
@@ -516,7 +516,7 @@ public:
                                                                    where = createLineEdit(parent, layout, "Where?");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v._fixed ? 1_cp : 5_cp);
                                                                  }
     void     restore() override                                  { vars s = v;

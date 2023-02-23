@@ -412,8 +412,8 @@ void Sheet::addPower(shared_ptr<Power>& power) {
     _changed = true;
 }
 
-Points<> Sheet::characteristicsCost() {
-    Points<> total = 0_cp;
+Points Sheet::characteristicsCost() {
+    Points total = 0_cp;
     const auto keys = _widget2Def.keys();
     for (const auto& key: keys) total += _widget2Def[key].characteristic()->points();
     Ui->totalcost->setText(QString("%1").arg(total.points));
@@ -1164,7 +1164,7 @@ void Sheet::updateComplications() {
     for (const auto& complication: _character.complications()) {
         if (complication == nullptr) continue;
 
-        Points<> pts = complication->points(Complication::NoStore);
+        Points pts = complication->points(Complication::NoStore);
         setCell(Ui->complications, row, 0, QString("%1").arg(pts.points), font);
         setCell(Ui->complications, row, 1, complication->description(), font, WordWrap);
         _complicationPoints += pts;
@@ -1237,7 +1237,7 @@ void Sheet::updatePowersAndEquipment(){
     for (const auto& pe: _character.powersOrEquipment()) {
         if (pe == nullptr) continue;
 
-        _powersOrEquipmentPoints += Points<>(displayPowerAndEquipment(row, pe));
+        _powersOrEquipmentPoints += Points(displayPowerAndEquipment(row, pe));
     }
     Ui->powersandequipment->resizeRowsToContents();
 
@@ -1278,7 +1278,7 @@ void Sheet::updateSkillsTalentsAndPerks(){
     for (const auto& stp: _character.skillsTalentsOrPerks()) {
         if (stp == nullptr) continue;
 
-        Points<> pts = stp->points(Complication::NoStore);
+        Points pts = stp->points(Complication::NoStore);
         setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(pts.points), font);
         setCell(Ui->skillstalentsandperks, row, 1, stp->description(),            font, WordWrap);
         setCell(Ui->skillstalentsandperks, row, 2, stp->roll(),                   font);
@@ -1309,7 +1309,7 @@ void Sheet::updateSkills(shared_ptr<SkillTalentOrPerk> skilltalentorperk) {
              skilltalentorperk->name() == "Well-Connected") updateSkillsTalentsAndPerks();
 }
 
-static Points<> Min(Points<> a, Points<>& b) { return (a < b) ? a : b; }
+static Points Min(Points a, Points& b) { return (a < b) ? a : b; }
 
 void Sheet::updateTotals() {
     _totalPoints = characteristicsCost() + _skillsTalentsOrPerksPoints + _powersOrEquipmentPoints;
@@ -1650,7 +1650,7 @@ void Sheet::editSkillstalentsandperks() {
 
     SkillDialog dlg(this);
     dlg.skilltalentorperk(skilltalentorperk);
-    Points<> old = skilltalentorperk->points(Power::NoStore);
+    Points old = skilltalentorperk->points(Power::NoStore);
 
     if (dlg.exec() == QDialog::Rejected) return;
     if (skilltalentorperk->description().isEmpty()) return;
@@ -1913,8 +1913,8 @@ void Sheet::options() {
     dlg.setComplications(_option.complications().points);
     dlg.setTotalPoints(_option.totalPoints().points);
     if (dlg.exec() != QDialog::Accepted) return;
-    _option.complications(Points<>(dlg.complications()));
-    _option.totalPoints(Points<>(dlg.totalPoints()));
+    _option.complications(Points(dlg.complications()));
+    _option.totalPoints(Points(dlg.totalPoints()));
     _option.store();
     updateDisplay();
     _changed = true;
@@ -2143,12 +2143,12 @@ void Sheet::skillstalentsandperksMenu(QPoint pos) {
 
 void Sheet::totalExperienceEarnedChanged(QString txt) {
     if (numeric(txt) || txt.isEmpty()) {
-        _character.xp(Points<>(txt.toInt()));
+        _character.xp(Points(txt.toInt()));
 
-        Points<> total = _option.totalPoints() - _option.complications() + _character.xp() + min(_option.complications(), _complicationPoints);
-        Points<> remaining(0_cp);
+        Points total = _option.totalPoints() - _option.complications() + _character.xp() + min(_option.complications(), _complicationPoints);
+        Points remaining(0_cp);
         if (total > _totalPoints) remaining = total - _totalPoints;
-        Points<> spent(0_cp);
+        Points spent(0_cp);
         if (_totalPoints > _option.totalPoints()) spent = _totalPoints - _option.totalPoints();
 
         Ui->experiencespent->setText(QString("%1").arg(spent.points));

@@ -29,7 +29,7 @@ public:
                                                                    dice = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * 10_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -107,7 +107,7 @@ public:
                                                                           (v._depend ? Fraction(1, 2) : Fraction(0)) +
                                                                           (v._self   ? Fraction(1)    : Fraction(0)) +
                                                                           v._sense * Fraction(1, 4); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * 5_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -212,7 +212,7 @@ public:
     Fraction lim() override                                      { return (v._lit ? Fraction(1, 4) : Fraction(0)) +
                                                                           ((v._set >= 1) ? Fraction(1, 4) : Fraction(0)) +
                                                                           v._set * Fraction(1, 4); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * 5_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -321,8 +321,8 @@ public:
                                                                    only     = createCheckBox(parent, layout, "Only With Others Who Have Mind Link");
                                                                  }
     Fraction lim() override                                      { return Fraction(v._feed) + (v._only ? Fraction(1) : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   Points<> pts = 5_cp * v._inv;
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   Points pts = 5_cp * v._inv;
                                                                    int steps = (int) (log((double) v._minds) / log(2.0));
                                                                    pts = pts + steps * 5_cp;
                                                                    pts = pts + (v._los ? 10_cp : 0_cp);
@@ -465,7 +465,7 @@ public:
                                                                    part  = createCheckBox(parent, layout, "Partial Effect");
                                                                  }
     Fraction lim() override                                      { return ((v._cant > 0) ? v._cant * Fraction(1, 2) : Fraction(0)) + (v._part ? Fraction(1, 2) : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * 5_cp + v._bonus * 2_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -587,7 +587,7 @@ public:
                                                                           (v._feed + 1) * Fraction(1) +
                                                                           (v._lang ? Fraction(1, 2) : Fraction(0)) +
                                                                           (v._recv ? Fraction(1, 2) : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * 5_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();

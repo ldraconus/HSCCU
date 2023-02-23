@@ -39,7 +39,7 @@ public:
         effects        = createComboBox(parent, layout, "Effects of the Restriction?", { "Minor", "Major", "Severe" });
         notRestrictive = createCheckBox(parent, layout, "Complication is Not Restictive in Some Cultures or Societies");
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         auto pnts = 5_cp * (v._frequency + 1) + (v._effects < 0 ? 0 : v._effects) * 5_cp - (v._notRestrictive ? 5_cp : 0_cp);
         return pnts;

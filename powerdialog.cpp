@@ -583,7 +583,7 @@ void PowerDialog::updateForm() {
     if (_power == nullptr) return;
 
     _power->store();
-    Points<> pts = _power->real();
+    Points pts = _power->real();
     if ((!_power->isFramework() || _power->isVPP() || _power->isMultipower()) && pts.points == 0) pts = 1_cp;
     if (_power->isVPP()) pts += _power->pool();
     _points->setText(QString("%1 points").arg(pts.points));

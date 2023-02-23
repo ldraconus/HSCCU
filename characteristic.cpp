@@ -28,10 +28,10 @@ Characteristic& Characteristic::operator=(Characteristic&& c) {
     return *this;
 }
 
-Points<> Characteristic::points() {
+Points Characteristic::points() {
     int half = _per / 2;
     if (_per % 2 == 0) half--;
-    return Points<>(((_base - _init) * _cost.points + half) / _per);
+    return Points(((_base - _init) * _cost.points + half) / _per);
 }
 
 

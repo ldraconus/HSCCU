@@ -160,7 +160,7 @@ public:
     virtual QString     description(bool roll = false) { return roll ? "" : ""; };
     virtual void        form(QWidget*, QVBoxLayout*)   { }
     virtual QString     name()                         { return ""; }
-    virtual Points<>    points(bool noStore = false)   { return noStore ? 0_cp : 0_cp; }
+    virtual Points    points(bool noStore = false)   { return noStore ? 0_cp : 0_cp; }
     virtual QString     nickname()                     { return ""; }
     virtual void        restore()                      { }
     virtual void        store()                        { }
@@ -212,12 +212,12 @@ public:
     virtual bool                      isVPP()                        { return false; }
     virtual bool                      isValid(shared_ptr<Power>)     { return true; }
     virtual void                      inMultipower()                 { _inMultipower = true; }
-    virtual Points<>                  pool()                         { return 0_cp; }
+    virtual Points                  pool()                         { return 0_cp; }
     virtual int                       count()                        { return -1; }
     virtual void                      append(shared_ptr<Power>)      { }
     virtual void                      insert(int, shared_ptr<Power>) { }
-    virtual Points<>                  display(int&, QTableWidget*)   { return 0_cp; }
-    virtual Points<>                  display(QString&)              { return 0_cp; }
+    virtual Points                  display(int&, QTableWidget*)   { return 0_cp; }
+    virtual Points                  display(QString&)              { return 0_cp; }
     virtual void                      remove(int)                    { }
     virtual void                      remove(shared_ptr<Power>)      { }
     virtual QList<shared_ptr<Power>>& list()                         { static QList<shared_ptr<Power>> l; return l; }
@@ -236,9 +236,9 @@ public:
 
     int doubling();
 
-    Points<> real(Fraction a = Fraction(0), Points<> mod = 0_cp, Fraction s = Fraction(0));
-    Points<> acting(Fraction a = Fraction(0), Points<> mod = 0_cp);
-    Points<> active();
+    Points real(Fraction a = Fraction(0), Points mod = 0_cp, Fraction s = Fraction(0));
+    Points acting(Fraction a = Fraction(0), Points mod = 0_cp);
+    Points active();
 
     QList<shared_ptr<Modifier>>& advantagesList()  { return _advantagesList; }
     QList<shared_ptr<Modifier>>& limitationsList() { return _limitationsList; }
@@ -395,7 +395,7 @@ public:
     }
 
     QString     description(bool roll = false) override = 0;
-    Points<>    points(bool noStore = false) override   = 0;
+    Points    points(bool noStore = false) override   = 0;
 
     Fraction adv() override         { return Fraction(0); }
     void     checked(bool) override { }

@@ -11,55 +11,61 @@ using std::make_shared;
 #define _Mem_fn __mem_fn
 #endif
 
-template <class Value = std::ratio<1>> struct Points {
-    unsigned long long points;
-    explicit constexpr Points(const unsigned long long x)
+struct Points {
+    long points;
+    explicit constexpr Points(long x)
         : points(x) { }
 
-    Points<>& operator+=(Points<> b) { points += b.points; return *this; }
-    Points<>& operator-=(Points<> b) { points -= b.points; return *this; }
+    Points& operator+=(Points b) { points += b.points; return *this; }
+    Points& operator-=(Points b) { points -= b.points; return *this; }
+    Points& operator*=(Points b) { points *= b.points; return *this; }
+    Points& operator/=(Points b) { points /= b.points; return *this; }
+    Points& operator%=(Points b) { points %= b.points; return *this; }
 };
 
 inline constexpr auto operator"" _cp(unsigned long long p) {
-    return Points<>{ p };
+    return Points{ (long) p };
 }
 
-inline Points<> operator*(int a, Points<> b)      { return Points<>(a * b.points); }
-inline Points<> operator*(Points<> a, int b)      { return Points<>(a.points * b); }
-inline Points<> operator*(Points<> a, Points<> b) { return Points<>(a.points * b.points); }
+inline Points operator*(long a, Points b)   { return Points(a * b.points); }
+inline Points operator*(Points a, long b)   { return Points(a.points * b); }
+inline Points operator*(Points a, Points b) { return Points(a.points * b.points); }
 
-inline Points<> operator/(int a, Points<> b)      { return Points<>(a / b.points); }
-inline Points<> operator/(Points<> a, int b)      { return Points<>(a.points / b); }
-inline Points<> operator/(Points<> a, Points<> b) { return Points<>(a.points / b.points); }
+inline Points operator/(long a, Points b)   { return Points(a / b.points); }
+inline Points operator/(Points a, long b)   { return Points(a.points / b); }
+inline Points operator/(Points a, Points b) { return Points(a.points / b.points); }
 
-inline Points<> operator+(int a, Points<> b)      { return Points<>(a + b.points); }
-inline Points<> operator+(Points<> a, int b)      { return Points<>(a.points + b); }
-inline Points<> operator+(Points<> a, Points<> b) { return Points<>(a.points + b.points); }
+inline Points operator%(long a, Points b)   { return Points(a / b.points); }
+inline Points operator%(Points a, long b)   { return Points(a.points / b); }
+inline Points operator%(Points a, Points b) { return Points(a.points / b.points); }
 
-inline Points<> operator-(int a, Points<> b)      { return Points<>(a - b.points); }
-inline Points<> operator-(Points<> a, int b)      { return Points<>(a.points - b); }
-inline Points<> operator-(Points<> a, Points<> b) { return Points<>(a.points - b.points); }
+inline Points operator+(long a, Points b)   { return Points(a + b.points); }
+inline Points operator+(Points a, long b)   { return Points(a.points + b); }
+inline Points operator+(Points a, Points b) { return Points(a.points + b.points); }
 
-inline bool operator<(int a, Points<> b)      { return a < (int) b.points; }
-inline bool operator<(Points<> a, int b)      { return (int) a.points < b; }
-inline bool operator<(Points<> a, Points<> b) { return a.points < b.points; }
+inline Points operator-(long a, Points b)   { return Points(a - b.points); }
+inline Points operator-(Points a, long b)   { return Points(a.points - b); }
+inline Points operator-(Points a, Points b) { return Points(a.points - b.points); }
 
-inline bool operator<=(int a, Points<> b)      { return a <= (int) b.points; }
-inline bool operator<=(Points<> a, int b)      { return (int) a.points <= b; }
-inline bool operator<=(Points<> a, Points<> b) { return a.points <= b.points; }
+inline bool operator<(long a, Points b)   { return a < b.points; }
+inline bool operator<(Points a, long b)   { return a.points < b; }
+inline bool operator<(Points a, Points b) { return a.points < b.points; }
 
-inline bool operator==(int a, Points<> b)      { return a == (int) b.points; }
-inline bool operator==(Points<> a, int b)      { return (int) a.points == b; }
-inline bool operator==(Points<> a, Points<> b) { return a.points == b.points; }
+inline bool operator<=(long a, Points b)   { return a <= b.points; }
+inline bool operator<=(Points a, long b)   { return a.points <= b; }
+inline bool operator<=(Points a, Points b) { return a.points <= b.points; }
 
-inline bool operator>(int a, Points<> b)      { return a > (int) b.points; }
-inline bool operator>(Points<> a, int b)      { return (int) a.points > b; }
-inline bool operator>(Points<> a, Points<> b) { return a.points > b.points; }
+inline bool operator==(long a, Points b)   { return a == b.points; }
+inline bool operator==(Points a, long b)   { return a.points == b; }
+inline bool operator==(Points a, Points b) { return a.points == b.points; }
 
-inline bool operator>=(int a, Points<> b)      { return a >= (int) b.points; }
-inline bool operator>=(Points<> a, int b)      { return (int) a.points >= b; }
-inline bool operator>=(Points<> a, Points<> b) { return a.points >= b.points; }
+inline bool operator>(long a, Points b)   { return a > b.points; }
+inline bool operator>(Points a, long b)   { return a.points > b; }
+inline bool operator>(Points a, Points b) { return a.points > b.points; }
 
+inline bool operator>=(long a, Points b)   { return a >= b.points; }
+inline bool operator>=(Points a, long b)   { return a.points >= b; }
+inline bool operator>=(Points a, Points b) { return a.points >= b.points; }
 
 class At {
 private:

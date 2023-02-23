@@ -39,8 +39,8 @@ public:
                                                                    varying   = createCheckBox(parent, layout, "Varying Effect");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points<>(v._body); }
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return Points(v._body); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    body->setText(QString("%1").arg(s._body));
@@ -149,7 +149,7 @@ public:
                                                                    who   = createComboBox(parent, layout, "Who to aid?", { "Aid Anyone", "Only Others", "Only Self" });
                                                                  }
     Fraction lim() override                                      { return def(); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * 6_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -251,8 +251,8 @@ public:
                                                                    suppress = createCheckBox(parent, layout, "Suppress");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points<>(v._dice * 10); }
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return Points(v._dice * 10); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));
@@ -330,8 +330,8 @@ public:
                                                                                                                                     "5 Minutes", "1 Minute", "Turn" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points<>(v._dice * 10); }
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return Points(v._dice * 10); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));

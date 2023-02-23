@@ -11,7 +11,7 @@ class Characteristic
 public:
     Characteristic()
         : _base(0), _cost(0_cp), _init(0), _per(0), _primary(0), _secondary(0) { }
-    Characteristic(int base, Points<> cost, int per = 1, int init = 0, int primary = 0, int secondary = 0)
+    Characteristic(int base, Points cost, int per = 1, int init = 0, int primary = 0, int secondary = 0)
         : _base(base), _cost(cost), _init(init == 0 ? base : init), _per(per), _primary(primary), _secondary(secondary) { }
     Characteristic(const Characteristic& c): Characteristic(c._base, c._cost, c._init, c._primary, c._secondary) { }
     Characteristic(Characteristic&& c): Characteristic(c._base, c._cost, c._init, c._primary, c._secondary) { }
@@ -22,8 +22,8 @@ public:
 
     int             base()           { return _base; }
     Characteristic& base(int n)      { _base = n; return *this; }
-    Points<>        cost()           { return _cost; }
-    Characteristic& cost(Points<> n) { _cost = n; return *this; }
+    Points          cost()           { return _cost; }
+    Characteristic& cost(Points n)   { _cost = n; return *this; }
     int             init()           { return _init; }
     Characteristic& init(int n)      { _init = n; return *this; }
     int             per()            { return _per; }
@@ -33,18 +33,18 @@ public:
     int             secondary()      { return _secondary; }
     Characteristic& secondary(int n) { _secondary = n; return *this; }
 
-    Points<>    points();
+    Points      points();
     QString     roll();
     QJsonObject toJson();
     QString     value();
 
 private:
-    int      _base;
-    Points<> _cost;
-    int      _init;
-    int      _per;
-    int      _primary;
-    int      _secondary;
+    int    _base;
+    Points _cost;
+    int    _init;
+    int    _per;
+    int    _primary;
+    int    _secondary;
 };
 
 #endif // CHARACTERISTIC_H

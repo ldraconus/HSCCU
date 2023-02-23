@@ -32,7 +32,7 @@ public:
     QString description(bool showRoll = false) override { return showRoll ? v._name : v._name; }
     void form(QWidget*, QVBoxLayout*) override          { throw "No options, immediately accept"; }
     QString name() override                             { return v._name; }
-    Points<> points(bool noStore = false) override      { if (!noStore) store(); return 10_cp; }
+    Points points(bool noStore = false) override      { if (!noStore) store(); return 10_cp; }
     void restore() override                             { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
@@ -83,7 +83,7 @@ public:
                                                                   rapidAutofire         = createCheckBox(parent, layout, "Rapid Autofire");
                                                                   skipoverSprayfire     = createCheckBox(parent, layout, "Skipover Sprayfire");
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   return (v._accurateSprayfire ? 5_cp : 0_cp) +
                                                                          (v._concentratedSprayfire ? 5_cp : 0_cp) +
                                                                          (v._rapidAutofire ? 5_cp : 0_cp) +
@@ -152,8 +152,8 @@ public:
                                                                                                                                     "All Ranged Combat",
                                                                                                                                     "All Combat" });
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points<>> size{ 0_cp, 2_cp, 3_cp, 5_cp, 8_cp, 8_cp, 10_cp };
+    Points points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points> size{ 0_cp, 2_cp, 3_cp, 5_cp, 8_cp, 8_cp, 10_cp };
                                                                   return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
@@ -221,8 +221,8 @@ public:
                                                                                                                                       "Defense Maneuver III",
                                                                                                                                       "Defense Maneuver IV" });
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points<>> which{ 0_cp, 3_cp, 5_cp, 8_cp, 10_cp };
+    Points points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points> which{ 0_cp, 3_cp, 5_cp, 8_cp, 10_cp };
                                                                   return which[v._which + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   which->setCurrentIndex(s._which);
@@ -303,7 +303,7 @@ public:
                                                                   weaponelements   = createLineEdit(parent, layout, "Weapon Elements", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   weapons          = createLineEdit(parent, layout, "Weapons?");
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   return (v._chokehold ? 4_cp : 0_cp) +
                                                                          (v._defensivestrike ? 5_cp : 0_cp) +
                                                                          (v._killingstrike ? 4_cp : 0_cp) +
@@ -477,8 +477,8 @@ public:
                                                                                                                                     "Small Group",
                                                                                                                                     "All MentalCombat" });
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points<>> size{ 0_cp, 1_cp, 3_cp, 6_cp };
+    Points points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points> size{ 0_cp, 1_cp, 3_cp, 6_cp };
                                                                   return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(v._plus));
@@ -548,8 +548,8 @@ public:
                                                                                                                              "Group of conditions (DCV)"});
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points<>> what{ 0_cp, 1_cp, 2_cp, 3_cp, 2_cp, 3_cp };
+    Points points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points> what{ 0_cp, 1_cp, 2_cp, 3_cp, 2_cp, 3_cp };
                                                                   return v._plus * what[v._what + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
@@ -620,8 +620,8 @@ public:
                                                                                                                            "Broad category of weapons"});
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points<>> what{ 0_cp, 1_cp, 2_cp };
+    Points points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points> what{ 0_cp, 1_cp, 2_cp };
                                                                   return what[v._what + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   what->setCurrentIndex(s._what);

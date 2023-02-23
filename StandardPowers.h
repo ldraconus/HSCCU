@@ -64,8 +64,8 @@ public:
                                                                    put  = createComboBox(parent, layout, "Do Not add", { "Do Not Add", "Add To Primary", "Add to Secondary" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   Points<> defCost = 0_cp;
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   Points defCost = 0_cp;
                                                                    if (Sheet::ref().character().hasTakesNoSTUN()) defCost = 3_cp * (v._pd + v._ed) + 9_cp * v._dmcv + 15_cp * v._dcv;
                                                                    else defCost = 1_cp * (v._pd + v._ed) + 3_cp * v._dmcv + 5_cp * v._dcv;
                                                                    return 1_cp * (v._str + v._con + v._int + v._ego + v._pre + v._rec + v._body) + 2_cp * v._dex + defCost +
@@ -270,7 +270,7 @@ public:
                                                                    knck = createCheckBox(parent, layout, "Cannot Resist Knockback");
                                                                  }
     Fraction lim() override                                      { return v._knck ? Fraction(1, 4) : Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 10_cp + (v._str + 1) / 3;;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -344,7 +344,7 @@ public:
                                                                    dice = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * 3_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -438,7 +438,7 @@ public:
                                                                    to     = createLineEdit(parent, layout, "Immune To?");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return ((v._extend >= 1) ? v._extend * 1_cp : 0_cp) +
                                                                           (v._self ? 10_cp : 0_cp) +
                                                                           countCommas(v._expand) * 5_cp +
@@ -635,7 +635,7 @@ public:
                                                                           ((v._fewer > 0)  ? v._fewer * Fraction(1, 4)  : Fraction(0)) +
                                                                           ((v._strong > 0) ? v._strong * Fraction(1, 4) : Fraction(0)) +
                                                                           (v._must         ? Fraction(1, 2)             : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v._pts + 2) / 5 * 1_cp + 5 * v._dbl;
                                                                  }
     void     restore() override                                  { vars s = v;

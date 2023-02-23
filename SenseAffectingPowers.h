@@ -61,9 +61,9 @@ public:
                                                                  }
 
 private:
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
-        Points<> p(0);
+        Points p(0);
         QStringList groups = { "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
         QStringList target = { "Sight", "Normal Sight", "Nightvision", "Infrared Perception", "Ultravioloet Perception" };
         bool targeting = false;
@@ -216,9 +216,9 @@ public:
                                                                  }
 
 private:
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
-        Points<> p(0);
+        Points p(0);
         QStringList groups = { "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
         QStringList target = { "Sight", "Normal Sight", "Nightvision", "Infrared Perception", "Ultravioloet Perception" };
         bool targeting = false;
@@ -377,9 +377,9 @@ public:
                                                                  }
 
 private:
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
-        Points<> p(0);
+        Points p(0);
         QStringList groups = { "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
         QStringList target = { "Sight", "Normal Sight", "Nightvision", "Infrared Perception", "Ultravioloet Perception" };
         bool targeting = false;

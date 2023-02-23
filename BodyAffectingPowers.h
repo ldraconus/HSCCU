@@ -34,7 +34,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v._nopded ? Fraction(1, 4) : Fraction(0)) +
                                                                           (v._nostr  ? Fraction(1)    : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._levels * 4_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -122,7 +122,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v._solid ? Fraction(1, 2) : Fraction(0)) +
                                                                           (v._protect  ? Fraction(1)    : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 40_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -214,7 +214,7 @@ public:
     Fraction lim() override                                      { return ((v._feedback == 1) ? Fraction(1, 4) : Fraction(0)) +
                                                                           ((v._feedback == 2) ? Fraction(1, 2) : Fraction(0)) +
                                                                           ((v._feedback == 3) ? Fraction(1)    : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._levels + v._easy * 5_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -331,7 +331,7 @@ public:
                                                                    limited = createCheckBox(parent, layout, "No Increased PD/ED");
                                                                  }
     Fraction lim() override                                      { return (v._limited ? Fraction(1, 4) : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 5_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -402,8 +402,8 @@ public:
                                                                                                                     "Gargantuan", "Colossal" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   QList<Points<>> points { 0_cp, 25_cp, 50_cp, 90_cp, 120_cp, 150_cp, 215_cp };
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   QList<Points> points { 0_cp, 25_cp, 50_cp, 90_cp, 120_cp, 150_cp, 215_cp };
                                                                    return points[v._size + 1]; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -506,7 +506,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return ((v._revert == 1) ? Fraction(1)    : Fraction(0)) +
                                                                           ((v._revert == 2) ? Fraction(1, 2) : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v._points + 2_cp) / 5 + (v._instant ? 5_cp : 0_cp) + v._mult * 5_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -633,9 +633,9 @@ public:
                                                                  }
     Fraction lim() override                                      { return v._body ? Fraction(1, 4) : Fraction(0);
                                                                  }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   QList<Points<>> change { 0_cp, 0_cp, 3_cp, 5_cp, 10_cp };
-                                                                   Points<> pts = change[v._change + 1];
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   QList<Points> change { 0_cp, 0_cp, 3_cp, 5_cp, 10_cp };
+                                                                   Points pts = change[v._change + 1];
                                                                    pts += v._sight    ?  8_cp : 0_cp;
                                                                    pts += v._hearing  ?  5_cp : 0_cp;
                                                                    pts += v._touch    ?  5_cp : 0_cp;
@@ -814,7 +814,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v._perc ? Fraction(1, 4) : Fraction(0));
                                                                  }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._levels * 6_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -929,7 +929,7 @@ public:
                                                                           (v._nonon  ? Fraction(1, 4) : Fraction(0)) +
                                                                           (v._cause  ? Fraction(1, 2) : Fraction(0)) +
                                                                           (v._range  ? Fraction(1, 4) : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._meters + 5_cp * v._distort + 5_cp * v._noncom; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();

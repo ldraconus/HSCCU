@@ -66,7 +66,7 @@ public:
                                                                    timWhr = createLineEdit(parent, layout, "Where?");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    auto pts = 20_cp;
                                                                    if (v._time) {
                                                                        pts += 20_cp;
@@ -259,8 +259,8 @@ public:
                                                                    instant = createCheckBox(parent, layout, "Instant Lightspeed");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   Points<> pts = (v._instant ? 20_cp : 10_cp);
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   Points pts = (v._instant ? 20_cp : 10_cp);
                                                                    int steps = (int) (log((double) v._speed) / log(2.0));
                                                                    pts = pts + steps * 2_cp;
                                                                    return pts;
@@ -347,7 +347,7 @@ public:
                                                                           (v._surface   ? Fraction(1, 4)            : Fraction(0)) +
                                                                           (v._hover > 0 ? v._hover * Fraction(1, 4) : Fraction(0));
                                                                  }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._speed * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -439,7 +439,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v._limit > 0 ? Fraction(1) : Fraction(0));
                                                                  }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v._speed + 1) / 2 * 1_cp + v._accurate * 5_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -525,7 +525,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v._correct ? Fraction(1, 2) : Fraction(0));
                                                                  }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._speed * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -607,7 +607,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v._surface ? Fraction(1, 2) : Fraction(0));
                                                                  }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v._speed + 1) / 2 * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -682,7 +682,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0);
                                                                  }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v._speed + 1) / 2 * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -761,7 +761,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return ((v._fixed > -1) ? v._fixed * Fraction(1, 2) : Fraction(0)) + (v._pass ? Fraction(1, 4) : Fraction(0));
                                                                  }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._speed * 1_cp + (v._veloc ? 10_cp : 0_cp) + (v._safe ? 5_cp : 0_cp);
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -865,7 +865,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v._limit != -1) ? v._limit * Fraction(1, 2) : Fraction(0);
                                                                  }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._speed * 1_cp + v._pd * 2_cp + (v._fillin ? 10_cp : 0_cp);
                                                                  }
     void     restore() override                                  { vars s = v;

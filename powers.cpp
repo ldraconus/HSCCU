@@ -615,14 +615,14 @@ Fraction Power::endLessActing() {
 }
 
 QString Power::end() {
-    Points<> active(points(NoStore));
+    Points active(points(NoStore));
     for (const auto& mod: advantagesList()) {
         if (mod->name() == "Reduced Endurance") continue;
         else if (mod->isAdder()) active += mod->points(Modifier::NoStore);
     }
     Fraction reduced(1);
     auto adv = this->endLessActing();
-    active = Points<>((active.points * adv).toInt());
+    active = Points((active.points * adv).toInt());
     int per = 10;
     if (findModifier("Charges") != _modifiers.end()) per = 0;
     auto mod = findModifier("Costs Endurance");
@@ -635,13 +635,13 @@ QString Power::end() {
     mod = findModifier("Increased END Cost");
     if (mod != _modifiers.end()) {
         if (per == 0) per = 10;
-        active = Points<>((active.points * (*mod)->endChange()).toInt());
+        active = Points((active.points * (*mod)->endChange()).toInt());
     }
     if (findModifier("Costs END Only To Activate") != _modifiers.end() && per == 0) per = 10;
     mod = findModifier("Costs Endurance To Maintain");
     if (mod != _modifiers.end()) {
         if (per == 0) per = 10;
-        active = Points<>((active.points * (*mod)->endChange()).toInt());
+        active = Points((active.points * (*mod)->endChange()).toInt());
     }
 
     int end = 0;
@@ -657,13 +657,13 @@ QString Power::end() {
 }
 
 QString Power::noEnd() {
-    Points<> active(points(NoStore));
+    Points active(points(NoStore));
     for (const auto& mod: advantagesList()) {
         if (mod->name() == "Reduced Endurance") continue;
         else if (mod->isAdder()) active += mod->points(Modifier::NoStore);
     }
     auto adv = this->endLessActing();
-    active = Points<>((active.points * adv).toInt());
+    active = Points((active.points * adv).toInt());
     int end = 0;
     int per = 0;
     if (findModifier("Charges") != _modifiers.end()) per = 0;
@@ -675,13 +675,13 @@ QString Power::noEnd() {
     mod = findModifier("Increased END Cost");
     if (mod != _modifiers.end()) {
         if (per == 0) per = 10;
-        active = Points<>((active.points * (*mod)->endChange()).toInt());
+        active = Points((active.points * (*mod)->endChange()).toInt());
     }
     if (findModifier("Costs END Only To Activate") != _modifiers.end() && per == 0) per = 10;
     mod = findModifier("Costs Endurance To Maintain");
     if (mod != _modifiers.end()) {
         if (per == 0) per = 10;
-        active = Points<>((active.points * (*mod)->endChange()).toInt());
+        active = Points((active.points * (*mod)->endChange()).toInt());
     }
     mod = findModifier("Reduced Endurance");
     if (mod != _modifiers.end() && per != 0) {
@@ -702,17 +702,17 @@ QList<shared_ptr<Modifier>>::iterator Power::findModifier(QString name) {
     return _modifiers.end();
 }
 
-Points<> Power::real(Fraction add, Points<> mod, Fraction sub) {
+Points Power::real(Fraction add, Points mod, Fraction sub) {
     Fraction pnts(acting(add, mod).points);
     Fraction limits(0);
     if (sub == 0) limits = Fraction(1);
     limits += lim() + sub;
     for (const auto& mod: limitationsList()) limits += mod->fraction(NoStore).abs();
     pnts = pnts / limits;
-    return Points<>(pnts.toInt(true));
+    return Points(pnts.toInt(true));
 }
 
-Points<> Power::acting(Fraction add, Points<> mod) {
+Points Power::acting(Fraction add, Points mod) {
     int base = points(NoStore).points;
     Fraction pnts(base);
     Fraction advantages(0);
@@ -723,9 +723,9 @@ Points<> Power::acting(Fraction add, Points<> mod) {
         if (mod->isAdder()) pnts += mod->points(NoStore).points;
         else advantages += mod->fraction(NoStore);
     pnts = pnts * advantages;
-    return Points<>(pnts.toInt(true));
+    return Points(pnts.toInt(true));
 }
 
-Points<> Power::active() {
+Points Power::active() {
     return 0_cp;
 }

@@ -36,7 +36,7 @@ public:
     void form(QWidget* parent, QVBoxLayout* layout) override {
         amount = createComboBox(parent, layout, "How Poor is the PC?", { "Destitute ($3,000 or less)", "Poor ($10,000 or less)" });
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return (v._amount < 0) ? 0_cp : ((2 - v._amount) * 5_cp);
     }

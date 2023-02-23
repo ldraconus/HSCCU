@@ -17,18 +17,18 @@ public:
     Option& operator=(const Option&);
     Option& operator=(Option&&);
 
-    Points<> complications()           { return _complications; }
-    Option&  complications(Points<> x) { _complications = x; return *this; }
-    Points<> totalPoints()             { return _totalPoints; }
-    Option&  totalPoints(Points<> x)   { _totalPoints = x; return *this; }
+    Points complications()           { return _complications; }
+    Option&  complications(Points x) { _complications = x; return *this; }
+    Points totalPoints()             { return _totalPoints; }
+    Option&  totalPoints(Points x)   { _totalPoints = x; return *this; }
 
     void load();
     void store();
     void toJson(QJsonObject&);
 
 private:
-    Points<> _totalPoints;
-    Points<> _complications;
+    Points _totalPoints;
+    Points _complications;
 };
 
 #endif // OPTION_H

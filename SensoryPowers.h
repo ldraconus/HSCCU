@@ -138,9 +138,9 @@ public:
                                                                  }
 
 private:
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
-        Points<> p(0);
+        Points p(0);
         QStringList groups = { "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
         bool first = true;
         for (const auto& str: v._what) {
@@ -428,9 +428,9 @@ public:
                                                                  }
 
 private:
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
-        Points<> p(0);
+        Points p(0);
         int group = 0;
         int groupCount = 0;
         int sense = 0;
@@ -454,7 +454,7 @@ private:
                 groupCount += groupCounts[str];
             }
             else sense++;
-            if (keys.contains(str)) p += Points<>(cost[str]);
+            if (keys.contains(str)) p += Points(cost[str]);
         }
         int totalCount = sense + groupCount;
 

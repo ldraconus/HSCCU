@@ -37,7 +37,7 @@ public:
         frequency    = createComboBox(parent, layout, "How often does it come up?", { "Uncommon", "Common", "Very Common" });
         intensity    = createComboBox(parent, layout, "How commited are you?", { "Moderate", "Strong", "Total" });
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return (v._frequency + 1) * 5_cp + (v._intensity < 0 ? 0 : v._intensity) * 5_cp;
     }

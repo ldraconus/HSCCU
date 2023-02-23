@@ -51,7 +51,7 @@ public:
                                                                                    "Unusual Senses and/or by a Small Group and/or Only By Technology or Major Effort" });
         notDistinctive = createCheckBox(parent, layout, "Feature is Not Distinctive in Some Cultures or Societies");
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return 5_cp * (v._concealability + 1) + v._reaction * 5_cp - v._detectable * 5_cp - (v._notDistinctive ? 5_cp : 0_cp);
     }

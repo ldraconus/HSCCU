@@ -18,8 +18,8 @@ Option::Option(Option&& opt)
 { }
 
 Option::Option(const QJsonObject& obj)
-    : _totalPoints(Points<>(obj["totalPoints"].toInt(400)))
-    , _complications(Points<>(obj["complications"].toInt(75)))
+    : _totalPoints(Points(obj["totalPoints"].toInt(400)))
+    , _complications(Points(obj["complications"].toInt(75)))
 { }
 
 Option& Option::operator=(const Option& opt) {
@@ -42,17 +42,17 @@ void Option::load() {
     QSettings settings("SoftwareOnHand", "HSCCU");
     bool ok;
 
-    _totalPoints = Points<>(settings.value("totalPoints").toInt(&ok));
+    _totalPoints = Points(settings.value("totalPoints").toInt(&ok));
     if (!ok) _totalPoints = 400_cp;
 
-    _complications = Points<>(settings.value("complications").toInt(&ok));
+    _complications = Points(settings.value("complications").toInt(&ok));
     if (!ok) _complications = 75_cp;
 }
 
 void Option::store() {
     QSettings settings("SoftwareOnHand", "HSCCU");
-    settings.setValue("totalPoints",   _totalPoints.points);
-    settings.setValue("complications", _complications.points);
+    settings.setValue("totalPoints",   (int) _totalPoints.points);
+    settings.setValue("complications", (int) _complications.points);
 }
 void Option::toJson(QJsonObject& obj) {
     obj["totalPoints"]   = (int) _totalPoints.points;

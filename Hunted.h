@@ -51,7 +51,7 @@ public:
         limited      = createCheckBox(parent, layout, "Limited to a certain geographical area");
         motivation   = createComboBox(parent, layout, "Hunter's motivation", { "Watching", "Mildly punish", "Harshly punish" });
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return (v._capabilities + 1) * 5_cp + v._frequency * 5_cp + (v._easy ? 5_cp : 0_cp) + (v._nci ? 5_cp : 0_cp) - (v._limited ? 5_cp : 0_cp) - (2 - v._motivation) * 5_cp;
     }

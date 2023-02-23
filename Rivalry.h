@@ -44,7 +44,7 @@ public:
         power     = createComboBox(parent, layout, "Power of the Rival", { "", "Less Powerful", "As Powerful", "More Powerful", "Significatly More Powerful" });
         intensity = createComboBox(parent, layout, "Intesity of Rivalry", { "", "Outdo, Embaraass, or Humiliate", "Maim, or Kill" });
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return v._intensity * 5_cp + ((v._nature < 3) ? 5_cp : 10_cp) + (v._unaware ? 5_cp : 0_cp) + (v._pc ? 5_cp : 0_cp) + v._power * 5_cp + (v._intensity - 1) * 5_cp;
     }

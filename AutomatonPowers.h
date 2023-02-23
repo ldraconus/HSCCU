@@ -16,7 +16,7 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 15_cp; }
     void     restore() override                                  { AllPowers::restore();
                                                                  }
@@ -48,7 +48,7 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 15_cp; }
     void     restore() override                                  { AllPowers::restore();
                                                                  }
@@ -80,7 +80,7 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 10_cp; }
     void     restore() override                                  { AllPowers::restore();
                                                                  }
@@ -126,7 +126,7 @@ public:
                                                                    damage = createCheckBox(parent, layout, "Loses powers on BODY damage");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v._damage ? 45_cp : 60_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();

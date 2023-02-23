@@ -43,7 +43,7 @@ public:
         dice      = createComboBox(parent, layout, "How many dice of damage?", { "1d6", "2d6", "3d6" });
         proximity = createComboBox(parent, layout, "How close do you have to be?", { "Within 8m", "Touching Skin", "Ingested/Injected" });
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return (v._every == 0 ? 0_cp : (25_cp - (v._every - 2) * 5_cp)) * 5_cp + (v._frequency + 1) * 5_cp + v._dice * 5_cp - v._proximity * 5_cp;
     }

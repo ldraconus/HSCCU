@@ -138,7 +138,7 @@ public:
     virtual QString     description(bool roll = false) = 0;
     virtual void        form(QWidget*, QVBoxLayout*)   = 0;
     virtual QString     name()                         = 0;
-    virtual Points<>    points(bool noStore = false)   = 0;
+    virtual Points    points(bool noStore = false)   = 0;
     virtual void        restore()                      = 0;
     virtual QString     roll()                         = 0;
     virtual void        store()                        = 0;

@@ -34,8 +34,8 @@ public:
                                                                    stun = createCheckBox(parent, layout, "STUN Only");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points<>(v._dice * 5); }
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return Points(v._dice * 5); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));
@@ -263,9 +263,9 @@ private:
         return none;
     }
 
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
-        Points<> pts = (v._lasting + 1) * 2_cp;
+        Points pts = (v._lasting + 1) * 2_cp;
         if (v._varying) pts += 10_cp;
         for (const auto& effect: v._effects) {
             switch (effect.which) {
@@ -602,7 +602,7 @@ public:
                                                                           ((v._vuln == 1) ? Fraction(1, 4)              : Fraction(0)) +
                                                                           ((v._vuln == 2) ? Fraction(1, 2)              : Fraction(0)) +
                                                                           ((v._vuln == 3) ? Fraction(1)                 : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * 10_cp +
                                                                           v._body * 5_cp +
                                                                           ((v._def + 1) / 2) * 5_cp +
@@ -777,7 +777,7 @@ public:
                                                                    desolid   = createCheckBox(parent, layout, "Does not Effect Desolid");
                                                                  }
     Fraction lim() override                                      { return v._desolid ? Fraction(1, 4) : Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * (!v._tgt.isEmpty() ? 5_cp : 3_cp) +
                                                                       ((countCommas(v._tgt) > 1) ? (countCommas(v._tgt) - 1) * 10_cp : 0_cp) +
                                                                       ((countCommas(v._nonTgt) > 0) ? (countCommas(v._nonTgt) - (v._tgt.isEmpty() ? 1 : 0)) * 5_cp : 0_cp) +
@@ -876,8 +876,8 @@ public:
                                                                    dice = createLineEdit(parent, layout, "Dice of Damage?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(1, 4); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points<>(v._dice * 5); }
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   return Points(v._dice * 5); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));
@@ -952,7 +952,7 @@ public:
                                                                    str   = createCheckBox(parent, layout, "No STR Bonus");
                                                                  }
     Fraction lim() override                                      { return (v._decr + 1) * Fraction(1, 4) + (v._str ? Fraction(1, 2) : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * 15 + ((v._extra > -1) ? v._extra * 5_cp : 0_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -1086,7 +1086,7 @@ public:
                                                                    feedback = createCheckBox(parent, layout, "Feedback");
                                                                  }
     Fraction lim() override                                      { return v._feedback ? Fraction(1) : Fraction(0); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v._points + 2_cp) / 3_cp * 2_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -1171,7 +1171,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v._whole ? Fraction(1, 4) : Fraction(0)) +
                                                                           ((v._limit > 0) ? v._limit * Fraction(1, 2) : Fraction(0)); }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 3_cp * ((v._str + 1) / 2) + (v._fine ? 10_cp : 0_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -1294,8 +1294,8 @@ public:
                                                                           ((v._target == 3) ? Fraction(1)    : Fraction(0)) +
                                                                           (v._rapid) * Fraction(1, 4);
                                                                  }
-    Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   QList<Points<>> cost { 0_cp, 3_cp, 5_cp, 10_cp, 15_cp };
+    Points points(bool noStore = false) override               { if (!noStore) store();
+                                                                   QList<Points> cost { 0_cp, 3_cp, 5_cp, 10_cp, 15_cp };
                                                                    return v._dice * cost[v._degree + 1]; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();

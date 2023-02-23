@@ -34,7 +34,7 @@ public:
     QString description(bool showRoll = false) override { return showRoll ? v._name : v._name; }
     void form(QWidget*, QVBoxLayout*) override          { }
     QString name() override                             { return v._name; }
-    Points<> points(bool noStore = false) override      { return noStore ? 0_cp : 0_cp; }
+    Points points(bool noStore = false) override      { return noStore ? 0_cp : 0_cp; }
     void restore() override                             { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
@@ -87,7 +87,7 @@ public:
                                                                   type = createComboBox(parent, layout, "Type of Knowledge Skill", { "Group", "People", "Areas", "City", "Things" });
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._plus * 2_cp + (v._introll ? 3_cp : 2_cp);
                                                                   if (Sheet::ref().character().hasScholar()  && (v._type == 1 || v._type == 4)) pts -= 1_cp;
                                                                   if (Sheet::ref().character().hasTraveler() && v._type != 1  && v._type != 4)  pts -= 1_cp;
@@ -171,7 +171,7 @@ public:
                                                                                                                          "Idiomatic", "Imitate Dialects" });
                                                                   literate = createCheckBox(parent, layout, "Literate (If not standard)");
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._level + 1_cp + (v._literate ? 1_cp : 0_cp);
                                                                   if (Sheet::ref().character().hasLinguist()) pts -= 1_cp;
                                                                   if (pts < 1_cp) pts = 1_cp;
@@ -227,7 +227,7 @@ public:
                                                                   plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   stat = createComboBox(parent, layout, "Base on a stat?", { "", "STR", "DEX", "CON", "INT", "EGO", "PRE"});
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._plus * 1_cp + (2_cp + ((v._stat >= 1) ? 1_cp : 0_cp));
                                                                   if (Sheet::ref().character().hasJackOfAllTrades()) pts -= 1_cp;
                                                                   if (pts < 1_cp) pts = 1_cp;
@@ -297,7 +297,7 @@ public:
                                                                   plus    = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   intstat = createCheckBox(parent, layout, "Based on INT");
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._plus * 1_cp + (2_cp + (v._int ? 1_cp : 0_cp));
                                                                   if (Sheet::ref().character().hasScientist()) pts -= 1_cp;
                                                                   if (pts < 1_cp) pts = 1_cp;
@@ -366,8 +366,8 @@ public:
                                                                                                                            "Broad category of conveyances"});
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
                                                                 }
-    Points<> points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points<>> cost { 0_cp, 1_cp, 2_cp };
+    Points points(bool noStore = false) override              { if (!noStore) store();
+                                                                  QList<Points> cost { 0_cp, 1_cp, 2_cp };
                                                                   return cost[v._what + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   what->setCurrentIndex(s._what);

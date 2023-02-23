@@ -37,7 +37,7 @@ public:
         frequency    = createComboBox(parent, layout, "How often does it affect you?", { "Infrequently", "Frequently", "Very Frequently", "All The Time" });
         impairs      = createComboBox(parent, layout, "How badly does it affect you?", { "Barely", "Slightly", "Greatly", "Fully" });
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return (v._frequency + 1) * 5_cp + (v._impairs < 0 ? 0 : v._impairs) * 5_cp;
     }

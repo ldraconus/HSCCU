@@ -37,7 +37,7 @@ public:
         circumstance = createComboBox(parent, layout, "How common is the change", { "Uncommmon", "Common", "Very Common" });
         frequency    = createComboBox(parent, layout, "How often do you change", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" });
     }
-    Points<> points(bool noStore = false) override {
+    Points points(bool noStore = false) override {
         if (!noStore) store();
         return (v._circumstance > -1 && v._frequency > -1) ? (v._circumstance - 1) * 5_cp + v._frequency * 5_cp : 0_cp;
     }
