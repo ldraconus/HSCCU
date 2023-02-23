@@ -801,7 +801,7 @@ private:
 
 class UniversalTranslator: public Talent {
 public:
-    UniversalTranslator(): Talent("Universal Translator")        { }
+    UniversalTranslator(): Talent("Universal Translatorϴ")       { }
     UniversalTranslator(const UniversalTranslator& s): Talent(s) { }
     UniversalTranslator(UniversalTranslator&& s): Talent(s)      { }
     UniversalTranslator(const QJsonObject& json): Talent(json)   { v._plus = json["plus"].toInt(0);
@@ -814,7 +814,7 @@ public:
                                                                   return 20_cp + v._plus; }
     void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
                                                                 }
-    QString roll() override                                     { return ""; }
+    QString roll() override                                     { return add(Sheet::ref().character().INT().roll(), v._plus); }
     void    store() override                                    { v._plus = plus->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();

@@ -662,32 +662,8 @@ void Sheet::putPower(int row, shared_ptr<Power> power) {
     }
 }
 
-void Sheet::rebuildCharacteristics() {
-    QList<QLineEdit*> characteristicWidgets {
-        Ui->strval,  Ui->dexval, Ui->conval, Ui->intval,  Ui->egoval,
-        Ui->preval,  Ui->ocvval, Ui->dcvval, Ui->omcvval, Ui->dmcvval,
-        Ui->spdval,  Ui->pdval,  Ui->edval,  Ui->recval,  Ui->endval,
-        Ui->bodyval, Ui->stunval
-    };
-
-    for (int i = 0; i < 17; ++i) {
-        _character.characteristic(i).primary(0);
-        _character.characteristic(i).secondary(0);
-    }
-
-    for (const auto& skill: _character.skillsTalentsOrPerks()) {
-        if (skill->name() == "Combat Luck") {
-            if (skill->place() == 1) {
-                _character.PD().primary(_character.PD().primary() + skill->rPD());
-                _character.ED().primary(_character.ED().primary() + skill->rED());
-            } else {
-                _character.PD().secondary(_character.PD().secondary() + skill->rPD());
-                _character.ED().secondary(_character.ED().secondary() + skill->rED());
-            }
-        }
-    }
-
-    for (const auto& power: _character.powersOrEquipment()) {
+void Sheet::rebuildCharFromPowers(QList<shared_ptr<Power>>& list) {
+    for (const auto& power: list) {
         if (power->name() == "Density Increase") {
             _character.STR().secondary(_character.STR().secondary() + power->str());
             _character.rPD() += power->rPD();
@@ -718,8 +694,36 @@ void Sheet::rebuildCharacteristics() {
                 if (put == 1) _character.characteristic(i).primary(_character.characteristic(i).primary() + power->characteristic(i));
                 else _character.characteristic(i).secondary(_character.characteristic(i).secondary() + power->characteristic(i));
             }
+        } else if (power->isFramework()) rebuildCharFromPowers(power->list());
+    }
+}
+
+void Sheet::rebuildCharacteristics() {
+    QList<QLineEdit*> characteristicWidgets {
+        Ui->strval,  Ui->dexval, Ui->conval, Ui->intval,  Ui->egoval,
+        Ui->preval,  Ui->ocvval, Ui->dcvval, Ui->omcvval, Ui->dmcvval,
+        Ui->spdval,  Ui->pdval,  Ui->edval,  Ui->recval,  Ui->endval,
+        Ui->bodyval, Ui->stunval
+    };
+
+    for (int i = 0; i < 17; ++i) {
+        _character.characteristic(i).primary(0);
+        _character.characteristic(i).secondary(0);
+    }
+
+    for (const auto& skill: _character.skillsTalentsOrPerks()) {
+        if (skill->name() == "Combat Luck") {
+            if (skill->place() == 1) {
+                _character.PD().primary(_character.PD().primary() + skill->rPD());
+                _character.ED().primary(_character.ED().primary() + skill->rED());
+            } else {
+                _character.PD().secondary(_character.PD().secondary() + skill->rPD());
+                _character.ED().secondary(_character.ED().secondary() + skill->rED());
+            }
         }
     }
+
+    rebuildCharFromPowers(_character.powersOrEquipment());
 
     for (int i = 0; i < 17; ++i) {
         int base = _character.characteristic(i).base();
@@ -758,21 +762,8 @@ void Sheet::rebuildCombatSkillLevels() {
     Ui->combatskilllevels->setHtml(csl);
 }
 
-void Sheet::rebuildDefenses() {
-    _character.rPD() = 0;
-    _character.rED() = 0;
-    _character.temprPD() = 0;
-    _character.temprED() = 0;
-    _character.FD() = 0;
-    _character.MD() = 0;
-
-    for (const auto& skill: _character.skillsTalentsOrPerks()) {
-        if (skill->name() == "Combat Luck") {
-            _character.rPD() += skill->rPD();
-            _character.rED() += skill->rED();
-        }
-    }
-    for (const auto& power: _character.powersOrEquipment()) {
+void Sheet::rebuildDefFromPowers(QList<shared_ptr<Power>>& list) {
+    for (const auto& power: list) {
         if (power->name() == "Density Increase" ||
             power->name() == "Resistant Defense") {
             _character.rPD() += power->rPD();
@@ -788,8 +779,26 @@ void Sheet::rebuildDefenses() {
         }
         else if (power->name() == "Power Defense") {
             _character.PowD() += power->PowD();
+        } else if (power->isFramework()) rebuildDefFromPowers(power->list());
+    }
+}
+
+void Sheet::rebuildDefenses() {
+    _character.rPD() = 0;
+    _character.rED() = 0;
+    _character.temprPD() = 0;
+    _character.temprED() = 0;
+    _character.FD() = 0;
+    _character.MD() = 0;
+
+    for (const auto& skill: _character.skillsTalentsOrPerks()) {
+        if (skill->name() == "Combat Luck") {
+            _character.rPD() += skill->rPD();
+            _character.rED() += skill->rED();
         }
     }
+
+    rebuildDefFromPowers(_character.powersOrEquipment());
 
     setDefense(_character.rPD(),  _character.temprPD(), 1, 1);
     setDefense(_character.rED(),  _character.temprED(), 3, 1);
@@ -854,15 +863,11 @@ void Sheet::rebuildMartialArts() {
     for (int i = 1; i < man->columnCount(); ++i) man->resizeColumnToContents(i - 1);
 }
 
-void Sheet::rebuildMovement() {
-    _character.running()  = 12;
-    _character.leaping()  = 4;
-    _character.swimming() = 4;
-    QMap<QString, int> movements;
-    QMap<QString, QString> units;
-    QMap<QString, int> doubles;
-
-    for (const auto& power: _character.powersOrEquipment()) {
+void Sheet::rebuildMoveFromPowers(QList<shared_ptr<Power>>& list,
+                                  QMap<QString, int>& movements,
+                                  QMap<QString, QString>& units,
+                                  QMap<QString, int>& doubles) {
+    for (const auto& power: list) {
         if (power->name() == "Growth") {
             auto& sm = power->growthStats();
             _character.running() += sm._running;
@@ -882,6 +887,17 @@ void Sheet::rebuildMovement() {
             doubles[power->name()] = power->doubling();
         }
     }
+}
+
+void Sheet::rebuildMovement() {
+    _character.running()  = 12;
+    _character.leaping()  = 4;
+    _character.swimming() = 4;
+    QMap<QString, int> movements;
+    QMap<QString, QString> units;
+    QMap<QString, int> doubles;
+
+    rebuildMoveFromPowers(_character.powersOrEquipment(), movements, units, doubles);
 
     Ui->movement->setRowCount(4);
     Ui->movement->update();
@@ -967,14 +983,18 @@ void Sheet::rebuildPowers(bool addTakesNoSTUN) {
     }
 }
 
-void Sheet::rebuildSenses() {
-    QString senses = "<b>Enhanced and Unusual Senses</b>";
-    for (const auto& power: _character.powersOrEquipment()) {
+void Sheet::rebuildSenseFromPowers(QList<shared_ptr<Power>>& list, QString& senses) {
+    for (const auto& power: list) {
         if (power->name() == "Enhanced Senses") {
             const auto& split = power->description(false).split(":");
             senses += " <small>" + split[1] + "</small>";
         }
     }
+}
+
+void Sheet::rebuildSenses() {
+    QString senses = "<b>Enhanced and Unusual Senses</b>";
+    rebuildSenseFromPowers(_character.powersOrEquipment(), senses);
     Ui->enhancedandunusualsenses->setText(senses);
 }
 
@@ -1518,8 +1538,7 @@ void Sheet::editPowerOrEquipment() {
     for (const auto& mod: power->advantagesList()) power->modifiers().append(mod);
     for (const auto& mod: power->limitationsList()) power->modifiers().append(mod);
 
-    updatePowersAndEquipment();
-    updateTotals();
+    updateDisplay();
     _changed = true;
 }
 
@@ -1529,15 +1548,15 @@ void Sheet::editSkillstalentsandperks() {
     shared_ptr<SkillTalentOrPerk> skilltalentorperk = _character.skillsTalentsOrPerks()[row];
     SkillDialog dlg(this);
     dlg.skilltalentorperk(skilltalentorperk);
-    Points<> old = skilltalentorperk->points();
+    Points<> old = skilltalentorperk->points(Power::NoStore);
 
     if (dlg.exec() == QDialog::Rejected) return;
     if (skilltalentorperk->description().isEmpty()) return;
 
     QFont font = Ui->skillstalentsandperks->font();
-    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(skilltalentorperk->points().points), font);
-    setCell(Ui->skillstalentsandperks, row, 1, skilltalentorperk->description(),                      font, WordWrap);
-    setCell(Ui->skillstalentsandperks, row, 2, skilltalentorperk->roll(),                             font);
+    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(skilltalentorperk->points(Power::NoStore).points), font);
+    setCell(Ui->skillstalentsandperks, row, 1, skilltalentorperk->description(),                                    font, WordWrap);
+    setCell(Ui->skillstalentsandperks, row, 2, skilltalentorperk->roll(),                                           font);
 
     updateSkills(skilltalentorperk);
 
