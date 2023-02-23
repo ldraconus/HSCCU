@@ -116,8 +116,8 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
 }
 
 QTableWidget* PowerDialog::createAdvantages(QWidget* parent, QVBoxLayout* layout) {
-    QTableWidget* tablewidget = createTableWidget(parent, layout, { 15, 200 }, "Power Advantages", 75);
-    _advantagesMenu = createMenu(tablewidget, tablewidget->font(), { { "New",       &_newAdvantage },
+    _advantages = createTableWidget(parent, layout, { 15, 200 }, "Power Advantages", 75);
+    _advantagesMenu = createMenu(_advantages, _advantages->font(), { { "New",       &_newAdvantage },
                                                                      { "Edit",      &_editAdvantage },
                                                                      { "Delete",    &_deleteAdvantage },
                                                                      { "-",         },
@@ -127,8 +127,8 @@ QTableWidget* PowerDialog::createAdvantages(QWidget* parent, QVBoxLayout* layout
                                                                      { "-",         },
                                                                      { "Move Up",   &_moveAdvantageUp },
                                                                      { "Move Down", &_moveAdvantageDown } } );
-    connect(tablewidget,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(advantageDoubleClicked(QTableWidgetItem*)));
-    connect(tablewidget,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(advantagesMenu(QPoint)));
+    connect(_advantages,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(advantageDoubleClicked(QTableWidgetItem*)));
+    connect(_advantages,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(advantagesMenu(QPoint)));
     connect(_advantagesMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowAdvantagesMenu()));
     connect(_newAdvantage,      SIGNAL(triggered()),                          this, SLOT(newAdvantage()));
     connect(_editAdvantage,     SIGNAL(triggered()),                          this, SLOT(editAdvantage()));
@@ -138,8 +138,8 @@ QTableWidget* PowerDialog::createAdvantages(QWidget* parent, QVBoxLayout* layout
     connect(_pasteAdvantage,    SIGNAL(triggered()),                          this, SLOT(pasteAdvantage()));
     connect(_moveAdvantageUp,   SIGNAL(triggered()),                          this, SLOT(moveAdvantageUp()));
     connect(_moveAdvantageDown, SIGNAL(triggered()),                          this, SLOT(moveAdvantageDown()));
-    _advantages = tablewidget;
-    return tablewidget;
+
+    return _advantages;
 }
 
 QLabel* PowerDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap) {
@@ -153,19 +153,19 @@ QLabel* PowerDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWra
 }
 
 QTableWidget* PowerDialog::createLimitations(QWidget* parent, QVBoxLayout* layout) {
-    QTableWidget* tablewidget = createTableWidget(parent, layout, { 15, 200 }, "Power Limitations", 75);
-    _limitationsMenu    = createMenu(tablewidget, tablewidget->font(), { { "New",       &_newLimitation },
-                                                                         { "Edit",      &_editLimitation },
-                                                                         { "Delete",    &_deleteLimitation },
-                                                                         { "-",         },
-                                                                         { "Cut",       &_cutLimitation },
-                                                                         { "Copy",      &_copyLimitation },
-                                                                         { "Paste",     &_pasteLimitation },
-                                                                         { "-",         },
-                                                                         { "Move Up",   &_moveLimitationUp },
-                                                                         { "Move Down", &_moveLimitationDown } } );
-    connect(tablewidget,         SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(limitationDoubleClicked(QTableWidgetItem*)));
-    connect(tablewidget,         SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(limitationsMenu(QPoint)));
+    _limitations = createTableWidget(parent, layout, { 15, 200 }, "Power Limitations", 75);
+    _limitationsMenu = createMenu(_limitations, _limitations->font(), { { "New",       &_newLimitation },
+                                                                        { "Edit",      &_editLimitation },
+                                                                        { "Delete",    &_deleteLimitation },
+                                                                        { "-",         },
+                                                                        { "Cut",       &_cutLimitation },
+                                                                        { "Copy",      &_copyLimitation },
+                                                                        { "Paste",     &_pasteLimitation },
+                                                                        { "-",         },
+                                                                        { "Move Up",   &_moveLimitationUp },
+                                                                        { "Move Down", &_moveLimitationDown } } );
+    connect(_limitations,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(limitationDoubleClicked(QTableWidgetItem*)));
+    connect(_limitations,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(limitationsMenu(QPoint)));
     connect(_limitationsMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowLimitationsMenu()));
     connect(_newLimitation,      SIGNAL(triggered()),                          this, SLOT(newLimitation()));
     connect(_editLimitation,     SIGNAL(triggered()),                          this, SLOT(editLimitation()));
@@ -175,8 +175,7 @@ QTableWidget* PowerDialog::createLimitations(QWidget* parent, QVBoxLayout* layou
     connect(_pasteLimitation,    SIGNAL(triggered()),                          this, SLOT(pasteLimitation()));
     connect(_moveLimitationUp,   SIGNAL(triggered()),                          this, SLOT(moveLimitationUp()));
     connect(_moveLimitationDown, SIGNAL(triggered()),                          this, SLOT(moveLimitationDown()));
-    _limitations = tablewidget;
-    return tablewidget;
+    return _limitations;
 }
 
 void PowerDialog::setCellLabel(QTableWidget* tbl, int row, int col, QString str, QFont&) {
@@ -416,10 +415,10 @@ void PowerDialog::pickOne(int) {
 
     createLabel(layout, "");
     createLabel(layout, "Advantages");
-    _advantages = createAdvantages(this, layout);
+    createAdvantages(this, layout);
     createLabel(layout, "");
     createLabel(layout, "Limitations");
-    _limitations = createLimitations(this, layout);
+    createLimitations(this, layout);
     createLabel(layout, "");
     _points      = createLabel(layout, "-1 Points");
     _description = createLabel(layout, "<incomplete>", WordWrap);
@@ -506,10 +505,10 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
     _power->createForm(this, layout);
     createLabel(layout, "");
     createLabel(layout, "Advantages");
-    _advantages = createAdvantages(this, layout);
+    createAdvantages(this, layout);
     createLabel(layout, "");
     createLabel(layout, "Limitations");
-    _limitations = createLimitations(this, layout);
+    createLimitations(this, layout);
     createLabel(layout, "");
     _points      = createLabel(layout, "-1 Points");
     _description = createLabel(layout, "<incomplete>", WordWrap);
@@ -519,6 +518,12 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
     _power->restore();
     updateForm();
     return *this;
+}
+
+void PowerDialog::buttonPressed(bool) {
+    QPushButton* button = static_cast<QPushButton*>(sender());
+    _power->callback(button);
+    updateForm();
 }
 
 void PowerDialog::itemChanged(QTreeWidgetItem* itm, int) {

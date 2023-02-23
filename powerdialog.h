@@ -106,6 +106,7 @@ public slots:
     void aboutToShowAdvantagesMenu();
     void aboutToShowLimitationsMenu();
     void advantagesMenu(QPoint);
+    void buttonPressed(bool);
     void copyAdvantage();
     void copyLimitation();
     void currentIndexChanged(int);
