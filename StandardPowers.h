@@ -415,38 +415,38 @@ public:
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   extend = createComboBox(parent, layout, "Extended Breathing?", { "Normal", "1 END/Turn", "1 END/Minute", "1 END/5 Minutes",
-                                                                                                                                        "1 END/Hour" });
+                                                                   extend = createComboBox(parent, layout, "Extended Breathing?", { "", "1 END/Turn", "1 END/Minute", "1 END/5 Minutes",
+                                                                                                                                    "1 END/Hour" });
                                                                    self   = createCheckBox(parent, layout, "Self-Contained Breathing");
                                                                    expand = createLineEdit(parent, layout, "Expanded Breathing?");
-                                                                   eating = createComboBox(parent, layout, "Diminished Eating?", { "Normal", "1 Meal/Week", "1 Meal/Year", "Need Not Eat/Drink" });
-                                                                   sleep  = createComboBox(parent, layout, "Diminished Sleepng?", { "Normal", "8 Hours/Week", "1 Hours/Year", "Need Not Sleep" });
+                                                                   eating = createComboBox(parent, layout, "Diminished Eating?", { "", "1 Meal/Week", "1 Meal/Year", "Need Not Eat/Drink" });
+                                                                   sleep  = createComboBox(parent, layout, "Diminished Sleepng?", { "", "8 Hours/Week", "1 Hours/Year", "Need Not Sleep" });
                                                                    selpv  = createCheckBox(parent, layout, "Safe Environment: Low Pressure/Vacuum");
                                                                    sehp   = createCheckBox(parent, layout, "Safe Environment: High Pressure");
                                                                    sehr   = createCheckBox(parent, layout, "Safe Environment: High Radiation");
                                                                    seic   = createCheckBox(parent, layout, "Safe Environment: Intense Cold");
                                                                    seih   = createCheckBox(parent, layout, "Safe Environment: Intense Heat");
-                                                                   Long   = createComboBox(parent, layout, "Longevity?", { "Normal", "200 Year Lifespan", "400 Year Lifespan", "800 Year Lifespan",
+                                                                   Long   = createComboBox(parent, layout, "Longevity?", { "", "200 Year Lifespan", "400 Year Lifespan", "800 Year Lifespan",
                                                                                                                            "1,600 Year Lifespan", "Immortal" });
-                                                                   immun  = createComboBox(parent, layout, "Immunity?", { "Normal", "Uncommon Item", "Common Item", "Small Group", "Large Group",
+                                                                   immun  = createComboBox(parent, layout, "Immunity?", { "", "Uncommon Item", "Common Item", "Small Group", "Large Group",
                                                                                                                           "All Terrestrial Poisons", "All Terrestrial Diseases",
                                                                                                                           "All Terrestrial Poisions/Diseases" });
                                                                    to     = createLineEdit(parent, layout, "Immune To?");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return ((v._extend > 0) ? v._extend * 1_cp : 0_cp) +
+                                                                   return ((v._extend >= 1) ? v._extend * 1_cp : 0_cp) +
                                                                           (v._self ? 10_cp : 0_cp) +
                                                                           countCommas(v._expand) * 5_cp +
-                                                                          ((v._eating > 0) ? v._eating * 1_cp : 0_cp) +
-                                                                          ((v._sleep > 0) ? v._sleep * 1_cp : 0_cp) +
+                                                                          ((v._eating >= 1) ? v._eating * 1_cp : 0_cp) +
+                                                                          ((v._sleep >= 1) ? v._sleep * 1_cp : 0_cp) +
                                                                           (v._selpv ? 2_cp : 0_cp) +
                                                                           (v._sehp ? 1_cp : 0_cp) +
                                                                           (v._sehr ? 2_cp : 0_cp) +
                                                                           (v._seic ? 2_cp : 0_cp) +
                                                                           (v._seih ? 2_cp : 0_cp) +
-                                                                          ((v._long > 0) ? v._long * 1_cp : 0_cp) +
-                                                                          ((v._immun > 0) ? ((v._immun == 6) ? 5_cp : ((v._immun == 7) ? 10_cp : v._immun * 1_cp)) : 0_cp);
+                                                                          ((v._long >= 1) ? v._long * 1_cp : 0_cp) +
+                                                                          ((v._immun >= 1) ? ((v._immun >= 5 && v._immun <= 6) ? 5_cp : ((v._immun == 7) ? 10_cp : v._immun * 1_cp)) : 0_cp);
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -529,20 +529,20 @@ private:
     QLineEdit* to;
 
     QString optOut(bool showEND) {
-        if (v._extend < 1 && !v._self && v._expand.isEmpty() && v._eating < 1 && v._sleep < 1 && !v._selpv && !v._sehp && !v._sehr && !v._seic && !v._seih && v._long < 1 &&
+        if (v._extend < 1 && !v._self && v._expand.isEmpty() && v._eating < 1 && v._sleep  < 1 && !v._selpv && !v._sehp && !v._sehr && !v._seic && !v._seih && v._long < 1 &&
             v._immun < 1) return "<incomplete>";
-        if (v._immun >= 1 && v._immun < 5 && v._to.isEmpty()) return "<incomplete>";
+        if (v._immun > 0 && v._immun < 5 && v._to.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("Life Support");
         QStringList extend { "", "1 END/Turn", "1 END/Minute", "1 END/5 Minutes", "1 End/Hour" };
-        if (v._extend > 0) res += ", Extended Breating (" + extend[v._extend] + ")";
-        if (v._self) res += ", Self-Contained Breathing";
-        if (!v._expand.isEmpty()) res += ", Expanded Breathing (" + v._expand + ")";
+        if (v._extend > 0) res += "; Extended Breating (" + extend[v._extend] + ")";
+        if (v._self) res += "; Self-Contained Breathing";
+        if (!v._expand.isEmpty()) res += "; Expanded Breathing (" + v._expand + ")";
         QStringList eating { "", "1 Meal/Week", "1 Meal/Year", "Need Not Eat/Drink" };
-        if (v._eating > 0) res += "Diminished Eating (" + eating[v._eating] + ")";
+        if (v._eating > 0) res += "; Diminished Eating (" + eating[v._eating] + ")";
         QStringList sleep { "", "8 Hours/Week", "8 Hours/Year", "Need Not Sleep" };
-        if (v._sleep > 0) res += "Diminished Sleep (" + sleep[v._sleep] + ")";
+        if (v._sleep > 0) res += "; Diminished Sleep (" + sleep[v._sleep] + ")";
         QString sep = "; Safe Environment (";
         if (v._selpv) { res += sep + "Low Pressure/Vacuum"; sep = ", "; }
         if (v._sehp)  { res += sep + "High Pressure";       sep = ", "; }
@@ -551,12 +551,12 @@ private:
         if (v._seih)  { res += sep + "Intense Heat";        sep = ", "; }
         if (sep == ", ") res += ")";
         QStringList Long { "", "200 Year Lifespan", "400 Year Lifespan", "800 Year Lifespan", "1,600 Year Lifespan", "Immortal" };
-        if (v._long > 0) res += ", " + Long[v._long];
-        if (v._immun > 0) {
-            if (v._immun < 5) res += ", Immune to " + v._to;
-            else if (v._immun == 5) res += ", Immunity Terrestrial Poisons";
-            else if (v._immun == 6) res += ", Immunity Terrestrial Diseases";
-            else res += ", Immunity Terrestrial Poisons/Diseases";
+        if (v._long >= 1) res += "; " + Long[v._long];
+        if (v._immun >= 1) {
+            if (v._immun < 5) res += "; Immune to " + v._to;
+            else if (v._immun == 5) res += "; Immunity Terrestrial Poisons";
+            else if (v._immun == 6) res += "; Immunity Terrestrial Diseases";
+            else res += "; Immunity Terrestrial Poisons/Diseases";
         }
         return res;
     }
