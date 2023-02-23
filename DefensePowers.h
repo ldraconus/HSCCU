@@ -50,7 +50,7 @@ public:
                                                                    ed       = createLineEdit(parent, layout, "Resistant ED?", std::mem_fn(&Power::numeric));
                                                                    config   = createCheckBox(parent, layout, "Configurable");
                                                                    anchor   = createCheckBox(parent, layout, "Non-Anchored");
-                                                                   trans    = createComboBox(parent, layout, "▲One-way Transparent To?", { "Nothing",
+                                                                   trans    = createComboBox(parent, layout, "▲One-way Transparent To?", { "",
                                                                                                                                            "A Special Effect",
                                                                                                                                            "Everything" });
                                                                    to       = createLineEdit(parent, layout, "To?");
@@ -64,8 +64,8 @@ public:
                                                                           (v._restr    ? Fraction(1, 4) : Fraction(0)); }
     Points<> points(bool noStore = false) override               { if (!noStore) store();
                                                                    Points<> defCost = 0_cp;
-                                                                   if (Sheet::ref().character().hasTakesNoSTUN()) defCost = 3_cp * (3_cp * (v._pd + v._ed) + 1) / 2;
-                                                                   else defCost = 3_cp * (v._pd + v._ed + 1) / 2;
+                                                                   if (Sheet::ref().character().hasTakesNoSTUN()) defCost = 3_cp * (3_cp * ((v._pd + v._ed) / 2));
+                                                                   else defCost = 3_cp * ((v._pd + v._ed) / 2);
                                                                    return 3_cp + (v._length - 1) + (v._height - 1) + (v._thick - 1) + v._body +
                                                                            defCost + (v._anchor ? 10_cp : 0_cp); }
     void     restore() override                                  { vars s = v;
@@ -158,7 +158,7 @@ private:
 
     QString optOut(bool showEND) {
         if (v._length < 1 || v._height < 1 || v._thick < 1 || v._pd + v._ed + v._body < 1 ||
-            v._trans == -1 || (v._trans == 0 && v._to.isEmpty()) ||
+            v._trans == -1 || (v._trans > 0 && v._to.isEmpty()) ||
             (v._restr && v._what.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
