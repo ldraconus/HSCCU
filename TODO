@@ -1,3 +1,4 @@
+[ ] Add separator skill, power, and complication
 [ ] Look for 'Nonresistant Defense', and 'Resistant' mods on defense powers to handle them correctly (in description as well as rebuildDefense)
 [ ] Lua custom powers/skills/talents/perks/complications
 [/] Test! Test!! Test!!!

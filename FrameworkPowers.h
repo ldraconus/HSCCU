@@ -116,6 +116,7 @@ public:
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { FrameworkPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }

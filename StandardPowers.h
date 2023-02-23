@@ -43,7 +43,6 @@ public:
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
-    QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    str  = createLabeledEdit(parent, layout, "STR:",  std::mem_fn(&Power::numeric));
                                                                    dex  = createLabeledEdit(parent, layout, "DEX:",  std::mem_fn(&Power::numeric));
@@ -201,6 +200,11 @@ private:
     QWidget*   body;
     QWidget*   stun;
     QComboBox* put;
+
+    QString  end() override {
+        if (v._str != 0) return Power::end();
+        return noEnd();
+    }
 
     QString optOut(bool showEND) {
         if (v._str < 1 && v._dex < 1 && v._con < 1 && v._int < 1 && v._ego < 1 && v._pre < 1  && v._ocv < 1 && v._dcv < 1 && v._omcv < 1 && v._dmcv < 1 &&
