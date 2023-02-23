@@ -542,7 +542,7 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
         descr += mod->description(false);
     }
     for (const auto& mod: pe->limitationsList()) {
-        if (pe == nullptr) continue;
+        if (mod == nullptr) continue;
 
         descr += "; (-" + mod->fraction(Power::NoStore).abs().toString() + ") " + mod->description(false);
     }
