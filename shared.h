@@ -23,9 +23,7 @@ struct Points {
     Points& operator%=(Points b) { points %= b.points; return *this; }
 };
 
-inline constexpr auto operator"" _cp(unsigned long long p) {
-    return Points{ (long) p };
-}
+inline constexpr auto operator"" _cp(unsigned long long p) { return Points{ (long) p }; }
 
 inline Points operator*(long a, Points b)   { return Points(a * b.points); }
 inline Points operator*(Points a, long b)   { return Points(a.points * b); }
