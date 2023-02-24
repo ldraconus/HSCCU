@@ -502,7 +502,7 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
     }
 
     _power = s;
-    _power->createForm(this, layout);
+    try { _power->createForm(this, layout); } catch (...) { accept(); return *this; }
     createLabel(layout, "");
     createLabel(layout, "Advantages");
     createAdvantages(this, layout);

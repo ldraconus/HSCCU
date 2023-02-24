@@ -534,6 +534,7 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
     QFont italic = font;
     italic.setItalic(true);
     QString descr = pe->description(false);
+    if (descr == "-") descr = "";
     for (const auto& mod: pe->advantagesList()) {
         if (mod == nullptr) continue;
 
@@ -547,7 +548,7 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
         descr += "; (-" + mod->fraction(Power::NoStore).abs().toString() + ") " + mod->description(false);
     }
     Fraction pts(pe->real().points);
-    if ((!pe->isFramework() || pe->isVPP() || pe->isMultipower()) && pts.toInt() == 0) pts = Fraction(1);
+    if ((!pe->isFramework() || pe->isVPP() || pe->isMultipower()) && !descr.isEmpty() && pts.toInt() == 0) pts = Fraction(1);
     if (pe->isVPP()) pts += pe->pool().points;
     if (pts.toInt() != 0) setCell(Ui->powersandequipment, row, 0, QString("%1").arg(pts.toInt()), font);
     else setCell(Ui->powersandequipment, row, 0, "", font);
@@ -2145,7 +2146,7 @@ void Sheet::totalExperienceEarnedChanged(QString txt) {
     if (numeric(txt) || txt.isEmpty()) {
         _character.xp(Points(txt.toInt()));
 
-        Points total = _option.totalPoints() - _option.complications() + _character.xp() + min(_option.complications(), _complicationPoints);
+        Points total = _option.totalPoints() - _option.complications() + _character.xp() + _option.complications().Min(_complicationPoints);
         Points remaining(0_cp);
         if (total > _totalPoints) remaining = total - _totalPoints;
         Points spent(0_cp);

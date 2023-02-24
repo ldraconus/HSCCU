@@ -91,7 +91,7 @@ FORMS += \
     skilldialog.ui
 
 wasm {
-    QMAKE_LFLAGS += -sASYNCIFY -Os
+#    QMAKE_LFLAGS += -sASYNCIFY -Os
 }
 
 # Default rules for deployment.

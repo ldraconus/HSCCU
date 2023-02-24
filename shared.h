@@ -21,6 +21,9 @@ struct Points {
     Points& operator*=(Points b) { points *= b.points; return *this; }
     Points& operator/=(Points b) { points /= b.points; return *this; }
     Points& operator%=(Points b) { points %= b.points; return *this; }
+
+    bool Min(const Points p) const { return points < p.points ? points : p.points; }
+    bool Max(const Points p) const { return p.Min(*this); }
 };
 
 inline constexpr auto operator"" _cp(unsigned long long p) { return Points{ (long) p }; }

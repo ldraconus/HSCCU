@@ -98,6 +98,7 @@ namespace statics {
     MAKE(EnhancedSenses);
 
     // Special Power
+    MAKE(Blank);
     MAKE(EnduranceReserve);
     MAKE(IndependantAdvantage);
     MAKE(Luck);
@@ -149,7 +150,7 @@ QMap<QString, Power::allBase*> Power::_automatonPower {
     SPCS("Cannot Be Stunnedϴ", CannotBeStunned),
     SPCS("Does Not Bleedϴ",    DoesNotBleed),
     SPCS("No Hit Locationsϴ",  NoHitLocations),
-    SPCS("Takes No STUNϴ",     TakesNoSTUN)               // [TODO] Moves PD/ED to a base of 1 and triples cost of all defenses (incldoing PD/ED)
+    SPCS("Takes No STUNϴ",     TakesNoSTUN)
 };
 
 QMap<QString, Power::allBase*> Power::_bodyAffectingPower {
@@ -180,7 +181,8 @@ QMap<QString, Power::allBase*> Power::_defensePower {
 QMap<QString, Power::allBase*> Power::_frameworkPower {
     SPCS("Group",               Group),
     SPCS("Multipower",          Multipower),
-    SPCS("Variable Power Pool", VPP)
+    SPCS("Variable Power Pool", VPP),
+    SPCS("Blank Line",          Blank)
 };
 
 QMap<QString, Power::allBase*> Power::_mentalPower {

@@ -126,6 +126,27 @@ private:
     }
 };
 
+class Blank: public AllPowers {
+public:
+    Blank(): AllPowers("Blank Line")                { }
+    Blank(const Blank& s): AllPowers(s)             { }
+    Blank(Blank&& s): AllPowers(s)                  { }
+    Blank(const QJsonObject& json): AllPowers(json) { }
+
+    virtual Blank& operator=(const Blank& s) { if (this != &s) AllPowers::operator=(s); return *this; }
+    virtual Blank& operator=(Blank&& s)      {  AllPowers::operator=(s); return *this; }
+
+    Fraction adv() override                        { return Fraction(0); }
+    QString  description(bool) override            { return "-"; }
+    QString  end() override                        { return "-"; }
+    void     form(QWidget*, QVBoxLayout*) override { throw "No Form"; }
+    Fraction lim() override                        { return Fraction(0); }
+    Points   points(bool) override                 { return 0_cp; }
+    void     restore() override                    { }
+    void     store() override                      { }
+    QJsonObject toJson() override                  { QJsonObject obj = AllPowers::toJson(); return obj; }
+};
+
 class IndependantAdvantage: public AllPowers {
 private:
     QStringList getPowers() {
@@ -159,13 +180,13 @@ public:
     IndependantAdvantage(const IndependantAdvantage& s): AllPowers(s) { }
     IndependantAdvantage(IndependantAdvantage&& s): AllPowers(s)      { }
     IndependantAdvantage(const QJsonObject& json): AllPowers(json)    { auto mod = json["mod"].toObject();
-                                                                            QString name = mod["name"].toString();
-                                                                            v._mod = Modifiers::ByName(name)->create(json["mod"].toObject());
-                                                                            v._pts = json["pts"].toInt(0);
-                                                                            auto power = json["power"].toObject();
-                                                                            name = power["name"].toString();
-                                                                            v._pow = Power::FromJson(name, power);
-                                                                          }
+                                                                        QString name = mod["name"].toString();
+                                                                        v._mod = Modifiers::ByName(name)->create(json["mod"].toObject());
+                                                                        v._pts = json["pts"].toInt(0);
+                                                                        auto power = json["power"].toObject();
+                                                                        name = power["name"].toString();
+                                                                        v._pow = Power::FromJson(name, power);
+                                                                      }
     virtual IndependantAdvantage& operator=(const IndependantAdvantage& s) {
         if (this != &s) {
             AllPowers::operator=(s);

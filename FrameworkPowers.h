@@ -120,7 +120,7 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { FrameworkPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 0_cp; }
     void     restore() override                                  { FrameworkPowers::restore();
                                                                  }
@@ -140,7 +140,8 @@ public:
         auto advtg = advantages();
         auto modif = modifiers();
         for (const auto& pe: v._powers) {
-            QString descr;
+            QString descr = pe->description();
+            if (descr == "-") descr = "";
             pe->parent(this);
             for (const auto& mod: pe->advantagesList()) {
                 if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
@@ -150,16 +151,16 @@ public:
             for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pts.toInt() == 0) pts = Fraction(1);
-            Sheet::ref().setCell(tbl, row, 0, QString("%1").arg(pts.toInt()), font);
+            Sheet::ref().setCell(tbl, row, 0, descr.isEmpty() ? "" : QString("%1").arg(pts.toInt()), font);
             Sheet::ref().setCell(tbl, row, 1, pe->nickname(), italic);
-            Sheet::ref().setCell(tbl, row, 2, QString("%1) %2").arg(r).arg(pe->description() + descr), font, Sheet::WordWrap);
+            Sheet::ref().setCell(tbl, row, 2, descr.isEmpty() ? "" : QString("%1) %2").arg(r).arg(descr), font, Sheet::WordWrap);
             QString end = pe->end();
             if (end == "-") end = "";
             Sheet::ref().setCell(tbl, row, 3, end, font);
             points += Points(pts.toInt());
             pe->row(row);
             ++row;
-            ++r;
+            if (!descr.isEmpty()) ++r;
         }
         return points;
     }
@@ -171,23 +172,27 @@ public:
         auto modif = modifiers();
         int r = 1;
         for (const auto& pe: v._powers) {
-            QString descr;
-            pe->parent(this);
-            for (const auto& mod: pe->advantagesList()) {
-                if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
-                else descr += "; (+" + mod->fraction(true).toString() + ") ";
-                descr += mod->description(false);
+            QString descr = pe->description();
+            if (descr == "-") descr = "";
+                if (descr.isEmpty()) {
+                pe->parent(this);
+                for (const auto& mod: pe->advantagesList()) {
+                    if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
+                    else descr += "; (+" + mod->fraction(true).toString() + ") ";
+                    descr += mod->description(false);
+                }
+                for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
+                Fraction pts(pe->real(advtg, modif, limit).points);
+                if (pts.toInt() == 0) pts = Fraction(1);
+                out += QString("%1\t").arg(pts.toInt(), 3);
+                out += QString("%1) %2%3").arg(r).arg(pe->nickname().isEmpty() ? "" : "(" + pe->nickname() + ") ", descr);
+                QString end = pe->end();
+                if (end == "-") end = "";
+                out += QString("%1").arg(end.isEmpty() ? "" : " [" + end +"]");
+                points += Points(pts.toInt());
             }
-            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
-            Fraction pts(pe->real(advtg, modif, limit).points);
-            if (pts.toInt() == 0) pts = Fraction(1);
-            out += QString("%1\t").arg(pts.toInt(), 3);
-            out += QString("%1) %2%3").arg(r).arg(pe->nickname().isEmpty() ? "" : "(" + pe->nickname() + ") ", pe->description() + descr);
-            QString end = pe->end();
-            if (end == "-") end = "";
-            out += QString("%1").arg(end.isEmpty() ? "" : " [" + end +"]");
-            points += Points(pts.toInt());
-            ++r;
+            out += "\n";
+            if (!descr.isEmpty()) ++r;
         }
         return points;
     }
@@ -222,7 +227,7 @@ public:
                                                                    pnts = createLineEdit(parent, layout, "Points in the pool?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return Points(v._points); }
     void     restore() override                                  { vars s = v;
                                                                    FrameworkPowers::restore();
@@ -247,7 +252,8 @@ public:
         auto advtg = advantages();
         auto modif = modifiers();
         for (const auto& pe: FrameworkPowers::v._powers) {
-            QString descr;
+            QString descr = pe->description();
+            if (descr == "-") descr = "";
             pe->parent(this);
             for (const auto& mod: pe->advantagesList()) {
                 if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
@@ -260,16 +266,16 @@ public:
             if (pe->varying()) pts = pts / 5;
             else pts = pts / 10;
             if (pts.toInt(true) == 0) pts = Fraction(1);
-            Sheet::ref().setCell(tbl, row, 0, QString("%1%2").arg(pts.toInt(true)).arg(pe->varying() ? "v" : "f"), font);
+            Sheet::ref().setCell(tbl, row, 0, descr.isEmpty() ? "" : QString("%1%2").arg(pts.toInt(true)).arg(pe->varying() ? "v" : "f"), font);
             Sheet::ref().setCell(tbl, row, 1, " " + pe->nickname(), italic);
-            Sheet::ref().setCell(tbl, row, 2, QString("%1) [%3] %2").arg(r).arg(pe->description() + descr).arg(cost.toInt(true)), font, Sheet::WordWrap);
+            Sheet::ref().setCell(tbl, row, 2, descr.isEmpty() ? "" : QString("%1) [%3] %2").arg(r).arg(descr).arg(cost.toInt(true)), font, Sheet::WordWrap);
             QString end = pe->end();
             if (end == "-") end = "";
             Sheet::ref().setCell(tbl, row, 3, end, font);
             points += Points(pts.toInt(true));
             pe->row(row);
             ++row;
-            ++r;
+            if (!descr.isEmpty()) ++r;
         }
         return points;
     }
@@ -281,7 +287,8 @@ public:
         auto advtg = advantages();
         auto modif = modifiers();
         for (const auto& pe: FrameworkPowers::v._powers) {
-            QString descr;
+            QString descr = pe->description();
+            if (descr == "-") descr = "";
             pe->parent(this);
             for (const auto& mod: pe->advantagesList()) {
                 if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
@@ -289,17 +296,21 @@ public:
                 descr += mod->description(false);
             }
             for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
+            Points pnts(pe->real());
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pe->varying()) pts = pts / 5;
             else pts = pts / 10;
             if (pts.toInt() == 0) pts = Fraction(1);
-            out += QString("%1%2\t").arg(pts.toInt(), 3).arg(pe->varying() ? "v" : "f");
-            out += QString("%1) %2%3").arg(r).arg(pe->nickname().isEmpty() ? "" : "(" + pe->nickname() + ") ", pe->description() + descr);
-            QString end = pe->end();
-            if (end == "-") end = "";
-            out += QString("%1").arg(end.isEmpty() ? "" : " [" + end +"]");
-            points += Points(pts.toInt());
-            ++r;
+            if (!descr.isEmpty()) {
+                out += QString("%1%2\t").arg(pts.toInt(), 3).arg(pe->varying() ? "v" : "f");
+                out += QString("%1) [%4] %2%3").arg(r).arg(pe->nickname().isEmpty() ? "" : "(" + pe->nickname() + ") ", descr).arg(pnts.points);
+                QString end = pe->end();
+                if (end == "-") end = "";
+                out += QString("%1").arg(end.isEmpty() ? "" : " [" + end +"]");
+                points += Points(pts.toInt());
+            }
+            out += "\n";
+            if (!descr.isEmpty()) ++r;
         }
         return points;
     }
@@ -449,7 +460,8 @@ public:
         auto advtg = advantages() - adv();
         auto modif = modifiers();
         for (const auto& pe: FrameworkPowers::v._powers) {
-            QString descr;
+            QString descr = pe->description();
+            if (descr == "-") descr = "";
             pe->parent(this);
             for (const auto& mod: pe->advantagesList()) {
                 if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
@@ -458,16 +470,17 @@ public:
             }
             for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
             Fraction pts(pe->real(advtg, modif, limit).points);
-            if (pts.toInt() == 0) pts = Fraction(1);
+            if (pts.toInt() == 0 && !descr.isEmpty()) pts = Fraction(1);
             Sheet::ref().setCell(tbl, row, 0, "", font);
             Sheet::ref().setCell(tbl, row, 1, pe->nickname(), italic);
-            Sheet::ref().setCell(tbl, row, 2, QString("%1) [%3] %2").arg(r).arg(pe->description() + descr).arg(pts.toInt()), font, Sheet::WordWrap);
+            if (descr.isEmpty()) Sheet::ref().setCell(tbl, row, 2, "", font, Sheet::WordWrap);
+            else Sheet::ref().setCell(tbl, row, 2, QString("%1) [%3] %2").arg(r).arg(descr).arg(pts.toInt()), font, Sheet::WordWrap);
             QString end = pe->end();
             if (end == "-") end = "";
             Sheet::ref().setCell(tbl, row, 3, end, font);
             pe->row(row);
             ++row;
-            ++r;
+            if (!descr.isEmpty()) ++r;
         }
         return points;
     }
@@ -479,7 +492,8 @@ public:
         auto advtg = advantages() - adv();
         auto modif = modifiers();
         for (const auto& pe: FrameworkPowers::v._powers) {
-            QString descr;
+            QString descr = pe->description();
+            if (descr == "-") descr = "";
             pe->parent(this);
             for (const auto& mod: pe->advantagesList()) {
                 if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
@@ -487,14 +501,18 @@ public:
                 descr += mod->description(false);
             }
             for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
-            Fraction pts(pe->real(advtg, modif, limit).points);
-            if (pts.toInt() == 0) pts = Fraction(1);
-            out += "\t";
-            out += QString("%1) [%3] %4%2").arg(r).arg(pe->description() + descr).arg(pts.toInt()).arg(pe->nickname().isEmpty() ? "" : "(" + pe->nickname() + ") ");
-            QString end = pe->end();
-            if (end == "-") end = "";
-            out += QString("%1").arg(end.isEmpty() ? "" : " [" + end + "]");
-            ++r;
+            Fraction pts(0);
+            if (!descr.isEmpty()) {
+                pts = Fraction(pe->real(advtg, modif, limit).points);
+                if (pts.toInt() == 0 && !descr.isEmpty()) pts = Fraction(1);
+                out += "\t";
+                out += QString("%1) [%3] %4%2").arg(r).arg(descr).arg(pts.toInt()).arg(pe->nickname().isEmpty() ? "" : "(" + pe->nickname() + ") ");
+                QString end = pe->end();
+                if (end == "-") end = "";
+                out += QString("%1").arg(end.isEmpty() ? "" : " [" + end + "]");
+            }
+            out += "\n";
+            if (!descr.isEmpty()) ++r;
         }
         return points;
     }

@@ -72,6 +72,7 @@ void SkillDialog::pickType(int type) {
                         };                                     break;
     }
 
+    ui->availableComboBox->clear();
     for (const auto& skilltalentorperk: available) ui->availableComboBox->addItem(skilltalentorperk);
     ui->availableComboBox->setEnabled(true);
 
@@ -118,7 +119,8 @@ SkillDialog& SkillDialog::skilltalentorperk(shared_ptr<SkillTalentOrPerk> s) {
     }
 
     _skilltalentorperk = s;
-    _skilltalentorperk->createForm(this, layout);
+    try { _skilltalentorperk->createForm(this, layout); } catch (...) { accept(); return *this; }
+
     createLabel(layout, "");
     _points      = createLabel(layout, "-1 Points");
     _description = createLabel(layout, "<incomplete>", WordWrap);

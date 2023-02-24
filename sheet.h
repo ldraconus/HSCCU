@@ -82,7 +82,7 @@ private:
     QMap<QObject*, _CharacteristicDef> _widget2Def;
 
     void               addPower(shared_ptr<Power>&);
-    Points           characteristicsCost();
+    Points             characteristicsCost();
     void               characteristicChanged(QLineEdit*, QString, bool update = true);
     void               characteristicEditingFinished(QLineEdit*);
     bool               checkClose();
