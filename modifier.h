@@ -4659,20 +4659,20 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<Nonpersistent>(json); }
 };
 
-class NonresistentDefenses: public NoFormModifier {
+class NonresistantDefenses: public NoFormModifier {
 public:
-    NonresistentDefenses()
-        : NoFormModifier("Nonresistent Defenses", isLimitation, Fraction(1, 4)) { }
-    NonresistentDefenses(QJsonObject json)
+    NonresistantDefenses()
+        : NoFormModifier("Nonresistant Defenses", isLimitation, Fraction(1, 4)) { }
+    NonresistantDefenses(QJsonObject json)
         : NoFormModifier(json) { }
-    NonresistentDefenses(const NonresistentDefenses& m)
+    NonresistantDefenses(const NonresistantDefenses& m)
         : NoFormModifier(m) { }
-    NonresistentDefenses(NonresistentDefenses&& m)
+    NonresistantDefenses(NonresistantDefenses&& m)
         : NoFormModifier(m) { }
-    virtual ~NonresistentDefenses() { }
+    virtual ~NonresistantDefenses() { }
 
-    shared_ptr<Modifier> create() override                        { return make_shared<NonresistentDefenses>(*this); }
-    shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<NonresistentDefenses>(json); }
+    shared_ptr<Modifier> create() override                        { return make_shared<NonresistantDefenses>(*this); }
+    shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<NonresistantDefenses>(json); }
 };
 
 class OneUseAtATime: public NoFormModifier {

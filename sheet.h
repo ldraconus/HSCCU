@@ -111,7 +111,7 @@ private:
     void               setupIcons();
     void               setCVs(_CharacteristicDef&, QLabel*);
     void               setDamage(_CharacteristicDef&, QLabel*);
-    void               setDefense(_CharacteristicDef&, int, int);
+    void               setDefense(_CharacteristicDef&, int, int, QLineEdit*);
     void               setDefense(int, int, int, int);
     void               setMaximum(_CharacteristicDef&, QLabel*, QLineEdit*);
     void               updateCharacteristics();

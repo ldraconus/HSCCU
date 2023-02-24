@@ -704,6 +704,10 @@ QList<shared_ptr<Modifier>>::iterator Power::findModifier(QString name) {
     return _modifiers.end();
 }
 
+bool Power::hasModifier(QString name) {
+    return findModifier(name) != _modifiers.end();
+}
+
 Points Power::real(Fraction add, Points mod, Fraction sub) {
     Fraction pnts(acting(add, mod).points);
     Fraction limits(0);

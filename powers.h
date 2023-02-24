@@ -88,6 +88,8 @@ public:
     QLineEdit* labeledEdit(QWidget* w)       { return _labeledEdits[w]; }
     bool       labeledEditExists(QWidget* w) { return _labeledEdits.find(w) != _labeledEdits.end(); }
 
+    bool hasModifier(QString);
+
     class allBase {
     public:
         allBase() { }
@@ -160,7 +162,7 @@ public:
     virtual QString     description(bool roll = false) { return roll ? "" : ""; };
     virtual void        form(QWidget*, QVBoxLayout*)   { }
     virtual QString     name()                         { return ""; }
-    virtual Points    points(bool noStore = false)   { return noStore ? 0_cp : 0_cp; }
+    virtual Points      points(bool noStore = false)   { return noStore ? 0_cp : 0_cp; }
     virtual QString     nickname()                     { return ""; }
     virtual void        restore()                      { }
     virtual void        store()                        { }
@@ -212,12 +214,12 @@ public:
     virtual bool                      isVPP()                        { return false; }
     virtual bool                      isValid(shared_ptr<Power>)     { return true; }
     virtual void                      inMultipower()                 { _inMultipower = true; }
-    virtual Points                  pool()                         { return 0_cp; }
+    virtual Points                    pool()                         { return 0_cp; }
     virtual int                       count()                        { return -1; }
     virtual void                      append(shared_ptr<Power>)      { }
     virtual void                      insert(int, shared_ptr<Power>) { }
-    virtual Points                  display(int&, QTableWidget*)   { return 0_cp; }
-    virtual Points                  display(QString&)              { return 0_cp; }
+    virtual Points                    display(int&, QTableWidget*)   { return 0_cp; }
+    virtual Points                    display(QString&)              { return 0_cp; }
     virtual void                      remove(int)                    { }
     virtual void                      remove(shared_ptr<Power>)      { }
     virtual QList<shared_ptr<Power>>& list()                         { static QList<shared_ptr<Power>> l; return l; }
@@ -227,6 +229,8 @@ public:
     virtual int                           PowD()        { return 0; }
     virtual int                           rED()         { return 0; }
     virtual int                           rPD()         { return 0; }
+    virtual int                           ED()          { return 0; }
+    virtual int                           PD()          { return 0; }
     virtual shared_ptr<SkillTalentOrPerk> skill()       { return nullptr; }
     virtual int                           str()         { return 0; }
     virtual sizeMods&                     growthStats() { static sizeMods sm; return sm; }

@@ -94,7 +94,7 @@ namespace statics {
     MAKE(NoTurnMode);
     MAKE(NoncombatAccelerationDecelleration);
     MAKE(Nonpersistent);
-    MAKE(NonresistentDefenses);
+    MAKE(NonresistantDefenses);
     MAKE(OneUseAtATime);
     MAKE(OnlyInAlternateID);
     MAKE(OnlyProtectsBarrier);
@@ -241,7 +241,7 @@ Modifiers::Modifiers()
     LINK("No Turn Mode▲",                           Modifier::isAdvantage,  Modifier::isModifier, NoTurnMode);
     LINK("Noncombat Acceleration/Decelleration",    Modifier::isAdvantage,  Modifier::isModifier, NoncombatAccelerationDecelleration);
     LINK("Nonpersistant",                           Modifier::isLimitation, Modifier::isModifier, Nonpersistent);
-    LINK("Nonresistant Defenses",                   Modifier::isLimitation, Modifier::isModifier, NonresistentDefenses);
+    LINK("Nonresistant Defenses",                   Modifier::isLimitation, Modifier::isModifier, NonresistantDefenses);
     LINK("One Use At A Time",                       Modifier::isLimitation, Modifier::isModifier, OneUseAtATime);
     LINK("Only In Alternate Identity",              Modifier::isLimitation, Modifier::isModifier, OnlyInAlternateID);
     LINK("Only Protects Barrier",                   Modifier::isLimitation, Modifier::isModifier, OnlyProtectsBarrier);

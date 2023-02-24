@@ -15,6 +15,7 @@ public:
                                                         v._body     = json["body"].toInt(0);
                                                         v._pd       = json["pd"].toInt(0);
                                                         v._ed       = json["ed"].toInt(0);
+                                                        v._put      = json["put"].toBool(false);
                                                         v._config   = json["config"].toBool(false);
                                                         v._anchor   = json["anchor"].toBool(false);
                                                         v._trans    = json["trans"].toInt(0);
@@ -48,6 +49,7 @@ public:
                                                                    body     = createLineEdit(parent, layout, "Body?", std::mem_fn(&Power::numeric));
                                                                    pd       = createLineEdit(parent, layout, "Resistant PD?", std::mem_fn(&Power::numeric));
                                                                    ed       = createLineEdit(parent, layout, "Resistant ED?", std::mem_fn(&Power::numeric));
+                                                                   put      = createCheckBox(parent, layout, "Add to secondary");
                                                                    config   = createCheckBox(parent, layout, "Configurable");
                                                                    anchor   = createCheckBox(parent, layout, "Non-Anchored");
                                                                    trans    = createComboBox(parent, layout, "▲One-way Transparent To?", { "",
@@ -76,6 +78,7 @@ public:
                                                                    body->setText(QString("%1").arg(s._body));
                                                                    pd->setText(QString("%1").arg(s._pd));
                                                                    ed->setText(QString("%1").arg(s._ed));
+                                                                   put->setChecked(s._put);
                                                                    config->setChecked(s._config);
                                                                    anchor->setChecked(s._anchor);
                                                                    trans->setCurrentIndex(s._trans);
@@ -93,6 +96,7 @@ public:
                                                                    v._body     = body->text().toInt();
                                                                    v._pd       = pd->text().toInt();
                                                                    v._ed       = ed->text().toInt();
+                                                                   v._put      = put->isChecked();
                                                                    v._config   = config->isChecked();
                                                                    v._anchor   = anchor->isChecked();
                                                                    v._trans    = trans->currentIndex();
@@ -109,6 +113,7 @@ public:
                                                                    obj["body"]     = v._body;
                                                                    obj["pd"]       = v._pd;
                                                                    obj["ed"]       = v._ed;
+                                                                   obj["put"]      = v._put;
                                                                    obj["config"]   = v._config;
                                                                    obj["anchor"]   = v._anchor;
                                                                    obj["trans"]    = v._trans;
@@ -120,8 +125,11 @@ public:
                                                                    return obj;
                                                                  }
 
-    int rPD() override { return v._pd; }
-    int rED() override { return v._ed; }
+    int rPD() override { return hasModifier("Nonresistant Defenses") ? 0 : v._pd; }
+    int rED() override { return hasModifier("Nonresistant Defenses") ? 0 : v._ed; }
+    int PD() override  { return hasModifier("Nonresistant Defenses") ? v._pd : 0; }
+    int ED() override  { return hasModifier("Nonresistant Defenses") ? v._ed : 0; }
+    int place() override { return v._put ? 2 : 0; }
 
 private:
     struct vars {
@@ -131,6 +139,7 @@ private:
         int     _body     = 0;
         int     _pd       = 0;
         int     _ed       = 0;
+        bool    _put      = false;
         bool    _config   = false;
         bool    _anchor   = false;
         int     _trans    = -1;
@@ -146,6 +155,7 @@ private:
     QLineEdit* thick;
     QLineEdit* pd;
     QLineEdit* ed;
+    QCheckBox* put;
     QLineEdit* body;
     QCheckBox* config;
     QCheckBox* anchor;
@@ -162,8 +172,9 @@ private:
             (v._restr && v._what.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
+        bool notResistant = hasModifier("Nonresistant Defenses");
         res += QString("%1m x %2m x %3m").arg(v._length).arg(v._height).arg(Fraction(v._thick, 2).toString()) + " Barrier";
-        res += QString("; %1 rPD/%2 rED").arg(v._pd).arg(v._ed);
+        res += QString("; %1 %3PD/%2 %3ED").arg(v._pd).arg(v._ed).arg(notResistant ? "" : "r");
         res += QString("; %1 BODY").arg(v._body);
         if (v._config) res += "; Configurable";
         if (v._anchor) res += "; Non-Anchored";
@@ -768,8 +779,10 @@ public:
                                                                    return obj;
                                                                  }
 
-    int rPD() override   { return v._pd; }
-    int rED() override   { return v._ed; }
+    int rPD() override { return hasModifier("Nonresistant Defenses") ? 0 : v._pd; }
+    int rED() override { return hasModifier("Nonresistant Defenses") ? 0 : v._ed; }
+    int PD() override  { return hasModifier("Nonresistant Defenses") ? v._pd : 0; }
+    int ED() override  { return hasModifier("Nonresistant Defenses") ? v._ed : 0; }
     int place() override { return v._put; }
 
 private:
@@ -791,7 +804,8 @@ private:
         if (v._pd + v._ed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1 rPD/%2 rED").arg(v._pd).arg(v._ed) + " Resistant Defense";
+        res += QString("%1 %3PD/%2 %3ED").arg(v._pd).arg(v._ed).arg(hasModifier("Nonresistant Defense") ? "" : "r") +
+               QString(" %1Defense").arg(hasModifier("Nonresistant Defense") ? "" : "Resistant ");
         if (v._imperm) res += "; Impermeable";
         if (v._protect) res += "; Protects Carried Items";
         return res;

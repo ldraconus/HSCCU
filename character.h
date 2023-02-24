@@ -59,6 +59,8 @@ public:
     Characteristic& BODY() { return _BODY; }
     Characteristic& STUN() { return _STUN; }
 
+    int& tempPD()   { return _tempPD; }
+    int& tempED()   { return _tempED; }
     int& rPD()      { return _rPD; }
     int& rED()      { return _rED; }
     int& temprPD()  { return _temprPD; }
@@ -139,6 +141,8 @@ private:
     int _rED      = 0;
     int _temprPD  = 0;
     int _temprED  = 0;
+    int _tempPD   = 0;
+    int _tempED   = 0;
     int _running  = 12;
     int _leaping  = 4;
     int _swimming = 4;

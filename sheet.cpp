@@ -477,8 +477,8 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
           else if (val == Ui->endval) setMaximum(def, Ui->maximumend, Ui->currentend);
           else if (val == Ui->bodyval) setMaximum(def, Ui->maximumbody, Ui->currentbody);
           else if (val == Ui->stunval) setMaximum(def, Ui->maximumstun, Ui->currentstun);
-          else if (val == Ui->pdval) setDefense(def, 0, 1);
-          else if (val == Ui->edval) setDefense(def, 2, 1);
+          else if (val == Ui->pdval) setDefense(def, 0, 1, val);
+          else if (val == Ui->edval) setDefense(def, 2, 1, val);
         if (update) updateTotals();
     } else val->undo();
 }
@@ -691,19 +691,52 @@ void Sheet::rebuildCharFromPowers(QList<shared_ptr<Power>>& list) {
     for (const auto& power: list) {
         if (power == nullptr) continue;
 
-        if (power->name() == "Density Increase") {
+        if (power->name() == "Skill" && power->skill()->name() == "Combat Luck") {
+            if (power->skill()->place() == 1) {
+                _character.PD().primary(_character.PD().primary() + power->rPD() + power->PD());
+                _character.ED().primary(_character.ED().primary() + power->rED() + power->ED());
+                _character.rPD() = _character.rPD() + power->rPD();
+                _character.rED() = _character.rED() + power->rED();
+            } else {
+                _character.PD().secondary(_character.PD().primary() + power->rPD() + power->PD());
+                _character.ED().secondary(_character.ED().primary() + power->rED() + power->ED());
+                _character.temprPD() = _character.temprPD() + power->rPD();
+                _character.temprED() = _character.temprED() + power->rED();
+            }
+        } else if (power->name() == "Barrier") {
+            if (power->place() == 2) {
+                _character.tempPD() += power->rPD() + power->PD();
+                _character.tempED() += power->rED() + power->ED();
+                _character.temprPD() += power->rPD() + power->PD();
+                _character.temprED() += power->rED() + power->ED();
+            }
+        } else if (power->name() == "Flash Defense") {
+            _character.FD() += power->FD();
+        }
+        else if (power->name() == "Mental Defense") {
+            _character.MD() += power->MD();
+        }
+        else if (power->name() == "Power Defense") {
+            _character.PowD() += power->PowD();
+        } else if (power->name() == "Density Increase") {
             _character.STR().secondary(_character.STR().secondary() + power->str());
             _character.rPD() += power->rPD();
             _character.rED() += power->rED();
+            if (power->hasModifier("Nonresistant Defense")) {
+                _character.PD().secondary(_character.PD().secondary() + power->PD());
+                _character.ED().secondary(_character.ED().secondary() + power->ED());
+            }
         } else if (power->name() == "Resistant Defense") {
-            _character.rPD() += power->rPD();
-            _character.rED() += power->rED();
             if (power->place() == 1) {
-                _character.PD().primary(_character.PD().primary() + power->rPD());
-                _character.ED().primary(_character.ED().primary() + power->rED());
+                _character.PD().primary(_character.PD().primary() + power->rPD() + power->PD());
+                _character.ED().primary(_character.ED().primary() + power->rED() + power->ED());
+                _character.rPD() = _character.rPD() + power->rPD();
+                _character.rED() = _character.rED() + power->rED();
             } else if (power->place() == 2) {
-                _character.PD().secondary(_character.PD().secondary() + power->rPD());
-                _character.ED().secondary(_character.ED().secondary() + power->rED());
+                _character.PD().secondary(_character.PD().primary() + power->rPD() + power->PD());
+                _character.ED().secondary(_character.ED().primary() + power->rED() + power->ED());
+                _character.temprPD() = _character.temprPD() + power->rPD();
+                _character.temprED() = _character.temprED() + power->rED();
             }
         } else if (power->name() == "Growth") {
             auto& sm = power->growthStats();
@@ -714,12 +747,20 @@ void Sheet::rebuildCharFromPowers(QList<shared_ptr<Power>>& list) {
             _character.ED().secondary(_character.ED().secondary() + sm._ED);
             _character.BODY().secondary(_character.BODY().secondary() + sm._BODY);
             _character.STUN().secondary(_character.STUN().secondary() + sm._STUN);
+            if (power->hasModifier("Resistant")) {
+                _character.rPD() += sm._PD;
+                _character.rED() += sm._ED;
+            }
         } else if (power->name() == "Characteristics") {
             int put = power->characteristic(-1);
             if (put < 1) continue;
             for (int i = 0; i < 17; ++i) {
                 if (put == 1) _character.characteristic(i).primary(_character.characteristic(i).primary() + power->characteristic(i));
                 else _character.characteristic(i).secondary(_character.characteristic(i).secondary() + power->characteristic(i));
+            }
+            if (power->hasModifier("Resistant")) {
+                _character.rPD() += power->characteristic(11);
+                _character.rED() += power->characteristic(12);
             }
         } else if (power->isFramework()) rebuildCharFromPowers(power->list());
     }
@@ -738,27 +779,13 @@ void Sheet::rebuildCharacteristics() {
         _character.characteristic(i).secondary(0);
     }
 
-    for (const auto& skill: _character.skillsTalentsOrPerks()) {
-        if (skill == nullptr) continue;
-
-        if (skill->name() == "Combat Luck") {
-            if (skill->place() == 1) {
-                _character.PD().primary(_character.PD().primary() + skill->rPD());
-                _character.ED().primary(_character.ED().primary() + skill->rED());
-            } else {
-                _character.PD().secondary(_character.PD().secondary() + skill->rPD());
-                _character.ED().secondary(_character.ED().secondary() + skill->rED());
-            }
-        }
-    }
-
-    rebuildCharFromPowers(_character.powersOrEquipment());
-
     for (int i = 0; i < 17; ++i) {
         int base = _character.characteristic(i).base();
         characteristicWidgets[i]->setText(QString("%1").arg(base));
         characteristicEditingFinished(characteristicWidgets[i]);
     }
+
+    rebuildDefenses();
 }
 
 QString Sheet::rebuildCombatSkillLevel(shared_ptr<SkillTalentOrPerk> stp) {
@@ -805,34 +832,13 @@ void Sheet::rebuildCombatSkillLevels() {
     Ui->combatskilllevels->setHtml(csl);
 }
 
-void Sheet::rebuildDefFromPowers(QList<shared_ptr<Power>>& list) {
-    for (const auto& power: list) {
-        if (power == nullptr) continue;
-
-        if (power->name() == "Density Increase" ||
-            power->name() == "Resistant Defense") {
-            _character.rPD() += power->rPD();
-            _character.rED() += power->rED();
-        } else if (power->name() == "Barrier") {
-            _character.temprPD() += power->rPD();
-            _character.temprED() += power->rED();
-        } else if (power->name() == "Flash Defense") {
-            _character.FD() += power->FD();
-        }
-        else if (power->name() == "Mental Defense") {
-            _character.MD() += power->MD();
-        }
-        else if (power->name() == "Power Defense") {
-            _character.PowD() += power->PowD();
-        } else if (power->isFramework()) rebuildDefFromPowers(power->list());
-    }
-}
-
 void Sheet::rebuildDefenses() {
     _character.rPD() = 0;
     _character.rED() = 0;
     _character.temprPD() = 0;
     _character.temprED() = 0;
+    _character.tempPD() = 0;
+    _character.tempED() = 0;
     _character.FD() = 0;
     _character.MD() = 0;
 
@@ -845,13 +851,20 @@ void Sheet::rebuildDefenses() {
         }
     }
 
-    rebuildDefFromPowers(_character.powersOrEquipment());
+    rebuildCharFromPowers(_character.powersOrEquipment());
 
-    setDefense(_character.rPD(),  _character.temprPD(), 1, 1);
-    setDefense(_character.rED(),  _character.temprED(), 3, 1);
-    setDefense(_character.MD(),   0,                    4, 1);
-    setDefense(_character.PowD(), 0,                    5, 1);
-    setDefense(_character.FD(),   0,                    6, 1);
+    int primPD = _character.PD().base() + _character.PD().primary();
+    int secondPD = _character.PD().secondary();
+    int primED = _character.ED().base() + _character.ED().primary();
+    int secondED = _character.ED().secondary();
+
+    setDefense(primPD,            secondPD + _character.tempPD(), 0, 1);
+    setDefense(_character.rPD(),  _character.temprPD(),           1, 1);
+    setDefense(primED,            secondED + _character.tempPD(), 2, 1);
+    setDefense(_character.rED(),  _character.temprED(),           3, 1);
+    setDefense(_character.MD(),   0,                              4, 1);
+    setDefense(_character.PowD(), 0,                              5, 1);
+    setDefense(_character.FD(),   0,                              6, 1);
 }
 
 void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
@@ -1108,9 +1121,11 @@ void Sheet::setDamage(_CharacteristicDef& def, QLabel* set) {
     set->setText(dice);
 }
 
-void Sheet::setDefense(_CharacteristicDef& def, int r, int c) {
+void Sheet::setDefense(_CharacteristicDef& def, int r, int c, QLineEdit* val) {
     int primary = def.characteristic()->base() + def.characteristic()->primary();
     int secondary = primary + def.characteristic()->secondary();
+    if (val == Ui->pdval) secondary += _character.tempPD();
+    if (val == Ui->edval) secondary += _character.tempED();
     QString defense = QString("%1").arg(primary);
     if (primary != secondary) defense += QString("/%1").arg(secondary);
     setCellLabel(Ui->defenses, r, c, defense);
@@ -1181,7 +1196,6 @@ void Sheet::updateComplications() {
 void Sheet::updateDisplay() {
     updateCharacter();
     rebuildPowers(false);
-    rebuildDefenses();
     rebuildCharacteristics();
     updateCharacteristics();
     updateComplications();
