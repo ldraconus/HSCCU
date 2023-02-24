@@ -56,4 +56,30 @@ public:
     bool isNumber(QString);
 };
 
+class BlankComp: public Complication {
+public:
+    BlankComp(): Complication() { }
+    BlankComp(const BlankComp&)
+        : Complication() { }
+    BlankComp(BlankComp&&)
+        : Complication() { }
+    BlankComp(const QJsonObject&)
+        : Complication() { }
+
+    BlankComp& operator=(const BlankComp&) { return *this; }
+    BlankComp& operator=(BlankComp&&)      { return *this; }
+
+    QString description() override               { return "-"; }
+    void form(QWidget*, QVBoxLayout*) override   { throw "No Form"; }
+    Points points(bool) override                 { return 0_cp; }
+    void restore() override                      { }
+    void store() override                        { }
+    QJsonObject toJson() override {
+        QJsonObject obj;
+        obj["name"]   = "Blank Line";
+        return obj;
+    }
+};
+
+
 #endif // COMPLICATION_H

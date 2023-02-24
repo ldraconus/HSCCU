@@ -127,6 +127,7 @@ namespace statics {
     MAKE_TALENT(Weaponmaster);
 
     // ENHANCERS
+    MAKE_ENHANCER(BlankSkill);
     MAKE_ENHANCER(JackOfAllTrades);
     MAKE_ENHANCER(Linguist);
     MAKE_ENHANCER(Scholar);
@@ -246,6 +247,7 @@ QMap<QString, SkillTalentOrPerk::perkBase*> SkillTalentOrPerk::_perks {
 };
 
 QMap<QString, SkillTalentOrPerk::enhancerBase*> SkillTalentOrPerk::_enhancers {
+    { SPCS("Blank Line", BlankSkill) },
     { SPCS("Jack Of All Trades", JackOfAllTrades) },
     { LINK(Linguist) },
     { LINK(Scholar) },

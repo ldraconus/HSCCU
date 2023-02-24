@@ -63,7 +63,8 @@ void SkillDialog::pickType(int type) {
     case 0: available = SkillTalentOrPerk::SkillsAvailable();  break;
     case 1: available = SkillTalentOrPerk::TalentsAvailable(); break;
     case 2: available = SkillTalentOrPerk::PerksAvailable();   break;
-    case 3: available = { "Jack of All Trades",
+    case 3: available = { "Blank Line",
+                          "Jack of All Trades",
                           "Linguist",
                           "Scholar",
                           "Scientist",
@@ -103,6 +104,7 @@ SkillDialog& SkillDialog::skilltalentorperk(shared_ptr<SkillTalentOrPerk> s) {
     if ((idx = SkillTalentOrPerk::SkillsAvailable().indexOf(name)) != -1) type = 0;
     else if ((idx = SkillTalentOrPerk::TalentsAvailable().indexOf(name)) != -1) type = 1;
     else if ((idx = SkillTalentOrPerk::PerksAvailable().indexOf(name)) != -1) type = 2;
+    else if ((idx = QStringList({ "Blank Line", "Jack of All Trades", "Linguist", "Scholar", "Scientist", "Traveller", "Well-Connected" }).indexOf(name)) == -1) type = 3;
     else return *this;
 
     _skipUpdate = true;

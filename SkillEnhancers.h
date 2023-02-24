@@ -32,7 +32,7 @@ public:
     QString  description(bool) override            { return v._name; }
     void     form(QWidget*, QVBoxLayout*) override { throw "just accept"; }
     QString  name() override                       { return v._name; }
-    Points points(bool noStore = false) override { if (!noStore) store(); return 3_cp; }
+    Points   points(bool noStore = false) override { if (!noStore) store(); return 3_cp; }
     void     restore() override                    { }
     QString  roll() override                       { return ""; }
     void     store() override                      { }
@@ -47,6 +47,20 @@ private:
     struct vars {
         QString _name;
     } v;
+};
+
+class BlankSkill: public SkillEnhancers {
+public:
+    BlankSkill(): SkillEnhancers("Blank Line") { }
+    BlankSkill(const BlankSkill& s): SkillEnhancers(s) { }
+    BlankSkill(BlankSkill&& s): SkillEnhancers(s) { }
+    BlankSkill(const QJsonObject& json): SkillEnhancers(json) { }
+
+    QString  description(bool) override            { return "-"; }
+    Points   points(bool) override                 { return 0_cp; }
+    void     restore() override                    { }
+    QString  roll() override                       { return ""; }
+    void     store() override                      { }
 };
 
 #define CLASS(x)\

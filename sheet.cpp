@@ -1165,9 +1165,11 @@ void Sheet::updateComplications() {
     for (const auto& complication: _character.complications()) {
         if (complication == nullptr) continue;
 
+        QString descr = complication->description();
+        if (descr == "-") descr = "";
         Points pts = complication->points(Complication::NoStore);
-        setCell(Ui->complications, row, 0, QString("%1").arg(pts.points), font);
-        setCell(Ui->complications, row, 1, complication->description(), font, WordWrap);
+        setCell(Ui->complications, row, 0, descr.isEmpty() ? "" : QString("%1").arg(pts.points), font);
+        setCell(Ui->complications, row, 1, descr.isEmpty() ? "" : descr, font, WordWrap);
         _complicationPoints += pts;
         ++row;
     }
@@ -1278,11 +1280,12 @@ void Sheet::updateSkillsTalentsAndPerks(){
     int row = 0;
     for (const auto& stp: _character.skillsTalentsOrPerks()) {
         if (stp == nullptr) continue;
-
+        QString descr = stp->description();
+        if (descr == "-") descr = "";
         Points pts = stp->points(Complication::NoStore);
-        setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(pts.points), font);
-        setCell(Ui->skillstalentsandperks, row, 1, stp->description(),            font, WordWrap);
-        setCell(Ui->skillstalentsandperks, row, 2, stp->roll(),                   font);
+        setCell(Ui->skillstalentsandperks, row, 0, descr.isEmpty() ? "" : QString("%1").arg(pts.points), font);
+        setCell(Ui->skillstalentsandperks, row, 1, descr.isEmpty() ? "" : descr,                         font, WordWrap);
+        setCell(Ui->skillstalentsandperks, row, 2, descr.isEmpty() ? "" : stp->roll(),                   font);
         _skillsTalentsOrPerksPoints += pts;
         ++row;
     }

@@ -39,7 +39,7 @@ ComplicationsDialog& ComplicationsDialog::complication(shared_ptr<Complication>&
     _complication = c;
     ui->comboBox->setEnabled(false);
     auto* layout = new QVBoxLayout(ui->form);
-    _complication->createForm(this, layout);
+    try { _complication->createForm(this, layout); } catch (...) { accept(); return *this; }
     createLabel(layout, "");
     _points      = createLabel(layout, "-1 Points");
     _description = createLabel(layout, "<incomplete>", WordWrap);
@@ -73,7 +73,7 @@ void ComplicationsDialog::pickComplication(int idx) {
     }
 
     _complication = Complication::ByIndex(idx);
-    _complication->createForm(this, layout);
+    try { _complication->createForm(this, layout); } catch (...) { accept(); }
     createLabel(layout, "");
     _points      = createLabel(layout, "-1 Points");
     _description = createLabel(layout, "<incomplete>", WordWrap);

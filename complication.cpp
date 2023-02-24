@@ -111,6 +111,7 @@ void Complication::createForm(QWidget* parent, QVBoxLayout* layout) {
 
 QList<QString> Complication::Available() {
     return { "Accidental Change",
+             "Blank Line",
              "Dependence",
              "Dependent NPC",
              "Distinctive Feature",
@@ -130,20 +131,21 @@ QList<QString> Complication::Available() {
 shared_ptr<Complication> Complication::ByIndex(int idx) {
     switch (idx) {
     case 0:  return make_shared<AccidentalChange>();
-    case 1:  return make_shared<Dependence>();
-    case 2:  return make_shared<Dependent>();
-    case 3:  return make_shared<DistinctiveFeature>();
-    case 4:  return make_shared<Enraged>();
-    case 5:  return make_shared<Hunted>();
-    case 6:  return make_shared<MoneyComp>();
-    case 7:  return make_shared<NegativeReputation>();
-    case 8:  return make_shared<PhysicalComplication>();
-    case 9:  return make_shared<PsychologicalComplication>();
-    case 10: return make_shared<Rivalry>();
-    case 11: return make_shared<SocialComplication>();
-    case 12: return make_shared<Susceptibility>();
-    case 13: return make_shared<Unluck>();
-    case 14: return make_shared<Vulnerability>();
+    case 1:  return make_shared<BlankComp>();
+    case 2:  return make_shared<Dependence>();
+    case 3:  return make_shared<Dependent>();
+    case 4:  return make_shared<DistinctiveFeature>();
+    case 5:  return make_shared<Enraged>();
+    case 6:  return make_shared<Hunted>();
+    case 7:  return make_shared<MoneyComp>();
+    case 8:  return make_shared<NegativeReputation>();
+    case 9:  return make_shared<PhysicalComplication>();
+    case 10: return make_shared<PsychologicalComplication>();
+    case 11: return make_shared<Rivalry>();
+    case 12: return make_shared<SocialComplication>();
+    case 13: return make_shared<Susceptibility>();
+    case 14: return make_shared<Unluck>();
+    case 15: return make_shared<Vulnerability>();
     default: return nullptr;
     }
 }
@@ -152,20 +154,21 @@ shared_ptr<Complication> Complication::FromJson(QString name, const QJsonObject&
     auto complications = Available();
     switch (complications.indexOf(name)) {
     case 0:  return make_shared<AccidentalChange>(json);
-    case 1:  return make_shared<Dependence>(json);
-    case 2:  return make_shared<Dependent>(json);
-    case 3:  return make_shared<DistinctiveFeature>(json);
-    case 4:  return make_shared<Enraged>(json);
-    case 5:  return make_shared<Hunted>(json);
-    case 6:  return make_shared<MoneyComp>(json);
-    case 7:  return make_shared<NegativeReputation>(json);
-    case 8:  return make_shared<PhysicalComplication>(json);
-    case 9:  return make_shared<PsychologicalComplication>(json);
-    case 10: return make_shared<Rivalry>(json);
-    case 11: return make_shared<SocialComplication>(json);
-    case 12: return make_shared<Susceptibility>(json);
-    case 13: return make_shared<Unluck>(json);
-    case 14: return make_shared<Vulnerability>(json);
+    case 1:  return make_shared<BlankComp>(json);
+    case 2:  return make_shared<Dependence>(json);
+    case 3:  return make_shared<Dependent>(json);
+    case 4:  return make_shared<DistinctiveFeature>(json);
+    case 5:  return make_shared<Enraged>(json);
+    case 6:  return make_shared<Hunted>(json);
+    case 7:  return make_shared<MoneyComp>(json);
+    case 8:  return make_shared<NegativeReputation>(json);
+    case 9:  return make_shared<PhysicalComplication>(json);
+    case 10: return make_shared<PsychologicalComplication>(json);
+    case 11: return make_shared<Rivalry>(json);
+    case 12: return make_shared<SocialComplication>(json);
+    case 13: return make_shared<Susceptibility>(json);
+    case 14: return make_shared<Unluck>(json);
+    case 15: return make_shared<Vulnerability>(json);
     default: return nullptr;
     }
 }
