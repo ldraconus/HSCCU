@@ -2793,7 +2793,8 @@ public:
         static QList<Fraction> Mobility      { { 0, 1 }, { 0, 1 }, { 1, 2 }, { 1, 1 }, { 1, 4 } };
         static QList<Fraction> Expendability { { 0, 1 }, { 0, 1 }, { 1, 4 }, { 1, 2 }, { 1, 1 } };
         static QList<Fraction> Durability    { { 0, 1 }, { 0, 1 }, { 1, 4 }, { 0, 1 }, { 0, 1 } };
-        return Type[v._type + 1] + Mobility[v._mobility + 1] + Expendability[v._expendability + 1] + Durability[v._durability + 1];
+        try { return Type[v._type + 1] + Mobility[v._mobility + 1] + Expendability[v._expendability + 1] + Durability[v._durability + 1]; }
+        catch (...) { return Fraction(0); }
     }
 
 private:
@@ -2820,13 +2821,15 @@ private:
         QStringList Expendability { "", "Difficult To Obtain", "Very Difficult To Obtain", "Extremely Difficult To Obtain" };
         QStringList Durability { "", "Fragile", "Durable", "Unbreakable" };
         Fraction f = fraction(true);
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + Type[v._type] + " (" + v._what;
-        QString sep = "; ";
-        if (v._mobility > 0) desc += sep + Mobiillity[v._mobility];
-        if (v._expendability > 0) desc += sep + Expendability[v._expendability]; sep = "; ";
-        if (v._durability > 0) desc += sep + Durability[v._durability]; sep = "; ";
-        desc += ")";
-        return desc;
+        try {
+            QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + Type[v._type] + " (" + v._what;
+            QString sep = "; ";
+            if (v._mobility > 0) desc += sep + Mobiillity[v._mobility];
+            if (v._expendability > 0) desc += sep + Expendability[v._expendability]; sep = "; ";
+            if (v._durability > 0) desc += sep + Durability[v._durability]; sep = "; ";
+            desc += ")";
+            return desc;
+        } catch (...) { return ""; }
     }
 };
 

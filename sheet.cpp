@@ -477,8 +477,7 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
           else if (val == Ui->endval) setMaximum(def, Ui->maximumend, Ui->currentend);
           else if (val == Ui->bodyval) setMaximum(def, Ui->maximumbody, Ui->currentbody);
           else if (val == Ui->stunval) setMaximum(def, Ui->maximumstun, Ui->currentstun);
-          else if (val == Ui->pdval) setDefense(def, 0, 1, val);
-          else if (val == Ui->edval) setDefense(def, 2, 1, val);
+          else if (val == Ui->pdval || val == Ui->edval) rebuildDefenses();
         if (update) updateTotals();
     } else val->undo();
 }
@@ -693,20 +692,17 @@ void Sheet::rebuildCharFromPowers(QList<shared_ptr<Power>>& list) {
 
         if (power->name() == "Skill" && power->skill()->name() == "Combat Luck") {
             if (power->skill()->place() == 1) {
-                _character.PD().primary(_character.PD().primary() + power->rPD() + power->PD());
-                _character.ED().primary(_character.ED().primary() + power->rED() + power->ED());
-                _character.rPD() = _character.rPD() + power->rPD();
-                _character.rED() = _character.rED() + power->rED();
-            } else {
-                _character.PD().secondary(_character.PD().primary() + power->rPD() + power->PD());
-                _character.ED().secondary(_character.ED().primary() + power->rED() + power->ED());
-                _character.temprPD() = _character.temprPD() + power->rPD();
-                _character.temprED() = _character.temprED() + power->rED();
+                _character.rPD() = _character.rPD() + power->skill()->rPD();
+                _character.rED() = _character.rED() + power->skill()->rED();
+            } else if (power->skill()->place() == 2){
+                _character.temprPD() = _character.temprPD() + power->skill()->rPD();
+                _character.temprED() = _character.temprED() + power->skill()->rED();
             }
         } else if (power->name() == "Barrier") {
-            if (power->place() == 2) {
-                _character.tempPD() += power->rPD() + power->PD();
-                _character.tempED() += power->rED() + power->ED();
+            if (power->place() == 1) {
+                _character.rPD() = _character.rPD() + power->rPD();
+                _character.rED() = _character.rED() + power->rED();
+            } else if (power->place() == 2) {
                 _character.temprPD() += power->rPD() + power->PD();
                 _character.temprED() += power->rED() + power->ED();
             }
@@ -728,15 +724,11 @@ void Sheet::rebuildCharFromPowers(QList<shared_ptr<Power>>& list) {
             }
         } else if (power->name() == "Resistant Defense") {
             if (power->place() == 1) {
-                _character.PD().primary(_character.PD().primary() + power->rPD() + power->PD());
-                _character.ED().primary(_character.ED().primary() + power->rED() + power->ED());
-                _character.rPD() = _character.rPD() + power->rPD();
-                _character.rED() = _character.rED() + power->rED();
+                _character.rPD() = _character.rPD() + power->rPD() + power->PD();
+                _character.rED() = _character.rED() + power->rED() + power->ED();
             } else if (power->place() == 2) {
-                _character.PD().secondary(_character.PD().primary() + power->rPD() + power->PD());
-                _character.ED().secondary(_character.ED().primary() + power->rED() + power->ED());
-                _character.temprPD() = _character.temprPD() + power->rPD();
-                _character.temprED() = _character.temprED() + power->rED();
+                _character.temprPD() = _character.temprPD() + power->rPD() + power->PD();
+                _character.temprED() = _character.temprED() + power->rED() + power->ED();
             }
         } else if (power->name() == "Growth") {
             auto& sm = power->growthStats();
@@ -779,13 +771,13 @@ void Sheet::rebuildCharacteristics() {
         _character.characteristic(i).secondary(0);
     }
 
+    rebuildDefenses();
+
     for (int i = 0; i < 17; ++i) {
         int base = _character.characteristic(i).base();
         characteristicWidgets[i]->setText(QString("%1").arg(base));
         characteristicEditingFinished(characteristicWidgets[i]);
     }
-
-    rebuildDefenses();
 }
 
 QString Sheet::rebuildCombatSkillLevel(shared_ptr<SkillTalentOrPerk> stp) {
@@ -846,21 +838,29 @@ void Sheet::rebuildDefenses() {
         if (skill == nullptr) continue;
 
         if (skill->name() == "Combat Luck") {
-            _character.rPD() += skill->rPD();
-            _character.rED() += skill->rED();
+            if (skill->place() == 1) {
+                _character.rPD() = _character.rPD() + skill->rPD();
+                _character.rED() = _character.rED() + skill->rED();
+            } else if (skill->place() == 2){
+                _character.temprPD() = _character.temprPD() + skill->rPD();
+                _character.temprED() = _character.temprED() + skill->rED();
+            }
         }
     }
 
     rebuildCharFromPowers(_character.powersOrEquipment());
 
-    int primPD = _character.PD().base() + _character.PD().primary();
-    int secondPD = _character.PD().secondary();
-    int primED = _character.ED().base() + _character.ED().primary();
-    int secondED = _character.ED().secondary();
+    int primPD = _character.PD().base() + _character.PD().primary() + _character.rPD();
+    int secondPD = primPD + _character.PD().secondary() + _character.temprPD();
+    int primED = _character.ED().base() + _character.ED().primary() + _character.rED();
+    int secondED = primED + _character.ED().secondary() + _character.temprED();
 
-    setDefense(primPD,            secondPD + _character.tempPD(), 0, 1);
+    if (primPD == secondPD) setDefense(primPD, 0, 0, 1);
+    else setDefense(primPD, secondPD - primED, 0, 1);
+    if (primED == secondED) setDefense(primED, 0, 2, 1);
+    else setDefense(primED, secondED - primED, 2, 1);
+
     setDefense(_character.rPD(),  _character.temprPD(),           1, 1);
-    setDefense(primED,            secondED + _character.tempPD(), 2, 1);
     setDefense(_character.rED(),  _character.temprED(),           3, 1);
     setDefense(_character.MD(),   0,                              4, 1);
     setDefense(_character.PowD(), 0,                              5, 1);
@@ -951,6 +951,8 @@ void Sheet::rebuildMoveFromPowers(QList<shared_ptr<Power>>& list,
             movements[power->name()] += power->move();
             units[power->name()] = power->units();
             doubles[power->name()] = power->doubling();
+        } else if (power->isFramework()) {
+            rebuildMoveFromPowers(power->list(), movements, units, doubles);
         }
     }
 }
@@ -1146,11 +1148,13 @@ void Sheet::setMaximum(_CharacteristicDef& def, QLabel* set, QLineEdit* cur) {
 
 void Sheet::updateCharacteristics() {
     const auto keys = _widget2Def.keys();
+    _charactersticPoints = 0_cp;
     for (const auto& key: keys) {
         auto& def = _widget2Def[key];
         QLineEdit* characteristic = dynamic_cast<QLineEdit*>(key);
         QString value = def.characteristic()->value();
         characteristic->setText(value);
+        _charactersticPoints += def.characteristic()->points();
     }
 }
 
@@ -1213,7 +1217,6 @@ void Sheet::updatePower(shared_ptr<Power> power) {
     if (power->name() == "Skill") updateSkills(power->skill());
     else if (power->name() == "Density Increase") {
         rebuildCharacteristics();
-        rebuildDefenses();
     } else if (power->name() == "Growth") {
         rebuildCharacteristics();
         rebuildMovement();
@@ -1223,7 +1226,6 @@ void Sheet::updatePower(shared_ptr<Power> power) {
                power->name() == "Power Defense" ||
                power->name() == "Resistant Defense") {
         rebuildCharacteristics();
-        rebuildDefenses();
     } else if (power->name() == "FTL Travel" ||
                power->name() == "Flight" ||
                power->name() == "Leaping" ||
@@ -1240,7 +1242,6 @@ void Sheet::updatePower(shared_ptr<Power> power) {
     } else if (power->name() == "Takes No STUNϴ") {
         rebuildPowers(true);
         rebuildCharacteristics();
-        rebuildDefenses();
     }
     updatePowersAndEquipment();
 }
@@ -1281,12 +1282,17 @@ void Sheet::updateSkillsTalentsAndPerks(){
     for (const auto& stp: _character.skillsTalentsOrPerks()) {
         if (stp == nullptr) continue;
 
-        if (stp->name() == "Jack Of All Trades")  _character.hasJackOfAllTrades() = true;
-        else if (stp->name() == "Linguist")       _character.hasLinguist() = true;
-        else if (stp->name() == "Scholar")        _character.hasScholar() = true;
-        else if (stp->name() == "Scientist")      _character.hasScientist() = true;
-        else if (stp->name() == "Traveler")       _character.hasTraveler() = true;
-        else if (stp->name() == "Well-Connected") _character.hasWellConnected() = true;
+        if (stp->name() == "Combat Skill Levels" ||
+            stp->name() == "Range Skill Levels" ||
+            stp->name() == "Skill Levels") rebuildCombatSkillLevels();
+        else if (stp->name() == "Martial Arts") rebuildMartialArts();
+        else if (stp->name() == "Combat Luck") rebuildCharacteristics();
+          else if (stp->name() == "Jack Of All Trades")  _character.hasJackOfAllTrades() = true;
+          else if (stp->name() == "Linguist")            _character.hasLinguist() = true;
+          else if (stp->name() == "Scholar")             _character.hasScholar() = true;
+          else if (stp->name() == "Scientist")           _character.hasScientist() = true;
+          else if (stp->name() == "Traveler")            _character.hasTraveler() = true;
+          else if (stp->name() == "Well-Connected")      _character.hasWellConnected() = true;
     }
 
     _skillsTalentsOrPerksPoints = 0_cp;
@@ -1327,13 +1333,12 @@ void Sheet::updateSkills(shared_ptr<SkillTalentOrPerk> skilltalentorperk) {
              skilltalentorperk->name() == "Well-Connected") updateSkillsTalentsAndPerks();
 }
 
-static Points Min(Points a, Points& b) { return (a < b) ? a : b; }
-
 void Sheet::updateTotals() {
     _totalPoints = characteristicsCost() + _skillsTalentsOrPerksPoints + _powersOrEquipmentPoints;
-    Ui->totalpoints->setText(QString("%1/%2")
-                             .arg(_totalPoints.points)
-                             .arg((_option.totalPoints() - _option.complications()).points + Min(_option.complications(), _complicationPoints).points));
+    Points pointsEarned = _option.totalPoints() - _option.complications();
+    if (_option.complications() < _complicationPoints) pointsEarned += _option.complications();
+    else pointsEarned += _complicationPoints;
+    Ui->totalpoints->setText(QString("%1/%2").arg(_totalPoints.points).arg(pointsEarned.points));
     totalExperienceEarnedEditingFinished();
 }
 
@@ -1456,8 +1461,6 @@ void Sheet::copyComplication() {
     auto selection = Ui->complications->selectedItems();
     int row = selection[0]->row();
     shared_ptr<Complication> complication = _character.complications()[row];
-    if (complication == nullptr) return;
-
     QJsonObject obj = complication->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
@@ -1473,8 +1476,6 @@ void Sheet::copyPowerOrEquipment() {
     auto selection = Ui->powersandequipment->selectedItems();
     int row = selection[0]->row();
     shared_ptr<Power> power = getPower(row, _character.powersOrEquipment());
-    if (power == nullptr) return;
-
     QJsonObject obj = power->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
@@ -1490,8 +1491,6 @@ void Sheet::copySkillTalentOrPerk() {
     auto selection = Ui->skillstalentsandperks->selectedItems();
     int row = selection[0]->row();
     shared_ptr<SkillTalentOrPerk> skilltalentorperk = _character.skillsTalentsOrPerks()[row];
-    if (skilltalentorperk == nullptr) return;
-
     QJsonObject obj = skilltalentorperk->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
@@ -1604,19 +1603,11 @@ void Sheet::editComplication() {
 
     ComplicationsDialog dlg(this);
     dlg.complication(complication);
-    auto old = complication->points();
 
     if (dlg.exec() == QDialog::Rejected) return;
     if (complication->description().isEmpty()) return;
 
-    QFont font = Ui->complications->font();
-    setCell(Ui->complications, row, 0, QString("%1").arg(complication->points().points), font);
-    setCell(Ui->complications, row, 1, complication->description(),                      font, WordWrap);
-
-    Ui->complications->resizeRowsToContents();
-    _complicationPoints += complication->points() - old;
-    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints.points).arg(_option.complications().points));
-    updateTotals();
+    updateDisplay();
     _changed = true;
 }
 
@@ -1668,22 +1659,11 @@ void Sheet::editSkillstalentsandperks() {
 
     SkillDialog dlg(this);
     dlg.skilltalentorperk(skilltalentorperk);
-    Points old = skilltalentorperk->points(Power::NoStore);
 
     if (dlg.exec() == QDialog::Rejected) return;
     if (skilltalentorperk->description().isEmpty()) return;
 
-    QFont font = Ui->skillstalentsandperks->font();
-    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(skilltalentorperk->points(Power::NoStore).points), font);
-    setCell(Ui->skillstalentsandperks, row, 1, skilltalentorperk->description(),                                    font, WordWrap);
-    setCell(Ui->skillstalentsandperks, row, 2, skilltalentorperk->roll(),                                           font);
-
-    updateSkills(skilltalentorperk);
-
-    Ui->skillstalentsandperks->resizeRowsToContents();
-    _skillsTalentsOrPerksPoints += skilltalentorperk->points() - old;
-    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints.points));
-    updateTotals();
+    updateDisplay();
     _changed = true;
 }
 
@@ -1814,15 +1794,7 @@ void Sheet::newComplication() {
 
     _character.complications().append(complication);
 
-    int row = Ui->complications->rowCount();
-    QFont font = Ui->complications->font();
-    setCell(Ui->complications, row, 0, QString("%1").arg(complication->points().points), font);
-    setCell(Ui->complications, row, 1, complication->description(),                      font, WordWrap);
-    Ui->complications->resizeRowsToContents();
-
-    _complicationPoints += complication->points();
-    Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints.points).arg(_option.complications().points));
-    updateTotals();
+    updateDisplay();
     _changed = true;
 }
 
@@ -1867,7 +1839,8 @@ void Sheet::newPowerOrEquipment() {
 
     addPower(power);
 
-    updatePower(power);
+    updateDisplay();
+    _changed = true;
 }
 
 void Sheet::newSkillTalentOrPerk() {
@@ -1880,18 +1853,7 @@ void Sheet::newSkillTalentOrPerk() {
 
     _character.skillsTalentsOrPerks().append(skilltalentorperk);
 
-    int row = Ui->skillstalentsandperks->rowCount();
-    QFont font = Ui->skillstalentsandperks->font();
-    setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(skilltalentorperk->points().points), font);
-    setCell(Ui->skillstalentsandperks, row, 1, skilltalentorperk->description(), font, WordWrap);
-    setCell(Ui->skillstalentsandperks, row, 2, skilltalentorperk->roll(), font);
-    Ui->skillstalentsandperks->resizeRowsToContents();
-
-    updateSkills(skilltalentorperk);
-
-    _skillsTalentsOrPerksPoints += skilltalentorperk->points();
-    Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints.points));
-    updateTotals();
+    updateDisplay();
     _changed = true;
 }
 
@@ -2163,7 +2125,9 @@ void Sheet::totalExperienceEarnedChanged(QString txt) {
     if (numeric(txt) || txt.isEmpty()) {
         _character.xp(Points(txt.toInt()));
 
-        Points total = _option.totalPoints() - _option.complications() + _character.xp() + _option.complications().Min(_complicationPoints);
+        Points total = _option.totalPoints() - _option.complications() + _character.xp();
+        if (_option.complications() < _complicationPoints) total += _option.complications();
+        else total += _complicationPoints;
         Points remaining(0_cp);
         if (total > _totalPoints) remaining = total - _totalPoints;
         Points spent(0_cp);

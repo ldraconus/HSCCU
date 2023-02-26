@@ -127,7 +127,7 @@ public:
     void    form(QWidget* parent, QVBoxLayout* layout) override { levels = createLineEdit(parent, layout, "Levels of Combat Luck?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   put    = createComboBox(parent, layout, "Add to?", { "Nothing", "Primary", "Secondary" });
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return 6_cp * v._levels; }
     void    restore() override                                  { vars s = v;
                                                                   QString msg = QString("%1").arg(s._levels);

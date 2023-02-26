@@ -1,3 +1,4 @@
+[ ] Date picture and save (if no date saved, assume current picture date), notice when disk picture is newer at load and offer to load new picture.
 [ ] Lua custom powers/skills/talents/perks/complications
 [/] Test! Test!! Test!!!
 [ ] Alpha Testing

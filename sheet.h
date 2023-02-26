@@ -67,10 +67,11 @@ private:
 
     static const bool DontUpdateTotal = false;
 
-    bool     _changed                    = false;
+    bool   _changed                    = false;
     Points _complicationPoints         = 0_cp;
     Points _powersOrEquipmentPoints    = 0_cp;
     Points _skillsTalentsOrPerksPoints = 0_cp;
+    Points _charactersticPoints        = 0_cp;
     Points _totalPoints                = 0_cp;
 
     Character _character;
