@@ -263,7 +263,7 @@ private:
     void clicked(void) override {
         QPushButton* btn = dynamic_cast<QPushButton*>(sender());
         if (btn == mod) {
-            ModifiersDialog dlg(ModifiersDialog::Advantage);
+            ModifiersDialog dlg(ModifiersDialog::Advantage, &Sheet::ref());
             if (dlg.exec() == QDialog::Rejected) return;
             shared_ptr<Modifier> mod = dlg.modifier();
             if (!(mod->type() == ModifierBase::ModifierType::isAdvantage ||
@@ -491,7 +491,7 @@ private:
 
     void clicked(void) override {
         QPushButton* btn = dynamic_cast<QPushButton*>(sender());
-        SkillDialog dlg;
+        SkillDialog dlg(&Sheet::ref());
         if (dlg.exec() == QDialog::Rejected) return;
         shared_ptr<SkillTalentOrPerk> skl = dlg.skilltalentorperk();
         if (!skl->isSkill()) return;

@@ -1033,15 +1033,15 @@ private:
             }
             break;
         }
-        return QString("%1%2d6%3").arg(dice).arg((extra == 2) ? Fraction(1, 2).toString() : "").arg((extra == 1) ? "+1" : "");
+        return QString("%1%2d6%3").arg(dice).arg((extra == 2) ? Fraction(1, 2).toString() : "",(extra == 1) ? "+1" : "");
     }
 
     QString optOut(bool showEND) {
         if ((v._dice < 1 && v._extra < 1) || v._pded == -1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1%2d6%3 %4").arg(v._dice).arg((v._extra == 2) ? Fraction(1, 2).toString() : "").arg((v._extra == 1) ? "+1" : "").arg(v._range ? "R" : "H") + "KA vs " +
-               ((v._pded == 0) ? "PD, " : "ED, ") + KAwSTR() + " w/STR";
+        res += QString("+%1%2d6%3 %4").arg(v._dice).arg((v._extra == 2) ? Fraction(1, 2).toString() : "", (v._extra == 1) ? "+1" : "", v._range ? "R" : "H") + "KA vs " +
+               ((v._pded == 0) ? "PD, " : "ED, ") + (v._range ? "" : KAwSTR() + " w/STR");
         if (v._incr > 0) res += "; " + QString("+%1 Increased STUN Multiplier").arg(v._incr);
         if (v._decr > 0) res += "; "+ QString("-%1 Decreased STUN Multipier").arg(v._decr + 1);
         if (v._str) res += "; No STR Bonus";
@@ -1272,7 +1272,7 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice    = createLineEdit(parent, layout, "Dice of Transform?", std::mem_fn(&Power::numeric));
                                                                    into    = createLineEdit(parent, layout, "Into?");
-                                                                   degree  = createComboBox(parent, layout, "Degree?", { "Cosmetic", "Minor", "Major", "Sever" });
+                                                                   degree  = createComboBox(parent, layout, "Degree?", { "Cosmetic", "Minor", "Major", "Severe" });
                                                                    result  = createComboBox(parent, layout, "Improved Results?", { "None", "Limited Group", "Any" });
                                                                    group   = createLineEdit(parent, layout, "Group?");
                                                                    partial = createCheckBox(parent, layout, "Partial Transform");
@@ -1284,7 +1284,7 @@ public:
                                                                                                                                   "Limited",
                                                                                                                                   "Very Limited" });
                                                                    what    = createLineEdit(parent, layout, "What targets?");
-                                                                   rapid   = createComboBox(parent, layout, "Rapid Healing?", { "1 Month", "1 Week", "1 Day", "6 Hours", "1 Hour",
+                                                                   rapid   = createComboBox(parent, layout, "Rapid Healing?", { "", "1 Month", "1 Week", "1 Day", "6 Hours", "1 Hour",
                                                                                                                                 "20 Minutes", "5 Minutes", "1 Minute",
                                                                                                                                 "1 Turn" });
                                                                  }

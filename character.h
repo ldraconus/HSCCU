@@ -98,6 +98,7 @@ public:
     QList<shared_ptr<SkillTalentOrPerk>>& skillsTalentsOrPerks() { return _skillsTalentsOrPerks; }
     QList<shared_ptr<Power>>&             powersOrEquipment()    { return _powers; }
     QString&                              image()                { return _image; }
+    qulonglong&                           imageDate()            { return _imageDate; }
     QByteArray&                           imageData()            { return _imageData; }
 
     void   clearEnhancers()     { _hasJackOfAllTrades = _hasLinguist = _hasScholar = _hasScientist = _hasTraveler = _hasWellConnected = false; }
@@ -170,6 +171,7 @@ private:
     Points _xp            = 0_cp;
 
     QString    _image     = "";
+    qulonglong _imageDate = 0;
     QByteArray _imageData;
 
     void          fromJson(Option&, QJsonDocument& doc);

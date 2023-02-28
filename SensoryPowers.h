@@ -461,24 +461,24 @@ private:
         if (v._enhanc > 0) p += 1_cp * v._enhanc * v._amount;
         if (v._detect > 0) p += 3_cp + ((v._detect == 2) ? 2_cp : ((v._detect == 3) ? 8_cp : 0_cp));
         if (v._spatl) p += 32_cp;
-        if (v._adj > 0) p += v._adj * sense + (3_cp + (v._adj - 1) * 2_cp) * group;
-        if (v._anlz) p += 5_cp * sense + 10_cp * group;
+        if (v._adj > 0) p += v._adj * sense + (3_cp + (v._adj - 1) * 2_cp) * group + (v._spatl ? v._adj * 1_cp : 0_cp);
+        if (v._anlz) p += 5_cp * sense + 10_cp * group + (v._spatl ? 5_cp : 0_cp);
         if (v._conc > 0) p += 1_cp * v._conc;
-        if (v._discr) p += 5_cp * sense + 10_cp * group;
-        if (v._dim > 0) p += (v._dim * 5_cp) * sense + ((v._dim == 1) ? 10_cp : ((v._dim == 2) ? 20_cp : 25_cp)) * group;
+        if (v._discr) p += 5_cp * sense + 10_cp * group + (v._spatl ? 5_cp : 0_cp);
+        if (v._dim > 0) p += (v._dim * 5_cp) * sense + ((v._dim == 1) ? 10_cp : ((v._dim == 2) ? 20_cp : 25_cp)) * group + (v._spatl ? 5_cp : 0_cp);
         if (v._incr > 0) {
             if (group == 6) p += (v._incr == 1) ? 10_cp : 25_cp;
-            else p += (2_cp + (v._incr - 1) * 3_cp) * sense + (v._incr * 5_cp) * group;
+            else p += (2_cp + (v._incr - 1) * 3_cp) * sense + (v._incr * 5_cp) * group + (v._spatl ? ((sense == 0) ? 2_cp : 0_cp ) + (v._incr - 1) * 3_cp : 0_cp);
         }
         if (v._mic > 0) p += (3_cp * sense + 5_cp * group) * v._mic;
-        if (v._pen > 0) p += 5_cp * v._pen * sense + (5_cp + v._pen * 5) * group;
-        if (v._range) p += 5_cp * sense + 10_cp * group;
-        if (v._rapid > 0) p += 3_cp * v._rapid * sense + 5_cp * v._rapid * group;
-        if (v._sense) p += 2_cp * totalCount;
-        if (v._target) p += 10_cp * sense + 20_cp * group;
-        if (v._tele) p += (v._tele + 1) / 2_cp * sense + 3_cp * (v._tele + 1) / 2 * group;
-        if (v._track) p += 5_cp * sense + 10_cp * group;
-        if (v._trans) p += 5_cp * sense + 10_cp * group;
+        if (v._pen > 0) p += 5_cp * v._pen * sense + (5_cp + v._pen * 5) * group + (v._spatl ? 5_cp * v._pen : 0_cp);
+        if (v._range) p += 5_cp * sense + 10_cp * group + (v._spatl ? 5_cp : 0_cp);
+        if (v._rapid > 0) p += 3_cp * v._rapid * sense + 5_cp * v._rapid * group + (v._spatl ? 3_cp * v._rapid : 0_cp);
+        if (v._sense) p += 2_cp * (totalCount + (v._spatl ? 1 : 0));
+        if (v._target) p += 10_cp * sense + 20_cp * group + (v._spatl ? 10_cp : 0_cp);
+        if (v._tele) p += (v._tele + 1) / 2_cp * (sense + (v._spatl ? 1 : 0)) + 3_cp * (v._tele + 1) / 2 * group;
+        if (v._track) p += 5_cp * sense + 10_cp * group + (v._spatl ? 5_cp : 0_cp);
+        if (v._trans) p += 5_cp * sense + 10_cp * group + (v._spatl ? 5_cp : 0_cp);
         return p;
     }
 
@@ -535,7 +535,7 @@ private:
     QCheckBox*   nodir;
 
     QString optOut(bool showEND) {
-        if (v._what.size() < 1 && v._detect < 1 && v._enhanc < 1) return "<incomplete>";
+        if (v._what.size() < 1 && !v._spatl && v._detect < 1 && v._enhanc < 1) return "<incomplete>";
         if (v._detect > 0  && v._thing.isEmpty()) return "<incomplete>";
         if ((v._enhanc > 0 && v._amount < 1 && v._enhanc < 3 && v._senses.isEmpty()) ||
             (v._enhanc == 3 && v._amount < 1)) return "<incomplete>";
@@ -544,13 +544,14 @@ private:
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Enhanced Senses: ";
         bool first = true;
-        if (v._detect > 0) { res += "Detect " + v._thing; first = false; }
+        if (v._spatl) { res += "Spatial Awareness"; first = false; }
+        if (v._detect > 0) { res += QString("%1Detect ").arg(first ? "" : ", ") + v._thing; first = false; }
         for (int i = 0; i < v._what.count() - 1; ++i) {
             if (first) first = false;
             else res += ", ";
             res += v._what[i];
         }
-        if (!first) res += ", and ";
+        if (!first && v._what.count() > 0) res += ", and ";
         if (v._what.count() > 0) res += v._what[v._what.count() - 1];
         if (v._enhanc > 0) {
             res += QString("; +%1 PER Roll With ").arg(v._amount);

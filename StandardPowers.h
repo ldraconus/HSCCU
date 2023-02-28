@@ -722,7 +722,7 @@ private:
         if (v._pts < 1 || v._crtr.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("Summonϴ ").arg(v._pts);
+        res += "Summonϴ ";
         if (v._dbl > 0) res += QString(" Up To %1 ").arg((int) pow(2, v._dbl));
         res += QString("%1 pt %2").arg(v._pts).arg(v._crtr);
         QStringList amicable { "", "Friendly", "Loyal", "Devoted", "Slavishly Devoted" };

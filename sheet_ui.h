@@ -155,6 +155,8 @@ private:
         QTableWidget* tablewidget = new QTableWidget(parent);
         tablewidget->setContextMenuPolicy(Qt::CustomContextMenu);
         tablewidget->setWordWrap(true);
+        tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         auto verticalHeader = tablewidget->verticalHeader();
         int pnt = font.pointSize();
         double dpiy = parent->screen()->physicalDotsPerInchY();

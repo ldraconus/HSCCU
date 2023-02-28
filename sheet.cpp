@@ -643,12 +643,12 @@ QString Sheet::getCharacter() {
 shared_ptr<Power>& Sheet::getPower(int row, QList<shared_ptr<Power>>& in) {
     static shared_ptr<Power> null = nullptr;
 
-    for (auto& power: in) {
+    for (shared_ptr<Power>& power: in) {
         if (power == nullptr) continue;
 
         if (power->row() == row) return power;
         if (power->isFramework()) {
-            auto& p = getPower(row, power->list());
+            shared_ptr<Power>& p = getPower(row, power->list());
             if (p != null) return p;
         }
     }
@@ -1737,7 +1737,7 @@ void Sheet::movePowerOrEquipmentDown() {
     auto power = getPower(row, powers);
     delPower(row);
     putPower(row + 2, power);
-    updatePowersAndEquipment();
+    updateDisplay();
 }
 
 void Sheet::movePowerOrEquipmentUp() {
@@ -1747,7 +1747,7 @@ void Sheet::movePowerOrEquipmentUp() {
     auto power = getPower(row, powers);
     delPower(row);
     putPower(row - 1, power);
-    updatePowersAndEquipment();
+    updateDisplay();
 }
 
 void Sheet::moveSkillTalentOrPerkDown() {
@@ -1798,9 +1798,7 @@ void Sheet::newComplication() {
     _changed = true;
 }
 
-void Sheet::newImage() {
-    QString filename = QFileDialog::getOpenFileName(this, "New Image", _dir, "Images (*.png *.xpm *jpg)");
-    if (filename.isEmpty()) return;
+void Sheet::loadImage(QString filename) {
     clearImage();
     QPixmap pixmap;
     pixmap.load(filename);
@@ -1814,7 +1812,16 @@ void Sheet::newImage() {
     scaled.save(&buffer, "PNG");
     buffer.close();
     _character.imageData() = sync;
+    QFileInfo imageFile(filename);
+    QDateTime tm = imageFile.lastModified();
+    _character.imageDate() = tm.toSecsSinceEpoch();
     _changed = true;
+}
+
+void Sheet::newImage() {
+    QString filename = QFileDialog::getOpenFileName(this, "New Image", _dir, "Images (*.png *.xpm *jpg)");
+    if (filename.isEmpty()) return;
+    loadImage(filename);
 }
 
 void Sheet::newPowerOrEquipment() {
@@ -1884,7 +1891,17 @@ void Sheet::open() {
     if (!_character.load(_option, _dir + "/" + _filename)) OK("Can't load \"" + _filename + ".hsccu\" from the \"" + _dir + "\" folder.");
     else {
         updateDisplay();
-        _changed = false;
+        QFileInfo imageFile(_character.image());
+        if (imageFile.exists()) {
+            qulonglong then(_character.imageDate());
+            qulonglong file(imageFile.lastModified().toSecsSinceEpoch());
+            if (file > then && YesNo("Character image on disk has changed.\n\n"
+                                     "Do you want to update the image in\n"
+                                     "the character sheet?") == QMessageBox::Yes) {
+                loadImage(_character.image());
+                updateDisplay();
+            } else _changed = false;
+        } else _changed = false;
     }
 }
 
@@ -2043,6 +2060,30 @@ void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
     widget->setStyleSheet(oldStyle);
 }
 
+void Sheet::pageForward(QTableWidget* tbl) {
+    auto* scrollbar = tbl->verticalScrollBar();
+    int val = scrollbar->value();
+    int max = scrollbar->maximum();
+    int page = scrollbar->pageStep();
+    if (val >= max) return;
+    val += page;
+    scrollbar->setValue(val);
+}
+
+bool Sheet::moreToPrint(QTableWidget* tbl) {
+    auto* scrollbar = tbl->verticalScrollBar();
+    int val = scrollbar->value();
+    int max = scrollbar->maximum();
+    return val < max;
+}
+
+bool Sheet::moreToPrint(int) {
+    pageForward(Ui->skillstalentsandperks);
+    pageForward(Ui->complications);
+    pageForward(Ui->powersandequipment);
+    return moreToPrint(Ui->skillstalentsandperks) || moreToPrint(Ui->complications) || moreToPrint(Ui->powersandequipment);
+}
+
 void Sheet::print() {
     QPrintDialog dlg(printer, this);
     dlg.setWindowTitle("Print Character");
@@ -2068,17 +2109,42 @@ void Sheet::print() {
     QPoint offset { 55, 48 };
     painter.drawImage(QPointF { 0.0, 0.0 }, page1.toImage());
     for (const auto& widget: Ui->widgets) {
-        if (widget == nullptr || widget->y() > 1250) continue; // skip things we can't render and are on the seecond page
+        if (widget == nullptr || widget->y() > 1250) continue; // skip things we can't render or are on the seecond page
         print(painter, offset, widget);
     }
-    printer->newPage();
 
+    Ui->skillstalentsandperks->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    Ui->complications->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    Ui->powersandequipment->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    int skillTop        = Ui->skillstalentsandperks->verticalScrollBar()->value();
+    int complicationTop = Ui->complications->verticalScrollBar()->value();
+    int powerTop        = Ui->powersandequipment->verticalScrollBar()->value();
+
+    Ui->skillstalentsandperks->verticalScrollBar()->setValue(0);
+    Ui->complications->verticalScrollBar()->setValue(0);
+    Ui->powersandequipment->verticalScrollBar()->setValue(0);
+
+    int page = 0;
     offset = QPoint({ 50, 1352 });
-    painter.drawImage(QPointF { 0.0, 0.0 }, page2.toImage());
-    for (const auto& widget: Ui->widgets) {
-        if (widget == nullptr || widget->y() < 1250) continue; // skip things we can't render and are on the seecond page
-        print(painter, offset, widget);
+    while (page == 0 || moreToPrint(page)) {
+        printer->newPage();
+        painter.drawImage(QPointF { 0.0, 0.0 }, page2.toImage());
+        for (const auto& widget: Ui->widgets) {
+            if (widget == nullptr || widget->y() < 1250) continue; // skip things we can't render or are on the first page
+            print(painter, offset, widget);
+        }
+        ++page;
     }
+
+    Ui->skillstalentsandperks->verticalScrollBar()->setValue(skillTop);
+    Ui->complications->verticalScrollBar()->setValue(complicationTop);
+    Ui->powersandequipment->verticalScrollBar()->setValue(powerTop);
+
+    Ui->skillstalentsandperks->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    Ui->complications->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    Ui->powersandequipment->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
     painter.end();
 }
 

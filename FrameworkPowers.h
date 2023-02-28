@@ -341,7 +341,7 @@ public:
     VPP(): FrameworkPowers("Variable Power Pool")       { }
     VPP(const VPP& s): FrameworkPowers(s)               { }
     VPP(VPP&& s): FrameworkPowers(s)                    { }
-    VPP(const QJsonObject& json): FrameworkPowers(json) { v._pool    = json["points"].toInt(0);
+    VPP(const QJsonObject& json): FrameworkPowers(json) { v._pool    = json["pool"].toInt(0);
                                                           v._control = json["control"].toInt(0);
                                                           v._time    = json["time"].toInt(0);
                                                           v._noSkill = json["noSkill"].toBool(false);
@@ -356,9 +356,7 @@ public:
                                                         }
 
     bool isVPP() override { return true; }
-    bool isValid(shared_ptr<Power> power) override {
-        return power->acting() <= v._pool;
-    }
+    bool isValid(shared_ptr<Power> power) override     { return power->acting() <= v._control && power->real() <= v._pool; }
     Points pool() override { return Points(v._pool); }
 
     Fraction adv() override                                      { return ((v._time > 3) ? Fraction(1, 2) * (v._time - 3) : Fraction(0)) +

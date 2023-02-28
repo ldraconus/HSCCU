@@ -304,10 +304,10 @@ public:
     shared_ptr<Modifier> create() override                        { return make_shared<NoFormModifier>(*this); }
     shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<NoFormModifier>(json); }
 
-    QString       description(bool show = false) override  { return QString(show ? fraction(true).toString() + " ": "") + name(); }
+    QString       description(bool show = false) override  { return QString(show ? fraction(Modifier::NoStore).toString() + " ": "") + name(); }
     void          form(QWidget*, QVBoxLayout*) override    { throw "No form"; }
     Fraction      fraction(bool noStore = false) override  { return noStore ? _value : _value; }
-    Points      points(bool noStore = false) override      { return noStore ? _points : _points; }
+    Points        points(bool noStore = false) override    { return noStore ? _points : _points; }
     void          restore() override                       { }
     void          store() override                         { }
     QJsonObject   toJson() override                        { QJsonObject obj;
@@ -677,7 +677,7 @@ private:
             "Non-Mental Power attacks against DMCV instead of DCV"
         };
         if (v._is < 1) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "ACV▲: " + is[v._is];
     }
 };
@@ -905,7 +905,7 @@ private:
         };
         if (v._kind < 0 || (v._fixedShape && v._shape.isEmpty())) return "<incomplete>";
         if (v._multiplier < 1) v._multiplier = 1;
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Area Of Effect: " + kind[v._kind];
         if (v._kind == 4) desc += QString(" (%1x%1%2)").arg(v._multiplier).arg(size[v._kind]);
         else desc += QString(" (%1%2)").arg(v._multiplier).arg(size[v._kind]);
@@ -986,7 +986,7 @@ private:
 
     QString optOut(bool show) {
         if (v._times < 0) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                 ((v._times > 1) ? QString("%1x").arg(v._times) : "") +"Armor Piercing";
         return desc;
@@ -1082,7 +1082,7 @@ private:
 
     QString optOut(bool show) {
         if (v._original < 1 || v._newone < 1 || v._versus.isEmpty()) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  + (v._nnd ? "NND: Defense is " : "Attack Versus Alternate Defense: ") + v._versus;
         return desc;
@@ -1163,7 +1163,7 @@ private:
     QCheckBox* bypass;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  QString("Autofire: %1 shots").arg((3 + 5) * std::pow(2, v._doubling));
         return desc;
@@ -1749,7 +1749,7 @@ public:
     QCheckBox* constant;
 
     QString optOut(bool show) {
-        Fraction mod = fraction(false);
+        Fraction mod = fraction(Modifier::NoStore);
         QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(false).toString() + ") " : "") + "Concentrataion";
         QString sep = " (";
         if (zeroDCV) { res += sep + "0 DCV"; sep = "; "; }
@@ -1831,8 +1831,8 @@ public:
 
     QString optOut(bool show) {
         if (v._howMuch < 1) return "<incomplete>";
-        Fraction mod = fraction(false);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(false).toString() + ") " : "") + "Costs Endurance (";
+        Fraction mod = fraction(Modifier::NoStore);
+        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + "Costs Endurance (";
         if (v._howMuch == 1) res += Fraction(1, 2).toString();
         else res += "Full";
         return res + " END)";
@@ -1910,8 +1910,8 @@ public:
 
     QString optOut(bool show) {
         if (v._howMuch < 1) return "<incomplete>";
-        Fraction mod = fraction(false);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(false).toString() + ") " : "") + "Costs Endurance To Maintain (";
+        Fraction mod = fraction(Modifier::NoStore);
+        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + "Costs Endurance To Maintain (";
         if (v._howMuch == 1) res += Fraction(1, 2).toString();
         else res += "Full";
         return res + " END)";
@@ -2056,7 +2056,7 @@ public:
                                       "Every Hour", "Every 6 Hours", "Every Day",
                                       "Every Week", "Every Month", "Every Season",
                                       "Every Year", "Every 5 Years" };
-        Fraction mod = fraction(false);
+        Fraction mod = fraction(Modifier::NoStore);
         if (v._duration < 1) return "<incomplete>";
         QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + "Damage Over Time▲ (";
         res += QString("%1 Damage Increments %1").arg(v._times).arg(duration[v._duration]);
@@ -2121,7 +2121,7 @@ public:
         static QStringList by { "", "4m per m", "3m per m", "2m per m", "1m per m" };
 
         if (v._howMuch < 1) return "<incomplete>";
-        Fraction mod = fraction(false);
+        Fraction mod = fraction(Modifier::NoStore);
         QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + "Decreased Acceleration/Deceleration (";
         res += by[v._howMuch];
         return res + ")";
@@ -2185,7 +2185,7 @@ private:
 
     QString optOut(bool show) {
         if (v._doubling == 0) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  QString("Delayed EffectꚚ: x%1").arg((int) pow(2.0, (double) v._doubling));
         return desc;
@@ -2249,7 +2249,7 @@ public:
         static QStringList duration { "", "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
                                       "Day", "Week", "Month", "Season", "Year", "5 Years" };
         if (v._duration < 1) return "<incomplete>";
-        Fraction mod = fraction(false);
+        Fraction mod = fraction(Modifier::NoStore);
         QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + "Delayed Fade/Return Rate▲ (";
         res += QString("5 CP per %1").arg(duration[v._duration]);
         return res + ")";
@@ -2313,7 +2313,7 @@ private:
 
     QString optOut(bool show) {
         if (v._doubling == 0) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  QString("Difficult To Dispel: x%1 Active Points").arg((int) pow(2.0, (double) v._doubling));
         return desc;
@@ -2447,7 +2447,7 @@ private:
 
     QString optOut(bool show) {
         if (v._doesnt.isEmpty() || v._howCommon < 1) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Doesn't Work On " + v._doesnt;
         return desc;
@@ -2549,7 +2549,7 @@ private:
 
     QString optOut(bool show) {
         if (v._effects.isEmpty() || v._howMany < 1) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Expanded Effect▲: " + v._effects;
         return desc;
@@ -2640,7 +2640,7 @@ private:
                                    "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
                                    "Day", "Week", "Month", "Season", "Year", "5 Years" };
         if (v._time < 1) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Extra Time: " + extra[v._time];
         QString sep = " (";
@@ -2707,7 +2707,7 @@ private:
     QCheckBox* throughout;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Eye Contact Required";
         if (v._throughout) desc += "(Throughout)";
@@ -2820,7 +2820,7 @@ private:
         QStringList Mobiillity { "", "Bulky", "Immobile", "Arrangement" };
         QStringList Expendability { "", "Difficult To Obtain", "Very Difficult To Obtain", "Extremely Difficult To Obtain" };
         QStringList Durability { "", "Fragile", "Durable", "Unbreakable" };
-        Fraction f = fraction(true);
+        Fraction f = fraction(Modifier::NoStore);
         try {
             QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + Type[v._type] + " (" + v._what;
             QString sep = "; ";
@@ -2897,7 +2897,7 @@ private:
     QCheckBox* throughout;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Gesstures";
         QString sep = " (";
@@ -2987,7 +2987,7 @@ private:
 
     QString optOut(bool show) {
         if (!v._changeable && v._shape.isEmpty()) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Hole In The Middle";
         if (v._changeable) desc += " (Any Shape)";
@@ -3074,7 +3074,7 @@ private:
     QLineEdit* dbling;
 
     QString optOut(bool show) {
-        Points p(points(true));
+        Points p(points(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((p < 0) ? "" : "+") + QString("%1").arg(p.points) + ") " : "") +
                  "Improved Noncombat Movement (" + QString("x%1").arg(2 * (int) pow(2, v._doubling)) + ")";
         return desc;
@@ -3137,7 +3137,7 @@ private:
     QCheckBox* zero;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Inaccurate";
         if (v._zero) desc += " (0 OCV, Range Mods start at 6m)";
@@ -3202,7 +3202,7 @@ private:
     QCheckBox* throughout;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Incantations";
         QString sep = " (";
@@ -3226,8 +3226,8 @@ public:
     IncreasedENDCost(QJsonObject json)
         : Modifier(json["name"].toString("Increased END Cost"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._amount        = json["amountType"].toInt(-1);
-                                                  v._circumstances = json["mobility"].toInt(0);
+                   json["adder"].toBool(false)) { v._amount        = json["amount"].toInt(-1);
+                                                  v._circumstances = json["circumstances"].toInt(0);
                                                   v._what          = json["what"].toString();
                                                 }
     virtual ~IncreasedENDCost() { }
@@ -3258,6 +3258,7 @@ public:
                                                               obj["adder"]         = isAdder();
                                                               obj["amount"]        = v._amount;
                                                               obj["circumstances"] = v._circumstances;
+                                                              obj["what"]          = v._what;
                                                               return obj;
                                                             }
 
@@ -3273,7 +3274,7 @@ public:
         return f;
     }
 
-    Fraction endChange() override { return Fraction(v._amount + 2); }
+    Fraction endChange() override { return Fraction(v._amount + 1); }
 
 private:
     struct vars {
@@ -3290,7 +3291,7 @@ private:
         if (v._amount < 1) return "<incomplete>";
         QStringList Amount { "", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9", "x10" };
         QStringList Circumstances { "", "Very Common", "Common", "Uncommon" };
-        Fraction f = fraction(true);
+        Fraction f = fraction(Modifier::NoStore);
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Increased END Cost (" + Amount[v._amount];
         if (Circumstances[v._circumstances] != "") desc += "; " + Circumstances[v._circumstances] + ((v._circumstances != 0) ? ": " + v._what : "");
         return desc + ")";
@@ -3358,7 +3359,7 @@ private:
     QLineEdit* doubling;
 
     QString optOut(bool show) {
-        Points p(points(true));
+        Points p(points(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((p < 0) ? "" : "+") + QString("%1").arg(p.points) + ") " : "") +
                  "Increased Mass (" + QString("x%1, %2 kg").arg((int) pow(2, v._doubling)).arg(200 * (int) pow(2, v._doubling)) + ")";
         return desc;
@@ -3419,7 +3420,7 @@ private:
     QLineEdit* doubling;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Increased Maximum Effect (" + QString("x%1").arg((int) pow(2, v._doubling)) + ")";
         return desc;
@@ -3480,7 +3481,7 @@ private:
     QLineEdit* doubling;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Increased Maximum Range (" + QString("x%1").arg((int) pow(2, v._doubling)) + ")";
         return desc;
@@ -3513,11 +3514,11 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { location  = createComboBox(p, l, "Location of Power Source?", { "", "Always The Character",
-                                                                                                                              "Always the Same",
-                                                                                                                              "Variable" }, std::mem_fn(&ModifierBase::index));
+    void          form(QWidget* p, QVBoxLayout* l) override { location  = createComboBox(p, l, "Power Source?", { "Always The Character",
+                                                                                                                  "Always the Same",
+                                                                                                                  "Variable" }, std::mem_fn(&ModifierBase::index));
                                                               locAndDir = createLineEdit(p, l, "Location and Path?", std::mem_fn(&ModifierBase::changed));
-                                                              direction = createComboBox(p, l, "Path the Power Follows?", { "", "Directly from Source to Target",
+                                                              direction = createComboBox(p, l, "Path the Power Follows?", { "Directly from Source to Target",
                                                                                                                             "Always the Same",
                                                                                                                             "Variable" }, std::mem_fn(&ModifierBase::index));
                                                             }
@@ -3544,8 +3545,8 @@ public:
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f;
-        if (v._location < 1 || v._direction < 1) return f;
-        f = Fraction(1, 4) * (v._location + v._direction);
+        if (v._location < 0 || v._direction < 0) return f;
+        f = Fraction(1, 4) * (v._location + v._direction + 2);
         return f;
     }
 
@@ -3561,10 +3562,10 @@ private:
     QComboBox* direction;
 
     QString optOut(bool show) {
-        if (v._location < 1 || v._direction < 1 || ((v._location == 2 || v._direction == 2) && v._locAndDir.isEmpty())) return "<incomplete>";
-        QStringList Location { "", "Always The Character", "Always the Same", "Variable" };
-        QStringList Direction { "", "Directly from Source to Target", "Always the Same", "Variable" };
-        Fraction f = fraction(true);
+        if (v._location < 0 || v._direction < 0 || ((v._location == 2 || v._direction == 2) && v._locAndDir.isEmpty())) return "<incomplete>";
+        QStringList Location { "Always The Character", "Always the Same", "Variable" };
+        QStringList Direction { "Directly from Source to Target", "Always the Same", "Variable" };
+        Fraction f = fraction(Modifier::NoStore);
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Indirect (" + Location[v._location];
         desc += "; " + Direction[v._direction];
         if (v._location == 2 || v._direction == 2) desc += "; " + v._locAndDir;
@@ -3573,9 +3574,8 @@ private:
 
     void index(int) override {
         store();
-        if (location->currentIndex() == 1 ||
-            direction->currentIndex() == 1) locAndDir->setEnabled(true);
-            location->setEnabled(false);
+        if (location->currentIndex() >= 1 || direction->currentIndex() >= 1) locAndDir->setEnabled(true);
+        else locAndDir->setEnabled(false);
         ModifiersDialog::ref().updateForm();
     }
 };
@@ -3639,7 +3639,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
     void          form(QWidget* p, QVBoxLayout* l) override { inobvious = createCheckBox(p, l, "Power is Inobvious", std::mem_fn(&ModifierBase::checked));
-                                                              how       = createComboBox(p, l, "How Invisible?", { "", "Inobvious to One Sense Group",
+                                                              how       = createComboBox(p, l, "How Invisible?", { "",
+                                                                                                                   "Inobvious to One Sense Group",
                                                                                                                    "Inobvious to Two Sense Groups",
                                                                                                                    "Imperceptible to Onse Sense Group",
                                                                                                                    "Fully Invisible" }, std::mem_fn(&ModifierBase::index));
@@ -3701,7 +3702,8 @@ private:
         if (v._how < 1 || v._effect < 1) return "<incomplete>";
         if (v._inobvious && v._how != 1 && v._sense.isEmpty()) return "<incomplete>";
         if (!v._inobvious && v._how != 3 && v._sense.isEmpty()) return "<incomplete>";
-        static QStringList How { "", "Inobvious to One Sense Group",
+        static QStringList How { "",
+                                 "Inobvious to One Sense Group",
                                  "Inobvious to Two Sense Groups",
                                  "Imperceptible to Onse Sense Group",
                                  "Fully Invisible" };
@@ -3710,7 +3712,7 @@ private:
                                      "Invisible to other characters but not to target",
                                      "Inobvious to target but not to other characters"
                                      "Invisible to target but not to other characters" };
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Invisible Power Effects (";
         if (v._inobvious) desc += How[v._how + 2];
@@ -3722,7 +3724,8 @@ private:
 
     void checked(bool) override {
         store();
-        QStringList data { "", "Inobvious to One Sense Group",
+        QStringList data { "",
+                           "Inobvious to One Sense Group",
                            "Inobvious to Two Sense Groups",
                            "Imperceptible to Onse Sense Group",
                            "Fully Invisible" };
@@ -3797,7 +3800,7 @@ private:
 
     QString optOut(bool show) {
         if (v._sense.isEmpty()) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Limited Effect (" + v._sense + ")";
         return desc;
@@ -3878,7 +3881,7 @@ public:
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        switch (v._how) {
+        switch (v._how + (v._conditional ? 1 : 0)) {
         case 1: return Fraction(0, 1);
         case 2: return Fraction(1, 4);
         case 3: return Fraction(1, 2);
@@ -3909,8 +3912,8 @@ private:
                                      "Power loses about half of its overall effectiveness",
                                      "Power loses about two-thirds of its overall effectiveness",
                                      "Power loses almost all of its overall effectiveness" };
-        static QStringList Conditional { "", "Very Uncommon", "Uncommon", "Common", "Very Common", "Very Uncommon", "Ubiquitous" };
-        Fraction f(fraction(true));
+        static QStringList Conditional { "", "Very Uncommon", "Uncommon", "Common", "Very Common", "Extremely Common", "Ubiquitous" };
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "-") + f.toString() + ") " : "") +
                  "Limited Power (";
         if (v._conditional) desc += Conditional[v._how];
@@ -3927,7 +3930,7 @@ private:
                               "Power loses about half of its overall effectiveness",
                               "Power loses about two-thirds of its overall effectiveness",
                               "Power loses almost all of its overall effectiveness" };
-        QStringList conditional { "", "Very Uncommon", "Uncommon", "Common", "Very Common", "Very Uncommon", "Ubiquitous" };
+        QStringList conditional { "", "Very Common", "Common", "Uncommon", "Very Uncommon" };
         v._how = -1;
         how->setCurrentIndex(-1);
         how->clear();
@@ -3993,7 +3996,7 @@ private:
     QCheckBox* noRange;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Limited Range";
         return desc;
@@ -4069,7 +4072,7 @@ private:
     QString optOut(bool show) {
         if (v._how < 1 || v._what.isEmpty()) return "<incomplete>";
         static QStringList Limited { "", "Very Common", "Common", "Uncommon" };
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Limited Special Effect (" + Limited[v._how] + ": " + v._what + ")";
         return desc;
@@ -4196,7 +4199,7 @@ private:
     QLineEdit* target;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Linked to " + v._target;
         QString sep = " (";
@@ -4297,7 +4300,7 @@ private:
     QString optOut(bool show) {
         if (v._effect < 1) return "<incomplete>";
         static QStringList Limited { "", "EGO+10", "EGO+20", "EGO+30" };
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Mandatory Effect (" + Limited[v._effect];
         if (!v._other.isEmpty()) desc += " and " + v._other;
@@ -4367,7 +4370,7 @@ private:
     QString optOut(bool show) {
         if (v._mass < 1) return "<incomplete>";
         static QStringList Limited { "", Fraction(1, 2).toString() + " Mass", "Normal Mass", "2x Mass" };
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "MassꚚ (" + Limited[v._mass] + ")";
         return desc;
@@ -4447,7 +4450,7 @@ private:
 
     QString optOut(bool show) {
         if (v._scale == -1) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QStringList scale { "", "1 km", "10 km", "100 km", "1,000 km", "10,000 km", "100,000 km",
                             "1 million km", "100 million km", "1 billion km", "10 billion km",
                             "100 billion km", "1 trillion km", "1 light year", "10 light years",
@@ -4540,7 +4543,7 @@ private:
 
     QString optOut(bool show) {
         if (!v._activation && !v._effects) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "No Concious Control▲";
         QString sep = " (";
@@ -4750,7 +4753,7 @@ private:
 
     QString optOut(bool show) {
         if (v._identity.isEmpty()) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Only In Alternate Identity (" + v._identity + ")";
         return desc;
@@ -4852,7 +4855,7 @@ private:
 
     QString optOut(bool show) {
         if (v._against.isEmpty() || v._howCommon < 0) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Only Works Against " + v._against;
         return desc;
@@ -4937,7 +4940,7 @@ private:
 
     QString optOut(bool show) {
         if (v._what.isEmpty()) return "<incomplete>";
-        Points p(points(true));
+        Points p(points(Modifier::NoStore));
         QString desc = (show ? QString("(+%1) ").arg(p.points) : "") + "Opaque to " + v._what[0];
         int len = v._what.length();
         for (int i = 1; i < len; ++i) {
@@ -5028,7 +5031,7 @@ private:
     QCheckBox* imperceptable;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Perceivable";
         return desc;
@@ -5155,7 +5158,7 @@ private:
     QCheckBox* noRange;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Range Based On STR";
         return desc;
@@ -5316,7 +5319,7 @@ private:
     QCheckBox* noEND;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  (v._noEND ? "0 END" : (Fraction(1, 2).toString() + "END"));
         return desc;
@@ -5378,7 +5381,7 @@ private:
 
     QString optOut(bool show) {
         if (v._reduced < 1) return "<incomplete>";
-        Points p(points(true));
+        Points p(points(Modifier::NoStore));
         QString desc = (show ? QString("(+%1) ").arg(p.points) : "")  + QString("Reduced Negation (-%1)").arg(v._reduced);
         return desc;
     }
@@ -5456,7 +5459,7 @@ private:
     QCheckBox* noRangeMod;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  (v._noRangeMod ? "No Range Modifier" : (Fraction(1, 2).toString() + " Range Modifier"));
         return desc;
@@ -5519,7 +5522,7 @@ private:
 
     QString optOut(bool show) {
         if (v._hands < 1) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         static QStringList hands { "", "One-And-A-Half", "Two" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  hands[v._hands] + " HandedꚚ";
@@ -5648,7 +5651,7 @@ private:
     QString optOut(bool show) {
         QStringList per { "", "20 Active points", "10 Active Points", "5 Active Points" };
         QStringList roll { "", "7-", "8-", "9-", "10-", "11-", "12-", "13-", "14-" };
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         QString sep;
         if (v._fails < 1) return "<incomplete>";
@@ -5754,7 +5757,7 @@ private:
 
     QString optOut(bool show) {
         if (v._max < 1 || v._needs < 2) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         desc += QString("%1").arg(v._needs) + " Charges per Use";
         return desc;
@@ -5823,7 +5826,7 @@ private:
 
     QString optOut(bool show) {
         if (v._needs < 2) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         desc += QString("%1").arg(v._needs) + " Users to Activate";
         return desc;
@@ -5909,7 +5912,7 @@ private:
     QLineEdit* restraint;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Restrainable";
         if (v._nonStandard) desc += "(Only by " + v._restraint + ")";
         return desc;
@@ -5994,7 +5997,7 @@ private:
     QCheckBox* regen;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Ressurection Only";
         return desc;
     }
@@ -6134,7 +6137,7 @@ private:
         QStringList affects { "", "Character", "Aropund Character", "Recipient", "Character And Recipient" };
         QStringList when { "", "Required Roll Fails", "A Thing Happens", "When Power Used",
                            "When Power Stops Being Used" };
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         if (v._affects < 1 || v._when < 1 || v._level < 1 || v._effect.isEmpty()) return "<incomplete>";
         desc += "Side Effect (" + v._effect;
@@ -6217,7 +6220,7 @@ private:
     QCheckBox* rmod;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Standard Range";
         if (v._rmod) desc += " (Subject To Range Penallties)";
         return desc;
@@ -6280,7 +6283,7 @@ private:
     QCheckBox* stunned;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Stops Working If Knocked Out";
         if (v._stunned) desc += " Or Stunned";
         return desc;
@@ -6370,7 +6373,7 @@ private:
 
     QString optOut(bool show) {
         if (v._min < 0) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                 "STR MinimumꚚ (" + QString("%1)").arg(v._min);
         return desc;
@@ -6481,7 +6484,7 @@ private:
 
     QString optOut(bool show) {
         if (v._type < 1 || v._time < 1) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         QStringList instant = { "", "An Extra Phase", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                                 "1 Hour", "6 Hours", "1 Day", "1 Week", "1 Month", "1 Season",
                                 "1 Year", "5 Years" };
@@ -6595,7 +6598,7 @@ private:
 
     QString optOut(bool show) {
         if (v._type < 1 || (v._type != 3 && v._which.isEmpty())) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         QStringList type = { "", "Single Dimension", "Related Group of Dimensions", "Any Dimension" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Transdimensionalϴ (";
         switch (v._type) {
@@ -6713,7 +6716,7 @@ private:
 
     QString optOut(bool show) {
         if (v._cond.isEmpty() || v._act < 1 || v._reset < 1) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         QStringList reset { "", "Turn to", "Full Phase to", "Half Phase to", "0-Phase to", "Automatically" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Trigger (";
         desc += v._cond;
@@ -6743,20 +6746,59 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<TurnMode>(json); }
 };
 
-class Uncontrolled: public NoFormModifier {
+class Uncontrolled: public Modifier {
 public:
     Uncontrolled()
-        : NoFormModifier("Uncontrolledϴ", isAdvantage, Fraction(1, 2)) { }
+        : Modifier("Uncontrolledϴ", isAdvantage, isModifier)
+        , v({ "" }) { }
     Uncontrolled(QJsonObject json)
-        : NoFormModifier(json) { }
+        : Modifier(json["name"].toString("Uncontrolledϴ"),
+                   ModifierType(json["type"].toInt(0)),
+                   json["addr"].toBool(isModifier)) { v._until = json["until"].toString(); }
     Uncontrolled(const Uncontrolled& m)
-        : NoFormModifier(m) { }
+        : Modifier(m)
+        , v(m.v) { }
     Uncontrolled(Uncontrolled&& m)
-        : NoFormModifier(m) { }
+        : Modifier(m)
+        , v(m.v) { }
     virtual ~Uncontrolled() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Uncontrolled>(*this); }
     shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<Uncontrolled>(json); }
+
+    void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
+    void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       description(bool show = false) override   { return optOut(show); }
+    void          form(QWidget* p, QVBoxLayout* l) override { until = createLineEdit(p, l, "Number of Movements?", std::mem_fn(&ModifierBase::changed)); }
+    void          restore() override                        { vars s = v; until->setText(s._until); v = s; }
+    void          store() override                          { v._until = until->text(); }
+    QJsonObject   toJson() override                         { QJsonObject obj;
+                                                              obj["name"]  = name();
+                                                              obj["type"]  = type();
+                                                              obj["adder"] = isAdder();
+                                                              obj["until"] = v._until;
+                                                              return obj;
+                                                            }
+
+    Fraction fraction(bool noStore = false) override {
+        if (!noStore) store();
+        return Fraction(1, 2);
+    }
+
+private:
+    struct vars {
+        QString _until;
+    } v;
+
+    QLineEdit* until;
+
+    QString optOut(bool show) {
+        if (v._until.isEmpty()) return "<incomplete>";
+        Fraction f(fraction(NoStore));
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Uncontrolled Until " + v._until;
+        return desc;
+    }
 };
 
 class UnifiedPower: public NoFormModifier {
@@ -6837,7 +6879,7 @@ private:
 
     QString optOut(bool show) {
         if (v._num < 1 || v._which.isEmpty()) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Usable As " + v._which;
         return desc;
     }
@@ -6968,7 +7010,7 @@ private:
 
     QString optOut(bool show) {
         if (v._doubles < 0) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         if (v._force) desc += "Usable Against Othersϴ";
         else desc += "Usable On Othersϴ";
@@ -7084,7 +7126,7 @@ private:
 
     QString optOut(bool show) {
         if (v._whole < 0 || (v._limit && v._advs.isEmpty())) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         Fraction amt(v._whole);
         if (v._half) amt += Fraction(1, 2);
         if (v._quarter) amt += Fraction(1, 4);
@@ -7148,7 +7190,7 @@ private:
 
     QString optOut(bool show) {
         if (v._effect.isEmpty()) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Variable Effect▲ (versus " + v._effect + ")";
     }
 };
@@ -7223,7 +7265,7 @@ private:
 
     QString optOut(bool show) {
         if (v._whole < 0) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         Fraction amt(v._whole);
         if (v._half) amt += Fraction(1, 2);
         if (v._quarter) amt += Fraction(1, 4);
@@ -7285,7 +7327,7 @@ private:
     QLineEdit* effect;
 
     QString optOut(bool show) {
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Variable Special Effects";
         if (!v._effect.isEmpty()) desc += " (from:  " + v._effect + ")";
         return desc;
@@ -7349,7 +7391,7 @@ private:
 
     QString optOut(bool show) {
         if (v._characteristic < 1) return "<incomplete>";
-        Fraction f(fraction(true));
+        Fraction f(fraction(NoStore));
         QStringList characteristic = { "", "STR", "DEX", "INT", "EGO", "PRE", "OCV", "DCV", "OMCV", "DMCV",
                                        "SPD", "PD", "ED", "REC", "END", "BODY", "STUN" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + QString("Works Against EGO Not %1▲").arg(characteristic[v._characteristic]);

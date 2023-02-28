@@ -205,6 +205,8 @@ void Character::fromJson(Option& opt, QJsonDocument& doc) {
 
     QJsonObject image = top["image"].toObject();
     _image = image["filename"].toString();
+    qint64 now = time(0L);
+    _imageDate = image["datestamp"].toInteger(now);
     _imageData = QByteArray::fromHex(image["data"].toString().toUtf8());
 }
 
@@ -298,6 +300,7 @@ QJsonDocument Character::toJson(Option& opt) {
 
     QJsonObject image;
     image["filename"] = _image;
+    image["datestamp"] = (qint64) _imageDate;
     QString x = _imageData.toHex().toStdString().c_str();
     image["data"] = x;
     top.insert("image", image);

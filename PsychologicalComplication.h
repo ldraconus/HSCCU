@@ -15,7 +15,7 @@ public:
         , v(ac.v) { }
     PsychologicalComplication(const QJsonObject& json)
         : Complication()
-        , v { json["frequency"].toInt(0), json["intesity"].toInt(0), json["what"].toString("") } { }
+        , v { json["frequency"].toInt(0), json["intensity"].toInt(0), json["what"].toString("") } { }
 
     PsychologicalComplication& operator=(const PsychologicalComplication& ac) {
         if (this != &ac)v = ac.v;

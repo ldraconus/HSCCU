@@ -93,6 +93,10 @@ private:
     QString            formatLift(int);
     QString            getCharacter();
     shared_ptr<Power>& getPower(int, QList<shared_ptr<Power>>&);
+    void               loadImage(QString);
+    bool               moreToPrint(QTableWidget*);
+    bool               moreToPrint(int);
+    void               pageForward(QTableWidget*);
     void               putPower(int, shared_ptr<Power>);
     void               print(QPainter&, QPoint&, QWidget*);
     void               rebuildCharFromPowers(QList<shared_ptr<Power>>&);
@@ -104,7 +108,7 @@ private:
     void               rebuildDefenses();
     void               rebuildMartialArt(shared_ptr<SkillTalentOrPerk>, QFont&);
     void               rebuildMartialArts();
-    void               rebuildMoveFromPowers(QList<shared_ptr<Power>>&, QMap<QString, int>&, QMap<QString, QString>&, QMap<QString, int>& doubles);
+    void               rebuildMoveFromPowers(QList<shared_ptr<Power>>&, QMap<QString, int>&, QMap<QString, QString>&, QMap<QString, int>&);
     void               rebuildMovement();
     void               rebuildPowers(bool);
     void               rebuildSenseFromPowers(QList<shared_ptr<Power>>&, QString&);
