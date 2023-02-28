@@ -1382,10 +1382,10 @@ private:
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         QStringList degree { "Cosmetic", "Minor", "Major", "Severe" };
-        res += QString("+%1").arg(v._dice) + "d6 " + degree[v._degree] + " Transformϴ";
+        res += QString("%1").arg(v._dice) + "d6 " + degree[v._degree] + " Transformϴ";
         if (v._result >= 1) {
             if (v._result == 2) res += "; To Anything";
-            else res += "; To " + v._group + ", and" + v._into;
+            else res += "; To " + v._into + ", from " + v._group;
         } else res += "; To " + v._into;
         if (v._partial) res += "; Partial Transform";
         if (v._heal) res += "; Alternative Healing (" + v._method + ")";

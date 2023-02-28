@@ -100,6 +100,7 @@ public:
     Desolidification(Desolidification&& s): AllPowers(s)       { }
     Desolidification(const QJsonObject& json): AllPowers(json) { v._solid   = json["solid"].toBool(false);
                                                                  v._protect = json["protect"].toBool(false);
+                                                                 v._affect  = json["affect"].toString();
                                                                }
     virtual Desolidification& operator=(const Desolidification& s) {
         if (this != &s) {
@@ -117,44 +118,52 @@ public:
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   solid   = createCheckBox(parent, layout, "Cannot Pass THrough Solid Objects");
+                                                                   solid   = createCheckBox(parent, layout, "Cannot Pass Through Solid Objects");
                                                                    protect = createCheckBox(parent, layout, "Doesn't Protect Against Damage");
+                                                                   affect  = createLineEdit(parent, layout, "Affected By?");
                                                                  }
     Fraction lim() override                                      { return (v._solid ? Fraction(1, 2) : Fraction(0)) +
                                                                           (v._protect  ? Fraction(1)    : Fraction(0)); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 40_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    solid->setChecked(s._solid);
                                                                    protect->setChecked(s._protect);
+                                                                   affect->setText(s._affect);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
                                                                    v._solid   = solid->isChecked();
                                                                    v._protect = protect->isChecked();
+                                                                   v._affect  = affect->text();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["solid"]   = v._solid;
                                                                    obj["protect"] = v._protect;
+                                                                   obj["affect"]  = v._affect;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        bool _solid = false;
-        bool _protect = false;
+        bool    _solid = false;
+        bool    _protect = false;
+        QString _affect = "";
     } v;
 
     QCheckBox* solid;
     QCheckBox* protect;
+    QLineEdit* affect;
 
     QString optOut(bool showEND) {
         QString res;
+        if (v._affect.isEmpty()) return "<incomplete>";
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Desolidificationϴ";
         if (v._solid) res += "; Cannot Pass Thought Solid Objects";
         if (v._protect) res += "; Doesn't Protect Against Damage";
+        res += "; Affected By " + v._affect;
         return res;
     }
 };

@@ -5828,7 +5828,7 @@ private:
 class Resistant: public NoFormModifier {
 public:
     Resistant()
-        : NoFormModifier("Resistant", isAdvantage, Fraction(1, 4)) { }
+        : NoFormModifier("Resistant", isAdvantage, Fraction(1, 2)) { }
     Resistant(QJsonObject json)
         : NoFormModifier(json) { }
     Resistant(const Resistant& m)
@@ -7183,8 +7183,7 @@ public:
     VariableEffect(QJsonObject json)
         : Modifier(json["name"].toString("Variable Effect▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._effect = json["effect"].toString();
-                                                }
+                   json["adder"].toBool(false)) { v._effect = json["effect"].toString(); }
     virtual ~VariableEffect() { }
 
     shared_ptr<Modifier> create() override                         { return make_shared<VariableEffect>(*this); }
