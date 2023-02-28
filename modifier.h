@@ -3546,7 +3546,7 @@ public:
         if (!noStore) store();
         Fraction f;
         if (v._location < 0 || v._direction < 0) return f;
-        f = Fraction(1, 4) * (v._location + v._direction + 2);
+        f = Fraction(1, 4) * (v._location + v._direction);
         return f;
     }
 
@@ -3567,8 +3567,9 @@ private:
         QStringList Direction { "Directly from Source to Target", "Always the Same", "Variable" };
         Fraction f = fraction(Modifier::NoStore);
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Indirect (" + Location[v._location];
+        if (v._location == 1 && v._direction != 2) desc += ", " + v._locAndDir;
         desc += "; " + Direction[v._direction];
-        if (v._location == 2 || v._direction == 2) desc += "; " + v._locAndDir;
+        if (v._location == 2 || v._direction == 2) desc += ", " + v._locAndDir;
         return desc + ")";
     }
 
@@ -3906,19 +3907,10 @@ private:
 
     QString optOut(bool show) {
         if (v._how < 1 || v._what.isEmpty()) return "<incomplete>";
-        static QStringList Limited { "", "Power loses less than a fourth of its overall effectiveness",
-                                     "Power loses about a fourth of its overall effectiveness",
-                                     "Power loses about a third of its overall effectiveness",
-                                     "Power loses about half of its overall effectiveness",
-                                     "Power loses about two-thirds of its overall effectiveness",
-                                     "Power loses almost all of its overall effectiveness" };
-        static QStringList Conditional { "", "Very Uncommon", "Uncommon", "Common", "Very Common", "Extremely Common", "Ubiquitous" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "-") + f.toString() + ") " : "") +
                  "Limited Power (";
-        if (v._conditional) desc += Conditional[v._how];
-        else desc += Limited[v._how];
-        desc += ": " + v._what;
+        desc += v._what;
         return desc + ")";
     }
 
@@ -3983,7 +3975,7 @@ public:
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        Fraction f(-1, 4);
+        Fraction f(1, 4);
         if (v._noRange) f = Fraction(1, 4);
         return f;
     }
@@ -6290,20 +6282,59 @@ private:
     }
 };
 
-class Sticky: public NoFormModifier {
+class Sticky: public Modifier {
 public:
     Sticky()
-        : NoFormModifier("Sticky", isAdvantage, Fraction(1, 2)) { }
+        : Modifier("Sticky", isAdvantage, isModifier)
+        , v({ false }) { }
     Sticky(QJsonObject json)
-        : NoFormModifier(json) { }
+        : Modifier(json["name"].toString("Sticky"),
+                   ModifierType(json["type"].toInt(isAdvantage)),
+                   json["adder"].toBool(isModifier)) { v._all = json["all"].toBool(false); }
     Sticky(const Sticky& m)
-        : NoFormModifier(m) { }
+        : Modifier(m)
+        , v(m.v) { }
     Sticky(Sticky&& m)
-        : NoFormModifier(m) { }
+        : Modifier(m)
+        , v(m.v) { }
     virtual ~Sticky() { }
 
     shared_ptr<Modifier> create() override                        { return make_shared<Sticky>(*this); }
     shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<Sticky>(json); }
+
+    void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    QString       description(bool show = false) override   { return optOut(show); }
+    void          form(QWidget* p, QVBoxLayout* l) override { all = createCheckBox(p, l, "Free one, free all??", std::mem_fn(&ModifierBase::checked)); }
+    void          restore() override                        { vars s = v; all->setChecked(s._all); v = s; }
+    void          store() override                          { v._all = all->isChecked(); }
+    QJsonObject   toJson() override                         { QJsonObject obj;
+                                                              obj["name"]  = name();
+                                                              obj["type"]  = type();
+                                                              obj["adder"] = isAdder();
+                                                              obj["all"]   = v._all;
+                                                              return obj;
+                                                            }
+
+    Fraction fraction(bool noStore = false) override {
+        if (!noStore) store();
+        if (v._all) return Fraction(1, 4);
+        else return Fraction(1, 2);
+    }
+
+private:
+    struct vars {
+        bool _all;
+    } v;
+
+    QCheckBox* all;
+
+    QString optOut(bool show) {
+        Fraction f(fraction(NoStore));
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
+                       "Sticky";
+        if (v._all) desc += " (Free on, free all)";
+        return desc;
+    }
 };
 
 class STRMinimum: public Modifier {
@@ -6770,7 +6801,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { until = createLineEdit(p, l, "Number of Movements?", std::mem_fn(&ModifierBase::changed)); }
+    void          form(QWidget* p, QVBoxLayout* l) override { until = createLineEdit(p, l, "Until?", std::mem_fn(&ModifierBase::changed)); }
     void          restore() override                        { vars s = v; until->setText(s._until); v = s; }
     void          store() override                          { v._until = until->text(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
@@ -7159,16 +7190,11 @@ public:
     shared_ptr<Modifier> create() override                         { return make_shared<VariableEffect>(*this); }
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<VariableEffect>(json); }
 
-    void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { effect = createLineEdit(p, l, "Effects?", std::mem_fn(&ModifierBase::changed));
-                                                            }
-    void          restore() override                        { vars s = v;
-                                                              effect->setText(s._effect);
-                                                              v = s;
-                                                            }
-    void          store() override                          { v._effect = effect->text();
-                                                            }
+    void          form(QWidget* p, QVBoxLayout* l) override { effect = createLineEdit(p, l, "Effects?", std::mem_fn(&ModifierBase::changed)); }
+    void          restore() override                        { vars s = v; effect->setText(s._effect); v = s; }
+    void          store() override                          { v._effect = effect->text(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]   = name();
                                                               obj["type"]   = type();
