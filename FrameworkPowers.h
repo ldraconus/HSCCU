@@ -458,6 +458,7 @@ public:
         auto advtg = advantages() - adv();
         auto modif = modifiers();
         for (const auto& pe: FrameworkPowers::v._powers) {
+            if (pe == nullptr) continue;
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);

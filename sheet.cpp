@@ -1010,6 +1010,8 @@ void Sheet::rebuildPowers(bool addTakesNoSTUN) {
             }
             if (power->isFramework()) {
                 for (const auto& pwr: power->list()) {
+                    if (pwr == nullptr) continue;
+
                     if (pwr->name() == "Takes No STUNϴ") {
                         _character.hasTakesNoSTUN() = true;
                         break;
@@ -2060,28 +2062,46 @@ void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
     widget->setStyleSheet(oldStyle);
 }
 
-void Sheet::pageForward(QTableWidget* tbl) {
-    auto* scrollbar = tbl->verticalScrollBar();
-    int val = scrollbar->value();
-    int max = scrollbar->maximum();
-    int page = scrollbar->pageStep();
-    if (val >= max) return;
-    val += page;
-    scrollbar->setValue(val);
+int Sheet::getPageCount(QTableWidget* tbl) {
+    int hgt = tbl->size().height();
+    int needed = 0;
+    int pages = 1;
+    for (int i = 0; i < tbl->rowCount(); ++i) {
+        int h = tbl->rowHeight(i);
+        needed += h;
+        if (needed > hgt) {
+            needed = h;
+            ++pages;
+        }
+    }
+    return pages;
 }
 
-bool Sheet::moreToPrint(QTableWidget* tbl) {
-    auto* scrollbar = tbl->verticalScrollBar();
-    int val = scrollbar->value();
-    int max = scrollbar->maximum();
-    return val < max;
+int Sheet::getPageCount() {
+    int pages = getPageCount(Ui->skillstalentsandperks);
+    int next = getPageCount(Ui->complications);
+    if (next > pages) pages = next;
+    next = getPageCount(Ui->powersandequipment);
+    if (next > pages) pages = next;
+    return pages;
 }
 
-bool Sheet::moreToPrint(int) {
-    pageForward(Ui->skillstalentsandperks);
-    pageForward(Ui->complications);
-    pageForward(Ui->powersandequipment);
-    return moreToPrint(Ui->skillstalentsandperks) || moreToPrint(Ui->complications) || moreToPrint(Ui->powersandequipment);
+void Sheet::deletePagefull(QTableWidget* tbl) {
+    int hgt = tbl->size().height();
+    int found = 0;
+    int rows = tbl->rowCount();
+    for (int i = 0; i < rows; ++i) {
+        int h = tbl->rowHeight(0);
+        found += h;
+        if (found > hgt) break;
+        tbl->removeRow(0);
+    }
+}
+
+void Sheet::deletePagefull() {
+    deletePagefull(Ui->skillstalentsandperks);
+    deletePagefull(Ui->complications);
+    deletePagefull(Ui->powersandequipment);
 }
 
 void Sheet::print() {
@@ -2113,13 +2133,13 @@ void Sheet::print() {
         print(painter, offset, widget);
     }
 
-    Ui->skillstalentsandperks->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    Ui->complications->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    Ui->powersandequipment->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
     int skillTop        = Ui->skillstalentsandperks->verticalScrollBar()->value();
     int complicationTop = Ui->complications->verticalScrollBar()->value();
     int powerTop        = Ui->powersandequipment->verticalScrollBar()->value();
+
+    Ui->skillstalentsandperks->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    Ui->complications->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    Ui->powersandequipment->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     Ui->skillstalentsandperks->verticalScrollBar()->setValue(0);
     Ui->complications->verticalScrollBar()->setValue(0);
@@ -2127,13 +2147,15 @@ void Sheet::print() {
 
     int page = 0;
     offset = QPoint({ 50, 1352 });
-    while (page == 0 || moreToPrint(page)) {
+    int max = getPageCount();
+    while (page < max) {
         printer->newPage();
         painter.drawImage(QPointF { 0.0, 0.0 }, page2.toImage());
         for (const auto& widget: Ui->widgets) {
             if (widget == nullptr || widget->y() < 1250) continue; // skip things we can't render or are on the first page
             print(painter, offset, widget);
         }
+        deletePagefull();
         ++page;
     }
 
@@ -2146,6 +2168,8 @@ void Sheet::print() {
     Ui->powersandequipment->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     painter.end();
+
+    updateDisplay();
 }
 
 void Sheet::save() {

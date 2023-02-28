@@ -95,7 +95,7 @@ private:
 
 class Desolidification: public AllPowers {
 public:
-    Desolidification(): AllPowers("Desolidifcationϴ")          { }
+    Desolidification(): AllPowers("Desolidificationϴ")         { }
     Desolidification(const Desolidification& s): AllPowers(s)  { }
     Desolidification(Desolidification&& s): AllPowers(s)       { }
     Desolidification(const QJsonObject& json): AllPowers(json) { v._solid   = json["solid"].toBool(false);

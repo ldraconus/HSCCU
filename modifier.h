@@ -6953,9 +6953,9 @@ public:
                                                               control = createComboBox(p, l, "Who Controls?", { "Recipient", "Recipient, but Grantor Can Take Bacl", "Grantor" },
                                                                                        std::mem_fn(&ModifierBase::index));
                                                               pays    = createCheckBox(p, l, "Grantor pays END", std::mem_fn(&ModifierBase::checked));
-                                                              range   = createComboBox(p, l, "Recipeint must be?", { "", "Within Reach", "Within Limited Range", "Within Standard Range" },
+                                                              range   = createComboBox(p, l, "Recipeint must be?", { "Within Reach", "Within Limited Range", "Within Standard Range" },
                                                                                        std::mem_fn(&ModifierBase::index));
-                                                              stay    = createComboBox(p, l, "Recipeient?", { "", "Can Go Anywhere", "Must Stay Within Line-Of-Sight", "Must Remain Close" },
+                                                              stay    = createComboBox(p, l, "Recipeient?", { "Can Go Anywhere", "Must Stay Within Line-Of-Sight", "Must Remain Close" },
                                                                                        std::mem_fn(&ModifierBase::index));
                                                             }
     void          restore() override                        { vars s = v;
@@ -7001,8 +7001,8 @@ public:
         if (v._force) f += Fraction(1);
         f += v._control * Fraction(1, 4);
         if (v._pays) f -= Fraction(1, 4);
-        f += (v._range - 1) * Fraction(1, 4);
-        f -= (v._stay - 1) * Fraction(1, 4);
+        f += (v._range) * Fraction(1, 4);
+        f -= (v._stay) * Fraction(1, 4);
         if (f < Fraction(1, 4)) f = Fraction(1, 4);
         return f;
     }
@@ -7049,22 +7049,21 @@ private:
         if (v._ten) desc += "; Anyone In 10m";
         if (v._one) desc += "; One At A Time";
         switch (v._control) {
-        case 1: desc += "; Recipient Controls";                        break;
-        case 2: desc += "; Recipient Controls But Grantor Can Revoke"; break;
-        case 3: desc += "; Grantor Controls";                          break;
+        case 0: desc += "; Recipient Controls";                        break;
+        case 1: desc += "; Recipient Controls But Grantor Can Revoke"; break;
+        case 2: desc += "; Grantor Controls";                          break;
         }
         if (v._pays) desc += "; Grantor Pays END";
         else desc += "; Receipient Pays END";
         switch (v._range) {
-        case 1: desc += "; Must Be In Reach";         break;
-        case 2: desc += "; Must Be In Limited Range"; break;
-        case 3: desc += "; Must Bu In Range";         break;
+        case 0: desc += "; Must Be In Reach";         break;
+        case 1: desc += "; Must Be In Limited Range"; break;
+        case 2: desc += "; Must Be In Range";         break;
         }
         desc += " When Granted";
         switch (v._stay) {
-        case 1:                                         break;
-        case 2: desc += "; Must Stay In LIne-Of-Sight"; break;
-        case 3: desc += "; Must stay In Range";         break;
+        case 1: desc += "; Must Stay In LIne-Of-Sight"; break;
+        case 2: desc += "; Must stay In Range";         break;
         }
 
         return desc + ")";
