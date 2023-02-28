@@ -144,11 +144,11 @@ public:
             if (descr == "-") descr = "";
             pe->parent(this);
             for (const auto& mod: pe->advantagesList()) {
-                if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
+                if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                 else descr += "; (+" + mod->fraction(true).toString() + ") ";
                 descr += mod->description(false);
             }
-            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
+            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pts.toInt() == 0) pts = Fraction(1);
             Sheet::ref().setCell(tbl, row, 0, descr.isEmpty() ? "" : QString("%1").arg(pts.toInt()), font);
@@ -177,11 +177,11 @@ public:
                 if (descr.isEmpty()) {
                 pe->parent(this);
                 for (const auto& mod: pe->advantagesList()) {
-                    if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
+                    if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                     else descr += "; (+" + mod->fraction(true).toString() + ") ";
                     descr += mod->description(false);
                 }
-                for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
+                for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
                 Fraction pts(pe->real(advtg, modif, limit).points);
                 if (pts.toInt() == 0) pts = Fraction(1);
                 out += QString("%1\t").arg(pts.toInt(), 3);
@@ -256,11 +256,11 @@ public:
             if (descr == "-") descr = "";
             pe->parent(this);
             for (const auto& mod: pe->advantagesList()) {
-                if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
+                if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                 else descr += "; (+" + mod->fraction(true).toString() + ") ";
                 descr += mod->description(false);
             }
-            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
+            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Fraction cost(pe->real().points);
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pe->varying()) pts = pts / 5;
@@ -291,11 +291,11 @@ public:
             if (descr == "-") descr = "";
             pe->parent(this);
             for (const auto& mod: pe->advantagesList()) {
-                if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
+                if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                 else descr += "; (+" + mod->fraction(true).toString() + ") ";
                 descr += mod->description(false);
             }
-            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
+            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Points pnts(pe->real());
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pe->varying()) pts = pts / 5;
@@ -463,11 +463,11 @@ public:
             if (descr == "-") descr = "";
             pe->parent(this);
             for (const auto& mod: pe->advantagesList()) {
-                if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
+                if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                 else descr += "; (+" + mod->fraction(true).toString() + ") ";
                 descr += mod->description(false);
             }
-            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
+            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pts.toInt() == 0 && !descr.isEmpty()) pts = Fraction(1);
             Sheet::ref().setCell(tbl, row, 0, "", font);
@@ -495,11 +495,11 @@ public:
             if (descr == "-") descr = "";
             pe->parent(this);
             for (const auto& mod: pe->advantagesList()) {
-                if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points().points) + " pts) ";
+                if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                 else descr += "; (+" + mod->fraction(true).toString() + ") ";
                 descr += mod->description(false);
             }
-            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(true).abs().toString() + ") " + mod->description(false);
+            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Fraction pts(0);
             if (!descr.isEmpty()) {
                 pts = Fraction(pe->real(advtg, modif, limit).points);

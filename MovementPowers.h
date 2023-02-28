@@ -641,7 +641,7 @@ private:
         if (v._speed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1m Swimming").arg(v._speed);
+        res += QString("+%1m Swimming").arg(v._speed);
         if (v._surface) res += "; Surface Only";
         return res;
     }
