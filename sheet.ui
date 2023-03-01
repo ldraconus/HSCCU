@@ -118,7 +118,6 @@
     <addaction name="actionSave_As"/>
     <addaction name="separator"/>
     <addaction name="action_Print"/>
-    <addaction name="actionPa_ge_Setup"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>

@@ -115,6 +115,7 @@ private:
     void               rebuildPowers(bool);
     void               rebuildSenseFromPowers(QList<shared_ptr<Power>>&, QString&);
     void               rebuildSenses();
+    int                searchImprovedNoncombatMovement(QString);
     void               setupIcons();
     void               setCVs(_CharacteristicDef&, QLabel*);
     void               setDamage(_CharacteristicDef&, QLabel*);
@@ -193,7 +194,6 @@ public slots:
     void newSkillTalentOrPerk();
     void open();
     void options();
-    void pageSetup();
     void pasteCharacter();
     void pasteComplication();
     void pastePowerOrEquipment();
@@ -201,6 +201,7 @@ public slots:
     void playerNameChanged(QString);
     void powersandequipmentMenu(QPoint);
     void print();
+    void printCharacter(QPrinter*);
     void save();
     void saveAs();
     void skillstalentsandperksMenu(QPoint);

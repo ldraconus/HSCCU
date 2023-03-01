@@ -28,6 +28,7 @@
 #include <QPageSetupDialog>
 #include <QPainter>
 #include <QPrintDialog>
+#include <QPrintPreviewDialog>
 #include <QScrollBar>
 #include <QSettings>
 #include <QStandardPaths>
@@ -229,7 +230,6 @@ Sheet::Sheet(QWidget *parent)
     connect(ui->action_Save,       SIGNAL(triggered()),   this, SLOT(save()));
     connect(ui->actionSave_As,     SIGNAL(triggered()),   this, SLOT(saveAs()));
     connect(ui->action_Print,      SIGNAL(triggered()),   this, SLOT(print()));
-    connect(ui->actionPa_ge_Setup, SIGNAL(triggered()),   this, SLOT(pageSetup()));
     connect(ui->actionE_xit,       SIGNAL(triggered()),   this, SLOT(exitClicked()));
 
     connect(ui->menu_Edit,     SIGNAL(aboutToShow()), this, SLOT(aboutToShowEditMenu()));
@@ -526,6 +526,24 @@ void Sheet::delPower(int row) {
     }
 }
 
+void Sheet::deletePagefull(QTableWidget* tbl) {
+    int hgt = tbl->size().height();
+    int found = 0;
+    int rows = tbl->rowCount();
+    for (int i = 0; i < rows; ++i) {
+        int h = tbl->rowHeight(0);
+        found += h;
+        tbl->removeRow(0);
+        if (found > hgt) break;
+    }
+}
+
+void Sheet::deletePagefull() {
+    deletePagefull(Ui->skillstalentsandperks);
+    deletePagefull(Ui->complications);
+    deletePagefull(Ui->powersandequipment);
+}
+
 int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
     if (pe == nullptr) return 0;
 
@@ -640,6 +658,45 @@ QString Sheet::getCharacter() {
     return out;
 }
 
+int Sheet::getPageCount(QTableWidget* tbl) {
+    int hgt = tbl->size().height();
+    int needed = 0;
+    int pages = 1;
+    bool blank = false;
+    QFont font = tbl->font();
+    int rows = tbl->rowCount();
+    for (int i = 0; i < rows; ++i) {
+        int h = tbl->rowHeight(i);
+        if (needed + h > hgt) {
+            if (!blank) {
+                blank = true;
+                tbl->insertRow(i);
+                ++rows;
+                for (int j = 0; j < tbl->columnCount(); ++j) setCellLabel(tbl, i, j, " ", font);
+                tbl->setRowHeight(i, tbl->horizontalHeader()->height());
+                --i;
+            } else {
+                needed = h;
+                ++pages;
+                blank = false;
+            }
+        } else {
+            needed += h;
+            blank = false;
+        }
+    }
+    return pages;
+}
+
+int Sheet::getPageCount() {
+    int pages = getPageCount(Ui->skillstalentsandperks);
+    int next = getPageCount(Ui->complications);
+    if (next > pages) pages = next;
+    next = getPageCount(Ui->powersandequipment);
+    if (next > pages) pages = next;
+    return pages;
+}
+
 shared_ptr<Power>& Sheet::getPower(int row, QList<shared_ptr<Power>>& in) {
     static shared_ptr<Power> null = nullptr;
 
@@ -653,6 +710,76 @@ shared_ptr<Power>& Sheet::getPower(int row, QList<shared_ptr<Power>>& in) {
         }
     }
     return null;
+}
+
+void Sheet::loadImage(QString filename) {
+    clearImage();
+    QPixmap pixmap;
+    pixmap.load(filename);
+    QPixmap scaled = pixmap.scaledToWidth(Ui->image->width());
+    if (scaled.height() > Ui->image->height()) scaled = pixmap.scaledToHeight(Ui->image->height());
+    Ui->image->setPixmap(scaled);
+    _character.image() = filename;
+    QByteArray sync;
+    QBuffer buffer(&sync);
+    buffer.open(QIODevice::WriteOnly);
+    scaled.save(&buffer, "PNG");
+    buffer.close();
+    _character.imageData() = sync;
+    QFileInfo imageFile(filename);
+    QDateTime tm = imageFile.lastModified();
+    _character.imageDate() = tm.toSecsSinceEpoch();
+    _changed = true;
+}
+
+void Sheet::preparePrint(QTableWidget* tbl) {
+    tbl->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tbl->verticalScrollBar()->setValue(0);
+}
+
+void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
+    QString oldStyle = widget->styleSheet();
+
+    QLabel* label = dynamic_cast<QLabel*>(widget);
+    if (label) {
+        QString style = "QLabel { background: transparent;"
+                        "   border-style: none;"
+                        " }";
+        label->setStyleSheet(style);
+    }
+    QLineEdit* lineEdit = dynamic_cast<QLineEdit*>(widget);
+    if (lineEdit) {
+        QString style = "QLineEdit { background: white;"
+                        "   border-style: none;"
+                        " }";
+        lineEdit->setStyleSheet(style);
+    }
+    QTableWidget* table = dynamic_cast<QTableWidget*>(widget);
+    if (table) {
+        QFont font = table->font();
+        QString family = font.family();
+        int pnt = font.pointSize();
+        QString style ="QTableWidget { gridline-color: white;"
+                        "   background-color: white;"
+                        "   selection-background-color: white;"
+                        "   border-style: none;"
+                        + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
+                        "   color: black;"
+                        "   selection-color: black;"
+                        " } "
+                        "QHeaderView::section { background-color: white;"
+                        "   border-style: none;"
+                        "   color: black;" +
+                        QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
+                        " }";
+        table->setStyleSheet(style);
+
+    }
+    QPoint move { widget->x() - offset.x(), widget->y() - offset.y() };
+    painter.translate(move);
+    widget->render(&painter);
+    painter.translate(-move);
+    widget->setStyleSheet(oldStyle);
 }
 
 void Sheet::putPower(int row, shared_ptr<Power> power) {
@@ -971,13 +1098,17 @@ void Sheet::rebuildMovement() {
     Ui->movement->update();
 
     QString running = QString("%1m").arg(_character.running());
-    QString ncRunning = QString("%1m").arg(2 * _character.running());
+    int mult = searchImprovedNoncombatMovement("Running");
+    QString ncRunning = QString("%1m").arg(mult * _character.running());
     QString swimming = QString("%1m").arg(_character.swimming());
-    QString ncSwimming = QString("%1m").arg(2 * _character.swimming());
+    mult = searchImprovedNoncombatMovement("Swimming");
+    QString ncSwimming = QString("%1m").arg(mult * _character.swimming());
     QString hLeaping = QString("%1m").arg(_character.leaping());
-    QString ncHLeaping = QString("%1m").arg(2 * _character.leaping());
-    QString vLeaping = QString("%1m").arg((_character.leaping() + 1) / 2);
-    QString ncVLeaping = QString("%1m").arg(2 * (_character.leaping() + 1) / 2);
+    mult = searchImprovedNoncombatMovement("Leaping");
+    QString ncHLeaping = QString("%1m").arg(mult * _character.leaping());
+    int vLeap = (_character.leaping() + 1) / 2;
+    QString vLeaping = QString("%1m").arg(vLeap);
+    QString ncVLeaping = QString("%1m").arg(mult * vLeap);
     setCellLabel(Ui->movement, 0, 1, running);
     setCellLabel(Ui->movement, 0, 2, ncRunning);
     setCellLabel(Ui->movement, 1, 1, swimming);
@@ -1070,6 +1201,23 @@ void Sheet::rebuildSenses() {
     QString senses = "<b>Enhanced and Unusual Senses</b>";
     rebuildSenseFromPowers(_character.powersOrEquipment(), senses);
     Ui->enhancedandunusualsenses->setText(senses);
+}
+
+int Sheet::searchImprovedNoncombatMovement(QString name) {
+    int mult = 0;
+    for (const auto& power: _character.powersOrEquipment()) {
+        if (power->name() == name) {
+            for (const auto& mod: power->modifiers()) if (mod->name() == "Improved Noncombat Movement") if (mod->doubling() > mult) mult = mod->doubling();
+        } else if (power->isFramework()) {
+            for (const auto& pwr: power->list()) {
+                if (pwr->name() == name) {
+                    for (const auto& mod: pwr->modifiers()) if (mod->name() == "Improved Noncombat Movement") if (mod->doubling() > mult) mult = mod->doubling();
+                }
+            }
+        }
+    }
+
+    return (int) pow(2, mult + 1);
 }
 
 void Sheet::setupIcons() {
@@ -1800,26 +1948,6 @@ void Sheet::newComplication() {
     _changed = true;
 }
 
-void Sheet::loadImage(QString filename) {
-    clearImage();
-    QPixmap pixmap;
-    pixmap.load(filename);
-    QPixmap scaled = pixmap.scaledToWidth(Ui->image->width());
-    if (scaled.height() > Ui->image->height()) scaled = pixmap.scaledToHeight(Ui->image->height());
-    Ui->image->setPixmap(scaled);
-    _character.image() = filename;
-    QByteArray sync;
-    QBuffer buffer(&sync);
-    buffer.open(QIODevice::WriteOnly);
-    scaled.save(&buffer, "PNG");
-    buffer.close();
-    _character.imageData() = sync;
-    QFileInfo imageFile(filename);
-    QDateTime tm = imageFile.lastModified();
-    _character.imageDate() = tm.toSecsSinceEpoch();
-    _changed = true;
-}
-
 void Sheet::newImage() {
     QString filename = QFileDialog::getOpenFileName(this, "New Image", _dir, "Images (*.png *.xpm *jpg)");
     if (filename.isEmpty()) return;
@@ -1919,11 +2047,6 @@ void Sheet::options() {
     _changed = true;
 }
 
-void Sheet::pageSetup() {
-    QPageSetupDialog dlg(printer, this);
-    dlg.exec();
-}
-
 void Sheet::pasteCharacter() {
     try {
         if (_changed) {
@@ -2019,118 +2142,17 @@ void Sheet::powersandequipmentMenu(QPoint pos) {
                                                  - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
 }
 
-void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
-    QString oldStyle = widget->styleSheet();
-
-    QLabel* label = dynamic_cast<QLabel*>(widget);
-    if (label) {
-        QString style = "QLabel { background: transparent;"
-                              "   border-style: none;"
-                              " }";
-        label->setStyleSheet(style);
-    }
-    QLineEdit* lineEdit = dynamic_cast<QLineEdit*>(widget);
-    if (lineEdit) {
-        QString style = "QLineEdit { background: white;"
-                                 "   border-style: none;"
-                                 " }";
-        lineEdit->setStyleSheet(style);
-    }
-    QTableWidget* table = dynamic_cast<QTableWidget*>(widget);
-    if (table) {
-        QFont font = table->font();
-        QString family = font.family();
-        int pnt = font.pointSize();
-        QString style ="QTableWidget { gridline-color: white;"
-                                   "   background-color: white;"
-                                   "   selection-background-color: white;"
-                                   "   border-style: none;"
-                         + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
-                                   "   color: black;"
-                                   "   selection-color: black;"
-                                   " } "
-                       "QHeaderView::section { background-color: white;"
-                                           "   border-style: none;"
-                                           "   color: black;" +
-                                   QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
-                                           " }";
-        table->setStyleSheet(style);
-
-    }
-    QPoint move { widget->x() - offset.x(), widget->y() - offset.y() };
-    painter.translate(move);
-    widget->render(&painter);
-    painter.translate(-move);
-    widget->setStyleSheet(oldStyle);
-}
-
-int Sheet::getPageCount(QTableWidget* tbl) {
-    int hgt = tbl->size().height();
-    int needed = 0;
-    int pages = 1;
-    bool blank = false;
-    QFont font = tbl->font();
-    int rows = tbl->rowCount();
-    for (int i = 0; i < rows; ++i) {
-        int h = tbl->rowHeight(i);
-        if (needed + h > hgt) {
-            if (!blank) {
-                blank = true;
-                tbl->insertRow(i);
-                ++rows;
-                for (int j = 0; j < tbl->columnCount(); ++j) setCellLabel(tbl, i, j, " ", font);
-                tbl->setRowHeight(i, tbl->horizontalHeader()->height());
-                --i;
-            } else {
-                needed = h;
-                ++pages;
-                blank = false;
-            }
-        } else {
-            needed += h;
-            blank = false;
-        }
-    }
-    return pages;
-}
-
-int Sheet::getPageCount() {
-    int pages = getPageCount(Ui->skillstalentsandperks);
-    int next = getPageCount(Ui->complications);
-    if (next > pages) pages = next;
-    next = getPageCount(Ui->powersandequipment);
-    if (next > pages) pages = next;
-    return pages;
-}
-
-void Sheet::deletePagefull(QTableWidget* tbl) {
-    int hgt = tbl->size().height();
-    int found = 0;
-    int rows = tbl->rowCount();
-    for (int i = 0; i < rows; ++i) {
-        int h = tbl->rowHeight(0);
-        found += h;
-        tbl->removeRow(0);
-        if (found > hgt) break;
-    }
-}
-
-void Sheet::deletePagefull() {
-    deletePagefull(Ui->skillstalentsandperks);
-    deletePagefull(Ui->complications);
-    deletePagefull(Ui->powersandequipment);
-}
-
-void Sheet::preparePrint(QTableWidget* tbl) {
-    tbl->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    tbl->verticalScrollBar()->setValue(0);
-}
-
 void Sheet::print() {
-    QPrintDialog dlg(printer, this);
-    dlg.setWindowTitle("Print Character");
-    if (dlg.exec() != QDialog::Accepted) return;
+    QPrintPreviewDialog preview(printer, this);
+    preview.setWindowTitle("Print Chracter");
+    preview.setMinimumHeight(600);
+    preview.setMinimumWidth(800);
+    this->connect(&preview, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printCharacter(QPrinter*)));
 
+    preview.exec();
+}
+
+void Sheet::printCharacter(QPrinter* printer) {
     QPixmap page1(QString(":/gfx/Page1.png"));
     QPixmap page2(QString(":/gfx/Page2.png"));
 
