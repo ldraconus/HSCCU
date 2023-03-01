@@ -747,7 +747,7 @@ public:
     Flash(const Flash& s): AllPowers(s)             { }
     Flash(Flash&& s): AllPowers(s)                  { }
     Flash(const QJsonObject& json): AllPowers(json) { v._dice      = json["dice"].toInt(0);
-                                                      v._tgt       = json["pded"].toString();
+                                                      v._tgt       = json["tgt"].toString();
                                                       v._nonTgt    = json["nonTgt"].toString();
                                                       v._desolid   = json["stun"].toBool(false);
                                                       v._indTgt    = json["indTgt"].toString();
@@ -806,7 +806,7 @@ public:
                                                                    obj["tgt"]       = v._tgt;
                                                                    obj["nonTgt"]    = v._nonTgt;
                                                                    obj["desolid"]   = v._desolid;
-                                                                   obj["indTgt]"]   = v._indTgt;
+                                                                   obj["indTgt"]    = v._indTgt;
                                                                    obj["indNonTgt"] = v._indNonTgt;
                                                                    return obj;
                                                                  }

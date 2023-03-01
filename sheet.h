@@ -99,6 +99,7 @@ private:
     shared_ptr<Power>& getPower(int, QList<shared_ptr<Power>>&);
     void               loadImage(QString);
     void               putPower(int, shared_ptr<Power>);
+    void               preparePrint(QTableWidget*);
     void               print(QPainter&, QPoint&, QWidget*);
     void               rebuildCharFromPowers(QList<shared_ptr<Power>>&);
     void               rebuildCharacteristics();

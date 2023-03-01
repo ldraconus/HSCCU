@@ -2043,9 +2043,11 @@ void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
         int pnt = font.pointSize();
         QString style ="QTableWidget { gridline-color: white;"
                                    "   background-color: white;"
+                                   "   selection-background-color: white;"
                                    "   border-style: none;"
                          + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
                                    "   color: black;"
+                                   "   selection-color: black;"
                                    " } "
                        "QHeaderView::section { background-color: white;"
                                            "   border-style: none;"
@@ -2066,12 +2068,27 @@ int Sheet::getPageCount(QTableWidget* tbl) {
     int hgt = tbl->size().height();
     int needed = 0;
     int pages = 1;
-    for (int i = 0; i < tbl->rowCount(); ++i) {
+    bool blank = false;
+    QFont font = tbl->font();
+    int rows = tbl->rowCount();
+    for (int i = 0; i < rows; ++i) {
         int h = tbl->rowHeight(i);
-        needed += h;
-        if (needed > hgt) {
-            needed = h;
-            ++pages;
+        if (needed + h > hgt) {
+            if (!blank) {
+                blank = true;
+                tbl->insertRow(i);
+                ++rows;
+                for (int j = 0; j < tbl->columnCount(); ++j) setCellLabel(tbl, i, j, " ", font);
+                tbl->setRowHeight(i, tbl->horizontalHeader()->height());
+                --i;
+            } else {
+                needed = h;
+                ++pages;
+                blank = false;
+            }
+        } else {
+            needed += h;
+            blank = false;
         }
     }
     return pages;
@@ -2093,8 +2110,8 @@ void Sheet::deletePagefull(QTableWidget* tbl) {
     for (int i = 0; i < rows; ++i) {
         int h = tbl->rowHeight(0);
         found += h;
-        if (found > hgt) break;
         tbl->removeRow(0);
+        if (found > hgt) break;
     }
 }
 
@@ -2102,6 +2119,11 @@ void Sheet::deletePagefull() {
     deletePagefull(Ui->skillstalentsandperks);
     deletePagefull(Ui->complications);
     deletePagefull(Ui->powersandequipment);
+}
+
+void Sheet::preparePrint(QTableWidget* tbl) {
+    tbl->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tbl->verticalScrollBar()->setValue(0);
 }
 
 void Sheet::print() {
@@ -2137,13 +2159,9 @@ void Sheet::print() {
     int complicationTop = Ui->complications->verticalScrollBar()->value();
     int powerTop        = Ui->powersandequipment->verticalScrollBar()->value();
 
-    Ui->skillstalentsandperks->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    Ui->complications->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    Ui->powersandequipment->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    Ui->skillstalentsandperks->verticalScrollBar()->setValue(0);
-    Ui->complications->verticalScrollBar()->setValue(0);
-    Ui->powersandequipment->verticalScrollBar()->setValue(0);
+    preparePrint(Ui->skillstalentsandperks);
+    preparePrint(Ui->complications);
+    preparePrint(Ui->powersandequipment);
 
     int page = 0;
     offset = QPoint({ 50, 1352 });
@@ -2159,6 +2177,8 @@ void Sheet::print() {
         ++page;
     }
 
+    painter.end();
+
     Ui->skillstalentsandperks->verticalScrollBar()->setValue(skillTop);
     Ui->complications->verticalScrollBar()->setValue(complicationTop);
     Ui->powersandequipment->verticalScrollBar()->setValue(powerTop);
@@ -2166,8 +2186,6 @@ void Sheet::print() {
     Ui->skillstalentsandperks->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     Ui->complications->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     Ui->powersandequipment->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
-    painter.end();
 
     updateDisplay();
 }
