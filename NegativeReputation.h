@@ -2,6 +2,7 @@
 #define NEGATIVEREPUTATION_H
 
 #include "complication.h"
+#include "sheet.h"
 
 class NegativeReputation: public Complication
 {
@@ -27,13 +28,18 @@ public:
     }
 
     QString description() override {
-        static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
+        static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
+        static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
         if (v._frequency < 0 || v._what.isEmpty()) return "<incomplete>";
-        return QString("Negative Reputation: %1 (%2%3%4)").arg(v._what, freq[v._frequency], v._extreme ? "; Extreme" : "", v._limited ? "; Limited Group" : "");
+        return QString("Negative Reputation: %1 (%2%3%4)").arg(v._what, Sheet::ref().getOption().showFrequencyRolls() ? freq[v._frequency] : freqSans[v._frequency],
+                                                               v._extreme ? "; Extreme" : "", v._limited ? "; Limited Group" : "");
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what      = createLineEdit(parent, layout, "What is the reputation?");
-        frequency = createComboBox(parent, layout, "How often is it recognized", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
+        if (Sheet::ref().getOption().showFrequencyRolls())
+            frequency = createComboBox(parent, layout, "How often is it recognized", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
+        else
+            frequency = createComboBox(parent, layout, "How often is it recognized", { "Infrequently", "Frequently", "Very Frequently" });
         extreme   = createCheckBox(parent, layout, "Extreme Reputation");
         limited   = createCheckBox(parent, layout, "Known only to a limited group");
     }

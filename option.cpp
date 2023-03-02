@@ -3,37 +3,43 @@
 #include <QSettings>
 
 Option::Option()
-    : _totalPoints(0_cp)
-    , _complications(0_cp)
+    : _complications(0_cp)
+    , _showFrequencyRolls(false)
+    , _totalPoints(0_cp)
 { }
 
 Option::Option(const Option& opt)
-    : _totalPoints(opt._totalPoints)
-    , _complications(opt._complications)
+    : _complications(opt._complications)
+    , _showFrequencyRolls(opt._showFrequencyRolls)
+    , _totalPoints(opt._totalPoints)
 { }
 
 Option::Option(Option&& opt)
-    : _totalPoints(opt._totalPoints)
-    , _complications(opt._complications)
+    : _complications(opt._complications)
+    , _showFrequencyRolls(opt._showFrequencyRolls)
+    , _totalPoints(opt._totalPoints)
 { }
 
 Option::Option(const QJsonObject& obj)
-    : _totalPoints(Points(obj["totalPoints"].toInt(400)))
-    , _complications(Points(obj["complications"].toInt(75)))
+    : _complications(Points(obj["complications"].toInt(75)))
+    , _showFrequencyRolls(obj["frequency"].toBool(true))
+    , _totalPoints(Points(obj["totalPoints"].toInt(400)))
 { }
 
 Option& Option::operator=(const Option& opt) {
     if (this != &opt) {
-        _totalPoints = opt._totalPoints;
         _complications = opt._complications;
+        _showFrequencyRolls = opt._showFrequencyRolls;
+        _totalPoints = opt._totalPoints;
     }
     return *this;
 }
 
 Option& Option::operator=(Option&& opt) {
     if (this != &opt) {
-        _totalPoints = opt._totalPoints;
         _complications = opt._complications;
+        _showFrequencyRolls = opt._showFrequencyRolls;
+        _totalPoints = opt._totalPoints;
     }
     return *this;
 }
@@ -42,19 +48,23 @@ void Option::load() {
     QSettings settings("SoftwareOnHand", "HSCCU");
     bool ok;
 
-    _totalPoints = Points(settings.value("totalPoints").toInt(&ok));
-    if (!ok) _totalPoints = 400_cp;
-
     _complications = Points(settings.value("complications").toInt(&ok));
     if (!ok) _complications = 75_cp;
+
+    _showFrequencyRolls = settings.value("frequency").toBool();
+
+    _totalPoints = Points(settings.value("totalPoints").toInt(&ok));
+    if (!ok) _totalPoints = 400_cp;
 }
 
 void Option::store() {
     QSettings settings("SoftwareOnHand", "HSCCU");
-    settings.setValue("totalPoints",   (int) _totalPoints.points);
     settings.setValue("complications", (int) _complications.points);
+    settings.setValue("frequency", _showFrequencyRolls);
+    settings.setValue("totalPoints",   (int) _totalPoints.points);
 }
 void Option::toJson(QJsonObject& obj) {
-    obj["totalPoints"]   = (int) _totalPoints.points;
     obj["complications"] = (int) _complications.points;
+    obj["frequency"]     = _showFrequencyRolls;
+    obj["totalPoints"]   = (int) _totalPoints.points;
 }

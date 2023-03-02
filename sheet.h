@@ -30,6 +30,7 @@ public:
     static Sheet& ref() { return* _sheet; }
 
     Character& character() { return _character; }
+    Option     getOption() { return _option; }
 
     void setCell(QTableWidget*, int, int, QString, const QFont&, bool wordWrap = false);
     void setCellLabel(QTableWidget*, int, int, QString, const QFont&);

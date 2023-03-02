@@ -38,8 +38,8 @@ public:
     Character& hairColor(QString n)     { _hairColor = n; return *this; }
     QString    playerName()             { return _playerName; }
     Character& playerName(QString n)    { _playerName = n; return *this; }
-    Points   xp()                     { return _xp; }
-    Character& xp(Points n)           { _xp = n; return *this; }
+    Points     xp()                     { return _xp; }
+    Character& xp(Points n)             { _xp = n; return *this; }
 
     Characteristic& STR()  { return _STR; }
     Characteristic& DEX()  { return _DEX; }

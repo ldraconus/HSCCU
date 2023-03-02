@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "complication.h"
+#include "sheet.h"
 
 class Dependent: public Complication
 {
@@ -34,11 +35,14 @@ public:
     }
 
     QString description() override {
-        static QList<QString> comp { "Incompetent", "Normal", "Slightly Less Powerful Then The PC", "As Powerful As The PC" };
-        static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
+        static QList<QString> comp     { "Incompetent", "Normal", "Slightly Less Powerful Then The PC", "As Powerful As The PC" };
+        static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
+        static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
         if (v._frequency < 0 || v._competence < 0 || v._who.isEmpty()) return "<incomplete>";
-        QString result = "Dependent NPC: " + v._who + " (" + freq[v._frequency];
-        result += "; " + comp[v._competence];
+        QString result = "Dependent NPC: " + v._who + " (";
+        if (Sheet::ref().getOption().showFrequencyRolls()) result += freq[v._frequency];
+        else result += freqSans[v._frequency];
+        result += "); " + comp[v._competence];
         if (v._unaware) result += "; DNPC is unaware of character's adventuring";
         if (v._useful) result += "; DNPC has useful noncombat position or skills";
         if (v._multiples > 1) result += QString("; %1 people").arg(v._multiples);
@@ -49,7 +53,10 @@ public:
         competence = createComboBox(parent, layout, "How compentent is the DNPC?", { "Incompetent", "Normal", "Slightly Less Powerful Then The PC",
                                                                                      "As Powerful As The PC" });
         useful     = createCheckBox(parent, layout, "DNPC has useful noncombat position or skills");
-        frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
+        if (Sheet::ref().getOption().showFrequencyRolls())
+            frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
+        else
+            frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently", "Frequently", "Very Frequently" });
         unaware    = createCheckBox(parent, layout, "DNPC is unaware of character's adventuring");
         multiples  = createLineEdit(parent, layout, "How many dependants?", std::mem_fn(&Complication::numeric));
     }

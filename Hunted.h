@@ -2,6 +2,7 @@
 #define HUNTED_H
 
 #include "complication.h"
+#include "sheet.h"
 
 class Hunted: public Complication
 {
@@ -33,23 +34,28 @@ public:
     }
 
     QString description() override {
-        static QList<QString> capa { "Less Powerful", "As Powerful", "More Powerful" };
-        static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
-        static QList<QString> mtvn { "Watching", "Mildly Punish", "Harsly Punish" };
+        static QList<QString> capa     { "Less Powerful", "As Powerful", "More Powerful" };
+        static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
+        static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
+        static QList<QString> mtvn     { "Watching", "Mildly Punish", "Harsly Punish" };
         if (v._frequency < 0 || v._capabilities < 0 || v._motivation  < 0 || v._who.isEmpty()) return "<incomplete>";
-        QString result = QString("Hunted: %1 (%2; %3").arg(v._who, capa[v._capabilities], freq[v._frequency]);
+        QString result = QString("Hunted: %1 (%2; %3").arg(v._who, capa[v._capabilities],
+                                                           Sheet::ref().getOption().showFrequencyRolls() ? freq[v._frequency] : freqSans[v._frequency]);
         if (v._nci) result += "; NCI";
         if (v._limited) result += "; Limited geographical area";
         return result + "; " + mtvn[v._motivation] + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
-        who          = createLineEdit(parent, layout, "Who is hunting you?");
-        capabilities = createComboBox(parent, layout, "Hunter's Capabilities", { "Less Powerful than PC", "As Powerful as PC", "More Powerful than PC" });
-        frequency    = createComboBox(parent, layout, "How often do they show up", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
-        easy         = createCheckBox(parent, layout, "PC is easy to find");
-        nci          = createCheckBox(parent, layout, "Hunter has extensive Non-combat Influence (NCI)");
-        limited      = createCheckBox(parent, layout, "Limited to a certain geographical area");
-        motivation   = createComboBox(parent, layout, "Hunter's motivation", { "Watching", "Mildly punish", "Harshly punish" });
+        who           = createLineEdit(parent, layout, "Who is hunting you?");
+        capabilities  = createComboBox(parent, layout, "Hunter's Capabilities", { "Less Powerful than PC", "As Powerful as PC", "More Powerful than PC" });
+        if (Sheet::ref().getOption().showFrequencyRolls())
+            frequency = createComboBox(parent, layout, "How often do they show up", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
+        else
+            frequency = createComboBox(parent, layout, "How often do they show up", { "Infrequently", "Frequently", "Very Frequently" });
+        easy          = createCheckBox(parent, layout, "PC is easy to find");
+        nci           = createCheckBox(parent, layout, "Hunter has extensive Non-combat Influence (NCI)");
+        limited       = createCheckBox(parent, layout, "Limited to a certain geographical area");
+        motivation    = createComboBox(parent, layout, "Hunter's motivation", { "Watching", "Mildly punish", "Harshly punish" });
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();

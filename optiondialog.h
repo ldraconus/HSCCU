@@ -16,11 +16,13 @@ public:
     explicit optionDialog(QWidget *parent = nullptr);
     ~optionDialog();
 
-    int  complications()         { return ui->complicationsLineEdit->text().toInt(); }
-    int  totalPoints()           { return ui->totalPointsLineEdit->text().toInt(); }
+    int  complications()      { return ui->complicationsLineEdit->text().toInt(); }
+    bool showFrequencyRolls() { return ui->showFrequencyRolls->isChecked(); }
+    int  totalPoints()        { return ui->totalPointsLineEdit->text().toInt(); }
 
-    void setTotalPoints(int x)   { ui->totalPointsLineEdit->setText(QString("%1").arg(x)); }
-    void setComplications(int x) { ui->complicationsLineEdit->setText(QString("%1").arg(x)); }
+    void setComplications(int x)       { ui->complicationsLineEdit->setText(QString("%1").arg(x)); }
+    void setShowFrequencyRolls(bool f) { ui->showFrequencyRolls->setChecked(f); }
+    void setTotalPoints(int x)         { ui->totalPointsLineEdit->setText(QString("%1").arg(x)); }
 
 private:
     Ui::optionDialog *ui;

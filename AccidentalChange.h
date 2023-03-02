@@ -2,6 +2,7 @@
 #define ACCIDENTALCHANGE_H
 
 #include "complication.h"
+#include "sheet.h"
 
 class AccidentalChange: public Complication
 {
@@ -27,15 +28,20 @@ public:
     }
 
     QString description() override {
-        static QList<QString> circ { "Uncommon", "Common", "Very Common" };
-        static QList<QString> freq { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
+        static QList<QString> circ     { "Uncommon", "Common", "Very Common" };
+        static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
+        static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
         if (v._frequency < 0 || v._circumstance  < 0 || v._what.isEmpty()) return "<incomplete>";
-        return QString("Accidental Change: %1 (%2; %3)").arg(v._what, circ[v._circumstance], freq[v._frequency]);
+        if (Sheet::ref().getOption().showFrequencyRolls()) return QString("Accidental Change: %1 (%2; %3)").arg(v._what, circ[v._circumstance], freq[v._frequency]);
+        else return QString("Accidental Change: %1 (%2; %3)").arg(v._what, circ[v._circumstance], freqSans[v._frequency]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
-        what         = createLineEdit(parent, layout, "What sets off the change?");
-        circumstance = createComboBox(parent, layout, "How common is the change", { "Uncommmon", "Common", "Very Common" });
-        frequency    = createComboBox(parent, layout, "How often do you change", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" });
+        what          = createLineEdit(parent, layout, "What sets off the change?");
+        circumstance  = createComboBox(parent, layout, "How common is the change", { "Uncommmon", "Common", "Very Common" });
+        if (Sheet::ref().getOption().showFrequencyRolls())
+            frequency = createComboBox(parent, layout, "How often do you change", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" });
+        else
+            frequency = createComboBox(parent, layout, "How often do you change", { "Infrequently", "Frequently", "Very Frequently", "Always" });
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();

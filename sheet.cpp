@@ -2056,9 +2056,11 @@ void Sheet::open() {
 void Sheet::options() {
     optionDialog dlg;
     dlg.setComplications(_option.complications().points);
+    dlg.setShowFrequencyRolls(_option.showFrequencyRolls());
     dlg.setTotalPoints(_option.totalPoints().points);
     if (dlg.exec() != QDialog::Accepted) return;
     _option.complications(Points(dlg.complications()));
+    _option.showFrquencyRolls(dlg.showFrequencyRolls());
     _option.totalPoints(Points(dlg.totalPoints()));
     _option.store();
     updateDisplay();
