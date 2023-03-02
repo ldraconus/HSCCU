@@ -20,13 +20,40 @@ optionDialog::~optionDialog()
     delete ui;
 }
 
+QMap<int, int> table {
+    {  25,  15 },
+    {  50,  25 },
+    { 100,  30 },
+    { 175,  50 },
+    { 225,  50 },
+    { 275,  50 },
+    { 300,  60 },
+    { 400,  75 },
+    { 500,  75 },
+    { 650, 100 },
+    { 750, 100 }
+};
+
 void optionDialog::numeric(QString) {
     QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
     QString txt = edit->text();
-    if (txt.isEmpty() || isNumber(txt)) return;
+    if (txt.isEmpty() || isNumber(txt)) {
+        if (txt.isEmpty()) ui->comboBox->setCurrentIndex(table.count());
+        else {
+            int cp = ui->totalPointsLineEdit->text().toInt();
+            auto keys = table.keys();
+            if (!keys.contains(cp)) ui->comboBox->setCurrentIndex(table.count());
+            else if (table[cp] != ui->complicationsLineEdit->text().toInt()) ui->comboBox->setCurrentIndex(table.count());
+            else ui->comboBox->setCurrentIndex(keys.indexOf(cp));
+        }
+        return;
+    }
     edit->undo();
 }
 
 void optionDialog::pickSomething(int something) {
-    //
+    if (something >= table.count()) return;
+    auto keys = table.keys();
+    ui->totalPointsLineEdit->setText(QString("%1").arg(keys[something]));
+    ui->complicationsLineEdit->setText(QString("%1").arg(table[keys[something]]));
 }
