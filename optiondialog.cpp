@@ -10,8 +10,9 @@ optionDialog::optionDialog(QWidget *parent) :
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
 
-    connect(ui->totalPointsLineEdit,   SIGNAL(textChanged(QString)), this, SLOT(numeric(QString)));
-    connect(ui->complicationsLineEdit, SIGNAL(textChanged(QString)), this, SLOT(numeric(QString)));
+    connect(ui->totalPointsLineEdit,   SIGNAL(textChanged(QString)),     this, SLOT(numeric(QString)));
+    connect(ui->complicationsLineEdit, SIGNAL(textChanged(QString)),     this, SLOT(numeric(QString)));
+    connect(ui->comboBox,              SIGNAL(currentIndexChanged(int)), this, SLOT(pickSomething(int)));
 }
 
 optionDialog::~optionDialog()
@@ -24,4 +25,8 @@ void optionDialog::numeric(QString) {
     QString txt = edit->text();
     if (txt.isEmpty() || isNumber(txt)) return;
     edit->undo();
+}
+
+void optionDialog::pickSomething(int something) {
+    //
 }

@@ -8,10 +8,10 @@ ModifiersDialog::ModifiersDialog(bool advantage, QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::ModifiersDialog)
 {
-    ui->setupUi(this);
-
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
+
+    ui->setupUi(this);
 
     _modifiersDialog = this;
 

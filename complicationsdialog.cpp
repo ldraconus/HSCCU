@@ -9,10 +9,10 @@ ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ComplicationsDialog)
 {
-    ui->setupUi(this);
-
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
+
+    ui->setupUi(this);
 
     connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickComplication(int)));
 

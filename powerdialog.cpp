@@ -22,11 +22,11 @@ Ui::PowerDialog* PowerDialog::ui;
 PowerDialog::PowerDialog(QWidget *parent) :
     QDialog(parent)
 {
-    ui = new Ui::PowerDialog;
-    ui->setupUi(this);
-
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
+
+    ui = new Ui::PowerDialog;
+    ui->setupUi(this);
 
     _ptr = this;
     _inMultipower = false;

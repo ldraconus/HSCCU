@@ -29,6 +29,7 @@ private:
 
 public slots:
     void numeric(QString);
+    void pickSomething(int);
 };
 
 #endif // OPTIONDIALOG_H

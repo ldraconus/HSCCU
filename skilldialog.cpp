@@ -7,10 +7,10 @@ SkillDialog::SkillDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SkillDialog)
 {
-    ui->setupUi(this);
-
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
+
+    ui->setupUi(this);
 
     connect(ui->skillTalentOrPerkComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickType(int)));
     connect(ui->availableComboBox,         SIGNAL(currentIndexChanged(int)), this, SLOT(pickOne(int)));
