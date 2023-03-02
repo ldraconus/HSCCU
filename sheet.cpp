@@ -29,6 +29,7 @@
 #include <QPainter>
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
+#include <QProcess>
 #include <QScrollBar>
 #include <QSettings>
 #include <QStandardPaths>
@@ -351,6 +352,19 @@ Sheet::Sheet(QWidget *parent)
     };
 
     installEventFilter(this);
+
+    QStringList args = qApp->arguments();
+    if (args.count() > 1) {
+        _filename = QDir::fromNativeSeparators(args[1]);
+        fileOpen();
+        QProcess subfile;
+        subfile.setProgram(args[0]);
+        for (int i = 2; i < args.count(); ++i) {
+            QStringList subArgs { args[i] };
+            subfile.setArguments(subArgs);
+            subfile.startDetached();
+        }
+    }
 }
 
 Sheet::~Sheet()
@@ -578,6 +592,33 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
     ++row;
     if (pe->isFramework()) _powersOrEquipmentPoints += pe->display(row, Ui->powersandequipment);
     return pts.toInt();
+}
+
+void Sheet::fileOpen() {
+    int ext = _filename.lastIndexOf(".hsccu");
+    if (ext != -1) _filename = _filename.left(ext);
+
+    int sep = _filename.lastIndexOf("/");
+    if (sep != -1) {
+        _dir = _filename.left(sep);
+        _filename = _filename.mid(sep + 1);
+    }
+
+    if (!_character.load(_option, _dir + "/" + _filename)) OK("Can't load \"" + _filename + ".hsccu\" from the \"" + _dir + "\" folder.");
+    else {
+        updateDisplay();
+        QFileInfo imageFile(_character.image());
+        if (imageFile.exists()) {
+            qulonglong then(_character.imageDate());
+            qulonglong file(imageFile.lastModified().toSecsSinceEpoch());
+            if (file > then && YesNo("Character image on disk has changed.\n\n"
+                                     "Do you want to update the image in\n"
+                                     "the character sheet?") == QMessageBox::Yes) {
+                loadImage(_character.image());
+                updateDisplay();
+            } else _changed = false;
+        } else _changed = false;
+    }
 }
 
 QString Sheet::formatLift(int str) {
@@ -2009,30 +2050,7 @@ void Sheet::open() {
     if (filename.isEmpty()) return;
     _filename = filename;
 
-    int ext = _filename.lastIndexOf(".hsccu");
-    if (ext != -1) _filename = _filename.left(ext);
-
-    int sep = _filename.lastIndexOf("/");
-    if (sep != -1) {
-        _dir = _filename.left(sep);
-        _filename = _filename.mid(sep + 1);
-    }
-
-    if (!_character.load(_option, _dir + "/" + _filename)) OK("Can't load \"" + _filename + ".hsccu\" from the \"" + _dir + "\" folder.");
-    else {
-        updateDisplay();
-        QFileInfo imageFile(_character.image());
-        if (imageFile.exists()) {
-            qulonglong then(_character.imageDate());
-            qulonglong file(imageFile.lastModified().toSecsSinceEpoch());
-            if (file > then && YesNo("Character image on disk has changed.\n\n"
-                                     "Do you want to update the image in\n"
-                                     "the character sheet?") == QMessageBox::Yes) {
-                loadImage(_character.image());
-                updateDisplay();
-            } else _changed = false;
-        } else _changed = false;
-    }
+    fileOpen();
 }
 
 void Sheet::options() {

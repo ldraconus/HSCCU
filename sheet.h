@@ -90,8 +90,9 @@ private:
     void               delPower(int);
     void               deletePagefull(QTableWidget*);
     void               deletePagefull();
-    int                displayPowerAndEquipment(int& row, shared_ptr<Power> pe);
-    bool               eventFilter(QObject* object, QEvent*) override;
+    int                displayPowerAndEquipment(int&, shared_ptr<Power>);
+    bool               eventFilter(QObject*, QEvent*) override;
+    void               fileOpen();
     QString            formatLift(int);
     QString            getCharacter();
     int                getPageCount(QTableWidget*);
