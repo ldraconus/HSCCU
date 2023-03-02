@@ -52,9 +52,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
+         <y>-2978</y>
          <width>1013</width>
-         <height>2604</height>
+         <height>3912</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -88,6 +88,19 @@
           </property>
           <property name="pixmap">
            <pixmap resource="res.qrc">:/gfx/Sheet.png</pixmap>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="optLabel">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="res.qrc">:/gfx/Page3.png</pixmap>
           </property>
          </widget>
         </item>

@@ -381,7 +381,7 @@ public:
 
     Sheet_UI() { }
 
-    void setupUi(QWidget *widget)
+    void setupUi(QWidget* widget, QWidget* hidden)
     {
         layout = new QGridLayout();
         widget->setLayout(layout);
@@ -727,5 +727,11 @@ public:
                                                                              { "Move Down", &movePowerOrEquipmentDown } } );
 
         QMetaObject::connectSlotsByName(widget);
+
+        // title all of the boxes
+        // put PlainText editor in the biiig box
+
+        QMetaObject::connectSlotsByName(hidden);
+        hidden->setVisible(false);
     }
 };

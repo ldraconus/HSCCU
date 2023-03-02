@@ -210,7 +210,7 @@ Sheet::Sheet(QWidget *parent)
     _sheet = this;
 
     ui->setupUi(this);
-    Ui->setupUi(ui->label);
+    Ui->setupUi(ui->label, ui->optLabel);
     setupIcons();
     setUnifiedTitleAndToolBarOnMac(true);
 
@@ -221,6 +221,7 @@ Sheet::Sheet(QWidget *parent)
     _dir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
     _option.load();
+    ui->optLabel->setVisible(_option.showNotesPage());
 
     connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*,QWidget*)));
 
@@ -2057,12 +2058,15 @@ void Sheet::options() {
     optionDialog dlg;
     dlg.setComplications(_option.complications().points);
     dlg.setShowFrequencyRolls(_option.showFrequencyRolls());
+    dlg.setShowNotesPage(_option.showNotesPage());
     dlg.setTotalPoints(_option.totalPoints().points);
     if (dlg.exec() != QDialog::Accepted) return;
     _option.complications(Points(dlg.complications()));
     _option.showFrquencyRolls(dlg.showFrequencyRolls());
+    _option.showNotesPage(dlg.showNotesPage());
     _option.totalPoints(Points(dlg.totalPoints()));
     _option.store();
+    ui->optLabel->setVisible(_option.showNotesPage());
     updateDisplay();
     _changed = true;
 }
