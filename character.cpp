@@ -121,6 +121,7 @@ void Character::erase() {
     _hairColor     = "";
     _playerName    = "";
     _xp            = 0_cp;
+    _notes         = "";
     _STR.base(_STR.init());
     _DEX.base(_DEX.init());
     _CON.base(_CON.init());
@@ -163,6 +164,7 @@ void Character::fromJson(Option& opt, QJsonDocument& doc) {
     _gamemaster    = top["gamemaster"].toString("");
     _genre         = top["genre"].toString("");
     _hairColor     = top["hairColor"].toString("");
+    _notes         = top["notes"].toString("");
     _playerName    = top["playerName"].toString("");
     _xp            = Points(top["xp"].toInt(0));
 
@@ -253,6 +255,7 @@ QJsonDocument Character::toJson(Option& opt) {
     top.insert("hairColor",     _hairColor);
     top.insert("playerName",    _playerName);
     top.insert("xp",            qlonglong(_xp.points));
+    top.insert("notes",         _notes);
 
     QJsonObject characteristics;
     characteristics.insert("STR",  _STR.toJson());

@@ -607,7 +607,6 @@ void Sheet::fileOpen() {
 
     if (!_character.load(_option, _dir + "/" + _filename)) OK("Can't load \"" + _filename + ".hsccu\" from the \"" + _dir + "\" folder.");
     else {
-        updateDisplay();
         QFileInfo imageFile(_character.image());
         if (imageFile.exists()) {
             qulonglong then(_character.imageDate());
@@ -616,9 +615,10 @@ void Sheet::fileOpen() {
                                      "Do you want to update the image in\n"
                                      "the character sheet?") == QMessageBox::Yes) {
                 loadImage(_character.image());
-                updateDisplay();
             } else _changed = false;
         } else _changed = false;
+        Ui->notes->setText(_character.notes());
+        updateDisplay();
     }
 }
 
@@ -1972,6 +1972,7 @@ void Sheet::newchar() {
     } catch (...) { return; }
 
     _character.erase();
+    Ui->notes->setPlainText("");
     updateDisplay();
     _changed = false;
 }
@@ -2246,6 +2247,7 @@ void Sheet::save() {
         return;
     }
 
+    _character.notes() = Ui->notes->toPlainText();
     if (!_character.store(_option, _dir + "/" + _filename)) {
         OK("Can't save to \"" + _filename + ".hsccu\" in the \"" + _dir + "\" folder.");
         throw "";

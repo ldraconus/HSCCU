@@ -100,15 +100,16 @@ public:
     QString&                              image()                { return _image; }
     qulonglong&                           imageDate()            { return _imageDate; }
     QByteArray&                           imageData()            { return _imageData; }
+    QString&                              notes()                { return _notes; }
 
-    void   clearEnhancers()     { _hasJackOfAllTrades = _hasLinguist = _hasScholar = _hasScientist = _hasTraveler = _hasWellConnected = false; }
-    bool&  hasJackOfAllTrades() { return _hasJackOfAllTrades; }
-    bool&  hasLinguist()        { return _hasLinguist; }
-    bool&  hasScholar()         { return _hasScholar; }
-    bool&  hasScientist()       { return _hasScientist; }
-    bool&  hasTakesNoSTUN()     { return _hasTakesNoSTUN; }
-    bool&  hasTraveler()        { return _hasTraveler; }
-    bool&  hasWellConnected()   { return _hasWellConnected; }
+    void  clearEnhancers()     { _hasJackOfAllTrades = _hasLinguist = _hasScholar = _hasScientist = _hasTraveler = _hasWellConnected = false; }
+    bool& hasJackOfAllTrades() { return _hasJackOfAllTrades; }
+    bool& hasLinguist()        { return _hasLinguist; }
+    bool& hasScholar()         { return _hasScholar; }
+    bool& hasScientist()       { return _hasScientist; }
+    bool& hasTakesNoSTUN()     { return _hasTakesNoSTUN; }
+    bool& hasTraveler()        { return _hasTraveler; }
+    bool& hasWellConnected()   { return _hasWellConnected; }
 
     QJsonDocument copy(Option&);
     void          erase();
@@ -160,15 +161,16 @@ private:
     QList<shared_ptr<SkillTalentOrPerk>> _skillsTalentsOrPerks;
     QList<shared_ptr<Power>>             _powers;
 
-    QString  _alternateIds  = "";
-    QString  _campaignName  = "";
-    QString  _characterName = "";
-    QString  _eyeColor      = "";
-    QString  _gamemaster    = "";
-    QString  _genre         = "";
-    QString  _hairColor     = "";
-    QString  _playerName    = "";
-    Points _xp            = 0_cp;
+    QString _alternateIds  = "";
+    QString _campaignName  = "";
+    QString _characterName = "";
+    QString _eyeColor      = "";
+    QString _gamemaster    = "";
+    QString _genre         = "";
+    QString _hairColor     = "";
+    QString _notes         = "";
+    QString _playerName    = "";
+    Points  _xp            = 0_cp;
 
     QString    _image     = "";
     qulonglong _imageDate = 0;
