@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QMainWindow>
 #include <QMenu>
+#include <QPlainTextEdit>
 #include <QScreen>
 #include <QTableView>
 #include <QTableWidget>
@@ -243,6 +244,29 @@ private:
         return textedit;
     }
 
+    QPlainTextEdit* createTextEditor(QWidget* parent, QFont& font, At p, Size s, QString w) {
+        QPlainTextEdit* editwidget = new QPlainTextEdit(parent);
+        editwidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        editwidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        int pnt = font.pointSize();
+        editwidget->setFont(font);
+        QString family = font.family();
+        editwidget->setStyleSheet("QPlainTextEdit { selection-color: white;"
+                                                "   selection-background-color: DarkCyan;"
+                                                "   gridline-color: cyan;"
+                                                "   background-color: cyan;"
+                                                "   border-style: none;"
+                                      + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
+                                                "   color: black;"
+                                                " }");
+        editwidget->setToolTip(w);
+        moveTo(editwidget, p, s);
+        widgets.append(editwidget);
+
+        return editwidget;
+    }
+
+
 public:
     QLineEdit* alternateids = nullptr;
     QLineEdit* charactername = nullptr;
@@ -375,6 +399,8 @@ public:
     QAction*      movePowerOrEquipmentUp      = nullptr;
     QAction*      movePowerOrEquipmentDown    = nullptr;
     QGridLayout*  layout                      = nullptr;
+
+    QPlainTextEdit* notes = nullptr;
 
     QList<QWidget*> widgets;
     QFont smallfont;
@@ -729,6 +755,26 @@ public:
         QMetaObject::connectSlotsByName(widget);
 
         // title all of the boxes
+        layout = new QGridLayout();
+        hidden->setLayout(layout);
+        createLabel(hidden, smallBoldWideFont, "KNOCKBACK MODIFIERS", { 90, 82 }, { 275, 20 });
+        createLabel(hidden, smallBoldWideFont, "KNOCKBACK MODIFIERS", { 89, 82 }, { 275, 20 });
+
+        createLabel(hidden, smallBoldWideFont, "WALL BODY", { 750, 80 }, { 275, 20 });
+        createLabel(hidden, smallBoldWideFont, "WALL BODY", { 749, 80 }, { 275, 20 });
+
+        createLabel(hidden, smallBoldWideFont, "NOTES", { 625, 200 }, { 275, 20 });
+        createLabel(hidden, smallBoldWideFont, "NOTES", { 624, 200 }, { 275, 20 });
+        notes = createTextEditor(hidden, font, { 365, 229 }, { 575, 1008 }, "Game notes");
+
+        createLabel(hidden, smallBoldWideFont, "HIT LOCATION CHART", { 95, 245 }, { 275, 20 });
+        createLabel(hidden, smallBoldWideFont, "HIT LOCATION CHART", { 94, 245 }, { 275, 20 });
+
+        createLabel(hidden, smallBoldWideFont, "COMBAT MODIFIERS", { 105, 669 }, { 275, 20 });
+        createLabel(hidden, smallBoldWideFont, "COMBAT MODIFIERS", { 104, 669 }, { 275, 20 });
+
+        createLabel(hidden, smallBoldWideFont, "SKILL MODIFIERS", { 115, 882 }, { 275, 20 });
+        createLabel(hidden, smallBoldWideFont, "SKILL MODIFIERS", { 114, 882 }, { 275, 20 });
         // put PlainText editor in the biiig box
 
         QMetaObject::connectSlotsByName(hidden);
