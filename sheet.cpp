@@ -27,6 +27,7 @@
 #include <QMouseEvent>
 #include <QPageSetupDialog>
 #include <QPainter>
+#include <QPaintEngine>
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
 #include <QProcess>
@@ -291,6 +292,7 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->stunval,               SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
     connect(Ui->totalexperienceearned, SIGNAL(textEdited(QString)), this, SLOT(totalExperienceEarnedChanged(QString)));
     connect(Ui->totalexperienceearned, SIGNAL(editingFinished()),   this, SLOT(totalExperienceEarnedEditingFinished()));
+    connect(Ui->notes,                 SIGNAL(textChanged()),       this, SLOT(noteChanged()));
 
     connect(Ui->image,      SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(imageMenu(QPoint)));
     connect(Ui->newImage,   SIGNAL(triggered()),                        this, SLOT(newImage()));
@@ -541,6 +543,13 @@ void Sheet::delPower(int row) {
     }
 }
 
+void Sheet::deletePagefull(QPlainTextEdit* txt, double scale, QPainter* pnt) {
+    int lines = getPageLines(txt, scale, pnt);
+    txt->moveCursor(QTextCursor::Start);
+    for (int i = 0; i < lines; ++i) txt->moveCursor(QTextCursor::Down, QTextCursor::KeepAnchor);
+    txt->textCursor().removeSelectedText();
+}
+
 void Sheet::deletePagefull(QTableWidget* tbl) {
     int hgt = tbl->size().height();
     int found = 0;
@@ -617,7 +626,7 @@ void Sheet::fileOpen() {
                 loadImage(_character.image());
             } else _changed = false;
         } else _changed = false;
-        Ui->notes->setText(_character.notes());
+        Ui->notes->setPlainText(_character.notes());
         updateDisplay();
     }
 }
@@ -700,6 +709,24 @@ QString Sheet::getCharacter() {
     return out;
 }
 
+int Sheet::getPageLines(QPlainTextEdit* txt, double scale, QPainter* pnt) {
+    QFontMetrics metrics = pnt->fontMetrics();
+    return (int) (txt->height() * scale) / metrics.lineSpacing();
+}
+
+int Sheet::getPageCount(QPlainTextEdit* txt, double scale, QPainter* pnt) {
+    QTextCursor cursor = txt->textCursor();
+    cursor.movePosition(QTextCursor::Start);
+    int count = 1;
+    while (!cursor.atEnd()) {
+        if (!cursor.movePosition(QTextCursor::Down)) break;
+        ++count;
+    }
+    if (count == 1) return 1; // document pageSize undetermined if no text in the document, this prevents running into that case
+    int pageLines = getPageLines(txt, scale, pnt);
+    return count / pageLines + (count % pageLines != 0 ? 1 : 0);
+}
+
 int Sheet::getPageCount(QTableWidget* tbl) {
     int hgt = tbl->size().height();
     int needed = 0;
@@ -774,6 +801,11 @@ void Sheet::loadImage(QString filename) {
     _changed = true;
 }
 
+void Sheet::preparePrint(QPlainTextEdit* txt) {
+    txt->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    txt->verticalScrollBar()->setValue(0);
+}
+
 void Sheet::preparePrint(QTableWidget* tbl) {
     tbl->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     tbl->verticalScrollBar()->setValue(0);
@@ -802,20 +834,30 @@ void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
         QString family = font.family();
         int pnt = font.pointSize();
         QString style ="QTableWidget { gridline-color: white;"
-                        "   background-color: white;"
-                        "   selection-background-color: white;"
-                        "   border-style: none;"
-                        + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
-                        "   color: black;"
-                        "   selection-color: black;"
-                        " } "
-                        "QHeaderView::section { background-color: white;"
-                        "   border-style: none;"
-                        "   color: black;" +
-                        QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
-                        " }";
+                                   "   background-color: white;"
+                                   "   selection-background-color: white;"
+                                   "   border-style: none;"
+                         + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
+                                   "   color: black;"
+                                   "   selection-color: black;"
+                                   " } "
+                                   "QHeaderView::section { background-color: white;"
+                                   "   border-style: none;"
+                                   "   color: black;" +
+                           QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
+                                   " }";
         table->setStyleSheet(style);
-
+    }
+    QPlainTextEdit* text = dynamic_cast<QPlainTextEdit*>(widget);
+    if (text) {
+        QString style ="QPlainTextEdit { gridline-color: white;"
+                                     "   background-color: white;"
+                                     "   selection-background-color: white;"
+                                     "   border-style: none;"
+                                     "   color: black;"
+                                     "   selection-color: black;"
+                                     " }";
+        text->setStyleSheet(style);
     }
     QPoint move { widget->x() - offset.x(), widget->y() - offset.y() };
     painter.translate(move);
@@ -2037,6 +2079,10 @@ void Sheet::newSkillTalentOrPerk() {
     _changed = true;
 }
 
+void Sheet::noteChanged() {
+    _changed = true;
+}
+
 void Sheet::open() {
     try {
         if (_changed) {
@@ -2168,6 +2214,8 @@ void Sheet::powersandequipmentMenu(QPoint pos) {
 }
 
 void Sheet::print() {
+    bool saveChanged = _changed;
+
     QPrintPreviewDialog preview(printer, this);
     preview.setWindowTitle("Print Chracter");
     preview.setMinimumHeight(600);
@@ -2175,11 +2223,14 @@ void Sheet::print() {
     this->connect(&preview, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printCharacter(QPrinter*)));
 
     preview.exec();
+
+    _changed = saveChanged; // lots of changed signals get passed around but the character really didn't change
 }
 
 void Sheet::printCharacter(QPrinter* printer) {
     QPixmap page1(QString(":/gfx/Page1.png"));
     QPixmap page2(QString(":/gfx/Page2.png"));
+    QPixmap page3(QString(":/gfx/Page3.png"));
 
     auto pageLayout = printer->pageLayout();
     pageLayout.setOrientation(QPageLayout::Orientation::Portrait);
@@ -2205,10 +2256,14 @@ void Sheet::printCharacter(QPrinter* printer) {
     int skillTop        = Ui->skillstalentsandperks->verticalScrollBar()->value();
     int complicationTop = Ui->complications->verticalScrollBar()->value();
     int powerTop        = Ui->powersandequipment->verticalScrollBar()->value();
+    int notesTop        = Ui->notes->verticalScrollBar()->value();
 
     preparePrint(Ui->skillstalentsandperks);
     preparePrint(Ui->complications);
     preparePrint(Ui->powersandequipment);
+    preparePrint(Ui->notes);
+
+    update();
 
     int page = 0;
     offset = QPoint({ 50, 1352 });
@@ -2224,15 +2279,35 @@ void Sheet::printCharacter(QPrinter* printer) {
         ++page;
     }
 
+    if (_option.showNotesPage()) {
+        QString notes = Ui->notes->toPlainText();
+        int max = getPageCount(Ui->notes, scale, &painter);
+        offset = QPoint({ 50, 48 });
+        int page = 0;
+        while (page < max) {
+            printer->newPage();
+            painter.drawImage(QPointF { -50.0, -48.0 }, page3.toImage());
+            for (const auto& widget: Ui->hiddenWidgets) {
+                if (widget == nullptr) continue; // skip things we can't render
+                print(painter, offset, widget);
+            }
+            deletePagefull(Ui->notes, scale, &painter);
+            ++page;
+        }
+        Ui->notes->setPlainText(notes);
+    }
+
     painter.end();
 
     Ui->skillstalentsandperks->verticalScrollBar()->setValue(skillTop);
     Ui->complications->verticalScrollBar()->setValue(complicationTop);
     Ui->powersandequipment->verticalScrollBar()->setValue(powerTop);
+    Ui->notes->verticalScrollBar()->setValue(notesTop);
 
     Ui->skillstalentsandperks->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     Ui->complications->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     Ui->powersandequipment->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    Ui->notes->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     updateDisplay();
 }

@@ -34,7 +34,8 @@ private:
         label->setText(val);
         if (s.h == -1) moveTo(label, p, { s.h, s.l });
         else moveTo(label, p, s);
-        widgets.append(label);
+        if (parent != page3) widgets.append(label);
+        else hiddenWidgets.append(label);
         return label;
     }
 
@@ -248,20 +249,18 @@ private:
         QPlainTextEdit* editwidget = new QPlainTextEdit(parent);
         editwidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         editwidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        int pnt = font.pointSize();
+        editwidget->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
         editwidget->setFont(font);
-        QString family = font.family();
         editwidget->setStyleSheet("QPlainTextEdit { selection-color: white;"
                                                 "   selection-background-color: DarkCyan;"
                                                 "   gridline-color: cyan;"
                                                 "   background-color: cyan;"
                                                 "   border-style: none;"
-                                      + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
                                                 "   color: black;"
                                                 " }");
         editwidget->setToolTip(w);
         moveTo(editwidget, p, s);
-        widgets.append(editwidget);
+        hiddenWidgets.append(editwidget);
 
         return editwidget;
     }
@@ -401,8 +400,10 @@ public:
     QGridLayout*  layout                      = nullptr;
 
     QPlainTextEdit* notes = nullptr;
+    QWidget*        page3 = nullptr;;
 
     QList<QWidget*> widgets;
+    QList<QWidget*> hiddenWidgets;
     QFont smallfont;
 
     Sheet_UI() { }
@@ -754,7 +755,7 @@ public:
 
         QMetaObject::connectSlotsByName(widget);
 
-        // title all of the boxes
+        page3 = hidden;
         layout = new QGridLayout();
         hidden->setLayout(layout);
         createLabel(hidden, smallBoldWideFont, "KNOCKBACK MODIFIERS", { 90, 82 }, { 275, 20 });
@@ -765,7 +766,7 @@ public:
 
         createLabel(hidden, smallBoldWideFont, "NOTES", { 625, 200 }, { 275, 20 });
         createLabel(hidden, smallBoldWideFont, "NOTES", { 624, 200 }, { 275, 20 });
-        notes = createTextEditor(hidden, font, { 365, 229 }, { 575, 1008 }, "Game notes");
+        notes = createTextEditor(hidden, tableFont, { 365, 229 }, { 575, 1008 }, "Game notes");
 
         createLabel(hidden, smallBoldWideFont, "HIT LOCATION CHART", { 95, 245 }, { 275, 20 });
         createLabel(hidden, smallBoldWideFont, "HIT LOCATION CHART", { 94, 245 }, { 275, 20 });
@@ -775,7 +776,6 @@ public:
 
         createLabel(hidden, smallBoldWideFont, "SKILL MODIFIERS", { 115, 882 }, { 275, 20 });
         createLabel(hidden, smallBoldWideFont, "SKILL MODIFIERS", { 114, 882 }, { 275, 20 });
-        // put PlainText editor in the biiig box
 
         QMetaObject::connectSlotsByName(hidden);
         hidden->setVisible(false);

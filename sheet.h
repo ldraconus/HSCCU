@@ -89,6 +89,7 @@ private:
     void               characteristicEditingFinished(QLineEdit*);
     bool               checkClose();
     void               delPower(int);
+    void               deletePagefull(QPlainTextEdit*, double, QPainter*);
     void               deletePagefull(QTableWidget*);
     void               deletePagefull();
     int                displayPowerAndEquipment(int&, shared_ptr<Power>);
@@ -96,11 +97,14 @@ private:
     void               fileOpen();
     QString            formatLift(int);
     QString            getCharacter();
+    int                getPageCount(QPlainTextEdit*, double, QPainter*);
     int                getPageCount(QTableWidget*);
     int                getPageCount();
+    int                getPageLines(QPlainTextEdit*, double, QPainter*);
     shared_ptr<Power>& getPower(int, QList<shared_ptr<Power>>&);
     void               loadImage(QString);
     void               putPower(int, shared_ptr<Power>);
+    void               preparePrint(QPlainTextEdit*);
     void               preparePrint(QTableWidget*);
     void               print(QPainter&, QPoint&, QWidget*);
     void               rebuildCharFromPowers(QList<shared_ptr<Power>>&);
@@ -194,6 +198,7 @@ public slots:
     void newImage();
     void newPowerOrEquipment();
     void newSkillTalentOrPerk();
+    void noteChanged();
     void open();
     void options();
     void pasteCharacter();
