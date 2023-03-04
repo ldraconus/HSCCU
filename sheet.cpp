@@ -1271,12 +1271,19 @@ void Sheet::rebuildPowers(bool addTakesNoSTUN) {
 }
 
 void Sheet::rebuildSenseFromPowers(QList<shared_ptr<Power>>& list, QString& senses) {
+    bool first = true;
     for (const auto& power: list) {
         if (power == nullptr) continue;
 
         if (power->name() == "Enhanced Senses") {
             const auto& split = power->description(false).split(":");
-            senses += " <small>" + split[1] + "</small>";
+            senses += " <small>" + QString((first ? "" : ", ")) + split[1] + "</small>";
+            first = false;
+        } else if (power->isFramework()) {
+            QString more;
+            rebuildSenseFromPowers(power->list(), more);
+            senses += QString((first ? "" : ", ")) + more;
+            first = false;
         }
     }
 }
