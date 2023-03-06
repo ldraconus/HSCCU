@@ -3,6 +3,9 @@
 #include <QAction>
 #include <QLineEdit>
 #include <QGridLayout>
+#ifdef __wasm__
+#include <QFile>
+#endif
 #include <QFontDatabase>
 #include <QFrame>
 #include <QHeaderView>
@@ -16,6 +19,36 @@
 #include <QTextEdit>
 
 #include "shared.h"
+
+class ClickableLabel : public QLabel {
+    Q_OBJECT
+
+public:
+    explicit ClickableLabel(QWidget* parent = Q_NULLPTR): QLabel(parent) { }
+    ~ClickableLabel() { }
+
+signals:
+    void clicked();
+
+protected:
+    void mousePressEvent(QMouseEvent*) { emit clicked(); }
+
+};
+
+class ClickableTable : public QTableWidget {
+    Q_OBJECT
+
+public:
+    explicit ClickableTable(QWidget* parent = Q_NULLPTR): QTableWidget(parent) { }
+    ~ClickableTable() { }
+
+signals:
+    void showmenu();
+
+protected:
+    void mousePressEvent(QMouseEvent* me) { emit showmenu(); QTableWidget::mousePressEvent(me); }
+
+};
 
 class Sheet_UI
 {
@@ -39,12 +72,19 @@ private:
         return label;
     }
 
+#ifndef __wasm__
     QLabel* createImage(QWidget* parent, At p, Size s, bool selectable = false) {
         QLabel* label = new QLabel(parent);
+#else
+    ClickableLabel* createImage(QWidget* parent, At p, Size s, bool) {
+        ClickableLabel* label = new ClickableLabel(parent);
+#endif
         QString style = "QLabel { background: cyan;"
                               "   border-style: none;"
                               " }";
+#ifndef __wasm__
         if (selectable) label->setContextMenuPolicy(Qt::CustomContextMenu);
+#endif
         label->setStyleSheet(style);
         if (s.h == -1) moveTo(label, p, { s.h, s.l });
         else moveTo(label, p, s);
@@ -145,25 +185,45 @@ private:
         return menu;
     }
 
-    const bool Selectable = true;
+    const bool Selectable   = true;
+    const bool NoSelectable = false;
+    const bool NoLabel      = false;
 
+#ifdef __wasm__
+    ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
+                                      bool selectable = false, bool label = true) {
+#else
     QTableWidget* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
-                                    bool selectable = false) {
-        return createTableWidget(parent, font, headers, vals, p, s, "", selectable);
+                                    bool selectable = false, bool label = true) {
+#endif
+        return createTableWidget(parent, font, headers, vals, p, s, "", selectable, label);
     }
 
+#ifdef __wasm__
+    ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
+                                      QString w, bool selectable = false, bool label = true) {
+        ClickableTable* tablewidget = new ClickableTable(parent);
+#else
     QTableWidget* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
-                                    QString w, bool selectable = false) {
+                                    QString w, bool selectable = false, bool label = true) {
         QTableWidget* tablewidget = new QTableWidget(parent);
         tablewidget->setContextMenuPolicy(Qt::CustomContextMenu);
+#endif
         tablewidget->setWordWrap(true);
         tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        auto verticalHeader = tablewidget->verticalHeader();
         int pnt = font.pointSize();
         double dpiy = parent->screen()->physicalDotsPerInchY();
         double pntY = (pnt * dpiy) / 72.0;
         int sz = (pntY + 0.5);
+#ifdef __wasm__
+        QFont temp = font;
+        temp.setPointSize((pnt * 8 + 5) / 10);
+        tablewidget->setFont(temp);
+#else
+        tablewidget->setFont(font);
+#endif
+        auto verticalHeader = tablewidget->verticalHeader();
         verticalHeader->setVisible(false);
         verticalHeader->setMinimumSectionSize(1);
         verticalHeader->setMaximumSectionSize(selectable ? s.l : sz);
@@ -177,7 +237,6 @@ private:
         horizontalHeader->setMaximumSize(s.l, sz);
         tablewidget->setSelectionMode(selectable ? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
         tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        tablewidget->setFont(font);
         QString family = font.family();
         if (selectable)
             tablewidget->setStyleSheet("QTableWidget { selection-color: white;"
@@ -194,10 +253,11 @@ private:
                                                    QString("   font: bold %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
                                                            " }");
         else
-            tablewidget->setStyleSheet("QTableWidget { selection-color: black;"
-                                                   "   selection-background-color: white;"
-                                                   "   gridline-color: white;"
+            tablewidget->setStyleSheet("QTableWidget { selection-color: transparent;"
+                                                   "   selection-background-color: transparent;"
+                                                   "   gridline-color: transparent;"
                                                    "   border-style: none;"
+                                                   "   background-color: transparent;"
                                                    "   color: black;" +
                                            QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
                                                    " } "
@@ -210,20 +270,35 @@ private:
         tablewidget->setRowCount(vals.size());
         tablewidget->setHorizontalHeaderLabels(headers);
         int i = 0;
-        for (i = 0; i < vals.size(); ++i) for (int j = 0; j < vals[i].size(); ++j) {
-            QLabel* cell = new QLabel(vals[i][j]);
-            cell->setFont(font);
-            tablewidget->setCellWidget(i, j, cell);
+        for (i = 0; i < vals.size(); ++i) {
+            for (int j = 0; j < vals[i].size(); ++j) {
+                if (label) {
+                    QLabel* cell = new QLabel(vals[i][j]);
+                    cell->setFont(font);
+                    tablewidget->setCellWidget(i, j, cell);
+                } else {
+                    QTableWidgetItem* lbl = new QTableWidgetItem(vals[i][j]);
+                    lbl->setFont(font);
+                    lbl->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
+                    if (selectable) lbl->setFlags(Qt::ItemIsSelectable);
+                    else lbl->setFlags(Qt::NoItemFlags);
+                    tablewidget->setItem(i, j, lbl);
+                }
+            }
         }
         tablewidget->setToolTip(w);
         moveTo(tablewidget, p, s);
-        int total = 0;
         for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
+#ifdef __wasm__
+        for (i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
+#else
+        int total = 0;
         for (i = 1; i < tablewidget->columnCount(); ++i) {
             tablewidget->resizeColumnToContents(i - 1);
             total += tablewidget->columnWidth(i - 1);
         }
         tablewidget->setColumnWidth(headers.size() - 1, s.l - total);
+#endif
         widgets.append(tablewidget);
 
         return tablewidget;
@@ -352,8 +427,8 @@ public:
     QLabel*    experienceunspent     = nullptr;
 
     QLabel*    charactername2 = nullptr;
-    QLabel*    height         = nullptr;
-    QLabel*    weight         = nullptr;
+    QLineEdit* height         = nullptr;
+    QLineEdit* weight         = nullptr;
     QLineEdit* haircolor      = nullptr;
     QLineEdit* eyecolor       = nullptr;
 
@@ -365,7 +440,6 @@ public:
     QLabel*       totalskillstalentsandperkscost = nullptr;
     QMenu*        skillstalentsandperksMenu      = nullptr;
     QAction*      newSkillTalentOrPerk           = nullptr;
-    QAction*      newSkillEnhancer               = nullptr;
     QAction*      editSkillTalentOrPerk          = nullptr;
     QAction*      deleteSkillTalentOrPerk        = nullptr;
     QAction*      cutSkillTalentOrPerk           = nullptr;
@@ -404,7 +478,10 @@ public:
 
     QList<QWidget*> widgets;
     QList<QWidget*> hiddenWidgets;
+    QFont font;
     QFont smallfont;
+    QFont largeBoldFont;
+    QFont smallBoldWideFont;
 
     Sheet_UI() { }
 
@@ -413,12 +490,20 @@ public:
         layout = new QGridLayout();
         widget->setLayout(layout);
 
+#ifdef __wasm__
+        QFile fontResource(":/font/SegoeUIHS.ttf");
+        fontResource.open(QIODevice::ReadOnly);
+        QByteArray data = fontResource.readAll();
+        int id = QFontDatabase::addApplicationFontFromData(data);
+        fontResource.close();
+#else
         int id = QFontDatabase::addApplicationFont(":/font/SegoeUIHS.ttf");
+#endif
         QString family = QFontDatabase::applicationFontFamilies(id).at(0);
-        QFont font({ family });
+        font = QFont({ family });
         font.setPointSize(12);
 
-        QFont largeBoldFont = font;
+        largeBoldFont = font;
         largeBoldFont.setPointSize(16);
         largeBoldFont.setBold(true);
         QFont largeNarrowBoldFont = largeBoldFont;
@@ -444,7 +529,7 @@ public:
         smallBoldNarrowFont.setStretch(QFont::Stretch::SemiCondensed);
         QFont smallNarrowFont = smallBoldNarrowFont;
         smallNarrowFont.setBold(false);
-        QFont smallBoldWideFont = smallBoldFont;
+        smallBoldWideFont = smallBoldFont;
         smallBoldWideFont.setPointSize(10);
         smallBoldWideFont.setStretch(QFont::Stretch::Expanded);
         QFont tinyFont = smallfont;
@@ -458,7 +543,11 @@ public:
         createLabel(widget, largeNarrowFont,     "Player Name",          { 61, 135 }, { 175, 27 });
 
         charactername = createLineEdit(widget, largeBoldFont, { 190,  75 }, { 438, 27 }, "Characters superhero name");
+#ifdef __wasm__
+        alternateids  = createLineEdit(widget, largeFont,     { 215, 104 }, { 413, 27 }, "Characters secret id, typically");
+#else
         alternateids  = createLineEdit(widget, largeFont,     { 210, 104 }, { 418, 27 }, "Characters secret id, typically");
+#endif
         playername    = createLineEdit(widget, largeFont,     { 162, 134 }, { 466, 27 }, "The players name");
 
         createLabel(widget, smallBoldWideFont, "CHARACTERISTICS", { 129, 196 }, { 175, 20 });
@@ -519,15 +608,15 @@ public:
         endpoints  = createLabel(widget, font,   "0", { 199, 607 }, 20);
         bodypoints = createLabel(widget, font,   "0", { 199, 632 }, 20);
         stunpoints = createLabel(widget, font,   "0", { 199, 657 }, 20);
-        strroll    = createLabel(widget, font, "11-", { 269, 248 }, 20);
-        dexroll    = createLabel(widget, font, "11-", { 269, 273 }, 20);
-        conroll    = createLabel(widget, font, "11-", { 269, 297 }, 20);
-        introll    = createLabel(widget, font, "11-", { 269, 322 }, 20);
-        egoroll    = createLabel(widget, font, "11-", { 269, 347 }, 20);
-        preroll    = createLabel(widget, font, "11-", { 269, 372 }, 20);
+        strroll    = createLabel(widget, font, "11-", { 269, 248 }, { 75, 20 });
+        dexroll    = createLabel(widget, font, "11-", { 269, 273 }, { 75, 20 });
+        conroll    = createLabel(widget, font, "11-", { 269, 297 }, { 75, 20 });
+        introll    = createLabel(widget, font, "11-", { 269, 322 }, { 75, 20 });
+        egoroll    = createLabel(widget, font, "11-", { 269, 347 }, { 75, 20 });
+        preroll    = createLabel(widget, font, "11-", { 269, 372 }, { 75, 20 });
 
-        createLabel(widget, smallBoldFont, "Total Cost", { 276, 631 }, { 100, 22 });
-        totalcost  = createLabel(widget, font,   "0", { 276, 657 }, 20);
+        createLabel(widget, smallBoldFont, "Total Cost", { 276, 631 }, { 75, 22 });
+        totalcost  = createLabel(widget, font,   "0", { 276, 657 }, { 75, 20 });
 
         createLabel(widget, smallBoldWideFont, "CURRENT STATUS", { 435, 196 }, { 175, 20 });
         createLabel(widget, smallBoldWideFont, "CURRENT STATUS", { 434, 196 }, { 175, 20 });
@@ -550,40 +639,55 @@ public:
 
         createLabel(widget, smallBoldWideFont, "VITAL INFORMATION", { 420, 347 }, { 200, 20 });
         createLabel(widget, smallBoldWideFont, "VITAL INFORMATION", { 419, 347 }, { 200, 20 });
-        createLabel(widget, smallBoldNarrowFont, "HTH Damage",      { 397, 374 }, { 100, 22 });
-        createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 492, 374 }, { 100, 22 });
+        createLabel(widget, smallBoldNarrowFont, "HTH Damage",      { 397, 375 }, { 100, 22 });
+        createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 486, 375 }, { 65, 22 });
         createLabel(widget, smallNarrowFont,     "Lift",            { 397, 399 }, { 100, 22 });
-        createLabel(widget, smallNarrowFont,     "STR END Cost",    { 520, 399 }, { 100, 22 });
-        createLabel(widget, smallNarrowFont,     "1   2   3   4  5   6   7  8   9   10   11   12", { 450, 425 }, { 200, 22 });
+        createLabel(widget, smallNarrowFont,     "STR END Cost",    { 510, 399 }, { 75, 22 });
+        createLabel(widget, font,                "1",               { 451, 425 }, { 20, 20});
+        createLabel(widget, font,                "2",               { 464, 425 }, { 20, 20});
+        createLabel(widget, font,                "3",               { 478, 425 }, { 20, 20});
+        createLabel(widget, font,                "4",               { 492, 425 }, { 20, 20});
+        createLabel(widget, font,                "5",               { 506, 425 }, { 20, 20});
+        createLabel(widget, font,                "6",               { 520, 425 }, { 20, 20});
+        createLabel(widget, font,                "7",               { 533, 425 }, { 20, 20});
+        createLabel(widget, font,                "8",               { 547, 425 }, { 20, 20});
+        createLabel(widget, font,                "9",               { 561, 425 }, { 20, 20});
+        createLabel(widget, font,               "10",               { 575, 425 }, { 20, 20});
+        createLabel(widget, font,               "11",               { 597, 425 }, { 20, 20});
+        createLabel(widget, font,               "12",               { 619, 425 }, { 20, 20});
         createLabel(widget, smallBoldNarrowFont, "Phases",          { 397, 442 }, { 100, 22 });
-        createLabel(widget, smallBoldNarrowFont, "Base OCV",        { 395, 469 }, { 100, 22 });
-        createLabel(widget, smallBoldNarrowFont, "Base DCV",        { 515, 469 }, { 100, 22 });
-        createLabel(widget, smallBoldNarrowFont, "Base OMCV",       { 395, 494 }, { 100, 22 });
-        createLabel(widget, smallBoldNarrowFont, "Base DMCV",       { 515, 494 }, { 100, 22 });
+        createLabel(widget, smallBoldNarrowFont, "Base OCV",        { 395, 469 }, { 75, 22 });
+        createLabel(widget, smallBoldNarrowFont, "Base DCV",        { 515, 469 }, { 75, 22 });
+        createLabel(widget, smallBoldNarrowFont, "Base OMCV",       { 395, 494 }, { 80, 22 });
+        createLabel(widget, smallBoldNarrowFont, "Base DMCV",       { 515, 494 }, { 80, 22 });
         createLabel(widget, smallBoldNarrowFont, "Presence Attack", { 395, 661 }, { 150, 22 });
-        createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 510, 661 }, { 100, 22 });
+#ifdef __wasm__
+        createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 500, 661 }, { 65, 22 });
+#else
+        createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 510, 661 }, { 55, 22 });
+#endif
 
-        hthdamage         = createLabel(widget, font,   "2d6", { 550, 376 }, 20);
-        lift              = createLabel(widget, font, "100kg", { 420, 401 }, 20);
-        strendcost        = createLabel(widget, font,     "1", { 603, 401 }, 20);
-        phases.append(      createLabel(widget, font,      "", { 451, 444 }, 20));
-        phases.append(      createLabel(widget, font,      "", { 464, 444 }, 20));
-        phases.append(      createLabel(widget, font,      "", { 478, 444 }, 20));
-        phases.append(      createLabel(widget, font,      "", { 492, 444 }, 20));
-        phases.append(      createLabel(widget, font,      "", { 506, 444 }, 20));
-        phases.append(      createLabel(widget, font,     "X", { 520, 444 }, 20));
-        phases.append(      createLabel(widget, font,      "", { 533, 444 }, 20));
-        phases.append(      createLabel(widget, font,      "", { 547, 444 }, 20));
-        phases.append(      createLabel(widget, font,      "", { 561, 444 }, 20));
-        phases.append(      createLabel(widget, font,      "", { 580, 444 }, 20));
-        phases.append(      createLabel(widget, font,      "", { 602, 444 }, 20));
-        phases.append(      createLabel(widget, font,     "X", { 624, 444 }, 20));
-        baseocv           = createLabel(widget, font,     "3", { 469, 471 }, 20);
-        basedcv           = createLabel(widget, font,     "3", { 589, 471 }, 20);
-        baseomcv          = createLabel(widget, font,     "3", { 483, 496 }, 20);
-        basedmcv          = createLabel(widget, font,     "3", { 603, 496 }, 20);
+        hthdamage         = createLabel(widget, font,   "2d6", { 551, 376 }, { 70, 20 });
+        lift              = createLabel(widget, font, "100kg", { 420, 401 }, { 75, 20 });
+        strendcost        = createLabel(widget, font,     "1", { 603, 401 }, { 45, 20});
+        phases.append(      createLabel(widget, font,      "", { 451, 444 }, { 20, 20}));
+        phases.append(      createLabel(widget, font,      "", { 464, 444 }, { 20, 20}));
+        phases.append(      createLabel(widget, font,      "", { 478, 444 }, { 20, 20}));
+        phases.append(      createLabel(widget, font,      "", { 492, 444 }, { 20, 20}));
+        phases.append(      createLabel(widget, font,      "", { 506, 444 }, { 20, 20}));
+        phases.append(      createLabel(widget, font,     "X", { 520, 444 }, { 20, 20}));
+        phases.append(      createLabel(widget, font,      "", { 533, 444 }, { 20, 20}));
+        phases.append(      createLabel(widget, font,      "", { 547, 444 }, { 20, 20}));
+        phases.append(      createLabel(widget, font,      "", { 561, 444 }, { 20, 20}));
+        phases.append(      createLabel(widget, font,      "", { 580, 444 }, { 20, 20}));
+        phases.append(      createLabel(widget, font,      "", { 602, 444 }, { 20, 20}));
+        phases.append(      createLabel(widget, font,     "X", { 624, 444 }, { 20, 20}));
+        baseocv           = createLabel(widget, font,     "3", { 469, 471 }, { 35, 20});
+        basedcv           = createLabel(widget, font,     "3", { 589, 471 }, { 35, 20});
+        baseomcv          = createLabel(widget, font,     "3", { 483, 496 }, { 35, 20});
+        basedmcv          = createLabel(widget, font,     "3", { 603, 496 }, { 35, 20});
         combatskilllevels = createTextEdit(widget, narrow, "<b>Combat Skill Levels</b> ", { 392, 520 }, { 244, 145 });
-        presenceattack    = createLabel(widget, font,   "2d6", { 573, 663 }, 20);
+        presenceattack    = createLabel(widget, font,   "2d6", { 573, 663 }, { 70, 20 });
 
         createLabel(widget, smallBoldWideFont, "MOVEMENT", { 748, 196 }, { 175, 20 });
         createLabel(widget, smallBoldWideFont, "MOVEMENT", { 747, 196 }, { 175, 20 });
@@ -599,20 +703,20 @@ public:
 
         createLabel(widget, smallBoldWideFont, "RANGE MODIFIERS", { 718, 474 }, { 175, 20 });
         createLabel(widget, smallBoldWideFont, "RANGE MODIFIERS", { 717, 474 }, { 175, 20 });
-        createLabel(widget, tinyBoldFont, "Range(m)", { 678, 497 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "0-8",      { 737, 497 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "9-16",     { 760, 497 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "17-32",    { 788, 497 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "33-64",    { 822, 497 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "65-128",   { 858, 497 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "128-256",  { 898, 497 }, { 100, 22 });
-        createLabel(widget, tinyBoldFont, "OCV Mod",  { 680, 514 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "-0",       { 741, 514 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "-2",       { 766, 514 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "-4",       { 796, 514 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "-6",       { 830, 514 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "-8",       { 868, 514 }, { 100, 22 });
-        createLabel(widget, tinyFont,     "-10",      { 909, 514 }, { 100, 22 });
+        createLabel(widget, tinyBoldFont, "Range(m)", { 678, 502 }, { 52, 20 });
+        createLabel(widget, tinyFont,     "0-8",      { 737, 502 }, { 40, 20 });
+        createLabel(widget, tinyFont,     "9-16",     { 760, 502 }, { 40, 20 });
+        createLabel(widget, tinyFont,     "17-32",    { 788, 502 }, { 40, 20 });
+        createLabel(widget, tinyFont,     "33-64",    { 822, 502 }, { 40, 20 });
+        createLabel(widget, tinyFont,     "65-128",   { 858, 502 }, { 40, 20 });
+        createLabel(widget, tinyFont,     "128-256",  { 898, 502 }, { 40, 20 });
+        createLabel(widget, tinyBoldFont, "OCV Mod",  { 680, 522 }, { 52, 20 });
+        createLabel(widget, tinyFont,     "-0",       { 741, 522 }, { 30, 20 });
+        createLabel(widget, tinyFont,     "-2",       { 766, 522 }, { 30, 20 });
+        createLabel(widget, tinyFont,     "-4",       { 796, 522 }, { 30, 20 });
+        createLabel(widget, tinyFont,     "-6",       { 830, 522 }, { 30, 20 });
+        createLabel(widget, tinyFont,     "-8",       { 868, 522 }, { 30, 20 });
+        createLabel(widget, tinyFont,     "-10",      { 909, 522 }, { 30, 20 });
 
         image     = createImage(widget, { 663, 555 }, { 285, 533 }, Selectable);
         imageMenu = createMenu(image, font, { { "New Image",   &newImage   },
@@ -622,88 +726,98 @@ public:
         createLabel(widget, smallBoldWideFont, "ATTACKS & MANEUVERS", { 103, 712 }, { 230, 20 });
 
         attacksandmaneuvers = createTableWidget(widget, smallfont,
-                                                {   "Maneuver",        "Phase", "OCV",   "DCV", "Effects"                  },
-                                                { { "Block",           "½",     "+0",    "+0",  "Block, abort"             },
-                                                  { "Brace",           "0",     "+2",    "½",   "+2 OCV vs R Mod"          },
-                                                  { "Disarm",          "½",     "-2",    "+0",  "Disarm, STR v. STR"       },
-                                                  { "Dodge",           "½",     "——",    "+3",  "Abort vs. all attacks"    },
-                                                  { "Grab",            "½",     "-1",    "-2",  "Grab 2 limbs"             },
-                                                  { "Grab By",         "½†",    "-3",    "-4",  "Move&Grab;+(v/10) to STR" },
-                                                  { "Haymaker",        "½*",    "+0",    "-5",  "+4 DCs to attack"         },
-                                                  { "Move By",         "½†",    "-2",    "-2",  "STR/2+v/10; take ⅓"       },
-                                                  { "Move Through",    "½†",    "-v/10", "-3",  "STR+v/6; take ½ or full"  },
-                                                  { "Multiple Attack", "1",     "var",   "½",   "Attack multiple times"    },
-                                                  { "Set",             "1",     "+1",    "+0",  "Ranged attacks only"      },
-                                                  { "Shove",           "½",     "-1",    "-1",  "Push 1m per 5 STR"        },
-                                                  { "Strike",          "½",     "+0",    "+0",  "STR or weapon"            },
-                                                  { "Throw",           "½",     "+0",    "+0",  "Throw w/STR dmg"          },
-                                                  { "Trip",            "½",     "-1",    "-2",  "Knock target prone"       }
+#ifdef __wasm__
+                                                {   "Man.",         "Phase", "OCV",   "DCV", "Effects                          " },
+#else
+                                                {   "Maneuver",     "Phase", "OCV",   "DCV", "Effects" },
+#endif
+                                                { { "Block",        "½",     "+0",    "+0",  "Block, abort"             },
+                                                  { "Brace",        "0",     "+2",    "½",   "+2 OCV vs R Mod"          },
+                                                  { "Disarm",       "½",     "-2",    "+0",  "Disarm, STR v. STR"       },
+                                                  { "Dodge",        "½",     "——",    "+3",  "Abort vs. all attacks"    },
+                                                  { "Grab",         "½",     "-1",    "-2",  "Grab 2 limbs"             },
+                                                  { "Grab By",      "½†",    "-3",    "-4",  "Move&Grab;+(ͮ⁄₁₀) to STR"  },
+                                                  { "Haymaker",     "½*",    "+0",    "-5",  "+4 DCs to attack"         },
+                                                  { "Move By",      "½†",    "-2",    "-2",  "Sᵀᴿ⁄₂+ͮ⁄₁₀; take ⅓"         },
+#ifdef __wasm__
+                                                  { "Move Thru",    "½†",    "-ͮ⁄₁₀", "-3",  "STR+ͮ⁄₆; take ½ or full"    },
+                                                  { "Mult.Attx",    "1",     "var",   "½",   "Attack multiple times"    },
+#else
+                                                  { "Move Through",     "½†", "-ͮ⁄₁₀", "-3", "STR+ͮ⁄₆; take ½ or full"  },
+                                                  { "Multiple Attacks", "1",  "var",   "½",  "Attack multiple times"    },
+#endif
+                                                  { "Set",          "1",     "+1",    "+0",  "Ranged attacks only"      },
+                                                  { "Shove",        "½",     "-1",    "-1",  "Push 1m per 5 STR"        },
+                                                  { "Strike",       "½",     "+0",    "+0",  "STR or weapon"            },
+                                                  { "Throw",        "½",     "+0",    "+0",  "Throw w/STR dmg"          },
+                                                  { "Trip",         "½",     "-1",    "-2",  "Knock target prone"       }
                                                 }, { 69, 739 }, { 295, 495 });
 
         createLabel(widget, smallBoldWideFont, "DEFENSES", { 468, 712 }, { 225, 20 });
         createLabel(widget, smallBoldWideFont, "DEFENSES", { 467, 712 }, { 225, 20 });
 
         defenses = createTableWidget(widget, font,
-                                     {   "Type", "Amount/Effect" },
-                                     { { "Normal PD ",      "2" },
-                                       { "Resistant PD ",   "0" },
-                                       { "Normal ED ",      "2" },
-                                       { "Resistant ED ",   "0" },
-                                       { "Mental Defense ", "0" },
-                                       { "Power Defense ",  "0" },
-                                       { "Flash Defense ",  "0" } }, { 392, 739 }, { 249, 270 });
+                                     {   "Type", "Amount/Effect", "" },
+                                     { { "Normal PD ",      "2", "" },
+                                       { "Resistant PD ",   "0", "" },
+                                       { "Normal ED ",      "2", "" },
+                                       { "Resistant ED ",   "0", "" },
+                                       { "Mental Defense ", "0", "" },
+                                       { "Power Defense ",  "0", "" },
+                                       { "Flash Defense ",  "0", "" } }, { 392, 739 }, { 249, 270 }, NoSelectable, NoLabel);
 
         createLabel(widget, smallBoldWideFont, "SENSES", { 480, 1038 }, { 225, 20 });
         createLabel(widget, smallBoldWideFont, "SENSES", { 479, 1038 }, { 225, 20 });
-        createLabel(widget, smallBoldNarrowFont, "Perception Roll", { 395, 1063 }, { 150, 22 });
-        createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 506, 1063 }, { 100, 22 });
-
-        perceptionroll = createLabel(widget, font, "11-", { 569, 1066 }, 20);
+        createLabel(widget, smallBoldNarrowFont, "Perception Roll", { 395, 1065 }, { 105, 20 });
+#ifdef __wasm__
+        createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 496, 1065 }, {  60, 20 });
+#else
+        createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 506, 1065 }, {  50, 20 });
+#endif
+        perceptionroll = createLabel(widget, font, "11-", { 569, 1066 }, { 50, 20 });
         enhancedandunusualsenses = createTextEdit(widget, font, "<b>Enhanced and Unusual Senses</b>", { 390, 1083 }, { 249, 150 });
 
         createLabel(widget, smallBoldWideFont, "EXPERIENCE POINTS", { 713, 1106 }, { 225, 20 });
         createLabel(widget, smallBoldWideFont, "EXPERIENCE POINTS", { 712, 1106 }, { 225, 20 });
-        createLabel(widget, smallBoldNarrowFont, "Total Points",            { 675, 1133 }, { 200, 22 });
-        createLabel(widget, smallBoldNarrowFont, "Total Experience Earned", { 675, 1156 }, { 300, 22 });
-        createLabel(widget, smallNarrowFont,     "Experience Spent",        { 675, 1181 }, { 300, 22 });
-        createLabel(widget, smallNarrowFont,     "Experience Unspent",      { 675, 1206 }, { 300, 22 });
+        createLabel(widget, smallBoldNarrowFont, "Total Points",            { 675, 1133 }, { 170, 22 });
+        createLabel(widget, smallBoldNarrowFont, "Total Experience Earned", { 675, 1156 }, { 170, 22 });
+        createLabel(widget, smallNarrowFont,     "Experience Spent",        { 675, 1181 }, { 170, 22 });
+        createLabel(widget, smallNarrowFont,     "Experience Unspent",      { 675, 1206 }, { 170, 22 });
 
-        totalpoints       = createLabel(widget, font, "0/325", { 855, 1135 }, 20);
-        totalexperienceearned = createLineEdit(widget, font, "0", { 853, 1159 }, { 80, 20 }, "How much experience your character has earned");
-        experiencespent   = createLabel(widget, font,     "0", { 855, 1184 }, 20);
-        experienceunspent = createLabel(widget, font,   "325", { 855, 1209 }, 20);
+        totalpoints           = createLabel(widget, font, "0/325", { 855, 1135 }, { 80, 20 });
+        totalexperienceearned = createLineEdit(widget, font,  "0", { 853, 1158 }, { 80, 20 }, "How much experience your character has earned");
+        experiencespent       = createLabel(widget, font,     "0", { 855, 1183 }, { 80, 20 });
+        experienceunspent     = createLabel(widget, font,   "325", { 855, 1207 }, { 80, 20 });
 
         createLabel(widget, smallBoldWideFont, "CHARACTER INFORMATION", { 78, 1362 }, { 250, 20 });
         createLabel(widget, smallBoldWideFont, "CHARACTER INFORMATION", { 77, 1362 }, { 250, 20 });
-        createLabel(widget, smallBoldNarrowFont, "Character Name", {  66, 1388 }, { 200, 22 });
-        createLabel(widget, smallBoldNarrowFont, "Height",         {  66, 1413 }, { 200, 22 });
-        createLabel(widget, smallBoldNarrowFont, "Weight",         { 196, 1413 }, { 200, 22 });
-        createLabel(widget, smallBoldNarrowFont, "Hair Color",     {  66, 1439 }, { 200, 22 });
-        createLabel(widget, smallBoldNarrowFont, "Eye Color",      { 196, 1439 }, { 200, 22 });
+        createLabel(widget, smallBoldNarrowFont, "Character Name", {  66, 1388 }, { 150, 22 });
+        createLabel(widget, smallBoldNarrowFont, "Height",         {  66, 1413 }, { 100, 22 });
+        createLabel(widget, smallBoldNarrowFont, "Weight",         { 196, 1413 }, { 100, 22 });
+        createLabel(widget, smallBoldNarrowFont, "Hair Color",     {  66, 1439 }, { 100, 22 });
+        createLabel(widget, smallBoldNarrowFont, "Eye Color",      { 196, 1439 }, { 100, 22 });
 
-        charactername2 = createLabel(widget, font,      "", { 184, 1391 }, 20);
-        height         = createLabel(widget, font,    "2m", { 124, 1416 }, 20);
-        weight         = createLabel(widget, font, "100kg", { 249, 1416 }, 20);
-        haircolor = createLineEdit(widget, font, "", { 139, 1441 }, { 58, 20 }, "Your characters hair color");
-        eyecolor  = createLineEdit(widget, font, "", { 262, 1441 }, { 64, 20 }, "Your characters eye color");
+        charactername2 = createLabel(widget, font, "", { 184, 1391 }, 20);
+        height    = createLineEdit(widget, font,    "2m", { 124, 1414 }, { 72, 20 }, "Your characters height (certain powers may override)");
+        weight    = createLineEdit(widget, font, "100kg", { 249, 1414 }, { 76, 20 }, "Your characters weight (certain powers may override)");
+        haircolor = createLineEdit(widget, font,      "", { 139, 1440 }, { 58, 20 }, "Your characters hair color");
+        eyecolor  = createLineEdit(widget, font,      "", { 262, 1440 }, { 64, 20 }, "Your characters eye color");
 
         createLabel(widget, smallBoldWideFont, "CAMPAIGN INFORMATION", { 690, 1362 }, { 250, 20 });
         createLabel(widget, smallBoldWideFont, "CAMPAIGN INFORMATION", { 689, 1362 }, { 250, 20 });
         createLabel(widget, smallBoldNarrowFont, "Campaign Name", { 672, 1389 }, { 200, 22 });
         createLabel(widget, smallBoldNarrowFont, "Genre",         { 672, 1413 }, { 200, 22 });
         createLabel(widget, smallBoldNarrowFont, "Gamemaster",    { 672, 1439 }, { 200, 22 });
-
         campaignname = createLineEdit(widget, font, "", { 788, 1391 }, { 145, 20 }, "The campaign your character is playing in");
         genre        = createLineEdit(widget, font, "", { 721, 1416 }, { 213, 20 }, "The kind of game (street level, superhero, galactic, etc)");
         gamemaster   = createLineEdit(widget, font, "", { 764, 1441 }, { 170, 20 }, "Who is running the game for your character");
 
         createLabel(widget, smallBoldWideFont, "SKILLS, PERKS, & TALENTS", { 82, 1495 }, { 250, 20 });
         createLabel(widget, smallBoldWideFont, "SKILLS, PERKS, & TALENTS", { 83, 1495 }, { 250, 20 });
-        createLabel(widget, smallBoldNarrowFont, "Total Skills,Perks,& Talents Cost", { 112, 2057 }, { 300, 22 });
-
+        createLabel(widget, smallBoldNarrowFont, "Total Skills,Perks,& Talents Cost", { 112, 2057 }, { 220, 22 });
         skillstalentsandperks         = createTableWidget(widget, tableFont, { "Cost", "Name                        ", "Roll" },
                                                           { }, { 73, 1521 }, { 265, 535 }, "Things your character is skilled at or has a gift for", Selectable);
-        totalskillstalentsandperkscost = createLabel(widget, font, "0", { 73, 2058 }, 20);
+        totalskillstalentsandperkscost = createLabel(widget, font, "0", { 73, 2058 }, { 40, 20 });
         skillstalentsandperksMenu      = createMenu(skillstalentsandperks, font, { { "New",       &newSkillTalentOrPerk },
                                                                                    { "Edit",      &editSkillTalentOrPerk },
                                                                                    { "Delete",    &deleteSkillTalentOrPerk },
@@ -714,13 +828,13 @@ public:
                                                                                    { "-",         },
                                                                                    { "Move Up",   &moveSkillTalentOrPerkUp },
                                                                                    { "Move Down", &moveSkillTalentOrPerkDown } } );
+
         createLabel(widget, smallBoldWideFont, "COMPLICATIONS", { 122, 2103 }, { 175, 20 });
         createLabel(widget, smallBoldWideFont, "COMPLICATIONS", { 123, 2103 }, { 175, 20 });
         createLabel(widget, smallBoldNarrowFont, "Total Complications Points", { 117, 2512 }, { 200, 22 });
-
         complications        = createTableWidget(widget, tableFont, { "Pts   ", "Complication" },
                                                  { }, { 73, 2130 }, { 260, 383 }, "The things that make life difficult for your character", Selectable);
-        totalcomplicationpts = createLabel(widget, font, "0/75", { 73, 2513 }, 20);
+        totalcomplicationpts = createLabel(widget, font, "0/75", { 73, 2513 }, { 45, 20 });
         complicationsMenu    = createMenu(complications, font, { { "New",       &newComplication },
                                                                  { "Edit",      &editComplication },
                                                                  { "Delete",    &deleteComplication },
@@ -738,10 +852,14 @@ public:
 
         powersandequipment          = createTableWidget(widget, tableFont,
                                                         { "Cost", "Name              ",
+#ifdef __wasm__
+                                                          "Power/Equipment                                           ",
+#else
                                                           "Power/Equipment                                                 ",
+#endif
                                                           "END" },
                                                         { }, { 367, 1521 }, { 570, 991 }, "Special powers and equipment for your character", Selectable);
-        totalpowersandequipmentcost = createLabel(widget, font, "0", { 367, 2511 }, 20);
+        totalpowersandequipmentcost = createLabel(widget, font, "0", { 367, 2511 }, { 40, 20 });
         powersandequipmentMenu      = createMenu(powersandequipment, font, { { "New",       &newPowerOrEquipment },
                                                                              { "Edit",      &editPowerOrEquipment },
                                                                              { "Delete",    &deletePowerOrEquipment },
@@ -777,7 +895,7 @@ public:
         createLabel(hidden, smallBoldWideFont, "SKILL MODIFIERS", { 115, 882 }, { 275, 20 });
         createLabel(hidden, smallBoldWideFont, "SKILL MODIFIERS", { 114, 882 }, { 275, 20 });
 
-        QMetaObject::connectSlotsByName(hidden);
+//        QMetaObject::connectSlotsByName(hidden);
         hidden->setVisible(false);
     }
 };

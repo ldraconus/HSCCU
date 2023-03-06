@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>PIck A Complication</string>
+   <string>Pick A Complication</string>
   </property>
   <property name="windowIcon">
    <iconset resource="res.qrc">

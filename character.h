@@ -59,6 +59,11 @@ public:
     Characteristic& BODY() { return _BODY; }
     Characteristic& STUN() { return _STUN; }
 
+    QString    height()          { return _height; }
+    Character& height(QString h) { _height = h; return *this; }
+    QString    weight()          { return _weight; }
+    Character& weight(QString w) { _weight = w; return *this; }
+
     int& tempPD()   { return _tempPD; }
     int& tempED()   { return _tempED; }
     int& rPD()      { return _rPD; }
@@ -135,6 +140,9 @@ private:
     Characteristic _END;
     Characteristic _BODY;
     Characteristic _STUN;
+
+    QString _height;
+    QString _weight;
 
     int _FD       = 0;
     int _MD       = 0;

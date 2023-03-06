@@ -81,7 +81,8 @@ HEADERS += \
     sheet.h \
     sheet_ui.h \
     skilldialog.h \
-    skilltalentorperk.h
+    skilltalentorperk.h \
+    wasm.h
 
 FORMS += \
     complicationsdialog.ui \
@@ -90,10 +91,11 @@ FORMS += \
     powerdialog.ui \
     printwindow.ui \
     sheet.ui \
-    skilldialog.ui
+    skilldialog.ui \
+    wasm.ui
 
 wasm {
-#    QMAKE_LFLAGS += -sASYNCIFY -Os
+    QMAKE_LFLAGS += -sASYNCIFY -Os
 }
 
 # Default rules for deployment.

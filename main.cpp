@@ -1,4 +1,8 @@
+#ifdef __wasm__
+#include "wasm.h"
+#else
 #include "sheet.h"
+#endif
 
 #include <QApplication>
 

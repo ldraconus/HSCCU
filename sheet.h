@@ -12,7 +12,11 @@
 #include "sheet_ui.h"
 
 QT_BEGIN_NAMESPACE
+#ifndef __wasm__
 namespace Ui { class Sheet; }
+#else
+namespace Ui { class wasm; }
+#endif
 QT_END_NAMESPACE
 
 // ϴ▲Ꚛϟ 03F4,25B2,A69A,03DF
@@ -62,7 +66,27 @@ public:
     static const bool WordWrap = true;
 
 private:
+#ifndef __wasm__
     Ui::Sheet* ui;
+#else
+    Ui::wasm* ui;
+    QWidget* newButton;
+    QWidget* openButton;
+    QWidget* saveButton;
+    QWidget* cutButton;
+    QWidget* copyButton;
+    QWidget* pasteButton;
+    QWidget* optionButton;
+    QAction* action_File;
+    QAction* action_New;
+    QAction* action_Open;
+    QAction* action_Save;
+    QAction* action_Edit;
+    QAction* action_Cut;
+    QAction* actionC_opy;
+    QAction* action_Paste;
+    QAction* actionOptions;
+#endif
     Sheet_UI*  Ui;
     QPrinter*  printer;
 
@@ -88,6 +112,12 @@ private:
     void               characteristicChanged(QLineEdit*, QString, bool update = true);
     void               characteristicEditingFinished(QLineEdit*);
     bool               checkClose();
+#ifdef __wasm__
+    QWidget*           createToolBarItem(QToolBar*, QAction*, const QString, const QString, QAction*);
+    QWidget*           createToolBarItem(QToolBar*, const QString, const QString, QAction*);
+    QWidget*           createToolBarItem(QToolBar*, QAction*, const QString);
+    QWidget*           createToolBarItem(QToolBar*, const QString);
+#endif
     void               delPower(int);
     void               deletePagefull(QPlainTextEdit*, double, QPainter*);
     void               deletePagefull(QTableWidget*);
@@ -102,7 +132,12 @@ private:
     int                getPageCount();
     int                getPageLines(QPlainTextEdit*, double, QPainter*);
     shared_ptr<Power>& getPower(int, QList<shared_ptr<Power>>&);
+    void               loadImage(QPixmap&, QString);
+#ifdef __wasm__
+    void               loadImage(const QByteArray&, QString);
+#endif
     void               loadImage(QString);
+
     void               putPower(int, shared_ptr<Power>);
     void               preparePrint(QPlainTextEdit*);
     void               preparePrint(QTableWidget*);
@@ -121,6 +156,9 @@ private:
     void               rebuildPowers(bool);
     void               rebuildSenseFromPowers(QList<shared_ptr<Power>>&, QString&);
     void               rebuildSenses();
+#ifdef __wasm__
+    void               removeMenuButtons();
+#endif
     int                searchImprovedNoncombatMovement(QString);
     void               setupIcons();
     void               setCVs(_CharacteristicDef&, QLabel*);
@@ -146,14 +184,20 @@ public slots:
     void exitClicked()                                         { close(); }
     void powersandequipmentDoubleClicked(QTableWidgetItem*)    { editPowerOrEquipment(); }
     void skillstalentsandperksDoubleClicked(QTableWidgetItem*) { editSkillstalentsandperks(); }
+    void heightChanged(QString txt)                            { _character.height(txt); }
+    void weightChanged(QString txt)                            { _character.weight(txt); }
     void valChanged(QString txt)                               { characteristicChanged(dynamic_cast<QLineEdit*>(sender()), txt); }
     void valEditingFinished()                                  { characteristicEditingFinished(dynamic_cast<QLineEdit*>(sender())); }
 
+#ifndef __wasm__
     void aboutToHideEditMenu();
     void aboutToHideFileMenu();
+#endif
     void aboutToShowComplicationsMenu();
+#ifndef __wasm__
     void aboutToShowEditMenu();
     void aboutToShowFileMenu();
+#endif
     void aboutToShowPowersAndEquipmentMenu();
     void aboutToShowSkillsPerksAndTalentsMenu();
     void alternateIdsChanged(QString);
@@ -186,7 +230,11 @@ public slots:
     void gamemasterChanged(QString);
     void genreChanged(QString);
     void hairColorChanged(QString);
+#ifdef __wasm__
+    void imageMenu();
+#else
     void imageMenu(QPoint);
+#endif
     void moveComplicationDown();
     void moveComplicationUp();
     void movePowerOrEquipmentDown();

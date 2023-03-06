@@ -8,7 +8,11 @@
 #include "skilltalentorperk.h"
 
 #include "sheet.h"
+#ifndef __wasm__
 #include "ui_sheet.h"
+#else
+#include "ui_wasm.h"
+#endif
 #include "sheet_ui.h"
 
 #ifdef _WIN64
@@ -22,6 +26,7 @@
 #include <QFontDatabase>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLabel>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QMouseEvent>
@@ -34,6 +39,8 @@
 #include <QScrollBar>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QStatusBar>
+#include <QToolButton>
 
 Sheet* Sheet::_sheet = nullptr;
 
@@ -205,7 +212,11 @@ Sheet_UI Sheet::_Sheet_UI;
 
 Sheet::Sheet(QWidget *parent)
     : QMainWindow(parent)
+#ifndef __wasm__
     , ui(new Ui::Sheet)
+#else
+    , ui(new Ui::wasm)
+#endif
     , Ui(&_Sheet_UI)
 {
     _sheet = this;
@@ -226,6 +237,7 @@ Sheet::Sheet(QWidget *parent)
 
     connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*,QWidget*)));
 
+#ifndef __wasm__
     connect(ui->menu_File,         SIGNAL(aboutToShow()), this, SLOT(aboutToShowFileMenu()));
     connect(ui->menu_File,         SIGNAL(aboutToHide()), this, SLOT(aboutToHideFileMenu()));
     connect(ui->action_New,        SIGNAL(triggered()),   this, SLOT(newchar()));
@@ -236,11 +248,54 @@ Sheet::Sheet(QWidget *parent)
     connect(ui->actionE_xit,       SIGNAL(triggered()),   this, SLOT(exitClicked()));
 
     connect(ui->menu_Edit,     SIGNAL(aboutToShow()), this, SLOT(aboutToShowEditMenu()));
-    connect(ui->menu_Edit,     SIGNAL(aboutToHide()), this, SLOT(aboutToHideEditMenu()));
+    connect(ui->menu_Edit,     SIGNAL(aboutToHide()), this, SLOT(aboutToHideEditMenu()));\
     connect(ui->action_Cut,    SIGNAL(triggered()),   this, SLOT(cutCharacter()));
     connect(ui->actionC_opy,   SIGNAL(triggered()),   this, SLOT(copyCharacter()));
     connect(ui->action_Paste,  SIGNAL(triggered()),   this, SLOT(pasteCharacter()));
     connect(ui->actionOptions, SIGNAL(triggered()),   this, SLOT(options()));
+#else
+    action_File = new QAction(this);
+    action_File->setObjectName("action_File");
+    action_New = new QAction(this);
+    action_New->setObjectName("action_New");
+    action_Open = new QAction(this);
+    action_Open->setObjectName("action_Open");
+    action_Save = new QAction(this);
+    action_Save->setObjectName("action_Save");
+    action_Edit = new QAction(this);
+    action_Edit->setObjectName("action_Edit");
+    action_Cut = new QAction(this);
+    action_Cut->setObjectName("action_Cut");
+    actionC_opy = new QAction(this);
+    actionC_opy->setObjectName("actionC_opy");
+    action_Paste = new QAction(this);
+    action_Paste->setObjectName("action_Paste");
+    actionOptions = new QAction(this);
+    actionOptions->setObjectName("actionOptions");
+
+    newButton  = createToolBarItem(ui->menuBar, "New", "Create a new Character", action_New);
+    openButton = createToolBarItem(ui->menuBar, "Open", "Open an existing Character", action_Open);
+    saveButton = createToolBarItem(ui->menuBar, "Save", "Save this Character", action_Save);
+    connect(action_New,    SIGNAL(triggered()),   this, SLOT(newchar()));
+    connect(action_Open,   SIGNAL(triggered()),   this, SLOT(open()));
+    connect(action_Save,   SIGNAL(triggered()),   this, SLOT(save()));
+    newButton->setHidden(true);
+    openButton->setHidden(true);
+    saveButton->setHidden(true);
+
+    cutButton    = createToolBarItem(ui->menuBar, "Cut", "Copy Character to cliipboard, then clear it", action_Cut);
+    copyButton   = createToolBarItem(ui->menuBar, "Copy", "Copy Character to clipboard", actionC_opy);
+    pasteButton  = createToolBarItem(ui->menuBar, "Paste", "Paste Character from clipboard", action_Paste);
+    optionButton = createToolBarItem(ui->menuBar, "Options", "Edit program options", actionOptions);
+    connect(action_Cut,    SIGNAL(triggered()),   this, SLOT(cutCharacter()));
+    connect(actionC_opy,   SIGNAL(triggered()),   this, SLOT(copyCharacter()));
+    connect(action_Paste,  SIGNAL(triggered()),   this, SLOT(pasteCharacter()));
+    connect(actionOptions, SIGNAL(triggered()),   this, SLOT(options()));
+    cutButton->setHidden(true);
+    copyButton->setHidden(true);
+    pasteButton->setHidden(true);
+    optionButton->setHidden(true);
+#endif
 
     connect(Ui->alternateids,          SIGNAL(textEdited(QString)), this, SLOT(alternateIdsChanged(QString)));
     connect(Ui->bodyval,               SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
@@ -292,15 +347,25 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->stunval,               SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
     connect(Ui->totalexperienceearned, SIGNAL(textEdited(QString)), this, SLOT(totalExperienceEarnedChanged(QString)));
     connect(Ui->totalexperienceearned, SIGNAL(editingFinished()),   this, SLOT(totalExperienceEarnedEditingFinished()));
+    connect(Ui->height,                SIGNAL(textEdited(QString)), this, SLOT(heightChanged(QString)));
+    connect(Ui->weight,                SIGNAL(textEdited(QString)), this, SLOT(weightChanged(QString)));
     connect(Ui->notes,                 SIGNAL(textChanged()),       this, SLOT(noteChanged()));
 
+#ifndef __wasm__
     connect(Ui->image,      SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(imageMenu(QPoint)));
+#else
+    connect(Ui->image,      SIGNAL(clicked()),                          this, SLOT(imageMenu()));
+#endif
     connect(Ui->newImage,   SIGNAL(triggered()),                        this, SLOT(newImage()));
     connect(Ui->clearImage, SIGNAL(triggered()),                        this, SLOT(clearImage()));
 
     connect(Ui->complications,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(complicationDoubleClicked(QTableWidgetItem*)));
+#ifdef __wasm__
+    connect(Ui->complications,        SIGNAL(showmenu()),                           this, SLOT(aboutToShowComplicationsMenu()));
+#else
     connect(Ui->complications,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(complicationsMenu(QPoint)));
     connect(Ui->complicationsMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowComplicationsMenu()));
+#endif
     connect(Ui->newComplication,      SIGNAL(triggered()),                          this, SLOT(newComplication()));
     connect(Ui->editComplication,     SIGNAL(triggered()),                          this, SLOT(editComplication()));
     connect(Ui->deleteComplication,   SIGNAL(triggered()),                          this, SLOT(deleteComplication()));
@@ -310,9 +375,14 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->moveComplicationUp,   SIGNAL(triggered()),                          this, SLOT(moveComplicationUp()));
     connect(Ui->moveComplicationDown, SIGNAL(triggered()),                          this, SLOT(moveComplicationDown()));
 
+
     connect(Ui->skillstalentsandperks,     SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(skillstalentsandperksDoubleClicked(QTableWidgetItem*)));
+#ifdef __wasm__
+    connect(Ui->skillstalentsandperks,     SIGNAL(showmenu()),                           this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
+#else
     connect(Ui->skillstalentsandperks,     SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(skillstalentsandperksMenu(QPoint)));
     connect(Ui->skillstalentsandperksMenu, SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
+#endif
     connect(Ui->newSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(newSkillTalentOrPerk()));
     connect(Ui->editSkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(editSkillstalentsandperks()));
     connect(Ui->deleteSkillTalentOrPerk,   SIGNAL(triggered()),                          this, SLOT(deleteSkillstalentsandperks()));
@@ -354,12 +424,13 @@ Sheet::Sheet(QWidget *parent)
         { Ui->stunval, { &_character.STUN(), Ui->stunval, Ui->stunpoints } }
     };
 
-    installEventFilter(this);
+    installEventFilter(dynamic_cast<QObject*>(this));
 
     QStringList args = qApp->arguments();
     if (args.count() > 1) {
         _filename = QDir::fromNativeSeparators(args[1]);
         fileOpen();
+#ifndef __wasm__
         QProcess subfile;
         subfile.setProgram(args[0]);
         for (int i = 2; i < args.count(); ++i) {
@@ -367,6 +438,7 @@ Sheet::Sheet(QWidget *parent)
             subfile.setArguments(subArgs);
             subfile.startDetached();
         }
+#endif
     }
 }
 
@@ -529,6 +601,50 @@ bool Sheet::checkClose() {
     return true;
 }
 
+#ifdef __wasm__
+QWidget* Sheet::createToolBarItem(QToolBar* sb, const QString name, const QString tip, QAction* action) {
+    QToolButton *tb = new QToolButton();
+    tb->setText(name);
+    tb->setObjectName(name);
+    tb->setToolTip(tip);
+    tb->setDefaultAction(action);
+    tb->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    action->setText(name);
+    action->setToolTip(tip);
+    sb->addWidget(tb);
+    return tb;
+}
+
+QWidget* Sheet::createToolBarItem(QToolBar* sb, QAction* at, const QString name, const QString tip, QAction* action) {
+    QToolButton *tb = new QToolButton();
+    tb->setText(name);
+    tb->setObjectName(name);
+    tb->setToolTip(tip);
+    tb->setDefaultAction(action);
+    tb->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    action->setText(name);
+    action->setToolTip(tip);
+    sb->insertWidget(at, tb);
+    return tb;
+}
+
+QWidget* Sheet::createToolBarItem(QToolBar* sb, const QString name) {
+    QLabel *tb = new QLabel();
+    tb->setText(name);
+    tb->setObjectName(name);
+    sb->addWidget(tb);
+    return tb;
+}
+
+QWidget* Sheet::createToolBarItem(QToolBar* sb, QAction* at, const QString name) {
+    QLabel *tb = new QLabel();
+    tb->setText(name);
+    tb->setObjectName(name);
+    sb->insertWidget(at, tb);
+    return tb;
+}
+#endif
+
 void Sheet::delPower(int row) {
     auto power = getPower(row, _character.powersOrEquipment());
     if (power == nullptr) return;
@@ -616,6 +732,7 @@ void Sheet::fileOpen() {
 
     if (!_character.load(_option, _dir + "/" + _filename)) OK("Can't load \"" + _filename + ".hsccu\" from the \"" + _dir + "\" folder.");
     else {
+        bool changed = false;
         QFileInfo imageFile(_character.image());
         if (imageFile.exists()) {
             qulonglong then(_character.imageDate());
@@ -624,10 +741,13 @@ void Sheet::fileOpen() {
                                      "Do you want to update the image in\n"
                                      "the character sheet?") == QMessageBox::Yes) {
                 loadImage(_character.image());
-            } else _changed = false;
-        } else _changed = false;
+                changed = _changed;
+            }
+        }
         Ui->notes->setPlainText(_character.notes());
         updateDisplay();
+        update();
+        _changed = changed;
     }
 }
 
@@ -781,10 +901,8 @@ shared_ptr<Power>& Sheet::getPower(int row, QList<shared_ptr<Power>>& in) {
     return null;
 }
 
-void Sheet::loadImage(QString filename) {
+void Sheet::loadImage(QPixmap& pixmap, QString filename) {
     clearImage();
-    QPixmap pixmap;
-    pixmap.load(filename);
     QPixmap scaled = pixmap.scaledToWidth(Ui->image->width());
     if (scaled.height() > Ui->image->height()) scaled = pixmap.scaledToHeight(Ui->image->height());
     Ui->image->setPixmap(scaled);
@@ -799,6 +917,20 @@ void Sheet::loadImage(QString filename) {
     QDateTime tm = imageFile.lastModified();
     _character.imageDate() = tm.toSecsSinceEpoch();
     _changed = true;
+}
+
+#ifdef __wasm__
+void Sheet::loadImage(const QByteArray& data, QString filename) {
+    QPixmap pixmap;
+    pixmap.loadFromData(data);
+    loadImage(pixmap, filename);
+}
+#endif
+
+void Sheet::loadImage(QString filename) {
+    QPixmap pixmap;
+    pixmap.load(filename);
+    loadImage(pixmap, filename);
 }
 
 void Sheet::preparePrint(QPlainTextEdit* txt) {
@@ -816,16 +948,25 @@ void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
 
     QLabel* label = dynamic_cast<QLabel*>(widget);
     if (label) {
-        QString style = "QLabel { background: transparent;"
-                        "   border-style: none;"
-                        " }";
+        QString style;
+        if (label->font() == Ui->smallBoldWideFont)
+            style = "QLabel { background: transparent;"
+                          "   color: black; "
+                          "   border-style: none;"
+                          " }";
+        else
+            style = "QLabel { background: white;"
+                          "   color: black; "
+                          "   border-style: none;"
+                          " }";
         label->setStyleSheet(style);
     }
     QLineEdit* lineEdit = dynamic_cast<QLineEdit*>(widget);
     if (lineEdit) {
         QString style = "QLineEdit { background: white;"
-                        "   border-style: none;"
-                        " }";
+                                 "   color: black; "
+                                 "   border-style: none;"
+                                 " }";
         lineEdit->setStyleSheet(style);
     }
     QTableWidget* table = dynamic_cast<QTableWidget*>(widget);
@@ -841,11 +982,14 @@ void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
                                    "   color: black;"
                                    "   selection-color: black;"
                                    " } "
-                                   "QHeaderView::section { background-color: white;"
-                                   "   border-style: none;"
-                                   "   color: black;" +
-                           QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
-                                   " }";
+                      "QTableWidgetItem { background-color: white;"
+                                      "   color: black;"
+                                      " }"
+                      "QHeaderView::section { background-color: white;"
+                                          "   border-style: none;"
+                                          "   color: black;" +
+                                  QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
+                                          " }";
         table->setStyleSheet(style);
     }
     QPlainTextEdit* text = dynamic_cast<QPlainTextEdit*>(widget);
@@ -1066,10 +1210,10 @@ void Sheet::rebuildDefenses() {
     int primED = _character.ED().base() + _character.ED().primary() + _character.rED();
     int secondED = primED + _character.ED().secondary() + _character.temprED();
 
-    if (primPD == secondPD) setDefense(primPD, 0, 0, 1);
-    else setDefense(primPD, secondPD - primED, 0, 1);
-    if (primED == secondED) setDefense(primED, 0, 2, 1);
-    else setDefense(primED, secondED - primED, 2, 1);
+    if (primPD == secondPD) setDefense(primPD, 0,                 0, 1);
+    else                    setDefense(primPD, secondPD - primED, 0, 1);
+    if (primED == secondED) setDefense(primED, 0,                 2, 1);
+    else                    setDefense(primED, secondED - primED, 2, 1);
 
     setDefense(_character.rPD(),  _character.temprPD(),           1, 1);
     setDefense(_character.rED(),  _character.temprED(),           3, 1);
@@ -1213,6 +1357,9 @@ void Sheet::rebuildMovement() {
 }
 
 void Sheet::rebuildPowers(bool addTakesNoSTUN) {
+    Ui->height->setText(_character.height());
+    Ui->weight->setText(_character.weight());
+
     if (addTakesNoSTUN) _character.hasTakesNoSTUN() = true;
     else {
         _character.hasTakesNoSTUN() = false;
@@ -1371,13 +1518,13 @@ void Sheet::setDefense(_CharacteristicDef& def, int r, int c, QLineEdit* val) {
     if (val == Ui->edval) secondary += _character.tempED();
     QString defense = QString("%1").arg(primary);
     if (primary != secondary) defense += QString("/%1").arg(secondary);
-    setCellLabel(Ui->defenses, r, c, defense);
+    setCell(Ui->defenses, r, c, defense, Ui->font);
 }
 
 void Sheet::setDefense(int def, int temp, int r, int c) {
     QString defense = QString("%1").arg(def);
     if (temp != 0) defense += QString("/%1").arg(temp + def);
-    setCellLabel(Ui->defenses, r, c, defense);
+    setCell(Ui->defenses, r, c, defense, Ui->font);
 }
 
 void Sheet::setMaximum(_CharacteristicDef& def, QLabel* set, QLineEdit* cur) {
@@ -1592,6 +1739,7 @@ QString Sheet::valueToDice(int value) {
 
 // ---[SLOTS] --------------------------------------------------------------------------------------------
 
+#ifndef __wasm__
 void Sheet::aboutToHideEditMenu() {
     ui->action_Paste->setEnabled(true);
 }
@@ -1599,8 +1747,20 @@ void Sheet::aboutToHideEditMenu() {
 void Sheet::aboutToHideFileMenu() {
     ui->action_Save->setEnabled(true);
 }
+#endif
 
 void Sheet::aboutToShowComplicationsMenu() {
+#ifdef __wasm__
+    ui->toolBar->clear();
+    ui->toolBar->addAction(Ui->newComplication);
+    ui->toolBar->addAction(Ui->editComplication);
+    ui->toolBar->addAction(Ui->deleteComplication);
+    ui->toolBar->addAction(Ui->cutComplication);
+    ui->toolBar->addAction(Ui->copyComplication);
+    ui->toolBar->addAction(Ui->pasteComplication);
+    ui->toolBar->addAction(Ui->moveComplicationUp);
+    ui->toolBar->addAction(Ui->moveComplicationDown);
+#else
     const auto selection = Ui->complications->selectedItems();
     bool show = !selection.isEmpty();
     int row = -1;
@@ -1615,8 +1775,10 @@ void Sheet::aboutToShowComplicationsMenu() {
     const QMimeData* clip = clipboard->mimeData();
     bool canPaste = clip->hasFormat("application/complication");
     Ui->pasteComplication->setEnabled(canPaste);
+#endif
 }
 
+#ifndef __wasm__
 void Sheet::aboutToShowEditMenu() {
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
@@ -1627,6 +1789,7 @@ void Sheet::aboutToShowEditMenu() {
 void Sheet::aboutToShowFileMenu() {
     ui->action_Save->setEnabled(_changed);
 }
+#endif
 
 void Sheet::aboutToShowPowersAndEquipmentMenu() {
     const auto selection = Ui->powersandequipment->selectedItems();
@@ -1647,6 +1810,17 @@ void Sheet::aboutToShowPowersAndEquipmentMenu() {
 }
 
 void Sheet::aboutToShowSkillsPerksAndTalentsMenu() {
+#ifdef __wasm__
+    ui->toolBar->clear();
+    ui->toolBar->addAction(Ui->newSkillTalentOrPerk);
+    ui->toolBar->addAction(Ui->editSkillTalentOrPerk);
+    ui->toolBar->addAction(Ui->deleteSkillTalentOrPerk);
+    ui->toolBar->addAction(Ui->cutSkillTalentOrPerk);
+    ui->toolBar->addAction(Ui->copySkillTalentOrPerk);
+    ui->toolBar->addAction(Ui->pasteSkillTalentOrPerk);
+    ui->toolBar->addAction(Ui->moveSkillTalentOrPerkUp);
+    ui->toolBar->addAction(Ui->moveSkillTalentOrPerkDown);
+#else
     const auto selection = Ui->skillstalentsandperks->selectedItems();
     bool show = !selection.isEmpty();
     int row = -1;
@@ -1661,6 +1835,7 @@ void Sheet::aboutToShowSkillsPerksAndTalentsMenu() {
     const QMimeData* clip = clipboard->mimeData();
     bool canPaste = clip->hasFormat("application/skillperkortalent");
     Ui->pasteSkillTalentOrPerk->setEnabled(canPaste);
+#endif
 }
 
 void Sheet::alternateIdsChanged(QString txt) {
@@ -1797,6 +1972,7 @@ void Sheet::cutSkillTalentOrPerk() {
 
 void Sheet::deleteComplication() {
     auto selection = Ui->complications->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     shared_ptr<Complication> complication = _character.complications().takeAt(row);
     if (complication == nullptr) return;
@@ -1810,6 +1986,7 @@ void Sheet::deleteComplication() {
 
 void Sheet::deletePowerOrEquipment() {
     auto selection = Ui->powersandequipment->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     auto power = getPower(row, _character.powersOrEquipment());
     if (power == nullptr) return;
@@ -1822,6 +1999,7 @@ void Sheet::deletePowerOrEquipment() {
 
 void Sheet::deleteSkillstalentsandperks() {
     auto selection = Ui->skillstalentsandperks->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     shared_ptr<SkillTalentOrPerk> skilltalentorperk = _character.skillsTalentsOrPerks().takeAt(row);
     if (skilltalentorperk == nullptr) return;
@@ -1838,6 +2016,7 @@ void Sheet::deleteSkillstalentsandperks() {
 
 void Sheet::editComplication() {
     auto selection = Ui->complications->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     shared_ptr<Complication> complication = _character.complications()[row];
     if (complication == nullptr) return;
@@ -1854,6 +2033,7 @@ void Sheet::editComplication() {
 
 void Sheet::editPowerOrEquipment() {
     auto selection = Ui->powersandequipment->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     shared_ptr<Power>& power = getPower(row, _character.powersOrEquipment());
     if (power == nullptr) return;
@@ -1894,6 +2074,7 @@ void Sheet::editPowerOrEquipment() {
 
 void Sheet::editSkillstalentsandperks() {
     auto selection = Ui->skillstalentsandperks->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     shared_ptr<SkillTalentOrPerk> skilltalentorperk = _character.skillsTalentsOrPerks()[row];
     if (skilltalentorperk == nullptr) return;
@@ -1948,13 +2129,22 @@ void Sheet::hairColorChanged(QString txt) {
     _changed = true;
 }
 
+#ifdef __wasm__
+void Sheet::imageMenu() {
+    ui->toolBar->clear();
+    ui->toolBar->addAction(Ui->newImage);
+    ui->toolBar->addAction(Ui->clearImage);
+}
+#else
 void Sheet::imageMenu(QPoint pos) {
     Ui->imageMenu->exec(mapToGlobal(pos + Ui->image->pos() -
                                     QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
 }
+#endif
 
 void Sheet::moveComplicationDown() {
     auto selection = Ui->complications->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     auto& complications = _character.complications();
     shared_ptr<Complication> complication = complications.takeAt(row);
@@ -1964,6 +2154,7 @@ void Sheet::moveComplicationDown() {
 
 void Sheet::moveComplicationUp() {
     auto selection = Ui->complications->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     auto& complications = _character.complications();
     shared_ptr<Complication> complication = complications.takeAt(row);
@@ -1973,6 +2164,7 @@ void Sheet::moveComplicationUp() {
 
 void Sheet::movePowerOrEquipmentDown() {
     auto selection = Ui->powersandequipment->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     auto& powers = _character.powersOrEquipment();
     auto power = getPower(row, powers);
@@ -1983,6 +2175,7 @@ void Sheet::movePowerOrEquipmentDown() {
 
 void Sheet::movePowerOrEquipmentUp() {
     auto selection = Ui->powersandequipment->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     auto& powers = _character.powersOrEquipment();
     auto power = getPower(row, powers);
@@ -1993,6 +2186,7 @@ void Sheet::movePowerOrEquipmentUp() {
 
 void Sheet::moveSkillTalentOrPerkDown() {
     auto selection = Ui->skillstalentsandperks->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     auto& stps = _character.skillsTalentsOrPerks();
     auto stp = stps.takeAt(row);
@@ -2002,6 +2196,7 @@ void Sheet::moveSkillTalentOrPerkDown() {
 
 void Sheet::moveSkillTalentOrPerkUp() {
     auto selection = Ui->skillstalentsandperks->selectedItems();
+    if (selection.count() == 0) return;
     int row = selection[0]->row();
     auto& skillstalentsorperks = _character.skillsTalentsOrPerks();
     shared_ptr<SkillTalentOrPerk> skilltalentorperk = skillstalentsorperks.takeAt(row);
@@ -2041,9 +2236,15 @@ void Sheet::newComplication() {
 }
 
 void Sheet::newImage() {
+#ifdef __wasm__
+    QFileDialog::getOpenFileContent("Images (*.png *.xpm *jpg)", [&](const QString &fileName, const QByteArray &fileContent) {
+        loadImage(fileContent, fileName);
+    });
+#else
     QString filename = QFileDialog::getOpenFileName(this, "New Image", _dir, "Images (*.png *.xpm *jpg)");
     if (filename.isEmpty()) return;
     loadImage(filename);
+#endif
 }
 
 void Sheet::newPowerOrEquipment() {

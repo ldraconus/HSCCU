@@ -22,28 +22,37 @@ Character::Character()
     , _REC(Characteristic(4, 1_cp))
     , _END(Characteristic(20, 1_cp, 5))
     , _BODY(Characteristic(10, 1_cp))
-    , _STUN(Characteristic(20, 1_cp, 2)) { }
+    , _STUN(Characteristic(20, 1_cp, 2))
+    , _height("2 m")
+    , _weight("100kg") { }
 
 Character::Character(const Character& c)
     : _STR(c._STR), _DEX(c._DEX), _CON(c._CON)
     , _INT(c._INT), _EGO(c._EGO), _PRE(c._PRE)
     , _OCV(c._OCV), _DCV(c._DCV), _OMCV(c._OMCV), _DMCV(c._DMCV), _SPD(c._SPD)
     , _PD(c._PD), _ED(c._ED), _REC(c._REC), _END(c._END), _BODY(c._BODY), _STUN(c._STUN) {
-    _alternateIds  = c._alternateIds;
-    _campaignName  = c._campaignName;
-    _characterName = c._characterName;
-    _eyeColor      = c._eyeColor;
-    _gamemaster    = c._gamemaster;
-    _genre         = c._genre;
-    _hairColor     = c._hairColor;
-    _playerName    = c._playerName;
-    _xp            = c._xp;
-    _rPD           = c._rPD;
-    _rED           = c._rED;
+    _height               = c._height;
+    _weight               = c._weight;
+    _alternateIds         = c._alternateIds;
+    _campaignName         = c._campaignName;
+    _characterName        = c._characterName;
+    _eyeColor             = c._eyeColor;
+    _gamemaster           = c._gamemaster;
+    _genre                = c._genre;
+    _hairColor            = c._hairColor;
+    _playerName           = c._playerName;
+    _xp                   = c._xp;
+    _rPD                  = c._rPD;
+    _rED                  = c._rED;
+    _powers               = c._powers;
+    _skillsTalentsOrPerks = c._skillsTalentsOrPerks;
+    _complications        = c._complications;
 }
 
 Character& Character::operator=(const Character& c) {
     if (&c != this) {
+        _height               = c._height;
+        _weight               = c._weight;
         _alternateIds         = c._alternateIds;
         _campaignName         = c._campaignName;
         _characterName        = c._characterName;
@@ -55,6 +64,9 @@ Character& Character::operator=(const Character& c) {
         _playerName           = c._playerName;
         _skillsTalentsOrPerks = c._skillsTalentsOrPerks;
         _xp                   = c._xp;
+        _powers               = c._powers;
+        _skillsTalentsOrPerks = c._skillsTalentsOrPerks;
+        _complications        = c._complications;
 
         _STR  = c._STR;
         _DEX  = c._DEX;
@@ -78,6 +90,8 @@ Character& Character::operator=(const Character& c) {
 }
 
 Character& Character::operator=(Character&& c) {
+    _height               = c._height;
+    _weight               = c._weight;
     _alternateIds         = c._alternateIds;
     _campaignName         = c._campaignName;
     _characterName        = c._characterName;
@@ -89,6 +103,9 @@ Character& Character::operator=(Character&& c) {
     _playerName           = c._playerName;
     _skillsTalentsOrPerks = c._skillsTalentsOrPerks;
     _xp                   = c._xp;
+    _powers               = c._powers;
+    _skillsTalentsOrPerks = c._skillsTalentsOrPerks;
+    _complications        = c._complications;
 
     _STR  = c._STR;
     _DEX  = c._DEX;
@@ -143,6 +160,8 @@ void Character::erase() {
         characteristic(i).primary(0);
         characteristic(i).secondary(0);
     }
+    _height = "2m";
+    _weight = "100kg";
     _complications.clear();
     _skillsTalentsOrPerks.clear();
     _powers.clear();
@@ -167,6 +186,8 @@ void Character::fromJson(Option& opt, QJsonDocument& doc) {
     _notes         = top["notes"].toString("");
     _playerName    = top["playerName"].toString("");
     _xp            = Points(top["xp"].toInt(0));
+    _height        = top["height"].toString("2m");
+    _weight        = top["weight"].toString("100kg");
 
     const QJsonObject& characteristics = top["characteristics"].toObject();
     _STR  = Characteristic(characteristics["STR"].toObject());
@@ -256,6 +277,8 @@ QJsonDocument Character::toJson(Option& opt) {
     top.insert("playerName",    _playerName);
     top.insert("xp",            qlonglong(_xp.points));
     top.insert("notes",         _notes);
+    top.insert("height",        _height);
+    top.insert("weight",        _weight);
 
     QJsonObject characteristics;
     characteristics.insert("STR",  _STR.toJson());
