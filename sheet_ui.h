@@ -225,16 +225,26 @@ private:
 #endif
         auto verticalHeader = tablewidget->verticalHeader();
         verticalHeader->setVisible(false);
+#ifdef __wasm__
+        verticalHeader->setMinimumSectionSize(sz + 2);
+        verticalHeader->setMaximumSectionSize(selectable ? s.l : sz + 2);
+        verticalHeader->setDefaultSectionSize(sz + 2);
+#else
         verticalHeader->setMinimumSectionSize(1);
         verticalHeader->setMaximumSectionSize(selectable ? s.l : sz);
         verticalHeader->setDefaultSectionSize(1);
+#endif
         verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
         auto horizontalHeader = tablewidget->horizontalHeader();
         horizontalHeader->setStretchLastSection(true);
         horizontalHeader->setMaximumSectionSize(s.l);
         horizontalHeader->setDefaultSectionSize(10);
         horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
+#ifdef __wasm__
+        horizontalHeader->setMaximumSize(s.l, sz + 2);
+#else
         horizontalHeader->setMaximumSize(s.l, sz);
+#endif
         tablewidget->setSelectionMode(selectable ? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
         tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         QString family = font.family();
@@ -642,7 +652,7 @@ public:
         createLabel(widget, smallBoldNarrowFont, "HTH Damage",      { 397, 375 }, { 100, 22 });
         createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 486, 375 }, { 65, 22 });
         createLabel(widget, smallNarrowFont,     "Lift",            { 397, 399 }, { 100, 22 });
-        createLabel(widget, smallNarrowFont,     "STR END Cost",    { 510, 399 }, { 75, 22 });
+        createLabel(widget, smallNarrowFont,     "STR END Cost",    { 510, 399 }, { 85, 22 });
         createLabel(widget, font,                "1",               { 451, 425 }, { 20, 20});
         createLabel(widget, font,                "2",               { 464, 425 }, { 20, 20});
         createLabel(widget, font,                "3",               { 478, 425 }, { 20, 20});

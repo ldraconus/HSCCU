@@ -393,8 +393,12 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->moveSkillTalentOrPerkDown, SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkDown()));
 
     connect(Ui->powersandequipment,       SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
+#ifdef __wasm__
+    connect(Ui->powersandequipment,       SIGNAL(showmenu()),                           this, SLOT(aboutToShowPowersAndEquipmentMenu()));
+#else
     connect(Ui->powersandequipment,       SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
     connect(Ui->powersandequipmentMenu,   SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
+#endif
     connect(Ui->newPowerOrEquipment,      SIGNAL(triggered()),                          this, SLOT(newPowerOrEquipment()));
     connect(Ui->editPowerOrEquipment,     SIGNAL(triggered()),                          this, SLOT(editPowerOrEquipment()));
     connect(Ui->deletePowerOrEquipment,   SIGNAL(triggered()),                          this, SLOT(deletePowerOrEquipment()));
@@ -1792,6 +1796,17 @@ void Sheet::aboutToShowFileMenu() {
 #endif
 
 void Sheet::aboutToShowPowersAndEquipmentMenu() {
+#ifdef __wasm__
+    ui->toolBar->clear();
+    ui->toolBar->addAction(Ui->newPowerOrEquipment);
+    ui->toolBar->addAction(Ui->editPowerOrEquipment);
+    ui->toolBar->addAction(Ui->deletePowerOrEquipment);
+    ui->toolBar->addAction(Ui->cutPowerOrEquipment);
+    ui->toolBar->addAction(Ui->copyPowerOrEquipment);
+    ui->toolBar->addAction(Ui->pastePowerOrEquipment);
+    ui->toolBar->addAction(Ui->movePowerOrEquipmentUp);
+    ui->toolBar->addAction(Ui->movePowerOrEquipmentDown);
+#else
     const auto selection = Ui->powersandequipment->selectedItems();
     bool show = !selection.isEmpty();
     int row = -1;
@@ -1807,6 +1822,7 @@ void Sheet::aboutToShowPowersAndEquipmentMenu() {
     const QMimeData* clip = clipboard->mimeData();
     bool canPaste = clip->hasFormat("application/powerorequipment");
     Ui->pastePowerOrEquipment->setEnabled(canPaste);
+#endif
 }
 
 void Sheet::aboutToShowSkillsPerksAndTalentsMenu() {
