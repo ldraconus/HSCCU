@@ -94,6 +94,7 @@ private:
     QLabel*       createLabel(QVBoxLayout* parent, QString text, bool wordWrap = false);
     QWidget*      createEditButton(QWidget*, QVBoxLayout*, const QList<const char*>&);
     QTableWidget* createTableWidget(QWidget*, QVBoxLayout*, QList<int>, QString, int);
+    void          setupPower(shared_ptr<Power>&);
 
     QAction* _newAdvantage      = nullptr;
     QAction* _editAdvantage     = nullptr;

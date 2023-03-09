@@ -2273,7 +2273,6 @@ void Sheet::newPowerOrEquipment() {
     _powerDlg = make_shared<PowerDialog>(this);
     if (framework) _powerDlg->multipower();
     _powerDlg->open();
-    _powerDlg->show();
 }
 
 void Sheet::newSkillTalentOrPerk() {

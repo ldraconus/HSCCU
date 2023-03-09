@@ -512,6 +512,21 @@ void PowerDialog::newLimitation() {
     _mod->open();
 }
 
+void PowerDialog::setupPower(shared_ptr<Power>& power) {
+    power = Power::FromJson(_power->name(), _power->toJson());
+    power->modifiers().clear();
+    for (const auto& mod: power->advantagesList()) {
+        if (mod == nullptr) continue;
+
+        power->modifiers().append(mod);
+    }
+    for (const auto& mod: power->limitationsList()) {
+        if (mod == nullptr) continue;
+
+        power->modifiers().append(mod);
+    }
+}
+
 void PowerDialog::ok() {
     _accepted = _done = true;
     Sheet& s = Sheet::ref();
@@ -522,20 +537,15 @@ void PowerDialog::ok() {
     }
 
     bool add = (_saved == nullptr);
-    _saved = Power::FromJson(_power->name(), _power->toJson());
-    _saved->modifiers().clear();
-    for (const auto& mod: _saved->advantagesList()) {
-        if (mod == nullptr) continue;
-
-        _saved->modifiers().append(mod);
+    if (add) {
+        shared_ptr<Power> work;
+        setupPower(work);
+        s.addPower(work);
+    } else {
+        setupPower(_saved);
+        _dummy.reset(new Power);
+        _dummy = nullptr;
     }
-    for (const auto& mod: _saved->limitationsList()) {
-        if (mod == nullptr) continue;
-
-        _saved->modifiers().append(mod);
-    }
-
-    if (add) s.addPower(_saved);
 
     s.updateDisplay();
     s.changed();
