@@ -1,6 +1,7 @@
 #include "modifiersdialog.h"
 #include "ui_modifiersdialog.h"
 #include "modifier.h"
+#include "powerdialog.h"
 
 ModifiersDialog* ModifiersDialog::_modifiersDialog = nullptr;
 
@@ -22,6 +23,7 @@ ModifiersDialog::ModifiersDialog(bool advantage, QWidget *parent)
     ui->comboBox->setPlaceholderText(advantage ? "Pick an Advantage" : "Pick a Limitation");
 
     connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickOne(int)));
+    connect(this,         SIGNAL(accepted()),               this, SLOT(doAccepted()));
 
     _ok = ui->buttonBox->button(QDialogButtonBox::Ok);
     _ok->setEnabled(false);
@@ -43,7 +45,17 @@ QLabel* ModifiersDialog::createLabel(QVBoxLayout* parent, QString text, bool wor
     return label;
 }
 
-ModifiersDialog& ModifiersDialog::modifier(shared_ptr<Modifier>& mod) {
+void ModifiersDialog::doAccepted() {
+    if (_add) {
+        if (_modifier->type() == ModifierBase::isAdvantage ||
+            (_modifier->type() == ModifierBase::isBoth && _modifier->fraction(Modifier::NoStore) > 0)) {
+            PowerDialog::ref().powerorequipment()->advantagesList().append(_modifier);
+        } else PowerDialog::ref().powerorequipment()->limitationsList().append(_modifier);
+    }
+    PowerDialog::ref().updateForm();
+}
+
+bool ModifiersDialog::modifier(shared_ptr<Modifier>& mod) {
     QJsonObject obj = mod->toJson();
 
     bool advantage = false;
@@ -52,10 +64,11 @@ ModifiersDialog& ModifiersDialog::modifier(shared_ptr<Modifier>& mod) {
     else if (mod->fraction() < 0) advantage = false;
     else advantage = true;
 
+    _skipUpdate = true;
     setModifiers(advantage);
     ui->form->setWindowTitle(advantage ? "Edit Advantage" : "Edit Limitation");
     int idx = ui->comboBox->findText(obj["name"].toString());
-    if (idx == -1) return *this;
+    if (idx == -1) return false;
 
     ui->comboBox->setCurrentIndex(idx);
     ui->comboBox->setEnabled(false);
@@ -66,15 +79,13 @@ ModifiersDialog& ModifiersDialog::modifier(shared_ptr<Modifier>& mod) {
         ui->form->setLayout(layout);
     }
 
+    _add = false;
     _modifier = mod;
     /* This would be the simple way to handle this, but it does not work because the dialog is not up at this time.
      * Going to try and put it in an event or something, try something that will be hit when the dialog is up
     try { _modifier->createForm(this, layout); } catch (...) { accept(); }
-    */
-    try { _modifier->createForm(this, layout); } catch (...) {
-        QTimer::singleShot(1, this, &ModifiersDialog::justAccept);
-        return *this;
-    }
+    * timers don't work with WASM, so try the show event handler instead ... */
+    if (_modifier->createForm(this, layout) == false) return false;
 
     createLabel(layout, "");
     _description = createLabel(layout, "<incomplete>", true);
@@ -82,7 +93,7 @@ ModifiersDialog& ModifiersDialog::modifier(shared_ptr<Modifier>& mod) {
     layout->addStretch(1);
     _modifier->restore();
     updateForm();
-    return *this;
+    return true;
 }
 
 void ModifiersDialog::setModifiers(bool advantage) {
@@ -103,8 +114,12 @@ void ModifiersDialog::pickOne(int) {
         ui->form->setLayout(layout);
     }
 
+    _add = true;
     _modifier = Modifiers::ByName(ui->comboBox->currentText());
-    try { _modifier->createForm(this, layout); } catch (...) { accept(); }
+    if ((_justAccept = !_modifier->createForm(this, layout)) == true) {
+        accept();
+        return;
+    }
 
     createLabel(layout, "");
     _description = createLabel(layout, "<incomplete>", true);

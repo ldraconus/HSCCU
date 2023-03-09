@@ -265,8 +265,15 @@ QMap<QString, Power::allBase*> Power::_standardPower {
     SPCS("Transformϴ",          Transform)
 };
 
+QTableWidget* Power::createAdvantages(QWidget* parent, QVBoxLayout* layout) {
+    return PowerDialog::ref().createAdvantages(parent, layout);
+}
+
+QTableWidget* Power::createLimitations(QWidget* parent, QVBoxLayout* layout) {
+    return PowerDialog::ref().createLimitations(parent, layout);
+}
+
 Power::Power() {
-    ui = PowerDialog::ref().UI();
 }
 
 int Power::doubling() {

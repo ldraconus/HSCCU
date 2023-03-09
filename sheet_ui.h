@@ -650,7 +650,11 @@ public:
         createLabel(widget, smallBoldWideFont, "VITAL INFORMATION", { 420, 347 }, { 200, 20 });
         createLabel(widget, smallBoldWideFont, "VITAL INFORMATION", { 419, 347 }, { 200, 20 });
         createLabel(widget, smallBoldNarrowFont, "HTH Damage",      { 397, 375 }, { 100, 22 });
+#ifdef __wasm__
         createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 486, 375 }, { 65, 22 });
+#else
+        createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 496, 375 }, { 65, 22 });
+#endif
         createLabel(widget, smallNarrowFont,     "Lift",            { 397, 399 }, { 100, 22 });
         createLabel(widget, smallNarrowFont,     "STR END Cost",    { 510, 399 }, { 85, 22 });
         createLabel(widget, font,                "1",               { 451, 425 }, { 20, 20});

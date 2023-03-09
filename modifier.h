@@ -110,7 +110,7 @@ public:
     virtual shared_ptr<class Modifier> create();
     virtual shared_ptr<class Modifier> create(const QJsonObject&);
 
-    virtual void          createForm(QWidget*, QVBoxLayout*) { throw "just accept"; }
+    virtual bool          createForm(QWidget*, QVBoxLayout*) { return false; }
     virtual QString       description(bool show = false)     { return show ? "<incomplete>" : "<incomplete>"; }
 
 private:
@@ -223,7 +223,7 @@ public:
 
     QWidget* sender() const { return _sender; }
 
-    void createForm(QWidget*, QVBoxLayout*) override;
+    bool createForm(QWidget*, QVBoxLayout*) override;
 
     void checked(bool) override            { }
     void selected(int, int, bool) override { }
@@ -245,7 +245,7 @@ public:
     static const bool Show = true;
     static const bool Hide = false;
 
-    virtual void        form(QWidget*, QVBoxLayout*)   { }
+    virtual bool        form(QWidget*, QVBoxLayout*)   { return false; }
     virtual void        restore()                      { }
     virtual void        store()                        { }
     virtual QJsonObject toJson()                       { QJsonObject obj; return obj; }
@@ -305,7 +305,6 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<NoFormModifier>(json); }
 
     QString       description(bool show = false) override  { return QString(show ? fraction(Modifier::NoStore).toString() + " ": "") + name(); }
-    void          form(QWidget*, QVBoxLayout*) override    { throw "No form"; }
     Fraction      fraction(bool noStore = false) override  { return noStore ? _value : _value; }
     Points        points(bool noStore = false) override    { return noStore ? _points : _points; }
     void          restore() override                       { }
@@ -349,7 +348,8 @@ public:
     void        changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void        checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     QString     description(bool show = false) override   { return optOut(show); }
-    void        form(QWidget* p, QVBoxLayout* l) override { aquiresRoll = createCheckBox(p, l, "Aquires a Skill Roll when Exceeded", std::mem_fn(&ModifierBase::checked)); }
+    bool        form(QWidget* p, QVBoxLayout* l) override { aquiresRoll = createCheckBox(p, l, "Aquires a Skill Roll when Exceeded", std::mem_fn(&ModifierBase::checked));
+                                                            return true; }
     Fraction    fraction(bool noStore = false) override   { if (!noStore) store();
                                                             return v._aquiresRoll ? Fraction(1) : Fraction(1, 2); }
     void        restore() override                        { vars s = v;
@@ -399,8 +399,9 @@ public:
 
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { sense = createComboBox(p, l, "Affect as?", { "", "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" },
-                                                                                     std::mem_fn(&ModifierBase::index)); }
+    bool          form(QWidget* p, QVBoxLayout* l) override { sense = createComboBox(p, l, "Affect as?", { "", "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" },
+                                                                                     std::mem_fn(&ModifierBase::index));
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               return Fraction(1, 4); }
     void          restore() override                        { vars s = v;
@@ -453,8 +454,9 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { veryUncommon = createCheckBox(p, l, "Senses are very uncommon", std::mem_fn(&ModifierBase::checked));
-                                                              senses       = createLineEdit(p, l, "Affect as?", std::mem_fn(&ModifierBase::changed)); }
+    bool          form(QWidget* p, QVBoxLayout* l) override { veryUncommon = createCheckBox(p, l, "Senses are very uncommon", std::mem_fn(&ModifierBase::checked));
+                                                              senses       = createLineEdit(p, l, "Affect as?", std::mem_fn(&ModifierBase::changed));
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               return v._veryUncommon ? Fraction(1, 2) : Fraction(1, 4); }
     void          restore() override                        { vars s = v;
@@ -513,8 +515,9 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { limited = createCheckBox(p, l, "Limited to a single SFX", std::mem_fn(&ModifierBase::checked));
-                                                              what    = createLineEdit(p, l, "Limited to?", std::mem_fn(&ModifierBase::changed)); }
+    bool          form(QWidget* p, QVBoxLayout* l) override { limited = createCheckBox(p, l, "Limited to a single SFX", std::mem_fn(&ModifierBase::checked));
+                                                              what    = createLineEdit(p, l, "Limited to?", std::mem_fn(&ModifierBase::changed));
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               return v._limited ? Fraction(1, 4) : Fraction(1, 2); }
     void          restore() override                        { vars s = v;
@@ -635,12 +638,13 @@ public:
 
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { is = createComboBox(p, l, "Kind of ACV?", { "",
+    bool          form(QWidget* p, QVBoxLayout* l) override { is = createComboBox(p, l, "Kind of ACV?", { "",
                                                                                                           "Mental Power uses OCV instead of OMCV",
                                                                                                           "Mental Power attacks against DCV instead of DMCV",
                                                                                                           "Non-Mental Power uses OMCV instead of OCV",
                                                                                                           "Non-Mental Power attacks against DMCV instead of DCV" },
-                                                                                  std::mem_fn(&ModifierBase::index)); }
+                                                                                  std::mem_fn(&ModifierBase::index));
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               switch (v._is) {
                                                               case 0:  return Fraction(1, 4);
@@ -731,7 +735,7 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { kind = createComboBox(p, l, "Kind of Area?", { "Radius",
+    bool          form(QWidget* p, QVBoxLayout* l) override { kind = createComboBox(p, l, "Kind of Area?", { "Radius",
                                                                                                              "Cone",
                                                                                                              "Line",
                                                                                                              "Surface",
@@ -756,7 +760,7 @@ public:
                                                               accurate->setEnabled(false);
                                                               thinCone->setEnabled(false);
                                                               damageShield->setEnabled(false);
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               kind->setCurrentIndex(s._kind);
                                                               fixedShape->setChecked(s._fixedShape);
@@ -944,8 +948,8 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { times = createLineEdit(p, l, "Times?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { times = createLineEdit(p, l, "Times?", std::mem_fn(&ModifierBase::changed));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               times->setText(QString("%1").arg(s._times));
                                                               v = s;
@@ -1021,7 +1025,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { original = createComboBox(p, l, "Original Defense is?", { "",
+    bool          form(QWidget* p, QVBoxLayout* l) override { original = createComboBox(p, l, "Original Defense is?", { "",
                                                                                                                         "Very Common (PD/ED) for ex.",
                                                                                                                         "Common (Reistant PD/ED)",
                                                                                                                         "Uncommon (Sight Flash Defense)",
@@ -1035,7 +1039,7 @@ public:
                                                                                       std::mem_fn(&ModifierBase::index));
                                                               versus = createLineEdit(p, l, "Defense?", std::mem_fn(&ModifierBase::changed));
                                                               nnd = createCheckBox(p, l, "All or nothing (NND)", std::mem_fn(&ModifierBase::checked));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               original->setCurrentIndex(s._original);
                                                               newone->setCurrentIndex(s._newone);
@@ -1119,10 +1123,10 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { bypass = createCheckBox(p, l, "All or nothing (NND)", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { bypass = createCheckBox(p, l, "All or nothing (NND)", std::mem_fn(&ModifierBase::checked));
                                                               doubling = createLineEdit(p, l, "Doublings of shots?", std::mem_fn(&ModifierBase::numeric));
                                                               bypass = createCheckBox(p, l, "All or nothing (NND)", std::mem_fn(&ModifierBase::checked));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               five->setChecked(s._five);
                                                               doubling->setText(QString("%1").arg(s._doubling));
@@ -1329,9 +1333,9 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }   // ¹²³₂₄⁄
-    void          form(QWidget* p, QVBoxLayout* l) override { value = createComboBox(p, l, "Value of the limitation?", { "", "-¹⁄₄⁄", "-¹⁄₂⁄", "-³⁄₄", "-1", "-1¹⁄₄⁄", "-1¹⁄₂⁄", "-1³⁄₄", "-2"
+    bool          form(QWidget* p, QVBoxLayout* l) override { value = createComboBox(p, l, "Value of the limitation?", { "", "-¹⁄₄⁄", "-¹⁄₂⁄", "-³⁄₄", "-1", "-1¹⁄₄⁄", "-1¹⁄₂⁄", "-1³⁄₄", "-2"
                                                                                                                        }, std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               value->setCurrentIndex(s._value);
                                                               v = s;
@@ -1424,9 +1428,9 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { veryEffective = createCheckBox(p, l, "Very Effective", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { veryEffective = createCheckBox(p, l, "Very Effective", std::mem_fn(&ModifierBase::checked));
                                                               maneuver = createLineEdit(p, l, "Maneuver", std::mem_fn(&ModifierBase::changed));
-                                                            }
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               return v._veryEffective ? Fraction(1, 2) : Fraction(1, 4); }
     void          restore() override                        { vars s = v;
@@ -1527,7 +1531,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { charges      = createLineEdit(p, l, "Number of Charges", std::mem_fn(&ModifierBase::numeric));
+    bool          form(QWidget* p, QVBoxLayout* l) override { charges      = createLineEdit(p, l, "Number of Charges", std::mem_fn(&ModifierBase::numeric));
                                                               clips        = createLineEdit(p, l, "Number of Clips", std::mem_fn(&ModifierBase::numeric));
                                                               reload       = createComboBox(p, l, "Extra Time to Reload", { "", "2 Phases", "Turn", "1 Minute", "5 Minutes", "20 Minutes",
                                                                                                                             "1 Hour", "6 Hours", "1 Day", "1 Week", "1 Month", "1 Season",
@@ -1542,7 +1546,7 @@ public:
                                                                                                                             "Never" }, std::mem_fn(&ModifierBase::index));
                                                               expensive    = createCheckBox(p, l, "Expensive or Difficult to Replace", std::mem_fn(&ModifierBase::checked));
                                                               fuelCharge   = createCheckBox(p, l, "Fuel Charge", std::mem_fn(&ModifierBase::checked));
-                                                            }
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = chargeFraction();
                                                               if (v._boostable) res += Fraction(1, 4);
@@ -1710,10 +1714,10 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { zeroDCV  = createCheckBox(p, l, "0 DCV", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { zeroDCV  = createCheckBox(p, l, "0 DCV", std::mem_fn(&ModifierBase::checked));
                                                               unaware  = createCheckBox(p, l, "Unaware (no Perception roll)", std::mem_fn(&ModifierBase::checked));
                                                               constant = createCheckBox(p, l, "Constant concentration", std::mem_fn(&ModifierBase::checked));
-                                                            }
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 4);
                                                               if (v._zeroDCV) res += Fraction(1, 4);
@@ -1801,9 +1805,10 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { howMuch  = createComboBox(p, l, "How Much END?", { "", "Half END",
+    bool          form(QWidget* p, QVBoxLayout* l) override { howMuch  = createComboBox(p, l, "How Much END?", { "",
+                                                                                                                 "Half END",
                                                                                                                  "Normal END" }, std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 4);
                                                               if (v._howMuch > 0) res += Fraction(1, 4);
@@ -1880,9 +1885,9 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { howMuch  = createComboBox(p, l, "How Much END?", { "", "Half END",
+    bool          form(QWidget* p, QVBoxLayout* l) override { howMuch  = createComboBox(p, l, "How Much END?", { "", "Half END",
                                                                                                                  "Normal END" }, std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 4);
                                                               if (v._howMuch > 0) res += Fraction(1, 4);
@@ -1994,7 +1999,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { times       = createLineEdit(p, l, "Number of Damage Increments", std::mem_fn(&ModifierBase::numeric));
+    bool          form(QWidget* p, QVBoxLayout* l) override { times       = createLineEdit(p, l, "Number of Damage Increments", std::mem_fn(&ModifierBase::numeric));
                                                               duration    = createComboBox(p, l, "Duration Between Damage Increments", { "", "Every Segment", "Every Other Segement",
                                                                                                                                          "Every 3 Segments", "Every 4 Segments",
                                                                                                                                          "Every 6 Segments", "Every Turn",
@@ -2006,7 +2011,7 @@ public:
                                                                                                                                          std::mem_fn(&ModifierBase::index));
                                                               once  = createCheckBox(p, l, "Target's Defenses Only Apply Once", std::mem_fn(&ModifierBase::checked));
                                                               oneUse = createCheckBox(p, l, "One Use at a Time", std::mem_fn(&ModifierBase::checked));
-                                                            }
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 1);
                                                               res += (v._once ? Fraction(2, 1) : Fraction(1, 1)) * timeFraction();
@@ -2091,9 +2096,9 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { howMuch  = createComboBox(p, l, "Reduced to?", { "", "4m per m", "3m per m",
+    bool          form(QWidget* p, QVBoxLayout* l) override { howMuch  = createComboBox(p, l, "Reduced to?", { "", "4m per m", "3m per m",
                                                                                                                "2m per m", "1m per m" }, std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 4);
                                                               if (v._howMuch > 2) res += Fraction(1, 4);
@@ -2153,8 +2158,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { doubling = createLineEdit(p, l, "Doublings of powers?", std::mem_fn(&ModifierBase::numeric));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { doubling = createLineEdit(p, l, "Doublings of powers?", std::mem_fn(&ModifierBase::numeric));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               doubling->setText(QString("%1").arg(s._doubling));
                                                               v = s;
@@ -2217,10 +2222,10 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { duration    = createComboBox(p, l, "5 CP Per Time ", { "", "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
+    bool          form(QWidget* p, QVBoxLayout* l) override { duration    = createComboBox(p, l, "5 CP Per Time ", { "", "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
                                                                                                                      "Day", "Week", "Month", "Season", "Year", "5 Years" },
                                                                                                                      std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 1);
                                                               res += v._duration * Fraction(1, 4);
@@ -2281,8 +2286,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { doubling = createLineEdit(p, l, "Doublings of active points?", std::mem_fn(&ModifierBase::numeric));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { doubling = createLineEdit(p, l, "Doublings of active points?", std::mem_fn(&ModifierBase::numeric));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               doubling->setText(QString("%1").arg(s._doubling));
                                                               v = s;
@@ -2410,10 +2415,10 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { doesnt    = createLineEdit(p, l, "Doesn't Work On?", std::mem_fn(&ModifierBase::changed));
+    bool          form(QWidget* p, QVBoxLayout* l) override { doesnt    = createLineEdit(p, l, "Doesn't Work On?", std::mem_fn(&ModifierBase::changed));
                                                               howCommon = createComboBox(p, l, "How Common?", { "", "Rare", "Uncommon", "Common", "Very Common" },
                                                                                          std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               doesnt->setText(s._doesnt);
                                                               howCommon->setCurrentIndex(s._howCommon);
@@ -2512,10 +2517,10 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { effects = createLineEdit(p, l, "Effects?", std::mem_fn(&ModifierBase::changed));
+    bool          form(QWidget* p, QVBoxLayout* l) override { effects = createLineEdit(p, l, "Effects?", std::mem_fn(&ModifierBase::changed));
                                                               howMany = createComboBox(p, l, "How Many?", { "", "Two", "Three", "Four", "Five", "Six", "Seven", "All" },
-                                                                                         std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                                                       std::mem_fn(&ModifierBase::index));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               effects->setText(s._effects);
                                                               howMany->setCurrentIndex(s._howMany);
@@ -2583,13 +2588,13 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { time = createComboBox(p, l, "How Much Extra Time?", { "", "Delayed Phase", "Extra Segment", "Full Phase", "Extra Phase",
+    bool          form(QWidget* p, QVBoxLayout* l) override { time = createComboBox(p, l, "How Much Extra Time?", { "", "Delayed Phase", "Extra Segment", "Full Phase", "Extra Phase",
                                                                                                                     "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
                                                                                                                     "Day", "Week", "Month", "Season", "Year", "5 Years" },
                                                                                          std::mem_fn(&ModifierBase::index));
                                                               lockout = createCheckBox(p, l, "Cannot Activate Other Powers While Waiting", std::mem_fn(&ModifierBase::checked));
                                                               activate = createCheckBox(p, l, "Only to Activate", std::mem_fn(&ModifierBase::checked));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               time->setCurrentIndex(s._time);
                                                               lockout->setChecked(s._lockout);
@@ -2676,8 +2681,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { throughout = createCheckBox(p, l, "Must Keep Eye Contact Throuhgout", std::mem_fn(&ModifierBase::checked));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { throughout = createCheckBox(p, l, "Must Keep Eye Contact Throuhgout", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               throughout->setChecked(s._throughout);
                                                               v = s;
@@ -2745,7 +2750,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { what          = createLineEdit(p, l, "What is the fopcus?", std::mem_fn(&ModifierBase::changed));
+    bool          form(QWidget* p, QVBoxLayout* l) override { what          = createLineEdit(p, l, "What is the fopcus?", std::mem_fn(&ModifierBase::changed));
                                                               ntype         = createComboBox(p, l, "Type Of Focus?", { "Inobvious, Inaccessable", "Inobvious, Accessable",
                                                                                                                        "Obvious, Inaccessable", "Obvious, Accessable" },
                                                                                                                        std::mem_fn(&ModifierBase::index));
@@ -2757,7 +2762,7 @@ public:
                                                               durability    = createComboBox(p, l, "Durability?", { "", "Fragile", "Durable", "Unbreakable" },
                                                                                                                     std::mem_fn(&ModifierBase::index));
                                                               universal     = createCheckBox(p, l, "Universal Focus", std::mem_fn(&ModifierBase::checked));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               what->setText(s._what);
                                                               ntype->setCurrentIndex(s._type);
@@ -2859,9 +2864,9 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { bothHands  = createCheckBox(p, l, "Both Hands", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { bothHands  = createCheckBox(p, l, "Both Hands", std::mem_fn(&ModifierBase::checked));
                                                               throughout = createCheckBox(p, l, "Must Gesture Throuhgout", std::mem_fn(&ModifierBase::checked));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               bothHands->setChecked(s._bothHands);
                                                               throughout->setChecked(s._throughout);
@@ -2949,9 +2954,9 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { changeable = createCheckBox(p, l, "Shae is changeable", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { changeable = createCheckBox(p, l, "Shae is changeable", std::mem_fn(&ModifierBase::checked));
                                                               shape      = createLineEdit(p, l, "Hole shape?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               changeable->setChecked(s._changeable);
                                                               shape->setText(s._shape);
@@ -3043,8 +3048,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { dbling = createLineEdit(p, l, "How many doublings?", std::mem_fn(&ModifierBase::numeric));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { dbling = createLineEdit(p, l, "How many doublings?", std::mem_fn(&ModifierBase::numeric));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               dbling->setText(QString("%1").arg(s._doubling));
                                                               v = s;
@@ -3106,8 +3111,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { zero = createCheckBox(p, l, "0 OCV", std::mem_fn(&ModifierBase::checked));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { zero = createCheckBox(p, l, "0 OCV", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               zero->setChecked(s._zero);
                                                               v = s;
@@ -3171,8 +3176,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { throughout = createCheckBox(p, l, "Must Incant Throuhgout", std::mem_fn(&ModifierBase::checked));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { throughout = createCheckBox(p, l, "Must Incant Throuhgout", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               throughout->setChecked(s._throughout);
                                                               v = s;
@@ -3238,12 +3243,12 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { amount        = createComboBox(p, l, "Amount of increased END?", { "", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9", "x10" },
+    bool          form(QWidget* p, QVBoxLayout* l) override { amount        = createComboBox(p, l, "Amount of increased END?", { "", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9", "x10" },
                                                                                                                                  std::mem_fn(&ModifierBase::index));
                                                               circumstances = createComboBox(p, l, "How common the circumstances?", { "", "Very Common", "Common", "Uncommon" },
                                                                                                                                        std::mem_fn(&ModifierBase::index));
                                                               what          = createLineEdit(p, l, "What circumstances?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               amount->setCurrentIndex(s._amount);
                                                               circumstances->setCurrentIndex(s._circumstances);
@@ -3330,8 +3335,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               doubling->setText(QString("%1").arg(s._doubling));
                                                               v = s;
@@ -3391,8 +3396,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               doubling->setText(QString("%1").arg(s._doubling));
                                                               v = s;
@@ -3452,8 +3457,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               doubling->setText(QString("%1").arg(s._doubling));
                                                               v = s;
@@ -3514,14 +3519,14 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { location  = createComboBox(p, l, "Power Source?", { "Always The Character",
+    bool          form(QWidget* p, QVBoxLayout* l) override { location  = createComboBox(p, l, "Power Source?", { "Always The Character",
                                                                                                                   "Always the Same",
                                                                                                                   "Variable" }, std::mem_fn(&ModifierBase::index));
                                                               locAndDir = createLineEdit(p, l, "Location and Path?", std::mem_fn(&ModifierBase::changed));
                                                               direction = createComboBox(p, l, "Path the Power Follows?", { "Directly from Source to Target",
                                                                                                                             "Always the Same",
                                                                                                                             "Variable" }, std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               location->setCurrentIndex(s._location);
                                                               locAndDir->setText(s._locAndDir);
@@ -3639,7 +3644,7 @@ public:
 
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { inobvious = createCheckBox(p, l, "Power is Inobvious", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { inobvious = createCheckBox(p, l, "Power is Inobvious", std::mem_fn(&ModifierBase::checked));
                                                               how       = createComboBox(p, l, "How Invisible?", { "",
                                                                                                                    "Inobvious to One Sense Group",
                                                                                                                    "Inobvious to Two Sense Groups",
@@ -3652,7 +3657,7 @@ public:
                                                                                                                    "Inobvious to target but not to other characters"
                                                                                                                    "Invisible to target but not to other characters" },
                                                                                                                    std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               inobvious->setChecked(s._inobvious);
                                                               how->setCurrentIndex(s._how);
@@ -3771,8 +3776,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { sense = createLineEdit(p, l, "Sense(s)?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { sense = createLineEdit(p, l, "Sense(s)?", std::mem_fn(&ModifierBase::changed));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               sense->setText(s._sense);
                                                               v = s;
@@ -3850,7 +3855,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { conditional = createCheckBox(p, l, "Power is Conditional", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { conditional = createCheckBox(p, l, "Power is Conditional", std::mem_fn(&ModifierBase::checked));
                                                               how         = createComboBox(p, l, "How Limited?", { "", "Power loses less than a fourth of its overall effectiveness",
                                                                                                                    "Power loses about a fourth of its overall effectiveness",
                                                                                                                    "Power loses about a third of its overall effectiveness",
@@ -3859,7 +3864,7 @@ public:
                                                                                                                    "Power loses almost all of its overall effectiveness" },
                                                                                                                    std::mem_fn(&ModifierBase::index));
                                                               what        = createLineEdit(p, l, "What?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               conditional->setChecked(s._conditional);
                                                               how->setCurrentIndex(s._how);
@@ -3957,8 +3962,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { noRange = createCheckBox(p, l, "Power Has No Range", std::mem_fn(&ModifierBase::checked));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { noRange = createCheckBox(p, l, "Power Has No Range", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               noRange->setChecked(s._noRange);
                                                               v = s;
@@ -4021,9 +4026,9 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { how  = createComboBox(p, l, "How Common?", { "", "Very Common", "Common", "Uncommon" }, std::mem_fn(&ModifierBase::index));
+    bool          form(QWidget* p, QVBoxLayout* l) override { how  = createComboBox(p, l, "How Common?", { "", "Very Common", "Common", "Uncommon" }, std::mem_fn(&ModifierBase::index));
                                                               what = createLineEdit(p, l, "What?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               how->setCurrentIndex(s._how);
                                                               what->setText(s._what);
@@ -4119,14 +4124,14 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { greater  = createCheckBox(p, l, "Greater Power Linked to Lesser▲", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { greater  = createCheckBox(p, l, "Greater Power Linked to Lesser▲", std::mem_fn(&ModifierBase::checked));
                                                               both     = createCheckBox(p, l, "Must Use Together and Lesser is Inconvenient", std::mem_fn(&ModifierBase::checked));
                                                               prop     = createCheckBox(p, l, "Need Not Use Powers Proportionally", std::mem_fn(&ModifierBase::checked));
                                                               full     = createCheckBox(p, l, "Greater must be at Full Power to use Lesser", std::mem_fn(&ModifierBase::checked));
                                                               constant = createCheckBox(p, l, "Greater Power is Constant", std::mem_fn(&ModifierBase::checked));
                                                               instant  = createCheckBox(p, l, "Instant Power can be Used any Time with Constant", std::mem_fn(&ModifierBase::checked));
                                                               target   = createLineEdit(p, l, "Linked to?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               greater->setChecked(s._greater);
                                                               both->setChecked(s._both);
@@ -4248,9 +4253,9 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { effect = createComboBox(p, l, "What Effect?", { "", "EGO+10", "EGO+20", "EGO+30" }, std::mem_fn(&ModifierBase::index));
+    bool          form(QWidget* p, QVBoxLayout* l) override { effect = createComboBox(p, l, "What Effect?", { "", "EGO+10", "EGO+20", "EGO+30" }, std::mem_fn(&ModifierBase::index));
                                                               other  = createLineEdit(p, l, "Other Effects?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               effect->setCurrentIndex(s._effect);
                                                               other->setText(s._other);
@@ -4325,9 +4330,9 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { mass = createComboBox(p, l, "How much?", { "", Fraction(1, 2).toString() + " Mass",
+    bool          form(QWidget* p, QVBoxLayout* l) override { mass = createComboBox(p, l, "How much?", { "", Fraction(1, 2).toString() + " Mass",
                                                                                                          "Normal Mass", "2x Mass" }, std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               mass->setCurrentIndex(s._mass);
                                                               v = s;
@@ -4395,13 +4400,13 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { scale = createComboBox(p, l, "How much?", { "", "1 km", "10 km", "100 km", "1,000 km", "10,000 km", "100,000 km",
+    bool          form(QWidget* p, QVBoxLayout* l) override { scale = createComboBox(p, l, "How much?", { "", "1 km", "10 km", "100 km", "1,000 km", "10,000 km", "100,000 km",
                                                                                                           "1 million km", "100 million km", "1 billion km", "10 billion km",
                                                                                                           "100 billion km", "1 trillion km", "1 light year", "10 light years",
                                                                                                           "100,000 light-years", "100 billion light-years" },
                                                                                                           std::mem_fn(&ModifierBase::index));
                                                               invariant = createCheckBox(p, l, "Can't change scale");
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               scale->setCurrentIndex(s._scale);
                                                               invariant->setChecked(s._invariant);
@@ -4496,9 +4501,9 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { activation = createCheckBox(p, l, "Acvtivation", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { activation = createCheckBox(p, l, "Acvtivation", std::mem_fn(&ModifierBase::checked));
                                                               effects    = createCheckBox(p, l, "Effects", std::mem_fn(&ModifierBase::checked));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               activation->setChecked(s._activation);
                                                               effects->setChecked(s._effects);
@@ -4714,8 +4719,8 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { identity = createLineEdit(p, l, "Identity", std::mem_fn(&ModifierBase::changed));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { identity = createLineEdit(p, l, "Identity", std::mem_fn(&ModifierBase::changed));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               identity->setText(s._identity);
                                                               v = s;
@@ -4810,10 +4815,10 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { against   = createLineEdit(p, l, "Only Works Against?", std::mem_fn(&ModifierBase::changed));
+    bool          form(QWidget* p, QVBoxLayout* l) override { against   = createLineEdit(p, l, "Only Works Against?", std::mem_fn(&ModifierBase::changed));
                                                               howCommon = createComboBox(p, l, "How Common?", { "", "Rare", "Uncommon", "Common", "Very Common" },
                                                                                          std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               against->setText(s._against);
                                                               howCommon->setCurrentIndex(s._howCommon);
@@ -4880,7 +4885,7 @@ public:
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     void          selected(int,int,bool) override           { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { what  = createTreeWidget(p, l, { { "Hearing",     { "Normal Hearing",
+    bool          form(QWidget* p, QVBoxLayout* l) override { what  = createTreeWidget(p, l, { { "Hearing",     { "Normal Hearing",
                                                                                                                   "Active Sonar",
                                                                                                                   "Ultrasonic Perception" } },
                                                                                                { "Mental",      { "Mental Awareness",
@@ -4895,7 +4900,7 @@ public:
                                                                                                                   "Normal Taste" } },
                                                                                                { "Touch",       { "Normal Touch" } } },
                                                                                                std::mem_fn(&ModifierBase::selected));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               setTreeWidget(what, s._what);
                                                               v = s;
@@ -4992,8 +4997,8 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { imperceptable = createCheckBox(p, l, "Imperceptable power is Obvious", std::mem_fn(&ModifierBase::checked));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { imperceptable = createCheckBox(p, l, "Imperceptable power is Obvious", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               imperceptable->setChecked(s._imperceptable);
                                                               v = s;
@@ -5119,8 +5124,8 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { noRange = createCheckBox(p, l, "Power has no range", std::mem_fn(&ModifierBase::checked));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { noRange = createCheckBox(p, l, "Power has no range", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               noRange->setChecked(s._noRange);
                                                               v = s;
@@ -5278,8 +5283,8 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { noEND = createCheckBox(p, l, "0 END", std::mem_fn(&ModifierBase::checked));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { noEND = createCheckBox(p, l, "0 END", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               noEND->setChecked(s._noEND);
                                                               v = s;
@@ -5343,8 +5348,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { reduced = createLineEdit(p, l, "Points of negation?", std::mem_fn(&ModifierBase::numeric));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { reduced = createLineEdit(p, l, "Points of negation?", std::mem_fn(&ModifierBase::numeric));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               reduced->setText(QString("%1").arg(s._reduced));
                                                               v = s;
@@ -5420,8 +5425,8 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { noRangeMod = createCheckBox(p, l, "No Range Modifier", std::mem_fn(&ModifierBase::checked));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { noRangeMod = createCheckBox(p, l, "No Range Modifier", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               noRangeMod->setChecked(s._noRangeMod);
                                                               v = s;
@@ -5483,9 +5488,9 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { hands = createComboBox(p, l, "How Manhy Hands?", { "", "One-And-A-Half", "Two" },
+    bool          form(QWidget* p, QVBoxLayout* l) override { hands = createComboBox(p, l, "How Manhy Hands?", { "", "One-And-A-Half", "Two" },
                                                                                          std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               hands->setCurrentIndex(s._hands);
                                                               v = s;
@@ -5553,7 +5558,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { rType = createCheckBox(p, l, "Skill Roll", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { rType = createCheckBox(p, l, "Skill Roll", std::mem_fn(&ModifierBase::checked));
                                                               when  = createCheckBox(p, l, "Every phase or Use", std::mem_fn(&ModifierBase::checked));
                                                               roll  = createComboBox(p, l, "Unmodified Roll?", { "", "7-", "8-", "9-", "10-", "11-", "12-", "13-", "14-" },
                                                                                      std::mem_fn(&ModifierBase::index));
@@ -5569,7 +5574,7 @@ public:
                                                               isa->setEnabled(v._type);
                                                               per->setEnabled(v._type);
                                                               two->setEnabled(v._two);
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               rType->setChecked(s._type);
                                                               when->setChecked(s._when);
@@ -5703,9 +5708,9 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { max   = createLineEdit(p, l, "Maximum charges available?", std::mem_fn(&ModifierBase::numeric));
+    bool          form(QWidget* p, QVBoxLayout* l) override { max   = createLineEdit(p, l, "Maximum charges available?", std::mem_fn(&ModifierBase::numeric));
                                                               needs = createLineEdit(p, l, "Charges needed?", std::mem_fn(&ModifierBase::numeric));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               max->setText(QString("%1").arg(s._max));
                                                               needs->setText(QString("%1").arg(s._needs));
@@ -5781,8 +5786,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { needs = createLineEdit(p, l, "Users needed?", std::mem_fn(&ModifierBase::numeric));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { needs = createLineEdit(p, l, "Users needed?", std::mem_fn(&ModifierBase::numeric));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               needs->setText(QString("%1").arg(s._needs));
                                                               v = s;
@@ -5866,10 +5871,10 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { nonStandard = createCheckBox(p, l, "Non-standard restraint", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { nonStandard = createCheckBox(p, l, "Non-standard restraint", std::mem_fn(&ModifierBase::checked));
                                                               restraint   = createLineEdit(p, l, "How to restrain?", std::mem_fn(&ModifierBase::changed));
                                                               restraint->setEnabled(false);
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               nonStandard->setChecked(s._nonStandard);
                                                               restraint->setText(s._restraint);
@@ -5958,8 +5963,8 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { regen = createCheckBox(p, l, "Regeneration", std::mem_fn(&ModifierBase::checked));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { regen = createCheckBox(p, l, "Regeneration", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               regen->setChecked(s._regen);
                                                               v = s;
@@ -6041,7 +6046,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { level    = createComboBox(p, l, "Level?", { "", "Minor", "Major", "Extreme" },
+    bool          form(QWidget* p, QVBoxLayout* l) override { level    = createComboBox(p, l, "Level?", { "", "Minor", "Major", "Extreme" },
                                                                                         std::mem_fn(&ModifierBase::index));
                                                               when     = createComboBox(p, l, "Side Effect Occurs When?", { "", "Required Roll Fails", "A Thing Happens", "When Power Used",
                                                                                                                             "When Power Stops Being Used" },
@@ -6051,7 +6056,7 @@ public:
                                                               constant = createCheckBox(p, l, "Constant Power", std::mem_fn(&ModifierBase::checked));
                                                               pre      = createCheckBox(p, l, "Damage Predefined", std::mem_fn(&ModifierBase::checked));
                                                               effect   = createLineEdit(p, l, "What Effect (Power Description)?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               level->setCurrentIndex(s._level);
                                                               effect->setText(s._effect);
@@ -6181,8 +6186,8 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { rmod = createCheckBox(p, l, "Subject To Range Mod", std::mem_fn(&ModifierBase::checked));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { rmod = createCheckBox(p, l, "Subject To Range Mod", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               rmod->setChecked(s._rmod);
                                                               v = s;
@@ -6244,8 +6249,8 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { stunned = createCheckBox(p, l, "Or Stunned", std::mem_fn(&ModifierBase::checked));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { stunned = createCheckBox(p, l, "Or Stunned", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               stunned->setChecked(s._stunned);
                                                               v = s;
@@ -6304,7 +6309,8 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { all = createCheckBox(p, l, "Free one, free all??", std::mem_fn(&ModifierBase::checked)); }
+    bool          form(QWidget* p, QVBoxLayout* l) override { all = createCheckBox(p, l, "Free one, free all??", std::mem_fn(&ModifierBase::checked));
+                                                              return true; }
     void          restore() override                        { vars s = v; all->setChecked(s._all); v = s; }
     void          store() override                          { v._all = all->isChecked(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
@@ -6360,8 +6366,8 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { min = createLineEdit(p, l, "STR Minimum?", std::mem_fn(&ModifierBase::numeric));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { min = createLineEdit(p, l, "STR Minimum?", std::mem_fn(&ModifierBase::numeric));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               min->setText(QString("%1").arg(s._min));
                                                               v = s;
@@ -6468,12 +6474,12 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { lType = createComboBox(p, l, "Type?", { "", "Instant Power", "Constant Power", "All Others" },
+    bool          form(QWidget* p, QVBoxLayout* l) override { lType = createComboBox(p, l, "Type?", { "", "Instant Power", "Constant Power", "All Others" },
                                                                                      std::mem_fn(&ModifierBase::index));
                                                               time  = createComboBox(p, l, "How long?", { "", "An Extra Phase", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                                                                                                           "1 Hour", "6 Hours", "1 Day", "1 Week", "1 Month", "1 Season",
                                                                                                           "1 Year", "5 Years" }, std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               lType->setCurrentIndex(s._type);
                                                               ModifiersDialog::ref().update();
@@ -6586,10 +6592,10 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { lType = createComboBox(p, l, "Type?", { "", "Single Dimension", "Related Group of Dimensions", "Any Dimension" },
+    bool          form(QWidget* p, QVBoxLayout* l) override { lType = createComboBox(p, l, "Type?", { "", "Single Dimension", "Related Group of Dimensions", "Any Dimension" },
                                                                                      std::mem_fn(&ModifierBase::index));
                                                               which  = createLineEdit(p, l, "Which?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               lType->setCurrentIndex(s._type);
                                                               which->setText(s._which);
@@ -6672,7 +6678,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { change  = createCheckBox(p, l, "Can Change Trigger Conditions", std::mem_fn(&ModifierBase::checked));
+    bool          form(QWidget* p, QVBoxLayout* l) override { change  = createCheckBox(p, l, "Can Change Trigger Conditions", std::mem_fn(&ModifierBase::checked));
                                                               cond    = createLineEdit(p, l, "Conditions?", std::mem_fn(&ModifierBase::changed));
                                                               active  = createCheckBox(p, l, "Activstion is A No Time Action", std::mem_fn(&ModifierBase::checked));
                                                               act     = createComboBox(p, l, "How many conditions?", { "", "One", "Two", "Three" }, std::mem_fn(&ModifierBase::index));
@@ -6681,7 +6687,7 @@ public:
                                                                                        std::mem_fn(&ModifierBase::index));
                                                               expire  = createCheckBox(p, l, "Timer Expires", std::mem_fn(&ModifierBase::checked));
                                                               misfire = createCheckBox(p, l, "Can Misfire", std::mem_fn(&ModifierBase::checked));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               change->setChecked(s._change);
                                                               cond->setText(s._cond);
@@ -6801,7 +6807,8 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { until = createLineEdit(p, l, "Until?", std::mem_fn(&ModifierBase::changed)); }
+    bool          form(QWidget* p, QVBoxLayout* l) override { until = createLineEdit(p, l, "Until?", std::mem_fn(&ModifierBase::changed));
+                                                              return true; }
     void          restore() override                        { vars s = v; until->setText(s._until); v = s; }
     void          store() override                          { v._until = until->text(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
@@ -6874,9 +6881,9 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { num   = createLineEdit(p, l, "Number of Movements?", std::mem_fn(&ModifierBase::numeric));
+    bool          form(QWidget* p, QVBoxLayout* l) override { num   = createLineEdit(p, l, "Number of Movements?", std::mem_fn(&ModifierBase::numeric));
                                                               which = createLineEdit(p, l, "Which?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               num->setText(QString("%1").arg(s._num));
                                                               which->setText(s._which);
@@ -6946,7 +6953,7 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { doubles = createLineEdit(p, l, "How many doublings?", std::mem_fn(&ModifierBase::numeric));
+    bool          form(QWidget* p, QVBoxLayout* l) override { doubles = createLineEdit(p, l, "How many doublings?", std::mem_fn(&ModifierBase::numeric));
                                                               ten     = createCheckBox(p, l, "Everyone with 10m can be recipient", std::mem_fn(&ModifierBase::checked));
                                                               one     = createCheckBox(p, l, "One at a time", std::mem_fn(&ModifierBase::checked));
                                                               force   = createCheckBox(p, l, "USable as Attack", std::mem_fn(&ModifierBase::checked));
@@ -6957,7 +6964,7 @@ public:
                                                                                        std::mem_fn(&ModifierBase::index));
                                                               stay    = createComboBox(p, l, "Recipeient?", { "Can Go Anywhere", "Must Stay Within Line-Of-Sight", "Must Remain Close" },
                                                                                        std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               doubles->setText(QString("%1").arg(s._doubles));
                                                               ten->setChecked(s._ten);
@@ -7097,12 +7104,12 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { whole   = createLineEdit(p, l, "Whole part?", std::mem_fn(&ModifierBase::numeric));
+    bool          form(QWidget* p, QVBoxLayout* l) override { whole   = createLineEdit(p, l, "Whole part?", std::mem_fn(&ModifierBase::numeric));
                                                               half    = createCheckBox(p, l, "+" + Fraction(1, 2).toString(), std::mem_fn(&ModifierBase::checked));
                                                               quarter = createCheckBox(p, l, "+" + Fraction(1, 4).toString(), std::mem_fn(&ModifierBase::checked));
                                                               limit   = createCheckBox(p, l, "Only from this list:", std::mem_fn(&ModifierBase::checked));
                                                               advs    = createLineEdit(p, l, "Advantages?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               whole->setText(QString("%1").arg(s._whole));
                                                               half->setChecked(s._half);
@@ -7190,7 +7197,8 @@ public:
 
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { effect = createLineEdit(p, l, "Effects?", std::mem_fn(&ModifierBase::changed)); }
+    bool          form(QWidget* p, QVBoxLayout* l) override { effect = createLineEdit(p, l, "Effects?", std::mem_fn(&ModifierBase::changed));
+                                                              return true; }
     void          restore() override                        { vars s = v; effect->setText(s._effect); v = s; }
     void          store() override                          { v._effect = effect->text(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
@@ -7244,10 +7252,10 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { whole   = createLineEdit(p, l, "Whole part?", std::mem_fn(&ModifierBase::numeric));
+    bool          form(QWidget* p, QVBoxLayout* l) override { whole   = createLineEdit(p, l, "Whole part?", std::mem_fn(&ModifierBase::numeric));
                                                               half    = createCheckBox(p, l, "+" + Fraction(1, 2).toString(), std::mem_fn(&ModifierBase::checked));
                                                               quarter = createCheckBox(p, l, "+" + Fraction(1, 4).toString(), std::mem_fn(&ModifierBase::checked));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               whole->setText(QString("%1").arg(s._whole));
                                                               half->setChecked(s._half);
@@ -7322,8 +7330,8 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { effect = createLineEdit(p, l, "Special Effects?", std::mem_fn(&ModifierBase::changed));
-                                                            }
+    bool          form(QWidget* p, QVBoxLayout* l) override { effect = createLineEdit(p, l, "Special Effects?", std::mem_fn(&ModifierBase::changed));
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               effect->setText(s._effect);
                                                               v = s;
@@ -7383,10 +7391,10 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
-    void          form(QWidget* p, QVBoxLayout* l) override { characteristic = createComboBox(p, l, "Characteristic?", { "", "STR", "DEX", "INT", "EGO", "PRE", "OCV", "DCV", "OMCV", "DMCV",
+    bool          form(QWidget* p, QVBoxLayout* l) override { characteristic = createComboBox(p, l, "Characteristic?", { "", "STR", "DEX", "INT", "EGO", "PRE", "OCV", "DCV", "OMCV", "DMCV",
                                                                                                                          "SPD", "PD", "ED", "REC", "END", "BODY", "STUN" },
                                                                                      std::mem_fn(&ModifierBase::index));
-                                                            }
+                                                              return true; }
     void          restore() override                        { vars s = v;
                                                               characteristic->setCurrentIndex(s._characteristic);
                                                               v = s;

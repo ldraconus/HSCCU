@@ -5,6 +5,14 @@
         <file>Page1.png</file>
         <file>Page2.png</file>
         <file>Page3.png</file>
+        <file>Copy.ico</file>
+        <file>Cut.ico</file>
+        <file>Delete.ico</file>
+        <file>Edit.ico</file>
+        <file>MoveDown.ico</file>
+        <file>MoveUp.ico</file>
+        <file>New.ico</file>
+        <file>Paste.ico</file>
     </qresource>
     <qresource prefix="/font">
         <file>SegoeUIHS.ttf</file>

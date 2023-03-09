@@ -108,4 +108,8 @@ public:
     const int& h = _h;
 };
 
+#define NOTES     Sheet::ref().getUi()->notes
+#define DBG(x)    NOTES->setPlainText(NOTES->toPlainText() + "\n" + x)
+#define DBGVar(x) DBG(QString(#x ": %1").arg(x))
+
 #endif // SHARED_H

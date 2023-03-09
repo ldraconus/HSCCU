@@ -1,6 +1,7 @@
 #include "character.h"
 
 #include <QFile>
+#include <QFileDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -233,14 +234,20 @@ void Character::fromJson(Option& opt, QJsonDocument& doc) {
     _imageData = QByteArray::fromHex(image["data"].toString().toUtf8());
 }
 
+#ifdef __wasm__
+bool Character::load(Option& opt, const QByteArray& data) {
+    QJsonDocument json = QJsonDocument::fromJson(data);
+#else
 bool Character::load(Option& opt, QString filename) {
     QFile file(filename + ".hsccu");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
 
     QByteArray data(file.readAll());
-    QString jsonStr(data);
     file.close();
+
+    QString jsonStr(data);
     QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
+#endif
 
     erase();
     fromJson(opt, json);
@@ -256,11 +263,16 @@ void Character::paste(Option& opt, QJsonDocument& doc) {
 
 bool Character::store(Option& opt, QString filename) {
     QJsonDocument json = toJson(opt);
+#ifdef __wasm__
+    QString data = json.toJson();
+    QFileDialog::saveFileContent(data.toUtf8(), filename + ".hsccu");
+#else
     QFile file(filename + ".hsccu");
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) return false;
     QTextStream out(&file);
     out << json.toJson();
     file.close();
+#endif
     return true;
 }
 

@@ -26,11 +26,14 @@ public:
     ~ModifiersDialog();
 
     shared_ptr<class Modifier> modifier() { return _modifier; }
-    ModifiersDialog&           modifier(shared_ptr<class Modifier>&);
+    bool modifier(shared_ptr<class Modifier>&);
 
     void updateForm();
 
+    /* Per the code, we need to wait until the dialog is full ready before we can just accept it.  With WASM,
+     * we can't reliably run timers because of event loop issues, so we're trying this */
     void showEvent(QShowEvent*) override {
+        if (_justAccept) accept();
     }
 
     static ModifiersDialog& ref() { return *_modifiersDialog; }
@@ -39,28 +42,29 @@ private:
     static ModifiersDialog* _modifiersDialog;
     Ui::ModifiersDialog *ui;
 
-    shared_ptr<class Modifier>  _modifier;
-    shared_ptr<class Modifiers> _modifiers;
+    shared_ptr<class Modifier>  _modifier = nullptr;
+    shared_ptr<class Modifiers> _modifiers = nullptr;
 
-    QLabel*              _mod;
+    bool                 _accepted = false;
+    bool                 _add = false;
     QLabel*              _description;
+    bool                 _justAccept = false;
+    QLabel*              _mod;
     QPushButton*         _ok;
     bool                 _skipUpdate = false;
-    bool                 _accepted = false;
 
     QLabel* createLabel(QVBoxLayout*, QString, bool wrap = false);
     void    setModifiers(bool);
 
-
 public slots:
+    void doAccepted();
+    void currentIndexChanged(int);
+    void itemChanged(QTreeWidgetItem*, int);
+    void itemSelectionChanged();
+    void justAccept() { accept(); }
     void pickOne(int);
     void stateChanged(int state);
     void textChanged(QString);
-    void currentIndexChanged(int);
-    void itemSelectionChanged();
-    void itemChanged(QTreeWidgetItem*, int);
-
-    void justAccept() { accept(); }
 };
 
 #endif // MODIFIERSDIALOG_H

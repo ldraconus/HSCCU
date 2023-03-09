@@ -8,6 +8,7 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
+#include "powers.h"
 #include "shared.h"
 
 namespace Ui {
@@ -19,7 +20,7 @@ class PowerDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PowerDialog(QWidget *parent = nullptr);
+    explicit PowerDialog(QWidget *parent = nullptr, shared_ptr<Power>& save = _dummy);
     ~PowerDialog();
 
     QTableWidget* createAdvantages(QWidget* parent, QVBoxLayout* layout);
@@ -27,34 +28,46 @@ public:
 
     PowerDialog&  powerorequipment(shared_ptr<class Power> s);
 
-    static Ui::PowerDialog* UI() { return ui; }
+    Ui::PowerDialog* UI() { return ui; }
 
     shared_ptr<class Power> powerorequipment() { return _power; }
     void                    multipower()       { _inMultipower = true; }
+    bool                    isAccepted()       { return _done && _accepted; }
+    bool                    isCanceled()       { return _done && !_accepted; }
+    bool                    isDone()           { return _done; }
 
     void setCellLabel(QTableWidget*, int, int, QString, QFont&);
     void setColumns(QTableWidget* tablewidget);
     void updateForm();
+
+    shared_ptr<Power> saved() { return _saved; }
+    void              save(shared_ptr<Power> s) { _saved = s; }
 
     static PowerDialog& ref() { return *_ptr; }
 
     static PowerDialog* _ptr;
 
 private:
-    static Ui::PowerDialog *ui;
+    Ui::PowerDialog *ui;
 
+    static shared_ptr<Power>  _dummy;
     static const bool WordWrap = true;
 
-    QTableWidget*     _advantages;
-    QMenu*            _advantagesMenu;
-    QLabel*           _description;
-    bool              _inMultipower;
-    QTableWidget*     _limitations;
-    QMenu*            _limitationsMenu;
-    QLabel*           _points;
-    QPushButton*      _ok;
-    shared_ptr<Power> _power = nullptr;
-    bool              _skipUpdate = false;
+    bool                        _accepted = false;
+    QTableWidget*               _advantages;
+    QMenu*                      _advantagesMenu;
+    QPushButton*                _cancel;
+    QLabel*                     _description;
+    bool                        _done = false;
+    bool                        _inMultipower;
+    QTableWidget*               _limitations;
+    QMenu*                      _limitationsMenu;
+    shared_ptr<ModifiersDialog> _mod;
+    QPushButton*                _ok;
+    QLabel*                     _points;
+    shared_ptr<Power>           _power = nullptr;
+    shared_ptr<Power>&          _saved;
+    bool                        _skipUpdate = false;
 
     struct menuItems {
         menuItems()
@@ -76,9 +89,12 @@ private:
         QAction** action;
     };
 
+
     QMenu*        createMenu(QWidget*, const QFont&, QList<menuItems>);
     QLabel*       createLabel(QVBoxLayout* parent, QString text, bool wordWrap = false);
+    QWidget*      createEditButton(QWidget*, QVBoxLayout*, const QList<const char*>&);
     QTableWidget* createTableWidget(QWidget*, QVBoxLayout*, QList<int>, QString, int);
+
     QAction* _newAdvantage      = nullptr;
     QAction* _editAdvantage     = nullptr;
     QAction* _deleteAdvantage   = nullptr;
@@ -107,6 +123,7 @@ public slots:
     void aboutToShowLimitationsMenu();
     void advantagesMenu(QPoint);
     void buttonPressed(bool);
+    void cancel();
     void copyAdvantage();
     void copyLimitation();
     void currentIndexChanged(int);
@@ -125,6 +142,7 @@ public slots:
     void moveLimitationUp();
     void newAdvantage();
     void newLimitation();
+    void ok();
     void pasteAdvantage();
     void pasteLimitation();
     void pickOne(int);

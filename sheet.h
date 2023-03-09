@@ -7,6 +7,7 @@
 #include <QPrinter>
 
 #include "shared.h"
+#include "powerdialog.h"
 #include "character.h"
 #include "option.h"
 #include "sheet_ui.h"
@@ -33,15 +34,19 @@ public:
     static Sheet* _sheet;
     static Sheet& ref() { return* _sheet; }
 
+    void       changed()   { _changed = true; }
     Character& character() { return _character; }
     Option     getOption() { return _option; }
 
+    void addPower(shared_ptr<Power>);
     void setCell(QTableWidget*, int, int, QString, const QFont&, bool wordWrap = false);
     void setCellLabel(QTableWidget*, int, int, QString, const QFont&);
     void setCellLabel(QTableWidget*, int, int, QString);
+    void updateDisplay();
     void updatePower(shared_ptr<Power>);
 
     void closeEvent(QCloseEvent* event) override;
+
 
     class _CharacteristicDef {
     public:
@@ -62,6 +67,8 @@ public:
         QLabel*         _points         = nullptr;
         QLabel*         _roll           = nullptr;
     };
+
+    Sheet_UI* getUi() { return Ui; }
 
     static const bool WordWrap = true;
 
@@ -99,6 +106,8 @@ private:
     Points _charactersticPoints        = 0_cp;
     Points _totalPoints                = 0_cp;
 
+    shared_ptr<PowerDialog>  _powerDlg = nullptr;
+
     Character _character;
     QString   _dir;
     QString   _filename;
@@ -107,7 +116,6 @@ private:
 
     QMap<QObject*, _CharacteristicDef> _widget2Def;
 
-    void               addPower(shared_ptr<Power>&);
     Points             characteristicsCost();
     void               characteristicChanged(QLineEdit*, QString, bool update = true);
     void               characteristicEditingFinished(QLineEdit*);
@@ -124,7 +132,11 @@ private:
     void               deletePagefull();
     int                displayPowerAndEquipment(int&, shared_ptr<Power>);
     bool               eventFilter(QObject*, QEvent*) override;
+#ifndef __wasm__
     void               fileOpen();
+#else
+    void               fileOpen(const QByteArray&, QString);
+#endif
     QString            formatLift(int);
     QString            getCharacter();
     int                getPageCount(QPlainTextEdit*, double, QPainter*);
@@ -169,7 +181,6 @@ private:
     void               updateCharacteristics();
     void               updateCharacter();
     void               updateComplications();
-    void               updateDisplay();
     void               updatePowersAndEquipment();
     void               updateSkillsTalentsAndPerks();
     void               updateSkillRolls();

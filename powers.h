@@ -1,7 +1,6 @@
 #ifndef POWERS_H
 #define POWERS_H
 
-#include "powerdialog.h"
 #include "fraction.h"
 #include "modifier.h"
 #include "skilltalentorperk.h"
@@ -44,12 +43,8 @@ protected:
 
     static std::map<QWidget*, QLineEdit*> _labeledEdits;
 
-    QTableWidget* createAdvantages(QWidget* parent, QVBoxLayout* layout) {
-        return PowerDialog::ref().createAdvantages(parent, layout);
-    }
-    QTableWidget* createLimitations(QWidget* parent, QVBoxLayout* layout) {
-        return PowerDialog::ref().createLimitations(parent, layout);
-    }
+    QTableWidget* createAdvantages(QWidget* parent, QVBoxLayout* layout);
+    QTableWidget* createLimitations(QWidget* parent, QVBoxLayout* layout);
 
     QList<shared_ptr<Modifier>>::iterator findModifier(QString);
 
@@ -83,7 +78,7 @@ protected:
     int    _row    = -1;
 
 public:
-    Ui::PowerDialog* ui;
+    //Ui::PowerDialog* ui;
 
     QLineEdit* labeledEdit(QWidget* w)       { return _labeledEdits[w]; }
     bool       labeledEditExists(QWidget* w) { return _labeledEdits.find(w) != _labeledEdits.end(); }
@@ -140,7 +135,6 @@ public:
             _parent = s._parent;
             _row = s._row;
             _modifiers = s._modifiers;
-            ui = s.ui;
         }
         return *this;
     }
@@ -152,7 +146,6 @@ public:
         _parent = s._parent;
         _row = s._row;
         _modifiers = s._modifiers;
-        ui = s.ui;
         return *this;
     }
 

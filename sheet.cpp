@@ -430,11 +430,11 @@ Sheet::Sheet(QWidget *parent)
 
     installEventFilter(dynamic_cast<QObject*>(this));
 
+#ifndef __wasm__
     QStringList args = qApp->arguments();
     if (args.count() > 1) {
         _filename = QDir::fromNativeSeparators(args[1]);
         fileOpen();
-#ifndef __wasm__
         QProcess subfile;
         subfile.setProgram(args[0]);
         for (int i = 2; i < args.count(); ++i) {
@@ -442,8 +442,8 @@ Sheet::Sheet(QWidget *parent)
             subfile.setArguments(subArgs);
             subfile.startDetached();
         }
-#endif
     }
+#endif
 }
 
 Sheet::~Sheet()
@@ -486,7 +486,7 @@ QList<QList<int>> phases {
     { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }
 };
 
-void Sheet::addPower(shared_ptr<Power>& power) {
+void Sheet::addPower(shared_ptr<Power> power) {
     if (power == nullptr) return;
 
     int row = -1;
@@ -724,6 +724,23 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
     return pts.toInt();
 }
 
+#ifdef __wasm__
+void Sheet::fileOpen(const QByteArray& data, QString filename) {
+    int ext = filename.lastIndexOf(".hsccu");
+    if (ext != -1) _filename = filename.left(ext);
+
+    int sep = _filename.lastIndexOf("/");
+    if (sep != -1) {
+        _dir = _filename.left(sep);
+        _filename = _filename.mid(sep + 1);
+    }
+    _character.load(_option, data);
+    Ui->notes->setPlainText(_character.notes());
+    updateDisplay();
+    update();
+    _changed = false;
+}
+#else
 void Sheet::fileOpen() {
     int ext = _filename.lastIndexOf(".hsccu");
     if (ext != -1) _filename = _filename.left(ext);
@@ -754,6 +771,7 @@ void Sheet::fileOpen() {
         _changed = changed;
     }
 }
+#endif
 
 QString Sheet::formatLift(int str) {
     int lift = interpolateLift(str);
@@ -2059,33 +2077,9 @@ void Sheet::editPowerOrEquipment() {
     if (work == nullptr) return;
 
     work->parent(power->parent());
-    PowerDialog dlg(this);
-    dlg.powerorequipment(work);
-
-    if (dlg.exec() == QDialog::Rejected) return;
-    if (work->description().isEmpty()) return;
-    if (power->parent() != nullptr) {
-        Power* group = power->parent();
-        if (!group->isValid(work)) return;
-    }
-
-    power = Power::FromJson(work->name(), work->toJson());
-    if (power == nullptr) return;
-
-    power->modifiers().clear();
-    for (const auto& mod: power->advantagesList()) {
-        if (mod == nullptr) continue;
-
-        power->modifiers().append(mod);
-    }
-    for (const auto& mod: power->limitationsList()) {
-        if (mod == nullptr) continue;
-
-        power->modifiers().append(mod);
-    }
-
-    updateDisplay();
-    _changed = true;
+    _powerDlg = make_shared<PowerDialog>(this, power);
+    _powerDlg->powerorequipment(work);
+    _powerDlg->open();
 }
 
 void Sheet::editSkillstalentsandperks() {
@@ -2276,17 +2270,10 @@ void Sheet::newPowerOrEquipment() {
         }
     }
 
-    PowerDialog dlg(this);
-    if (framework) dlg.multipower();
-    if (dlg.exec() == QDialog::Rejected) return;
-    shared_ptr<Power> power = dlg.powerorequipment();
-    if (power == nullptr) return;
-    if (power->description().isEmpty()) return;
-
-    addPower(power);
-
-    updateDisplay();
-    _changed = true;
+    _powerDlg = make_shared<PowerDialog>(this);
+    if (framework) _powerDlg->multipower();
+    _powerDlg->open();
+    _powerDlg->show();
 }
 
 void Sheet::newSkillTalentOrPerk() {
@@ -2318,11 +2305,17 @@ void Sheet::open() {
         }
     } catch (...) { return; }
 
+#ifdef __wasm__
+    QFileDialog::getOpenFileContent("Characters (*.hsccu)", [&](const QString& fileName, const QByteArray& fileContent) {
+        fileOpen(fileContent, fileName);
+    });
+#else
     QString filename = QFileDialog::getOpenFileName(this, "Open File", _dir, "Characters (*.hsccu)");
     if (filename.isEmpty()) return;
     _filename = filename;
 
     fileOpen();
+#endif
 }
 
 void Sheet::options() {
@@ -2538,6 +2531,9 @@ void Sheet::printCharacter(QPrinter* printer) {
 
 void Sheet::save() {
     if (!_changed) return;
+    _character.notes() = Ui->notes->toPlainText();
+
+#ifndef __wasm__
     if (_filename.isEmpty()) {
         QString oldname = _filename;
         _filename = Ui->charactername->text();
@@ -2546,12 +2542,19 @@ void Sheet::save() {
         return;
     }
 
-    _character.notes() = Ui->notes->toPlainText();
     if (!_character.store(_option, _dir + "/" + _filename)) {
         OK("Can't save to \"" + _filename + ".hsccu\" in the \"" + _dir + "\" folder.");
         throw "";
     }
     else _changed = false;
+#else
+    if (_filename.isEmpty()) _filename = Ui->charactername->text();
+    if (!_character.store(_option, _filename)) {
+        OK("Can't save to \"" + _filename + ".hsccu\".");
+        throw "";
+    }
+    else _changed = false;
+#endif
 }
 
 void Sheet::saveAs() {

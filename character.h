@@ -118,7 +118,11 @@ public:
 
     QJsonDocument copy(Option&);
     void          erase();
+#ifdef __wasm__
+    bool          load(Option&, const QByteArray&);
+#else
     bool          load(Option&, QString);
+#endif
     void          paste(Option&, QJsonDocument&);
     bool          store(Option&, QString);
 

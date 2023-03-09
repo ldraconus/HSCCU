@@ -352,9 +352,9 @@ void ModifierBase::callback(QTreeWidget* tree) {
     function(this, 0, 0, false);
 }
 
-void Modifier::createForm(QWidget* parent, QVBoxLayout* layout) {
+bool Modifier::createForm(QWidget* parent, QVBoxLayout* layout) {
     ClearForm(layout);
-    form(parent, layout);
+    return form(parent, layout);
 }
 
 QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt) {
