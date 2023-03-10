@@ -786,8 +786,19 @@ QString Sheet::formatLift(int str) {
 
 QString Sheet::getCharacter() {
     QString out;
-    out += _character.characterName();
-    if (!_character.alternateIds().isEmpty()) out += " (" + _character.alternateIds() + ")\n\n";
+    out += "Character Name: " + _character.characterName();
+    if (!_character.alternateIds().isEmpty()) out += " (" + _character.alternateIds() + ")\n";
+    else out += "\n";
+    out += "Player Name: " + _character.playerName() + "\n\n";
+
+    out += "Campaign Name: " + _character.campaignName() + "\n";
+    out += "Genre: " + _character.genre() + "\n";
+    out += "Gamemaster" + _character.gamemaster() + "\n\n";
+
+    out += "Height: " + _character.height() + "\n";
+    out += "Weight: " + _character.weight() + "\n";
+    out += "Hair Color: " + _character.hairColor() + "\n";
+    out += "Eye Color: " + _character.eyeColor() + "\n\n";
 
     QStringList names { "STR", "DEX", "CON", "INT", "EGO", "PRE", "OCV", "DCV", "OMCV", "DMCV", "SPD", "PD", "ED", "REC", "END", "BODY", "STUN" };
     for (int i = 0; i < 17; ++i) {
@@ -847,7 +858,9 @@ QString Sheet::getCharacter() {
     out += QString("%1\tTotal Points\n").arg(Ui->totalpoints->text());
     out += QString("%1\tTotal Experience Earned\n").arg(Ui->totalexperienceearned->text());
     out += QString("%1\tExperience Spent\n").arg(Ui->experiencespent->text());
-    out += QString("%1\tExperience Unspent\n").arg(Ui->experienceunspent->text());
+    out += QString("%1\tExperience Unspent\n\n").arg(Ui->experienceunspent->text());
+
+    out += "Notes:\n" + _character.notes() + "\n";
     return out;
 }
 
@@ -1896,6 +1909,8 @@ void Sheet::clearImage() {
 }
 
 void Sheet::copyCharacter() {
+    _character.notes() = Ui->notes->toPlainText();
+
     QJsonDocument doc = _character.copy(_option);
     QClipboard* clip = QGuiApplication::clipboard();
     QMimeData* data = new QMimeData();
