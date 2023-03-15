@@ -1,7 +1,9 @@
 #ifndef PERK_H
 #define PERK_H
 
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 #include "skilltalentorperk.h"
 
 class Perks: public SkillTalentOrPerk {
@@ -259,7 +261,9 @@ public:
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = (v._base + 1_cp + v._plus - (v._limited ? 1_cp : 0_cp) + (v._useful > 0 ? 1_cp * v._useful: 0_cp) + (v._access ? 1_cp : 0_cp) +
                                                                           (v._contacts ? 1_cp : 0_cp) + ((v._relate == 0) ? -2 : v._relate - 1)) * (v._org ? 3_cp : 1_cp);
+#ifndef ISHSC
                                                                   if (Sheet::ref().character().hasWellConnected()) pts -= 1_cp;
+#endif
                                                                   if (pts < 1_cp) pts = 1_cp;
                                                                   return pts;
                                                                 }
@@ -398,7 +402,9 @@ public:
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = (v._cost > 0) ? Points(v._cost) : 1_cp;
+#ifndef ISHSC
                                                                   if (Sheet::ref().character().hasWellConnected()) pts -= 1_cp;
+#endif
                                                                   if (pts < 1_cp) pts = 1_cp;
                                                                   return pts; }
     void    restore() override                                  { vars s = v;

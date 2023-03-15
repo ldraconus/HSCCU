@@ -2,7 +2,9 @@
 #define FRAMEWORKPOWERS_H
 
 #include "powers.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 
 class FrameworkPowers: public Power {
 public:
@@ -29,8 +31,8 @@ public:
         return *this;
     }
 
-    QString     description(bool roll = false) override { return roll ? "" : ""; }
-    Points    points(bool noStore = false) override   { return noStore ? 0_cp : 0_cp; }
+    QString description(bool roll = false) override { return roll ? "" : ""; }
+    Points  points(bool noStore = false) override   { return noStore ? 0_cp : 0_cp; }
 
     void loadPowers(QJsonArray powers) {
         for (const auto& power: powers) {
@@ -130,6 +132,10 @@ public:
                                                                    return obj;
                                                                  }
 
+#ifdef ISHSC
+    Points display(int&, QTableWidget*) override {
+       Points points = 0_cp;
+#else
     Points display(int& row, QTableWidget* tbl) override {
         Points points = 0_cp;
         QFont font = tbl->font();
@@ -162,6 +168,7 @@ public:
             ++row;
             if (!descr.isEmpty()) ++r;
         }
+#endif
         return points;
     }
 
@@ -266,12 +273,16 @@ public:
             if (pe->varying()) pts = pts / 5;
             else pts = pts / 10;
             if (pts.toInt(true) == 0) pts = Fraction(1);
+#ifndef ISHSC
             Sheet::ref().setCell(tbl, row, 0, descr.isEmpty() ? "" : QString("%1%2").arg(pts.toInt(true)).arg(pe->varying() ? "v" : "f"), font);
             Sheet::ref().setCell(tbl, row, 1, " " + pe->nickname(), italic);
             Sheet::ref().setCell(tbl, row, 2, descr.isEmpty() ? "" : QString("%1) [%3] %2").arg(r).arg(descr).arg(cost.toInt(true)), font, Sheet::WordWrap);
+#endif
             QString end = pe->end();
             if (end == "-") end = "";
+#ifndef ISHSC
             Sheet::ref().setCell(tbl, row, 3, end, font);
+#endif
             points += Points(pts.toInt(true));
             pe->row(row);
             ++row;
@@ -330,7 +341,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -400,7 +413,7 @@ public:
                                                                           ((v._one == 1)   ? Fraction(1, 2)              : Fraction(0)) +
                                                                           ((v._one == 2)   ? Fraction(1)                 : Fraction(0)) +
                                                                           ((v._one == 3)   ? Fraction(1, Fraction(1, 2)) : Fraction(0)); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return (v._control + 1_cp) / 2; }
     void     restore() override                                  { vars s = v;
                                                                    FrameworkPowers::restore();
@@ -470,13 +483,17 @@ public:
             for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pts.toInt() == 0 && !descr.isEmpty()) pts = Fraction(1);
+#ifndef ISHSC
             Sheet::ref().setCell(tbl, row, 0, "", font);
             Sheet::ref().setCell(tbl, row, 1, pe->nickname(), italic);
             if (descr.isEmpty()) Sheet::ref().setCell(tbl, row, 2, "", font, Sheet::WordWrap);
             else Sheet::ref().setCell(tbl, row, 2, QString("%1) [%3] %2").arg(r).arg(descr).arg(pts.toInt()), font, Sheet::WordWrap);
+#endif
             QString end = pe->end();
             if (end == "-") end = "";
+#ifndef ISHSC
             Sheet::ref().setCell(tbl, row, 3, end, font);
+#endif
             pe->row(row);
             ++row;
             if (!descr.isEmpty()) ++r;
@@ -569,7 +586,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }

@@ -15,6 +15,7 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QObject>
+#include <QPushButton>
 #include <QTableWidget>
 #include <QTreeWidget>
 #include <QVBoxLayout>
@@ -392,7 +393,7 @@ public:
     }
 
     QString     description(bool roll = false) override = 0;
-    Points    points(bool noStore = false) override   = 0;
+    Points      points(bool noStore = false) override   = 0;
 
     Fraction adv() override         { return Fraction(0); }
     void     checked(bool) override { }

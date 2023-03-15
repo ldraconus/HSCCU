@@ -2,7 +2,9 @@
 #define HUNTED_H
 
 #include "complication.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 
 class Hunted: public Complication
 {
@@ -40,18 +42,27 @@ public:
         static QList<QString> mtvn     { "Watching", "Mildly Punish", "Harsly Punish" };
         if (v._frequency < 0 || v._capabilities < 0 || v._motivation  < 0 || v._who.isEmpty()) return "<incomplete>";
         QString result = QString("Hunted: %1 (%2; %3").arg(v._who, capa[v._capabilities],
-                                                           Sheet::ref().getOption().showFrequencyRolls() ? freq[v._frequency] : freqSans[v._frequency]);
+#ifndef ISHSC
+                                                           Sheet::ref().getOption().showFrequencyRolls()
+#else
+                                                           true
+#endif
+                                                               ? freq[v._frequency] : freqSans[v._frequency]);
         if (v._nci) result += "; NCI";
         if (v._limited) result += "; Limited geographical area";
         return result + "; " + mtvn[v._motivation] + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         who           = createLineEdit(parent, layout, "Who is hunting you?");
-        capabilities  = createComboBox(parent, layout, "Hunter's Capabilities", { "Less Powerful than PC", "As Powerful as PC", "More Powerful than PC" });
+        capabilities  = createComboBox(parent, layout, "Hunter's Capabilities", { "Less Powerful than PC", "As Powerful as PC", "More Powerful than PC" });        
+#ifndef ISHSC
         if (Sheet::ref().getOption().showFrequencyRolls())
+#endif
             frequency = createComboBox(parent, layout, "How often do they show up", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
+#ifndef ISHSC
         else
             frequency = createComboBox(parent, layout, "How often do they show up", { "Infrequently", "Frequently", "Very Frequently" });
+#endif
         easy          = createCheckBox(parent, layout, "PC is easy to find");
         nci           = createCheckBox(parent, layout, "Hunter has extensive Non-combat Influence (NCI)");
         limited       = createCheckBox(parent, layout, "Limited to a certain geographical area");

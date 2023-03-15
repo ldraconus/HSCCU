@@ -2,7 +2,9 @@
 #define SOCIALCOMPLICATION_H
 
 #include "complication.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 
 class SocialComplication: public Complication
 {
@@ -32,15 +34,25 @@ public:
         static QList<QString> freqSans { "Infrequently", "Frequently",  "Very Frequently" };
         static QList<QString> effc     { "Minor", "Major", "Severe" };
         if (v._what.isEmpty() || v._frequency < 0 || v._effects < 0) return "<incomplete>";
-        return "Social Complication: " + v._what + " (" + (Sheet::ref().getOption().showFrequencyRolls() ? freq[v._frequency] : freqSans[v._frequency]) + "); " + effc[v._effects] +
+        return "Social Complication: " + v._what + " (" + (
+#ifndef ISHSC
+                   Sheet::ref().getOption().showFrequencyRolls()
+#else
+                   true
+#endif
+                       ? freq[v._frequency] : freqSans[v._frequency]) + "); " + effc[v._effects] +
                 (v._notRestrictive ? "; Not Resrtictive in Some Cultures" : "") + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what           = createLineEdit(parent, layout, "What is the complication?");
+#ifndef ISHSC
         if (Sheet::ref().getOption().showFrequencyRolls())
+#endif
             frequency  = createComboBox(parent, layout, "How often is it a problem?", { "Infrequently (8-)", "Frequently (11-)",  "Very Frequently (14-)" });
+#ifndef ISHSC
         else
             frequency  = createComboBox(parent, layout, "How often is it a problem?", { "Infrequently", "Frequently",  "Very Frequently" });
+#endif
         effects        = createComboBox(parent, layout, "Effects of the Restriction?", { "Minor", "Major", "Severe" });
         notRestrictive = createCheckBox(parent, layout, "Complication is Not Restictive in Some Cultures or Societies");
     }

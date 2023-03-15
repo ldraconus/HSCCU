@@ -31,15 +31,25 @@ public:
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
         static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
         if (v._frequency < 0 || v._what.isEmpty()) return "<incomplete>";
-        return QString("Negative Reputation: %1 (%2%3%4)").arg(v._what, Sheet::ref().getOption().showFrequencyRolls() ? freq[v._frequency] : freqSans[v._frequency],
+        return QString("Negative Reputation: %1 (%2%3%4)").arg(v._what,
+#ifndef ISHSC
+                                                               Sheet::ref().getOption().showFrequencyRolls()
+#else
+                                                               true
+#endif
+                                                                   ? freq[v._frequency] : freqSans[v._frequency],
                                                                v._extreme ? "; Extreme" : "", v._limited ? "; Limited Group" : "");
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what      = createLineEdit(parent, layout, "What is the reputation?");
+#ifndef ISHSC
         if (Sheet::ref().getOption().showFrequencyRolls())
+#endif
             frequency = createComboBox(parent, layout, "How often is it recognized", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
+#ifndef ISHSC
         else
             frequency = createComboBox(parent, layout, "How often is it recognized", { "Infrequently", "Frequently", "Very Frequently" });
+#endif
         extreme   = createCheckBox(parent, layout, "Extreme Reputation");
         limited   = createCheckBox(parent, layout, "Known only to a limited group");
     }

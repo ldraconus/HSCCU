@@ -2,7 +2,9 @@
 #define INTERACTIONSKILLS_H
 
 #include "character.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 #include "skilltalentorperk.h"
 
 class InteractionSkills: public SkillTalentOrPerk {
@@ -36,7 +38,11 @@ public:
     QString name() override                                  { return v._name; }
     Points points(bool noStore = false) override           { if (!noStore) store(); return 3_cp + v._plus * 2_cp; }
     void restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s; }
+#ifndef ISHSC
     QString roll() override                                  { return add(Sheet::ref().character().PRE().roll(), v._plus); }
+#else
+    QString roll() override                                  { return QString("+%1").arg(v._plus); }
+#endif
     void    store() override                                 { v._plus = plus->text().toInt(0); }
 
     QJsonObject toJson() override {

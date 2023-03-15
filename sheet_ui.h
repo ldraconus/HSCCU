@@ -31,7 +31,16 @@ signals:
     void clicked();
 
 protected:
-    void mousePressEvent(QMouseEvent*) { emit clicked(); }
+#ifdef __wasm__
+    void mousePressEvent(QMouseEvent* me) {
+        if (me->buttons() == Qt::RightButton) {
+            ;
+        }
+#else
+    void mousePressEvent(QMouseEvent*) {
+        emit clicked();
+#endif
+    }
 
 };
 

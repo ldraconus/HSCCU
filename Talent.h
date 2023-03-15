@@ -191,7 +191,13 @@ public:
                                                                   sense->setChecked(sns);
                                                                   v = s;
                                                                 }
-    QString roll() override                                     { return add(Sheet::ref().character().INT().roll(), v._plus); }
+    QString roll() override                                     {
+#ifndef ISHSC
+                                                                  return add(Sheet::ref().character().INT().roll(), v._plus);
+#else
+                                                                  return QString("+%1").arg(v._plus);
+#endif
+                                                                }
     void    store() override                                    { v._plus = plus->text().toInt(0);
                                                                   v._sense = sense->isChecked();
                                                                 }
@@ -294,7 +300,13 @@ public:
                                                                   _dtct   = dtc;
                                                                   _area   = are;
                                                                 }
-    QString roll() override                                     { return add(Sheet::ref().character().INT().roll(), _plus); }
+    QString roll() override                                     {
+#ifndef ISHSC
+                                                                  return add(Sheet::ref().character().INT().roll(), _plus);
+#else
+                                                                  return QString("+%1").arg(_plus);
+#endif
+                                                                }
     void    store() override                                    { _plus   = plus->text().toInt(0);
                                                                   _sense  = sense->isChecked();
                                                                   _intuit = intuit->isChecked();
@@ -628,7 +640,13 @@ public:
     Resistance(const QJsonObject& json): Talent(json) { v._plus  = json["plus"].toInt(0);
                                                       }
 
-    QString description(bool showRoll = false) override         { return (showRoll ? add(Sheet::ref().character().EGO().roll(), v._plus) + " " : "") + optOut(); }
+    QString description(bool showRoll = false) override         { return (showRoll ?
+#ifndef ISHSC
+                                                                          add(Sheet::ref().character().EGO().roll(), v._plus)
+#else
+                                                                          QString("+%1").arg(v._plus)
+#endif
+                                                                          + " " : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
@@ -672,14 +690,26 @@ public:
     SimulateDeath(const QJsonObject& json): Talent(json) { v._plus  = json["plus"].toInt(0);
                                                          }
 
-    QString description(bool showRoll = false) override         { return (showRoll ? add(Sheet::ref().character().EGO().roll(), v._plus) + " " : "") + optOut(); }
+    QString description(bool showRoll = false) override         { return (showRoll ?
+#ifndef ISHSC
+                                                                  add(Sheet::ref().character().EGO().roll(), v._plus) +
+#else
+                                                                  QString("+%1").arg(v._plus) +
+#endif
+                                                                  " " : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   return (v._plus + 1) * 3_cp; }
     void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
                                                                 }
-    QString roll() override                                     { return add(Sheet::ref().character().EGO().roll(), v._plus); }
+    QString roll() override                                     { return
+#ifndef ISHSC
+                                                                      add(Sheet::ref().character().EGO().roll(), v._plus);
+#else
+                                                                      QString("+%1").arg(v._plus);
+#endif
+                                                                }
     void    store() override                                    { v._plus = plus->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
@@ -807,14 +837,25 @@ public:
     UniversalTranslator(const QJsonObject& json): Talent(json)   { v._plus = json["plus"].toInt(0);
                                                                  }
 
-    QString description(bool showRoll = false) override         { return (showRoll ? add(Sheet::ref().character().INT().roll(), v._plus) + " " : "") + optOut(); }
+    QString description(bool showRoll = false) override         { return (showRoll ?
+#ifndef ISHSC
+                                                                          add(Sheet::ref().character().INT().roll(), v._plus) +
+#else
+                                                                          QString("+%1").arg(v._plus) +
+#endif
+                                                                          " " : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return 20_cp + v._plus; }
     void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
                                                                 }
-    QString roll() override                                     { return add(Sheet::ref().character().INT().roll(), v._plus); }
+    QString roll() override                                     { return
+#ifndef ISHSC
+                                                                      add(Sheet::ref().character().INT().roll(), v._plus); }
+#else
+                                                                      QString("+%1").arg(v._plus); }
+#endif
     void    store() override                                    { v._plus = plus->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();

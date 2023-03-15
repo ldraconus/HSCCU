@@ -32,6 +32,7 @@ private:
     bool isNumber(QString& txt) { bool ok; txt.toInt(&ok); return ok; }
 
 public slots:
+    void accepted();
     void numeric(QString);
     void pickSomething(int);
 };

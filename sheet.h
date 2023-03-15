@@ -1,13 +1,19 @@
 #ifndef SHEET_H
 #define SHEET_H
 
+#include <QAbstractButton>
 #include <QAbstractTableModel>
 #include <QEvent>
 #include <QMainWindow>
 #include <QPrinter>
 
 #include "shared.h"
+
 #include "powerdialog.h"
+#ifdef __wasm__
+#include "editmenudialog.h"
+#include "filemenudialog.h"
+#endif
 #include "character.h"
 #include "option.h"
 #include "sheet_ui.h"
@@ -45,8 +51,10 @@ public:
     void updateDisplay();
     void updatePower(shared_ptr<Power>);
 
-    void closeEvent(QCloseEvent* event) override;
+    void closeEvent(QCloseEvent*) override;
+    void mousePressEvent(QMouseEvent*) override;
 
+    void doNothing() { }
 
     class _CharacteristicDef {
     public:
@@ -72,11 +80,23 @@ public:
 
     static const bool WordWrap = true;
 
-private:
+#ifdef __wasm__
+    Ui::wasm* UI() { return ui; }
+#else
+    Ui::Sheet* UI() { return ui; }
+#endif
+
+    shared_ptr<class optionDialog> _optionDlg;
+
+    Option& option() { return _option; }
+
 #ifndef __wasm__
+private:
     Ui::Sheet* ui;
 #else
     Ui::wasm* ui;
+    QWidget* editButton;
+    QWidget* fileButton;
     QWidget* newButton;
     QWidget* openButton;
     QWidget* saveButton;
@@ -93,6 +113,12 @@ private:
     QAction* actionC_opy;
     QAction* action_Paste;
     QAction* actionOptions;
+#ifdef __wasm__
+    shared_ptr<FileMenuDialog> _fileMenuDialog = nullptr;
+    shared_ptr<EditMenuDialog> _editMenuDialog = nullptr;
+#endif
+
+private:
 #endif
     Sheet_UI*  Ui;
     QPrinter*  printer;
@@ -113,6 +139,7 @@ private:
     QString   _filename;
     QFont     _font;
     Option    _option;
+    bool      _saveChanged;
 
     QMap<QObject*, _CharacteristicDef> _widget2Def;
 
@@ -131,6 +158,8 @@ private:
     void               deletePagefull(QTableWidget*);
     void               deletePagefull();
     int                displayPowerAndEquipment(int&, shared_ptr<Power>);
+    void               doOpen();
+    void               erase();
     bool               eventFilter(QObject*, QEvent*) override;
 #ifndef __wasm__
     void               fileOpen();
@@ -144,12 +173,13 @@ private:
     int                getPageCount();
     int                getPageLines(QPlainTextEdit*, double, QPainter*);
     shared_ptr<Power>& getPower(int, QList<shared_ptr<Power>>&);
+    void               justClose();
     void               loadImage(QPixmap&, QString);
 #ifdef __wasm__
     void               loadImage(const QByteArray&, QString);
 #endif
     void               loadImage(QString);
-
+    void               paste();
     void               putPower(int, shared_ptr<Power>);
     void               preparePrint(QPlainTextEdit*);
     void               preparePrint(QTableWidget*);
@@ -171,6 +201,10 @@ private:
 #ifdef __wasm__
     void               removeMenuButtons();
 #endif
+    void               saveThenErase();
+    void               saveThenExit();
+    void               saveThenOpen();
+    void               saveThenPaste();
     int                searchImprovedNoncombatMovement(QString);
     void               setupIcons();
     void               setCVs(_CharacteristicDef&, QLabel*);
@@ -178,6 +212,10 @@ private:
     void               setDefense(_CharacteristicDef&, int, int, QLineEdit*);
     void               setDefense(int, int, int, int);
     void               setMaximum(_CharacteristicDef&, QLabel*, QLineEdit*);
+#ifndef __wasm
+    void               doLoadImage();
+    void               skipLoadImage();
+#endif
     void               updateCharacteristics();
     void               updateCharacter();
     void               updateComplications();
@@ -237,6 +275,10 @@ public slots:
     void editPowerOrEquipment();
     void editSkillstalentsandperks();
     void eyeColorChanged(QString);
+#ifdef __wasm__
+    void editMenu();
+    void fileMenu();
+#endif
     void focusChanged(QWidget*, QWidget*);
     void gamemasterChanged(QString);
     void genreChanged(QString);
@@ -273,6 +315,21 @@ public slots:
     void skillstalentsandperksMenu(QPoint);
     void totalExperienceEarnedChanged(QString);
     void totalExperienceEarnedEditingFinished();
+};
+
+class Msg: public QObject {
+    Q_OBJECT
+
+public:
+    static shared_ptr<class QMessageBox> Box;
+
+    static std::function<void ()> _Cancel;
+    static std::function<void ()> _No;
+    static std::function<void ()> _Ok;
+    static std::function<void ()> _Yes;
+
+public slots:
+    void button(QAbstractButton*);
 };
 
 #endif // SHEET_H

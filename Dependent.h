@@ -4,7 +4,9 @@
 #include <cmath>
 
 #include "complication.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 
 class Dependent: public Complication
 {
@@ -40,8 +42,13 @@ public:
         static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
         if (v._frequency < 0 || v._competence < 0 || v._who.isEmpty()) return "<incomplete>";
         QString result = "Dependent NPC: " + v._who + " (";
-        if (Sheet::ref().getOption().showFrequencyRolls()) result += freq[v._frequency];
+#ifndef ISHSC
+        if (Sheet::ref().getOption().showFrequencyRolls())
+#endif
+            result += freq[v._frequency];
+#ifndef ISHSC
         else result += freqSans[v._frequency];
+#endif
         result += "); " + comp[v._competence];
         if (v._unaware) result += "; DNPC is unaware of character's adventuring";
         if (v._useful) result += "; DNPC has useful noncombat position or skills";
@@ -53,10 +60,14 @@ public:
         competence = createComboBox(parent, layout, "How compentent is the DNPC?", { "Incompetent", "Normal", "Slightly Less Powerful Then The PC",
                                                                                      "As Powerful As The PC" });
         useful     = createCheckBox(parent, layout, "DNPC has useful noncombat position or skills");
+#ifndef ISHSC
         if (Sheet::ref().getOption().showFrequencyRolls())
+#endif
             frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
+#ifndef ISHSC
         else
             frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently", "Frequently", "Very Frequently" });
+#endif
         unaware    = createCheckBox(parent, layout, "DNPC is unaware of character's adventuring");
         multiples  = createLineEdit(parent, layout, "How many dependants?", std::mem_fn(&Complication::numeric));
     }

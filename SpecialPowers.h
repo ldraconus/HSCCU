@@ -3,9 +3,11 @@
 
 #include "modifier.h"
 #include "powers.h"
+#ifndef ISHSC
 #include "skilldialog.h"
 #include "modifiersdialog.h"
 #include "sheet.h"
+#endif
 
 class EnduranceReserve: public AllPowers {
 public:
@@ -120,7 +122,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -151,20 +155,30 @@ class IndependantAdvantage: public AllPowers {
 private:
     QStringList getPowers() {
         QStringList pow;
+#ifndef ISHSC
         auto list = Sheet::ref().character().powersOrEquipment();
         pow << "";
         for (const auto& power: list) {
             if (power->nickname().isEmpty()) pow << power->description();
             else pow << power->nickname();
         }
+#endif
         return pow;
     }
 
+#ifndef ISHSC
     shared_ptr<Power> getPower(int idx) {
         auto list = Sheet::ref().character().powersOrEquipment();
         return list[idx - 1];
+#else
+    shared_ptr<Power> getPower(int) {
+        return nullptr;
+#endif
     }
 
+#ifdef ISHSC
+    int powerLookup(shared_ptr<Power>) {
+#else
     int powerLookup(shared_ptr<Power> pow) {
         int idx = 0;
         auto list = Sheet::ref().character().powersOrEquipment();
@@ -172,6 +186,7 @@ private:
             idx++;
             if (power == pow) return idx;
         }
+#endif
         return -1;
     }
 
@@ -263,6 +278,7 @@ private:
     void clicked(void) override {
         QPushButton* btn = dynamic_cast<QPushButton*>(sender());
         if (btn == mod) {
+#ifndef ISHSC
             ModifiersDialog dlg(ModifiersDialog::Advantage, &Sheet::ref());
             if (dlg.exec() == QDialog::Rejected) return;
             shared_ptr<Modifier> mod = dlg.modifier();
@@ -270,13 +286,16 @@ private:
                   (mod->type() == ModifierBase::ModifierType::isBoth && mod->fraction(Modifier::NoStore) >= 0L))) return;
             btn->setText(mod->description());
             v._mod = mod;
+#endif
         }
     }
 
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -343,7 +362,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -420,7 +441,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -490,6 +513,7 @@ private:
     }
 
     void clicked(void) override {
+#ifndef ISHSC
         QPushButton* btn = dynamic_cast<QPushButton*>(sender());
         SkillDialog dlg(&Sheet::ref());
         if (dlg.exec() == QDialog::Rejected) return;
@@ -497,12 +521,15 @@ private:
         if (!skl->isSkill()) return;
         btn->setText(skl->description());
         v._skill = skl;
+#endif
     }
 
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -576,7 +603,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }

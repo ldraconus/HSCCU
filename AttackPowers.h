@@ -2,7 +2,9 @@
 #define ATTACKPOWERS_H
 
 #include "powers.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 
 class Blast: public AllPowers {
 public:
@@ -77,7 +79,9 @@ private:
 
     void numeric(int) override {
         QString txt = dice->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         dice->undo();
     }
@@ -439,7 +443,9 @@ private:
             break;
         }
 
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
     }
 
     QString describe(const effects& effect) {
@@ -735,7 +741,9 @@ private:
 
     void numeric(int) override {
         QString txt = dice->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         dice->undo();
     }
@@ -844,7 +852,9 @@ private:
 
     void numeric(int) override {
         QString txt = dice->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         dice->undo();
     }
@@ -908,7 +918,9 @@ private:
 
     void numeric(int) override {
         QString txt = dice->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         dice->undo();
     }
@@ -1005,9 +1017,13 @@ private:
     QCheckBox* str;
 
     QString KAwSTR() {
+#ifndef ISHSC
         int STR = Sheet::ref().character().STR().base() +
                   Sheet::ref().character().STR().primary() +
                   Sheet::ref().character().STR().secondary();
+#else
+        int STR = 0;
+#endif
         int dice = v._dice + STR / 15;
         int rem = STR % 15;
         int extra = rem / 10 + 1;
@@ -1050,7 +1066,9 @@ private:
 
     void numeric(int) override {
         QString txt = dice->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         dice->undo();
     }
@@ -1130,7 +1148,9 @@ private:
 
     void numeric(int) override {
         QString txt = point->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         point->undo();
     }
@@ -1226,7 +1246,9 @@ private:
 
     void numeric(int) override {
         QString txt = STR->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         STR->undo();
     }
@@ -1402,7 +1424,9 @@ private:
 
     void numeric(int) override {
         QString txt = dice->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         dice->undo();
     }

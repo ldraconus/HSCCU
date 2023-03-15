@@ -4,7 +4,9 @@
 #include <cmath>
 
 #include "fraction.h"
+#ifndef ISHSC
 #include "modifiersdialog.h"
+#endif
 #include "shared.h"
 
 #include <QCheckBox>
@@ -22,6 +24,16 @@
 
 using std::function;
 using std::variant;
+
+#ifdef ISHSC
+class ModifiersDialog {
+public:
+    ModifiersDialog() {}
+    static ModifiersDialog& ref() { static ModifiersDialog md; return md; }
+    void updateForm() { }
+    void update() { }
+};
+#endif
 
 typedef variant<Fraction, int> value;
 
@@ -211,7 +223,9 @@ protected:
     }
 
 public:
+#ifndef ISHSC
     Ui::ModifiersDialog* ui;
+#endif
 
     Modifier(): ModifierBase() { }
     Modifier(QString nm, ModifierType type, bool adder, base* base = nullptr)
@@ -235,7 +249,9 @@ public:
         QString txt = edit->text();
         if (txt.isEmpty() || isNumber(txt)) {
             store();
+#ifndef ISHSC
             ModifiersDialog::ref().updateForm();
+#endif
             return;
         }
         edit->undo();
@@ -345,8 +361,16 @@ public:
     shared_ptr<Modifier> create() override                        { return make_shared<Ablative>(*this); }
     shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<Ablative>(json); }
 
-    void        changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
-    void        checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    void        changed(QString) override                 { store();
+#ifndef ISHSC
+                                                            ModifiersDialog::ref().updateForm();
+#endif
+                                                          }
+    void        checked(bool) override                    { store();
+#ifndef ISHSC
+                                                            ModifiersDialog::ref().updateForm();
+#endif
+                                                          }
     QString     description(bool show = false) override   { return optOut(show); }
     bool        form(QWidget* p, QVBoxLayout* l) override { aquiresRoll = createCheckBox(p, l, "Aquires a Skill Roll when Exceeded", std::mem_fn(&ModifierBase::checked));
                                                             return true; }

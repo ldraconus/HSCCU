@@ -239,7 +239,11 @@ bool Character::load(Option& opt, const QByteArray& data) {
     QJsonDocument json = QJsonDocument::fromJson(data);
 #else
 bool Character::load(Option& opt, QString filename) {
+#ifndef ISHSC
     QFile file(filename + ".hsccu");
+#else
+    QFile file(filename);
+#endif
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
 
     QByteArray data(file.readAll());

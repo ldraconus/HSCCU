@@ -2,7 +2,9 @@
 #define INTELLECTSKILLS_H
 
 #include "character.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 #include "skilltalentorperk.h"
 
 class IntellectSkills: public SkillTalentOrPerk {
@@ -41,7 +43,12 @@ public:
                                                                topic->setText(v._topic);
                                                                plus->setText(QString("%1").arg(s._plus));
                                                                v = s; }
-    QString roll() override                                  { return add(Sheet::ref().character().INT().roll(), v._plus); }
+    QString roll() override                                  { return
+#ifndef ISHSC
+                                                                   add(Sheet::ref().character().INT().roll(), v._plus); }
+#else
+                                                                   QString("+%1").arg(v._plus); }
+#endif
     void    store() override                                 { v._topic = topic->text();
                                                                v._plus  = plus->text().toInt(0); }
 

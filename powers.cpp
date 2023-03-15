@@ -1,5 +1,7 @@
 #include "powers.h"
+#ifndef ISHSC
 #include "powerdialog.h"
+#endif
 
 #include "AdjustmentPowers.h"
 #include "AttackPowers.h"
@@ -265,12 +267,22 @@ QMap<QString, Power::allBase*> Power::_standardPower {
     SPCS("Transformϴ",          Transform)
 };
 
+#ifndef ISHSC
 QTableWidget* Power::createAdvantages(QWidget* parent, QVBoxLayout* layout) {
     return PowerDialog::ref().createAdvantages(parent, layout);
+#else
+QTableWidget* Power::createAdvantages(QWidget*, QVBoxLayout*) {
+    return nullptr;
+#endif
 }
 
+#ifndef ISHSC
 QTableWidget* Power::createLimitations(QWidget* parent, QVBoxLayout* layout) {
     return PowerDialog::ref().createLimitations(parent, layout);
+#else
+QTableWidget* Power::createLimitations(QWidget*, QVBoxLayout*) {
+    return nullptr;
+#endif
 }
 
 Power::Power() {
@@ -596,7 +608,8 @@ shared_ptr<Power> Power::FromJson(QString name, const QJsonObject& json) {
     QJsonObject obj = json["modifiers"].toObject();
     QStringList keys = obj.keys();
     for (const auto& key: keys) {
-        shared_ptr<Modifier> mod = Modifiers::ByName(key)->create(obj[key].toObject());
+        const auto& base = Modifiers::ByName(key);
+        shared_ptr<Modifier> mod = base->create(obj[key].toObject());
         power->_modifiers.append(mod);
         if (mod->type() == ModifierBase::isAdvantage ||
             (mod->type() == ModifierBase::isBoth && mod->fraction(Modifier::NoStore) >= 0)) power->advantagesList().append(mod);

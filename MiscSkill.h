@@ -2,7 +2,9 @@
 #define MISCSKILL_H
 
 #include "character.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 #include "skilltalentorperk.h"
 
 class MiscSkills: public SkillTalentOrPerk {
@@ -153,7 +155,7 @@ public:
                                                                   plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   stat = createComboBox(parent, layout, "Base on a stat?", { "No", "STR", "DEX", "CON", "INT", "EGO", "PRE"});
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   return v._plus * 2_cp + 3_cp;
                                                                 }
     void    restore() override                                  { vars s = v;
@@ -162,7 +164,12 @@ public:
                                                                   stat->setCurrentIndex(s._stat);
                                                                   v = s;
                                                                 }
-    QString roll() override                                     { return (v._stat >= 1) ? add(Sheet::ref().character().characteristic(v._stat).roll(), v._plus)
+    QString roll() override                                     { return (v._stat >= 1) ?
+#ifndef ISHSC
+                                                                             add(Sheet::ref().character().characteristic(v._stat).roll(), v._plus)
+#else
+                                                                             QString("+%1").arg(v._plus)
+#endif
                                                                                         : ""; }
     void    store() override                                    { v._what = what->text();
                                                                   v._plus = plus->text().toInt(0);

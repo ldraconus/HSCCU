@@ -2,7 +2,9 @@
 #define DEFENSE_POWERS_H
 
 #include "powers.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 
 class Barrier: public AllPowers {
 public:
@@ -66,8 +68,11 @@ public:
                                                                           (v._restr    ? Fraction(1, 4) : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    Points defCost = 0_cp;
+#ifndef ISHSC
                                                                    if (Sheet::ref().character().hasTakesNoSTUN()) defCost = 3_cp * (3_cp * ((v._pd + v._ed) / 2));
-                                                                   else defCost = 3_cp * ((v._pd + v._ed) / 2);
+                                                                   else
+#endif
+                                                                      defCost = 3_cp * ((v._pd + v._ed) / 2);
                                                                    return 3_cp + (v._length - 1) + (v._height - 1) + (v._thick - 1) + v._body +
                                                                            defCost + (v._anchor ? 10_cp : 0_cp); }
     void     restore() override                                  { vars s = v;
@@ -191,7 +196,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -234,7 +241,11 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v._resist  ? Fraction(1, 4) : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return (Sheet::ref().character().hasTakesNoSTUN() ? 15_cp : 5_cp) * v._dc; }
+                                                                   return (
+#ifndef ISHSC
+                                                                              Sheet::ref().character().hasTakesNoSTUN() ? 15_cp :
+#endif
+                                                                                  5_cp) * v._dc; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dc->setText(QString("%1").arg(s._dc));
@@ -289,7 +300,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -334,7 +347,11 @@ public:
     Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    QList<Points> n { 0_cp, 10_cp, 20_cp, 30_cp };
                                                                    QList<Points> r { 0_cp, 15_cp, 30_cp, 60_cp };
-                                                                   return (Sheet::ref().character().hasTakesNoSTUN() ? 3 : 1) *
+                                                                   return (
+#ifndef ISHSC
+                                                                              Sheet::ref().character().hasTakesNoSTUN() ? 3 :
+#endif
+                                                                                  1) *
                                                                           ((v._resist || v._against > 1) ? r[v._perc + 1] : n[v._perc + 1]); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -390,7 +407,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -410,7 +429,11 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Sheet::ref().character().hasTakesNoSTUN() ? 60_cp : 20_cp; }
+                                                                   return
+#ifndef ISHSC
+                                                                       Sheet::ref().character().hasTakesNoSTUN() ? 60_cp :
+#endif
+                                                                       20_cp; }
     void     restore() override                                  { AllPowers::restore();
                                                                  }
     void     store() override                                    { AllPowers::store();
@@ -430,7 +453,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -464,7 +489,11 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._def * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
+                                                                   return v._def * (
+#ifndef ISHSC
+                                                                              Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
+#endif
+                                                                                  1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    def->setText(QString("%1").arg(s._def));
@@ -498,7 +527,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -532,7 +563,11 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._pts * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
+                                                                   return v._pts * (
+#ifndef ISHSC
+                                                                              Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
+#endif
+                                                                                  1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    pts->setText(QString("%1").arg(s._pts));
@@ -564,7 +599,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -600,7 +637,11 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._def * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
+                                                                   return v._def * (
+#ifndef ISHSC
+                                                                              Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
+#endif
+                                                                                  1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    def->setText(QString("%1").arg(s._def));
@@ -640,7 +681,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -674,7 +717,11 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._def * (Sheet::ref().character().hasTakesNoSTUN() ? 3_cp : 1_cp); }
+                                                                   return v._def * (
+#ifndef ISHSC
+                                                                              Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
+#endif
+                                                                                  1_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    def->setText(QString("%1").arg(s._def));
@@ -708,7 +755,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -751,8 +800,11 @@ public:
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    Points defCost = 0_cp;
+#ifndef ISHSC
                                                                    if (Sheet::ref().character().hasTakesNoSTUN()) defCost = (3_cp * (3 * ((v._pd + v._ed) + 1)) / 2);
-                                                                   else defCost = (3_cp * ((v._pd + v._ed + 1) / 2));
+                                                                   else
+#endif
+                                                                       defCost = (3_cp * ((v._pd + v._ed + 1) / 2));
                                                                    return defCost + (v._protect ? 10_cp : 0_cp); }
     void     restore() override                                  { vars s = v;                                                                   
                                                                    AllPowers::restore();
@@ -814,7 +866,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }

@@ -2,7 +2,9 @@
 #define STANDARDPOWERS_H
 
 #include "powers.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 
 class Characteristics: public AllPowers {
 public:
@@ -66,8 +68,11 @@ public:
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    Points defCost = 0_cp;
+#ifndef ISHSC
                                                                    if (Sheet::ref().character().hasTakesNoSTUN()) defCost = 3_cp * (v._pd + v._ed) + 9_cp * v._dmcv + 15_cp * v._dcv;
-                                                                   else defCost = 1_cp * (v._pd + v._ed) + 3_cp * v._dmcv + 5_cp * v._dcv;
+                                                                   else
+#endif
+                                                                      defCost = 1_cp * (v._pd + v._ed) + 3_cp * v._dmcv + 5_cp * v._dcv;
                                                                    return 1_cp * (v._str + v._con + v._int + v._ego + v._pre + v._rec + v._body) + 2_cp * v._dex + defCost +
                                                                           5_cp * v._ocv + 3_cp * v._omcv + 10_cp * v._spd + (v._end + 2) / 5 + (v._stun + 1) / 2;
                                                                  }
@@ -235,7 +240,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -301,10 +308,7 @@ private:
     QString optOut(bool showEND) {
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        int prim = Sheet::ref().character().STR().primary() + Sheet::ref().character().STR().base() + v._str;
-        int secd = prim + Sheet::ref().character().STR().secondary();
-        if (prim != secd) res += res += QString("%1/%2 STR Clinging").arg(prim).arg(secd);
-        else res += QString("%1 STR Clinging").arg(prim);
+        res += QString("%1 STR Clinging").arg(v._str);
         if (v._knck) res += "; Cannot Resist Knockback";
         return res;
     }
@@ -312,7 +316,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -377,7 +383,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -568,7 +576,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -746,7 +756,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }

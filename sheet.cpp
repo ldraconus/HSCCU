@@ -1,6 +1,10 @@
 #include "complicationsdialog.h"
 #include "complication.h"
 #include "modifier.h"
+#ifdef __wasm__
+#include "editmenudialog.h"
+#include "filemenudialog.h"
+#endif
 #include "optiondialog.h"
 #include "powers.h"
 #include "powerdialog.h"
@@ -18,7 +22,9 @@
 #ifdef _WIN64
 #include <Shlobj.h>
 #endif
+
 #include <cmath>
+#include <functional>
 
 #include <QBuffer>
 #include <QClipboard>
@@ -43,6 +49,21 @@
 #include <QToolButton>
 
 Sheet* Sheet::_sheet = nullptr;
+shared_ptr<class QMessageBox> Msg::Box;
+std::function<void ()> Msg::_Cancel;
+std::function<void ()> Msg::_No;
+std::function<void ()> Msg::_Ok;
+std::function<void ()> Msg::_Yes;
+
+Msg msngr;
+
+void Msg::button(QAbstractButton* btn) {
+    QString txt = btn->text();
+    if (txt == "Cancel") Msg::_Cancel();
+    else if (txt == "&No") Msg::_No();
+    else if (txt == "&Ok") Msg::_Ok();
+    else if (txt == "&Yes") Msg::_Yes();
+}
 
 // --- [static functions] ----------------------------------------------------------------------------------
 static bool numeric(QString txt) {
@@ -51,80 +72,81 @@ static bool numeric(QString txt) {
     return ok;
 }
 
-int YesNo(const QString msg, const QString title = "") {
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Question);
-    msgBox.setText(!title.isEmpty() ? title : "Are you sure?");
-    msgBox.setInformativeText(msg);
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgBox.setDefaultButton(QMessageBox::No);
-    return msgBox.exec();
+void YesNo(const QString& msg, std::function<void()> yes, std::function<void()> no, const QString title = "") {
+    Msg::Box = make_shared<QMessageBox>();
+    Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
+    Msg::_Yes = yes;
+    Msg::_No  = no;
+    Msg::Box->setIcon(QMessageBox::Question);
+    Msg::Box->setText(!title.isEmpty() ? title : "Are you sure?");
+    Msg::Box->setInformativeText(msg);
+    Msg::Box->setStandardButtons({ QMessageBox::Yes, QMessageBox::No });
+    Msg::Box->open();
 }
 
-int YesNo(const char* msg, const char* title) {
-    return YesNo(QString(msg), QString(title ? "" : nullptr));
+void YesNoCancel(const QString& msg, std::function<void()> yes, std::function<void()> no, std::function<void()> cancel, const QString& title = "") {
+    Msg::Box = make_shared<QMessageBox>();
+    Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
+    Msg::_Yes = yes;
+    Msg::_No = no;
+    Msg::_Cancel = cancel;
+    Msg::Box->setIcon(QMessageBox::Question);
+    Msg::Box->setText(title.isEmpty() ? "Are you really sure?" : title);
+    Msg::Box->setInformativeText(msg);
+    Msg::Box->setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    Msg::Box->setDefaultButton(QMessageBox::Cancel);
+    Msg::Box->open();
 }
 
-int YesNoCancel(const char* msg, const char* title) {
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Question);
-    msgBox.setText(title ? title : "Are you really sure?");
-    msgBox.setInformativeText(msg);
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-    msgBox.setDefaultButton(QMessageBox::Cancel);
-    return msgBox.exec();
+void OK(const QString& msg,
+        std::function<void ()> ok,
+        const QString& title = "") {
+    Msg::Box = make_shared<QMessageBox>();
+    Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
+    Msg::_Ok = ok;
+    Msg::Box->setIcon(QMessageBox::Warning);
+    Msg::Box->setText(!title.isEmpty() ? title : "Something has happened.");
+    Msg::Box->setInformativeText(msg);
+    Msg::Box->setStandardButtons(QMessageBox::Ok);
+    Msg::Box->setDefaultButton(QMessageBox::Ok);
+    Msg::Box->open();
 }
 
-int OK(const QString msg, const QString title = "") {
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Warning);
-    msgBox.setText(!title.isEmpty() ? title : "Something has happened.");
-    msgBox.setInformativeText(msg);
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    msgBox.setDefaultButton(QMessageBox::Ok);
-    return msgBox.exec();
+void OKCancel(const QString& msg, std::function<void ()> ok, const QString& title = "") {
+    Msg::Box = make_shared<QMessageBox>();
+    Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
+    Msg::_Ok = ok;
+    Msg::Box->setIcon(QMessageBox::Critical);
+    Msg::Box->setText(!title.isEmpty() ? title : "Something bad is about to happened.");
+    Msg::Box->setInformativeText(msg);
+    Msg::Box->setStandardButtons(QMessageBox::Ok);
+    Msg::Box->setDefaultButton(QMessageBox::Ok);
+    Msg::Box->open();
 }
 
-int OK(const char* msg, const char* title = nullptr) {
-    return OK(QString(msg), QString(title ? "" : nullptr));
+void Question(const QString& msg,
+              std::function<void ()> yes,
+              std::function<void ()> no,
+              const QString& title = "") {
+    Msg::Box = make_shared<QMessageBox>();
+    Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
+    Msg::_Yes = yes;
+    Msg::_No  = no;
+    Msg::Box->setIcon(QMessageBox::Question);
+    Msg::Box->setText(!title.isEmpty() ? title : "Are you sure?");
+    Msg::Box->setInformativeText(msg);
+    Msg::Box->setStandardButtons({ QMessageBox::Yes, QMessageBox::No });
+    Msg::Box->open();
 }
 
-int OKCancel(const QString msg, const QString title = "") {
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Critical);
-    msgBox.setText(!title.isEmpty() ? title : "Something bad is about to happened.");
-    msgBox.setInformativeText(msg);
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    msgBox.setDefaultButton(QMessageBox::Ok);
-    return msgBox.exec();
-}
-
-int OKCancel(const char* msg, const char* title = nullptr) {
-    return OKCancel(QString(msg), QString(title ? "" : nullptr));
-}
-
-int Question(const QString msg, const QString title = "", QFlags<QMessageBox::StandardButton> buttons = { QMessageBox::Yes, QMessageBox::No }) {
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Question);
-    msgBox.setText(!title.isEmpty() ? title : "Are you sure?");
-    msgBox.setInformativeText(msg);
-    msgBox.setStandardButtons(buttons);
-    return msgBox.exec();
-}
-
-int Question(const char* msg, const char* title = nullptr, QFlags<QMessageBox::StandardButton> buttons = { QMessageBox::Yes, QMessageBox::No }) {
-    return Question(QString(msg), QString(title ? title : ""), buttons);
-}
-
-int Statement(const QString msg) {
-    QMessageBox msgBox;
-    msgBox.setInformativeText(msg);
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    return msgBox.exec();
-}
-
-int Statement(const char* msg) {
-    return Statement(QString(msg));
+void Statement(const QString& msg) {
+    Msg::Box = make_shared<QMessageBox>();
+    Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
+    Msg::_Ok = std::bind(&Sheet::doNothing, &Sheet::ref());
+    Msg::Box->setInformativeText(msg);
+    Msg::Box->setStandardButtons(QMessageBox::Ok);
+    Msg::Box->setDefaultButton(QMessageBox::Ok);
+    Msg::Box->open();
 }
 
 static class lift {
@@ -248,7 +270,7 @@ Sheet::Sheet(QWidget *parent)
     connect(ui->actionE_xit,       SIGNAL(triggered()),   this, SLOT(exitClicked()));
 
     connect(ui->menu_Edit,     SIGNAL(aboutToShow()), this, SLOT(aboutToShowEditMenu()));
-    connect(ui->menu_Edit,     SIGNAL(aboutToHide()), this, SLOT(aboutToHideEditMenu()));\
+    connect(ui->menu_Edit,     SIGNAL(aboutToHide()), this, SLOT(aboutToHideEditMenu()));
     connect(ui->action_Cut,    SIGNAL(triggered()),   this, SLOT(cutCharacter()));
     connect(ui->actionC_opy,   SIGNAL(triggered()),   this, SLOT(copyCharacter()));
     connect(ui->action_Paste,  SIGNAL(triggered()),   this, SLOT(pasteCharacter()));
@@ -273,28 +295,17 @@ Sheet::Sheet(QWidget *parent)
     actionOptions = new QAction(this);
     actionOptions->setObjectName("actionOptions");
 
-    newButton  = createToolBarItem(ui->menuBar, "New", "Create a new Character", action_New);
-    openButton = createToolBarItem(ui->menuBar, "Open", "Open an existing Character", action_Open);
-    saveButton = createToolBarItem(ui->menuBar, "Save", "Save this Character", action_Save);
-    connect(action_New,    SIGNAL(triggered()),   this, SLOT(newchar()));
-    connect(action_Open,   SIGNAL(triggered()),   this, SLOT(open()));
-    connect(action_Save,   SIGNAL(triggered()),   this, SLOT(save()));
-    newButton->setHidden(true);
-    openButton->setHidden(true);
-    saveButton->setHidden(true);
-
-    cutButton    = createToolBarItem(ui->menuBar, "Cut", "Copy Character to cliipboard, then clear it", action_Cut);
-    copyButton   = createToolBarItem(ui->menuBar, "Copy", "Copy Character to clipboard", actionC_opy);
-    pasteButton  = createToolBarItem(ui->menuBar, "Paste", "Paste Character from clipboard", action_Paste);
-    optionButton = createToolBarItem(ui->menuBar, "Options", "Edit program options", actionOptions);
-    connect(action_Cut,    SIGNAL(triggered()),   this, SLOT(cutCharacter()));
-    connect(actionC_opy,   SIGNAL(triggered()),   this, SLOT(copyCharacter()));
-    connect(action_Paste,  SIGNAL(triggered()),   this, SLOT(pasteCharacter()));
-    connect(actionOptions, SIGNAL(triggered()),   this, SLOT(options()));
-    cutButton->setHidden(true);
-    copyButton->setHidden(true);
-    pasteButton->setHidden(true);
-    optionButton->setHidden(true);
+    fileButton = createToolBarItem(ui->menuBar, "File", "File menu", action_File);
+    editButton = createToolBarItem(ui->menuBar, "Edit", "Edit menu", action_Edit);
+    connect(action_File,   SIGNAL(triggered()), this, SLOT(fileMenu()));
+    connect(action_Edit,   SIGNAL(triggered()), this, SLOT(editMenu()));
+    connect(action_New,    SIGNAL(triggered()), this, SLOT(newchar()));
+    connect(action_Open,   SIGNAL(triggered()), this, SLOT(open()));
+    connect(action_Save,   SIGNAL(triggered()), this, SLOT(save()));
+    connect(action_Cut,    SIGNAL(triggered()), this, SLOT(cutCharacter()));
+    connect(actionC_opy,   SIGNAL(triggered()), this, SLOT(copyCharacter()));
+    connect(action_Paste,  SIGNAL(triggered()), this, SLOT(pasteCharacter()));
+    connect(actionOptions, SIGNAL(triggered()), this, SLOT(options()));
 #endif
 
     connect(Ui->alternateids,          SIGNAL(textEdited(QString)), this, SLOT(alternateIdsChanged(QString)));
@@ -351,11 +362,8 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->weight,                SIGNAL(textEdited(QString)), this, SLOT(weightChanged(QString)));
     connect(Ui->notes,                 SIGNAL(textChanged()),       this, SLOT(noteChanged()));
 
-#ifndef __wasm__
     connect(Ui->image,      SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(imageMenu(QPoint)));
-#else
-    connect(Ui->image,      SIGNAL(clicked()),                          this, SLOT(imageMenu()));
-#endif
+//    connect(Ui->image,      SIGNAL(clicked()),                          this, SLOT(imageMenu()));
     connect(Ui->newImage,   SIGNAL(triggered()),                        this, SLOT(newImage()));
     connect(Ui->clearImage, SIGNAL(triggered()),                        this, SLOT(clearImage()));
 
@@ -461,6 +469,19 @@ bool Sheet::eventFilter(QObject* object, QEvent* event) {
         edit->setText(QString("%1").arg(_widget2Def[edit].characteristic()->base()));
     }
     return false;
+}
+
+static void closeDialog(shared_ptr<QDialog> dlg, QMouseEvent* me) {
+    QRect dialogRect = dlg->geometry();
+    if (dlg->isVisible() && !dialogRect.contains(me->pos())) dlg->done(QDialog::Rejected);
+}
+
+void Sheet::mousePressEvent(QMouseEvent* me) {
+#ifdef __wasm__
+    if (_fileMenuDialog != nullptr) closeDialog(_fileMenuDialog, me);
+    if (_editMenuDialog != nullptr) closeDialog(_editMenuDialog, me);
+#endif
+    if (_optionDlg != nullptr) closeDialog(_optionDlg, me);
 }
 
 void Sheet::closeEvent(QCloseEvent* event) {
@@ -591,16 +612,25 @@ void Sheet::characteristicEditingFinished(QLineEdit* val) {
     val->setText(txt);
 }
 
+void Sheet::saveThenExit() {
+    try { save(); } catch (...) { return; } // bug is saving?
+    if (_changed) return; // hit cancel in save as?
+    close(); // really exit this time
+}
+
+void Sheet::justClose() {
+    _changed = false;
+    close(); // really exit this time
+}
+
 bool Sheet::checkClose() {
     if (_changed) {
-        try {
-            switch (YesNoCancel("Do you want to save your changes first?", "The current character has been changed!")) {
-            case QMessageBox::Yes: save(); break;
-            case QMessageBox::No:  return true;
-            default:               return false;
-            }
-        } catch (...) { return false; }
-        if (_changed) return false;
+        YesNoCancel("Do you want to save your changes first?",
+                    std::bind(&Sheet::saveThenExit, this),
+                    std::bind(&Sheet::justClose, this),
+                    std::bind(&Sheet::doNothing, this),
+                    "The current character has been changed!");
+        return false;
     }
     return true;
 }
@@ -724,6 +754,21 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
     return pts.toInt();
 }
 
+#ifndef __wasm__
+void Sheet::doLoadImage() {
+    loadImage(_character.image());
+    _saveChanged = _changed;
+    skipLoadImage();
+}
+
+void Sheet::skipLoadImage() {
+    Ui->notes->setPlainText(_character.notes());
+    updateDisplay();
+    update();
+    _changed = _saveChanged;
+}
+#endif
+
 #ifdef __wasm__
 void Sheet::fileOpen(const QByteArray& data, QString filename) {
     int ext = filename.lastIndexOf(".hsccu");
@@ -751,24 +796,20 @@ void Sheet::fileOpen() {
         _filename = _filename.mid(sep + 1);
     }
 
-    if (!_character.load(_option, _dir + "/" + _filename)) OK("Can't load \"" + _filename + ".hsccu\" from the \"" + _dir + "\" folder.");
+    if (!_character.load(_option, _dir + "/" + _filename))
+        OK("Can't load \"" + _filename + ".hsccu\" from the \"" + _dir + "\" folder.", std::bind(&Sheet::doNothing, this));
     else {
-        bool changed = false;
+        _saveChanged = false;
         QFileInfo imageFile(_character.image());
         if (imageFile.exists()) {
             qulonglong then(_character.imageDate());
             qulonglong file(imageFile.lastModified().toSecsSinceEpoch());
-            if (file > then && YesNo("Character image on disk has changed.\n\n"
-                                     "Do you want to update the image in\n"
-                                     "the character sheet?") == QMessageBox::Yes) {
-                loadImage(_character.image());
-                changed = _changed;
-            }
+            if (file > then) YesNo("Character image on disk has changed.\n\n"
+                                   "Do you want to update the image in\n"
+                                   "the character sheet?",
+                                   std::bind(&Sheet::doLoadImage, this),
+                                   std::bind(&Sheet::skipLoadImage, this));
         }
-        Ui->notes->setPlainText(_character.notes());
-        updateDisplay();
-        update();
-        _changed = changed;
     }
 }
 #endif
@@ -2119,6 +2160,29 @@ void Sheet::eyeColorChanged(QString txt) {
     _changed = true;
 }
 
+#ifdef __wasm__
+void Sheet::editMenu() {
+    if (_fileMenuDialog != nullptr) {
+        _fileMenuDialog->done(QDialog::Rejected);
+        _fileMenuDialog = nullptr;
+    }
+    _editMenuDialog = make_shared<EditMenuDialog>();
+    _editMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    _editMenuDialog->open();
+}
+
+void Sheet::fileMenu() {
+    if (_editMenuDialog != nullptr) {
+        _editMenuDialog->done(QDialog::Rejected);
+        _editMenuDialog = nullptr;
+    }
+    _fileMenuDialog = make_shared<FileMenuDialog>();
+    _fileMenuDialog->setSave(_changed);
+    _fileMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    _fileMenuDialog->open();
+}
+#endif
+
 void Sheet::gamemasterChanged(QString txt) {
     _character.gamemaster(txt);
     _changed = true;
@@ -2229,21 +2293,27 @@ void Sheet::moveSkillTalentOrPerkUp() {
     updateSkillsTalentsAndPerks();
 }
 
-void Sheet::newchar() {
-    try {
-        if (_changed) {
-            switch (YesNoCancel("Do you want to save your changes first?", "The current sheet has been changed!")) {
-            case QMessageBox::Yes:    save(); break;
-            case QMessageBox::Cancel:         return;
-            default:                          break;
-            }
-        }
-    } catch (...) { return; }
-
+void Sheet::erase() {
     _character.erase();
     Ui->notes->setPlainText("");
     updateDisplay();
     _changed = false;
+}
+
+void Sheet::saveThenErase() {
+    try { save(); } catch(...) { return; }
+    if (_changed) return;
+    erase();
+}
+
+void Sheet::newchar() {
+    if (_changed) {
+        YesNoCancel("Do you want to save your changes first?",
+                    std::bind(&Sheet::saveThenErase, this),
+                    std::bind(&Sheet::erase, this),
+                    std::bind(&Sheet::doNothing, this),
+                    "The current sheet has been changed!");
+    } else erase();
 }
 
 void Sheet::newComplication() {
@@ -2308,16 +2378,7 @@ void Sheet::noteChanged() {
     _changed = true;
 }
 
-void Sheet::open() {
-    try {
-        if (_changed) {
-            switch (YesNoCancel("Do you want to save your changes first?", "The current sheet has been changed!")) {
-            case QMessageBox::Yes:    save(); break;
-            case QMessageBox::Cancel:         return;
-            default:                          break;
-            }
-        }
-    } catch (...) { return; }
+void Sheet::doOpen() {
 
 #ifdef __wasm__
     QFileDialog::getOpenFileContent("Characters (*.hsccu)", [&](const QString& fileName, const QByteArray& fileContent) {
@@ -2332,34 +2393,32 @@ void Sheet::open() {
 #endif
 }
 
-void Sheet::options() {
-    optionDialog dlg;
-    dlg.setComplications(_option.complications().points);
-    dlg.setShowFrequencyRolls(_option.showFrequencyRolls());
-    dlg.setShowNotesPage(_option.showNotesPage());
-    dlg.setTotalPoints(_option.totalPoints().points);
-    if (dlg.exec() != QDialog::Accepted) return;
-    _option.complications(Points(dlg.complications()));
-    _option.showFrquencyRolls(dlg.showFrequencyRolls());
-    _option.showNotesPage(dlg.showNotesPage());
-    _option.totalPoints(Points(dlg.totalPoints()));
-    _option.store();
-    ui->optLabel->setVisible(_option.showNotesPage());
-    updateDisplay();
-    _changed = true;
+void Sheet::saveThenOpen() {
+    save();
+    if (_changed) return;
+    doOpen();
 }
 
-void Sheet::pasteCharacter() {
-    try {
-        if (_changed) {
-            switch (YesNoCancel("Do you want to save your changes first?", "The current sheet has been changed!")) {
-            case QMessageBox::Yes:    save(); break;
-            case QMessageBox::Cancel:         return;
-            default:                          break;
-            }
-        }
-    } catch (...) { return; }
+void Sheet::open() {
+    if (_changed) {
+        YesNoCancel("Do you want to save your changes first?",
+                    std::bind(&Sheet::saveThenOpen, this),
+                    std::bind(&Sheet::doOpen, this),
+                    std::bind(&Sheet::doNothing, this),
+                    "The current sheet has been changed!");
+    } else doOpen();
+}
 
+void Sheet::options() {
+    _optionDlg = make_shared<optionDialog>();
+    _optionDlg->setComplications(_option.complications().points);
+    _optionDlg->setShowFrequencyRolls(_option.showFrequencyRolls());
+    _optionDlg->setShowNotesPage(_option.showNotesPage());
+    _optionDlg->setTotalPoints(_option.totalPoints().points);
+    _optionDlg->open();
+}
+
+void Sheet::paste() {
     QClipboard* clip = QGuiApplication::clipboard();
     const QMimeData* data = clip->mimeData();
     QByteArray byteArray = data->data("application/hsccucharacter");
@@ -2370,6 +2429,22 @@ void Sheet::pasteCharacter() {
     _character.paste(_option, doc);
     updateDisplay();
     _changed = true;
+}
+
+void Sheet::saveThenPaste() {
+    try { save(); } catch(...) { return; }
+    if (_changed) return;
+    paste();
+}
+
+void Sheet::pasteCharacter() {
+    if (_changed) {
+        YesNoCancel("Do you want to save your changes first?",
+                    std::bind(&Sheet::saveThenPaste, this),
+                    std::bind(&Sheet::paste, this),
+                    std::bind(&Sheet::doNothing, this),
+                    "The current sheet has been changed!");
+    } else paste();
 }
 
 void Sheet::pasteComplication() {
@@ -2556,15 +2631,13 @@ void Sheet::save() {
         return;
     }
 
-    if (!_character.store(_option, _dir + "/" + _filename)) {
-        OK("Can't save to \"" + _filename + ".hsccu\" in the \"" + _dir + "\" folder.");
-        throw "";
-    }
+    if (!_character.store(_option, _dir + "/" + _filename))
+        OK("Can't save to \"" + _filename + ".hsccu\" in the \"" + _dir + "\" folder.", std::bind(&Sheet::doNothing, this));
     else _changed = false;
 #else
     if (_filename.isEmpty()) _filename = Ui->charactername->text();
     if (!_character.store(_option, _filename)) {
-        OK("Can't save to \"" + _filename + ".hsccu\".");
+        OK("Can't save to \"" + _filename + ".hsccu\".", std::bind(&Sheet::doNothing, this));
         throw "";
     }
     else _changed = false;

@@ -2,7 +2,9 @@
 #define ACCIDENTALCHANGE_H
 
 #include "complication.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 
 class AccidentalChange: public Complication
 {
@@ -32,16 +34,25 @@ public:
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
         static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
         if (v._frequency < 0 || v._circumstance  < 0 || v._what.isEmpty()) return "<incomplete>";
-        if (Sheet::ref().getOption().showFrequencyRolls()) return QString("Accidental Change: %1 (%2; %3)").arg(v._what, circ[v._circumstance], freq[v._frequency]);
+#ifndef ISHSC
+        if (Sheet::ref().getOption().showFrequencyRolls())
+#endif
+            return QString("Accidental Change: %1 (%2; %3)").arg(v._what, circ[v._circumstance], freq[v._frequency]);
+#ifndef ISHSC
         else return QString("Accidental Change: %1 (%2; %3)").arg(v._what, circ[v._circumstance], freqSans[v._frequency]);
+#endif
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what          = createLineEdit(parent, layout, "What sets off the change?");
         circumstance  = createComboBox(parent, layout, "How common is the change", { "Uncommmon", "Common", "Very Common" });
+#ifndef ISHSC
         if (Sheet::ref().getOption().showFrequencyRolls())
+#endif
             frequency = createComboBox(parent, layout, "How often do you change", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" });
+#ifndef ISHSC
         else
             frequency = createComboBox(parent, layout, "How often do you change", { "Infrequently", "Frequently", "Very Frequently", "Always" });
+#endif
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();

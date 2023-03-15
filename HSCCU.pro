@@ -15,6 +15,8 @@ SOURCES += \
     characteristic.cpp \
     complication.cpp \
     complicationsdialog.cpp \
+    editmenudialog.cpp \
+    filemenudialog.cpp \
     fraction.cpp \
     main.cpp \
     modifier.cpp \
@@ -69,6 +71,8 @@ HEADERS += \
     characteristic.h \
     complication.h \
     complicationsdialog.h \
+    editmenudialog.h \
+    filemenudialog.h \
     fraction.h \
     modifier.h \
     modifiersdialog.h \
@@ -86,6 +90,8 @@ HEADERS += \
 
 FORMS += \
     complicationsdialog.ui \
+    editmenudialog.ui \
+    filemenudialog.ui \
     modifiersdialog.ui \
     optiondialog.ui \
     powerdialog.ui \

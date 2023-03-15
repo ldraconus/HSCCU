@@ -87,7 +87,9 @@ private:
 
     void numeric(int) override {
         QString txt = levels->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         levels->undo();
     }
@@ -305,7 +307,9 @@ private:
 
     void numeric(int) override {
         QString txt = levels->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         levels->undo();
     }
@@ -378,7 +382,9 @@ private:
 
     void numeric(int) override {
         QString txt = limbs->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         limbs->undo();
     }
@@ -578,7 +584,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -784,7 +792,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }
@@ -879,7 +889,9 @@ private:
 
     void numeric(int) override {
         QString txt = levels->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         levels->undo();
     }
@@ -1030,7 +1042,9 @@ private:
     void numeric(int) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
     }

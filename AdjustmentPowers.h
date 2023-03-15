@@ -107,7 +107,9 @@ private:
 
     void index(int) override {
         store();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
     }
 
     void numeric(int) override {
@@ -210,12 +212,16 @@ private:
 
     void index(int) override {
         store();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
     }
 
     void numeric(int) override {
         QString txt = dice->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         dice->undo();
     }
@@ -293,7 +299,9 @@ private:
 
     void numeric(int) override {
         QString txt = dice->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         dice->undo();
     }
@@ -380,7 +388,9 @@ private:
 
     void numeric(int) override {
         QString txt = dice->text();
+#ifndef ISHSC
         PowerDialog::ref().updateForm();
+#endif
         if (txt.isEmpty() || isNumber(txt)) return;
         dice->undo();
     }

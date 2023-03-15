@@ -2,7 +2,9 @@
 #define BACKGROUNDSKILLS_H
 
 #include "character.h"
+#ifndef ISHSC
 #include "sheet.h"
+#endif
 #include "skilltalentorperk.h"
 
 class BackgroundSkill: public SkillTalentOrPerk {
@@ -79,8 +81,12 @@ public:
                                                          v._type    = json["type"].toInt(0);
                                                        }
 
-    QString description(bool showRoll = false) override         { return (showRoll ? (v._introll ? add(Sheet::ref().character().DEX().roll(), v._plus)
-                                                                                                 : QString("%1-").arg(11 + v._plus)) + " "
+    QString description(bool showRoll = false) override         { return (showRoll ? (
+#ifndef ISHSC
+                                                                                v._introll ? add(Sheet::ref().character().INT().roll(), v._plus)
+                                                                                                 :
+#endif
+                                                                                    QString("%1-").arg(11 + v._plus)) + " "
                                                                                    : "") + optOut(); }
     void    form(QWidget* parent, QVBoxLayout* layout) override { introll = createCheckBox(parent, layout, "Base off INT");
                                                                   plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -89,8 +95,10 @@ public:
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._plus * 2_cp + (v._introll ? 3_cp : 2_cp);
+#ifndef ISHSC
                                                                   if (Sheet::ref().character().hasScholar()  && (v._type == 1 || v._type == 4)) pts -= 1_cp;
                                                                   if (Sheet::ref().character().hasTraveler() && v._type != 1  && v._type != 4)  pts -= 1_cp;
+#endif
                                                                   if (pts < 1_cp) pts = 1_cp;
                                                                   return pts;
                                                                 }
@@ -101,7 +109,11 @@ public:
                                                                   introll->setChecked(s._introll);
                                                                   v = s;
                                                                 }
+#ifndef ISHSC
     QString roll() override                                     { return v._introll ? add(Sheet::ref().character().INT().roll(), v._plus) : QString("%1-").arg(11 + v._plus); }
+#else
+    QString roll() override                                     { return QString("%1-").arg(11 + v._plus); }
+#endif
     void    store() override                                    { v._plus    = plus->text().toInt(0);
                                                                   v._for     = forwhat->text();
                                                                   v._type    = type->currentIndex();
@@ -173,7 +185,9 @@ public:
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._level + 1_cp + (v._literate ? 1_cp : 0_cp);
+#ifndef ISHSC
                                                                   if (Sheet::ref().character().hasLinguist()) pts -= 1_cp;
+#endif
                                                                   if (pts < 1_cp) pts = 1_cp;
                                                                   return pts;
                                                                 }
@@ -229,7 +243,9 @@ public:
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._plus * 1_cp + (2_cp + ((v._stat >= 1) ? 1_cp : 0_cp));
+#ifndef ISHSC
                                                                   if (Sheet::ref().character().hasJackOfAllTrades()) pts -= 1_cp;
+#endif
                                                                   if (pts < 1_cp) pts = 1_cp;
                                                                   return pts;
                                                                 }
@@ -239,8 +255,12 @@ public:
                                                                   stat->setCurrentIndex(s._stat);
                                                                   v = s;
                                                                 }
+#ifndef ISHSC
     QString roll() override                                     { return (v._stat >= 1) ? add(Sheet::ref().character().characteristic(v._stat - 1).roll(), v._plus)
                                                                                         : QString("%1-").arg(11 + v._plus); }
+#else
+    QString roll() override                                     { return QString("%1-").arg(11 + v._plus); }
+#endif
     void    store() override                                    { v._what = what->text();
                                                                   v._plus = plus->text().toInt(0);
                                                                   v._stat = stat->currentIndex();
@@ -299,7 +319,9 @@ public:
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._plus * 1_cp + (2_cp + (v._int ? 1_cp : 0_cp));
+#ifndef ISHSC
                                                                   if (Sheet::ref().character().hasScientist()) pts -= 1_cp;
+#endif
                                                                   if (pts < 1_cp) pts = 1_cp;
                                                                   return pts;
                                                                 }
@@ -309,8 +331,12 @@ public:
                                                                   intstat->setChecked(s._int);
                                                                   v = s;
                                                                 }
+#ifndef ISHSC
     QString roll() override                                     { return v._int ? add(Sheet::ref().character().INT().roll(), v._plus)
                                                                                 : QString("%1-").arg(11 + v._plus); }
+#else
+    QString roll() override                                     { return QString("%1-").arg(11 + v._plus); }
+#endif
     void    store() override                                    { v._what = what->text();
                                                                   v._plus = plus->text().toInt(0);
                                                                   v._int  = intstat->isChecked();
