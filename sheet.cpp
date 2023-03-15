@@ -363,9 +363,12 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->notes,                 SIGNAL(textChanged()),       this, SLOT(noteChanged()));
 
     connect(Ui->image,      SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(imageMenu(QPoint)));
-//    connect(Ui->image,      SIGNAL(clicked()),                          this, SLOT(imageMenu()));
+#ifndef __wasm__
     connect(Ui->newImage,   SIGNAL(triggered()),                        this, SLOT(newImage()));
     connect(Ui->clearImage, SIGNAL(triggered()),                        this, SLOT(clearImage()));
+#else
+    connect(Ui->image,      SIGNAL(showMenu()),                         this, SLOT(outsideImageArea()));
+#endif
 
     connect(Ui->complications,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(complicationDoubleClicked(QTableWidgetItem*)));
 #ifdef __wasm__
@@ -473,15 +476,20 @@ bool Sheet::eventFilter(QObject* object, QEvent* event) {
 
 static void closeDialog(shared_ptr<QDialog> dlg, QMouseEvent* me) {
     QRect dialogRect = dlg->geometry();
-    if (dlg->isVisible() && !dialogRect.contains(me->pos())) dlg->done(QDialog::Rejected);
+    if (dlg->isVisible() && (me == nullptr || !dialogRect.contains(me->pos()))) dlg->done(QDialog::Rejected);
 }
 
-void Sheet::mousePressEvent(QMouseEvent* me) {
+void Sheet::closeDialogs(QMouseEvent* me) {
 #ifdef __wasm__
     if (_fileMenuDialog != nullptr) closeDialog(_fileMenuDialog, me);
     if (_editMenuDialog != nullptr) closeDialog(_editMenuDialog, me);
+    if (_imgMenuDialog  != nullptr) closeDialog(_imgMenuDialog,  me);
 #endif
     if (_optionDlg != nullptr) closeDialog(_optionDlg, me);
+}
+
+void Sheet::mousePressEvent(QMouseEvent* me) {
+    closeDialogs(me);
 }
 
 void Sheet::closeEvent(QCloseEvent* event) {
@@ -2162,20 +2170,14 @@ void Sheet::eyeColorChanged(QString txt) {
 
 #ifdef __wasm__
 void Sheet::editMenu() {
-    if (_fileMenuDialog != nullptr) {
-        _fileMenuDialog->done(QDialog::Rejected);
-        _fileMenuDialog = nullptr;
-    }
+    closeDialogs(nullptr);
     _editMenuDialog = make_shared<EditMenuDialog>();
     _editMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     _editMenuDialog->open();
 }
 
 void Sheet::fileMenu() {
-    if (_editMenuDialog != nullptr) {
-        _editMenuDialog->done(QDialog::Rejected);
-        _editMenuDialog = nullptr;
-    }
+    closeDialogs(nullptr);
     _fileMenuDialog = make_shared<FileMenuDialog>();
     _fileMenuDialog->setSave(_changed);
     _fileMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -2218,18 +2220,18 @@ void Sheet::hairColorChanged(QString txt) {
     _changed = true;
 }
 
-#ifdef __wasm__
-void Sheet::imageMenu() {
-    ui->toolBar->clear();
-    ui->toolBar->addAction(Ui->newImage);
-    ui->toolBar->addAction(Ui->clearImage);
-}
-#else
 void Sheet::imageMenu(QPoint pos) {
-    Ui->imageMenu->exec(mapToGlobal(pos + Ui->image->pos() -
-                                    QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
-}
+#ifdef __wasm__
+    DBG("In imageMenu");
+    closeDialogs(nullptr);
+    _imgMenuDialog = make_shared<ImgMenuDialog>();
+    _imgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    _imgMenuDialog->setPos(mapToGlobal(pos + Ui->image->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    _imgMenuDialog->open();
+#else
+    Ui->imageMenu->exec(mapToGlobal(pos + Ui->image->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
 #endif
+}
 
 void Sheet::moveComplicationDown() {
     auto selection = Ui->complications->selectedItems();
@@ -2408,6 +2410,12 @@ void Sheet::open() {
                     "The current sheet has been changed!");
     } else doOpen();
 }
+
+#ifdef __wasm__
+void Sheet::outsideImageArea() {
+    closeDialogs(nullptr);
+}
+#endif
 
 void Sheet::options() {
     _optionDlg = make_shared<optionDialog>();

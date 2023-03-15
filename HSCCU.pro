@@ -18,6 +18,7 @@ SOURCES += \
     editmenudialog.cpp \
     filemenudialog.cpp \
     fraction.cpp \
+    imgmenudialog.cpp \
     main.cpp \
     modifier.cpp \
     modifiersdialog.cpp \
@@ -74,6 +75,7 @@ HEADERS += \
     editmenudialog.h \
     filemenudialog.h \
     fraction.h \
+    imgmenudialog.h \
     modifier.h \
     modifiersdialog.h \
     option.h \
@@ -92,6 +94,7 @@ FORMS += \
     complicationsdialog.ui \
     editmenudialog.ui \
     filemenudialog.ui \
+    imgmenudialog.ui \
     modifiersdialog.ui \
     optiondialog.ui \
     powerdialog.ui \

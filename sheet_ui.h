@@ -33,9 +33,10 @@ signals:
 protected:
 #ifdef __wasm__
     void mousePressEvent(QMouseEvent* me) {
-        if (me->buttons() == Qt::RightButton) {
-            ;
-        }
+        if (me->buttons() == Qt::RightButton)
+            emit customContextMenuRequested(me->pos());
+        else
+            emit clicked();
 #else
     void mousePressEvent(QMouseEvent*) {
         emit clicked();

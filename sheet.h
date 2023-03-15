@@ -13,6 +13,7 @@
 #ifdef __wasm__
 #include "editmenudialog.h"
 #include "filemenudialog.h"
+#include "imgmenudialog.h"
 #endif
 #include "character.h"
 #include "option.h"
@@ -116,6 +117,7 @@ private:
 #ifdef __wasm__
     shared_ptr<FileMenuDialog> _fileMenuDialog = nullptr;
     shared_ptr<EditMenuDialog> _editMenuDialog = nullptr;
+    shared_ptr<ImgMenuDialog>  _imgMenuDialog  = nullptr;
 #endif
 
 private:
@@ -147,6 +149,7 @@ private:
     void               characteristicChanged(QLineEdit*, QString, bool update = true);
     void               characteristicEditingFinished(QLineEdit*);
     bool               checkClose();
+    void               closeDialogs(QMouseEvent*);
 #ifdef __wasm__
     QWidget*           createToolBarItem(QToolBar*, QAction*, const QString, const QString, QAction*);
     QWidget*           createToolBarItem(QToolBar*, const QString, const QString, QAction*);
@@ -283,11 +286,7 @@ public slots:
     void gamemasterChanged(QString);
     void genreChanged(QString);
     void hairColorChanged(QString);
-#ifdef __wasm__
-    void imageMenu();
-#else
     void imageMenu(QPoint);
-#endif
     void moveComplicationDown();
     void moveComplicationUp();
     void movePowerOrEquipmentDown();
@@ -302,6 +301,9 @@ public slots:
     void noteChanged();
     void open();
     void options();
+#ifdef __wasm__
+    void outsideImageArea();
+#endif
     void pasteCharacter();
     void pasteComplication();
     void pastePowerOrEquipment();
