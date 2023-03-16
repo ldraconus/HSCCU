@@ -10,10 +10,14 @@
 #include "shared.h"
 
 #include "powerdialog.h"
+#include "complicationsdialog.h"
+#include "skilldialog.h"
 #ifdef __wasm__
+#include "complicationsmenudialog.h"
 #include "editmenudialog.h"
 #include "filemenudialog.h"
 #include "imgmenudialog.h"
+#include "skillmenudialog.h"
 #endif
 #include "character.h"
 #include "option.h"
@@ -115,9 +119,11 @@ private:
     QAction* action_Paste;
     QAction* actionOptions;
 #ifdef __wasm__
-    shared_ptr<FileMenuDialog> _fileMenuDialog = nullptr;
-    shared_ptr<EditMenuDialog> _editMenuDialog = nullptr;
-    shared_ptr<ImgMenuDialog>  _imgMenuDialog  = nullptr;
+    shared_ptr<ComplicationsMenuDialog>  _complicationsMenuDialog = nullptr;
+    shared_ptr<FileMenuDialog>           _fileMenuDialog          = nullptr;
+    shared_ptr<EditMenuDialog>           _editMenuDialog          = nullptr;
+    shared_ptr<ImgMenuDialog>            _imgMenuDialog           = nullptr;
+    shared_ptr<SkillMenuDialog>          _skillMenuDialog         = nullptr;
 #endif
 
 private:
@@ -134,7 +140,9 @@ private:
     Points _charactersticPoints        = 0_cp;
     Points _totalPoints                = 0_cp;
 
-    shared_ptr<PowerDialog>  _powerDlg = nullptr;
+    shared_ptr<ComplicationsDialog> _compDlg  = nullptr;
+    shared_ptr<PowerDialog>         _powerDlg = nullptr;
+    shared_ptr<SkillDialog>         _skillDlg = nullptr;
 
     Character _character;
     QString   _dir;
@@ -252,6 +260,8 @@ public slots:
 #endif
     void aboutToShowPowersAndEquipmentMenu();
     void aboutToShowSkillsPerksAndTalentsMenu();
+    void acceptComplication();
+    void acceptNewSkill();
     void alternateIdsChanged(QString);
     void campaignNameChanged(QString);
     void characterNameChanged(QString);
@@ -274,6 +284,8 @@ public slots:
     void deleteComplication();
     void deletePowerOrEquipment();
     void deleteSkillstalentsandperks();
+    void doneEditComplication();
+    void doneEditSkill();
     void editComplication();
     void editPowerOrEquipment();
     void editSkillstalentsandperks();

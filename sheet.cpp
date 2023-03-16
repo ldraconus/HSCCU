@@ -371,10 +371,10 @@ Sheet::Sheet(QWidget *parent)
 #endif
 
     connect(Ui->complications,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(complicationDoubleClicked(QTableWidgetItem*)));
-#ifdef __wasm__
-    connect(Ui->complications,        SIGNAL(showmenu()),                           this, SLOT(aboutToShowComplicationsMenu()));
-#else
     connect(Ui->complications,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(complicationsMenu(QPoint)));
+#ifdef __wasm__
+//  connect(Ui->complications,        SIGNAL(showmenu()),                           this, SLOT(aboutToShowComplicationsMenu()));
+#else
     connect(Ui->complicationsMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowComplicationsMenu()));
 #endif
     connect(Ui->newComplication,      SIGNAL(triggered()),                          this, SLOT(newComplication()));
@@ -388,10 +388,10 @@ Sheet::Sheet(QWidget *parent)
 
 
     connect(Ui->skillstalentsandperks,     SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(skillstalentsandperksDoubleClicked(QTableWidgetItem*)));
-#ifdef __wasm__
-    connect(Ui->skillstalentsandperks,     SIGNAL(showmenu()),                           this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
-#else
     connect(Ui->skillstalentsandperks,     SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(skillstalentsandperksMenu(QPoint)));
+#ifdef __wasm__
+//  connect(Ui->skillstalentsandperks,     SIGNAL(showmenu()),                           this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
+#else
     connect(Ui->skillstalentsandperksMenu, SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
 #endif
     connect(Ui->newSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(newSkillTalentOrPerk()));
@@ -405,7 +405,7 @@ Sheet::Sheet(QWidget *parent)
 
     connect(Ui->powersandequipment,       SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
 #ifdef __wasm__
-    connect(Ui->powersandequipment,       SIGNAL(showmenu()),                           this, SLOT(aboutToShowPowersAndEquipmentMenu()));
+//  connect(Ui->powersandequipment,       SIGNAL(showmenu()),                           this, SLOT(aboutToShowPowersAndEquipmentMenu()));
 #else
     connect(Ui->powersandequipment,       SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
     connect(Ui->powersandequipmentMenu,   SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
@@ -481,11 +481,16 @@ static void closeDialog(shared_ptr<QDialog> dlg, QMouseEvent* me) {
 
 void Sheet::closeDialogs(QMouseEvent* me) {
 #ifdef __wasm__
-    if (_fileMenuDialog != nullptr) closeDialog(_fileMenuDialog, me);
-    if (_editMenuDialog != nullptr) closeDialog(_editMenuDialog, me);
-    if (_imgMenuDialog  != nullptr) closeDialog(_imgMenuDialog,  me);
+    if (_complicationsMenuDialog != nullptr) closeDialog(_complicationsMenuDialog, me);
+    if (_editMenuDialog          != nullptr) closeDialog(_editMenuDialog,          me);
+    if (_fileMenuDialog          != nullptr) closeDialog(_fileMenuDialog,          me);
+    if (_imgMenuDialog           != nullptr) closeDialog(_imgMenuDialog,           me);
+    if (_skillMenuDialog         != nullptr) closeDialog(_skillMenuDialog,         me);
 #endif
     if (_optionDlg != nullptr) closeDialog(_optionDlg, me);
+    if (_compDlg   != nullptr) closeDialog(_compDlg,   me);
+    if (_powerDlg  != nullptr) closeDialog(_powerDlg,  me);
+    if (_skillDlg  != nullptr) closeDialog(_compDlg,   me);
 }
 
 void Sheet::mousePressEvent(QMouseEvent* me) {
@@ -1834,31 +1839,31 @@ void Sheet::aboutToHideFileMenu() {
 #endif
 
 void Sheet::aboutToShowComplicationsMenu() {
-#ifdef __wasm__
-    ui->toolBar->clear();
-    ui->toolBar->addAction(Ui->newComplication);
-    ui->toolBar->addAction(Ui->editComplication);
-    ui->toolBar->addAction(Ui->deleteComplication);
-    ui->toolBar->addAction(Ui->cutComplication);
-    ui->toolBar->addAction(Ui->copyComplication);
-    ui->toolBar->addAction(Ui->pasteComplication);
-    ui->toolBar->addAction(Ui->moveComplicationUp);
-    ui->toolBar->addAction(Ui->moveComplicationDown);
-#else
     const auto selection = Ui->complications->selectedItems();
     bool show = !selection.isEmpty();
     int row = -1;
     if (show) row = selection[0]->row();
+#ifndef __wasm__
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    const QMimeData* clip = clipboard->mimeData();
+    bool canPaste = clip->hasFormat("application/complication");
+
     Ui->editComplication->setEnabled(show);
     Ui->deleteComplication->setEnabled(show);
     Ui->cutComplication->setEnabled(show);
     Ui->copyComplication->setEnabled(show);
     Ui->moveComplicationUp->setEnabled(show && row != 0);
     Ui->moveComplicationDown->setEnabled(show && row != _character.complications().count() - 1);
-    QClipboard* clipboard = QGuiApplication::clipboard();
-    const QMimeData* clip = clipboard->mimeData();
-    bool canPaste = clip->hasFormat("application/complication");
     Ui->pasteComplication->setEnabled(canPaste);
+#else
+    bool canPaste = false;
+    _complicationsMenuDialog->setEdit(show);
+    _complicationsMenuDialog->setDelete(show);
+    _complicationsMenuDialog->setCut(show);
+    _complicationsMenuDialog->setCopy(show);
+    _complicationsMenuDialog->setPaste(canPaste);
+    _complicationsMenuDialog->setMoveUp(show && row != 0);
+    _complicationsMenuDialog->setMoveDown(show && row != _character.complications().count() - 1);
 #endif
 }
 
@@ -1906,31 +1911,31 @@ void Sheet::aboutToShowPowersAndEquipmentMenu() {
 }
 
 void Sheet::aboutToShowSkillsPerksAndTalentsMenu() {
-#ifdef __wasm__
-    ui->toolBar->clear();
-    ui->toolBar->addAction(Ui->newSkillTalentOrPerk);
-    ui->toolBar->addAction(Ui->editSkillTalentOrPerk);
-    ui->toolBar->addAction(Ui->deleteSkillTalentOrPerk);
-    ui->toolBar->addAction(Ui->cutSkillTalentOrPerk);
-    ui->toolBar->addAction(Ui->copySkillTalentOrPerk);
-    ui->toolBar->addAction(Ui->pasteSkillTalentOrPerk);
-    ui->toolBar->addAction(Ui->moveSkillTalentOrPerkUp);
-    ui->toolBar->addAction(Ui->moveSkillTalentOrPerkDown);
-#else
     const auto selection = Ui->skillstalentsandperks->selectedItems();
     bool show = !selection.isEmpty();
     int row = -1;
     if (show) row = selection[0]->row();
+#ifdef __wasm__
+    bool canPaste = false;
+    _skillMenuDialog->setEdit(show);
+    _skillMenuDialog->setDelete(show);
+    _skillMenuDialog->setCut(show);
+    _skillMenuDialog->setCopy(show);
+    _skillMenuDialog->setPaste(canPaste);
+    _skillMenuDialog->setMoveUp(show && row != 0);
+    _skillMenuDialog->setMoveDown(show && row != _character.skillsTalentsOrPerks().count() - 1);
+#else
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    const QMimeData* clip = clipboard->mimeData();
+    bool canPaste = clip->hasFormat("application/skillperkortalent");
+
     Ui->editSkillTalentOrPerk->setEnabled(show);
     Ui->deleteSkillTalentOrPerk->setEnabled(show);
     Ui->cutSkillTalentOrPerk->setEnabled(show);
     Ui->copySkillTalentOrPerk->setEnabled(show);
+    Ui->pasteSkillTalentOrPerk->setEnabled(canPaste);
     Ui->moveSkillTalentOrPerkUp->setEnabled(show && row != 0);
     Ui->moveSkillTalentOrPerkDown->setEnabled(show && row != _character.skillsTalentsOrPerks().count() - 1);
-    QClipboard* clipboard = QGuiApplication::clipboard();
-    const QMimeData* clip = clipboard->mimeData();
-    bool canPaste = clip->hasFormat("application/skillperkortalent");
-    Ui->pasteSkillTalentOrPerk->setEnabled(canPaste);
 #endif
 }
 
@@ -2016,9 +2021,16 @@ void Sheet::copySkillTalentOrPerk() {
 }
 
 void Sheet::complicationsMenu(QPoint pos) {
-    Ui->complicationsMenu->exec(mapToGlobal(pos
-                                            + Ui->complications->pos()
-                                            - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+#ifdef __wasm__
+    closeDialogs(nullptr);
+    _complicationsMenuDialog = make_shared<ComplicationsMenuDialog>();
+    _complicationsMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    _complicationsMenuDialog->setPos(mapToGlobal(pos + Ui->complications->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    aboutToShowComplicationsMenu();
+    _complicationsMenuDialog->open();
+#else
+    Ui->complicationsMenu->exec(mapToGlobal(pos + Ui->complications->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+#endif
 }
 
 void Sheet::currentBODYChanged(QString txt) {
@@ -2069,6 +2081,10 @@ void Sheet::cutSkillTalentOrPerk() {
 }
 
 void Sheet::deleteComplication() {
+#ifdef __wasm__
+    closeDialogs(nullptr);
+#endif
+
     auto selection = Ui->complications->selectedItems();
     if (selection.count() == 0) return;
     int row = selection[0]->row();
@@ -2112,6 +2128,22 @@ void Sheet::deleteSkillstalentsandperks() {
     _changed = true;
 }
 
+void Sheet::doneEditComplication() {
+    shared_ptr<Complication> complication = _compDlg->complication();
+    if (complication->description().isEmpty()) return;
+
+    updateDisplay();
+    _changed = true;
+}
+
+void Sheet::doneEditSkill() {
+    shared_ptr<SkillTalentOrPerk> skilltalentorperk = _skillDlg->skilltalentorperk();
+    if (skilltalentorperk->description().isEmpty()) return;
+
+    updateDisplay();
+    _changed = true;
+}
+
 void Sheet::editComplication() {
     auto selection = Ui->complications->selectedItems();
     if (selection.count() == 0) return;
@@ -2119,14 +2151,14 @@ void Sheet::editComplication() {
     shared_ptr<Complication> complication = _character.complications()[row];
     if (complication == nullptr) return;
 
-    ComplicationsDialog dlg(this);
-    dlg.complication(complication);
+    _compDlg = make_shared<ComplicationsDialog>(this);
+    _compDlg->complication(complication);
+    connect(_compDlg.get(), SIGNAL(accepted()), this, SLOT(doneEditComplication()));
 
-    if (dlg.exec() == QDialog::Rejected) return;
-    if (complication->description().isEmpty()) return;
-
-    updateDisplay();
-    _changed = true;
+#ifdef __wasm__
+    closeDialogs(nullptr);
+#endif
+    _compDlg->open();
 }
 
 void Sheet::editPowerOrEquipment() {
@@ -2153,14 +2185,14 @@ void Sheet::editSkillstalentsandperks() {
     shared_ptr<SkillTalentOrPerk> skilltalentorperk = _character.skillsTalentsOrPerks()[row];
     if (skilltalentorperk == nullptr) return;
 
-    SkillDialog dlg(this);
-    dlg.skilltalentorperk(skilltalentorperk);
+    _skillDlg = make_shared<SkillDialog>(this);
+    _skillDlg->skilltalentorperk(skilltalentorperk);
+    connect(_skillDlg.get(), SIGNAL(accepted()), this, SLOT(doneEditSkill()));
 
-    if (dlg.exec() == QDialog::Rejected) return;
-    if (skilltalentorperk->description().isEmpty()) return;
-
-    updateDisplay();
-    _changed = true;
+#ifdef __wasm__
+    closeDialogs(nullptr);
+#endif
+    _skillDlg->open();
 }
 
 void Sheet::eyeColorChanged(QString txt) {
@@ -2222,7 +2254,6 @@ void Sheet::hairColorChanged(QString txt) {
 
 void Sheet::imageMenu(QPoint pos) {
 #ifdef __wasm__
-    DBG("In imageMenu");
     closeDialogs(nullptr);
     _imgMenuDialog = make_shared<ImgMenuDialog>();
     _imgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -2318,11 +2349,8 @@ void Sheet::newchar() {
     } else erase();
 }
 
-void Sheet::newComplication() {
-    ComplicationsDialog dlg(this);
-
-    if (dlg.exec() == QDialog::Rejected) return;
-    shared_ptr<Complication> complication = dlg.complication();
+void Sheet::acceptComplication() {
+    shared_ptr<Complication> complication = _compDlg->complication();
     if (complication == nullptr) return;
     if (complication->description().isEmpty()) return;
 
@@ -2330,6 +2358,16 @@ void Sheet::newComplication() {
 
     updateDisplay();
     _changed = true;
+}
+
+void Sheet::newComplication() {
+    _compDlg = make_shared<ComplicationsDialog>(this);
+    connect(_compDlg.get(), SIGNAL(accepted()), this, SLOT(acceptComplication()));
+
+#ifdef __wasm__
+    closeDialogs(nullptr);
+#endif
+    _compDlg->open();
 }
 
 void Sheet::newImage() {
@@ -2362,11 +2400,8 @@ void Sheet::newPowerOrEquipment() {
     _powerDlg->open();
 }
 
-void Sheet::newSkillTalentOrPerk() {
-    SkillDialog dlg(this);
-
-    if (dlg.exec() == QDialog::Rejected) return;
-    shared_ptr<SkillTalentOrPerk> skilltalentorperk = dlg.skilltalentorperk();
+void Sheet::acceptNewSkill() {
+    shared_ptr<SkillTalentOrPerk> skilltalentorperk = _skillDlg->skilltalentorperk();
     if (skilltalentorperk == nullptr) return;
     if (skilltalentorperk->description().isEmpty()) return;
 
@@ -2374,6 +2409,12 @@ void Sheet::newSkillTalentOrPerk() {
 
     updateDisplay();
     _changed = true;
+}
+
+void Sheet::newSkillTalentOrPerk() {
+    _skillDlg = make_shared<SkillDialog>(this);
+    connect(_skillDlg.get(), SIGNAL(accepted()), this, SLOT(acceptNewSkill()));
+    _skillDlg->open();
 }
 
 void Sheet::noteChanged() {
@@ -2669,9 +2710,16 @@ void Sheet::saveAs() {
 }
 
 void Sheet::skillstalentsandperksMenu(QPoint pos) {
-    Ui->skillstalentsandperksMenu->exec(mapToGlobal(pos
-                                                    + Ui->skillstalentsandperks->pos()
-                                                    - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+#ifdef __wasm__
+    closeDialogs(nullptr);
+    _skillMenuDialog = make_shared<SkillMenuDialog>();
+    _skillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    _skillMenuDialog->setPos(mapToGlobal(pos + Ui->skillstalentsandperks->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    aboutToShowSkillsPerksAndTalentsMenu();
+    _skillMenuDialog->open();
+#else
+    Ui->skillstalentsandperksMenu->exec(mapToGlobal(pos + Ui->skillstalentsandperks->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+#endif
 }
 
 void Sheet::totalExperienceEarnedChanged(QString txt) {

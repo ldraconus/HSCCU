@@ -15,6 +15,7 @@ SOURCES += \
     characteristic.cpp \
     complication.cpp \
     complicationsdialog.cpp \
+    complicationsmenudialog.cpp \
     editmenudialog.cpp \
     filemenudialog.cpp \
     fraction.cpp \
@@ -29,6 +30,7 @@ SOURCES += \
     printwindow.cpp \
     sheet.cpp \
     skilldialog.cpp \
+    skillmenudialog.cpp \
     skilltalentorperk.cpp
 
 HEADERS += \
@@ -72,6 +74,7 @@ HEADERS += \
     characteristic.h \
     complication.h \
     complicationsdialog.h \
+    complicationsmenudialog.h \
     editmenudialog.h \
     filemenudialog.h \
     fraction.h \
@@ -87,11 +90,13 @@ HEADERS += \
     sheet.h \
     sheet_ui.h \
     skilldialog.h \
+    skillmenudialog.h \
     skilltalentorperk.h \
     wasm.h
 
 FORMS += \
     complicationsdialog.ui \
+    complicationsmenudialog.ui \
     editmenudialog.ui \
     filemenudialog.ui \
     imgmenudialog.ui \
@@ -101,6 +106,7 @@ FORMS += \
     printwindow.ui \
     sheet.ui \
     skilldialog.ui \
+    skillmenudialog.ui \
     wasm.ui
 
 wasm {

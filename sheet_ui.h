@@ -56,8 +56,18 @@ signals:
     void showmenu();
 
 protected:
-    void mousePressEvent(QMouseEvent* me) { emit showmenu(); QTableWidget::mousePressEvent(me); }
-
+#ifdef __wasm__
+    void mousePressEvent(QMouseEvent* me) {
+        if (me->buttons() == Qt::RightButton)
+            emit customContextMenuRequested(me->pos());
+        else
+            emit showmenu();
+#else
+    void mousePressEvent(QMouseEvent* me) {
+        emit showmenu();
+        QTableWidget::mousePressEvent(me);
+#endif
+    }
 };
 
 class Sheet_UI
@@ -751,7 +761,7 @@ public:
 
         attacksandmaneuvers = createTableWidget(widget, smallfont,
 #ifdef __wasm__
-                                                {   "Man.",         "Phase", "OCV",   "DCV", "Effects                          " },
+                                                {   "Manuvr",       "Phase", "OCV",   "DCV", "Effects" },
 #else
                                                 {   "Maneuver",     "Phase", "OCV",   "DCV", "Effects" },
 #endif
