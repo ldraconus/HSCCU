@@ -327,6 +327,14 @@ void Power::callback(QComboBox* combo) {
     function(this, combo->currentIndex());
 }
 
+void Power::callback(QComboBox* combo, bool) {
+    _sender = combo;
+    auto f = _callbacksActivatedCBox.find(combo);
+    if (f == _callbacksActivatedCBox.end()) return;
+    auto function = f->second;
+    function(this, combo->currentIndex(), 0);
+}
+
 void Power::callback(QPushButton* btn) {
     _sender = btn;
     auto f = _callbacksBtn.find(btn);
@@ -366,6 +374,13 @@ QComboBox* Power::createComboBox(QWidget* parent, QVBoxLayout* layout, QString p
     return comboBox;
 }
 
+QComboBox* Power::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, activatedCallback callback,
+                                 int before) {
+    QComboBox* comboBox = createComboBox(parent, layout, prompt, options, before);
+    if (comboBox) _callbacksActivatedCBox.emplace(comboBox, callback);
+    return comboBox;
+}
+
 QComboBox* Power::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, int before) {
     QComboBox* comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
@@ -375,6 +390,7 @@ QComboBox* Power::createComboBox(QWidget* parent, QVBoxLayout* layout, QString p
     if (before == -1) layout->addWidget(comboBox);
     else layout->insertWidget(before, comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
+    parent->connect(comboBox, SIGNAL(activated(int)),           parent, SLOT(activated(int)));
     return comboBox;
 }
 

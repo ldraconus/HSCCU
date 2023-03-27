@@ -122,6 +122,7 @@ public slots:
 
     void aboutToShowAdvantagesMenu();
     void aboutToShowLimitationsMenu();
+    void activated(int);
     void advantagesMenu(QPoint);
     void buttonPressed(bool);
     void cancel();

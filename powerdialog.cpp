@@ -739,6 +739,12 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
     return *this;
 }
 
+void PowerDialog::activated(int) {
+    QComboBox* comboBox = static_cast<QComboBox*>(sender());
+    _power->callback(comboBox, true);
+    updateForm();
+}
+
 void PowerDialog::buttonPressed(bool) {
     QPushButton* button = static_cast<QPushButton*>(sender());
     _power->callback(button);

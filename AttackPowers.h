@@ -160,7 +160,7 @@ public:
                                                                                                                           "Increate Wind Level",
                                                                                                                           "Decrease Wind Level"
                                                                                                                         },
-                                                                                             std::mem_fn(&Power::index));
+                                                                                             std::mem_fn(&Power::activate));
                                                                    lasting = createComboBox(parent, layout, "Lasting?", { "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                                                                                                                           "1 Hour", "6 Hours", "1 Day", "1 Week",
                                                                                                                           "1 Month", "1 Season", "1 Year", "5 Years" });
@@ -293,6 +293,10 @@ private:
             }
         }
         return pts;
+    }
+
+    void activate(int pick, int) override {
+        indexed(pick, true);
     }
 
     void indexed(int pick, bool update = DoUpdate) {

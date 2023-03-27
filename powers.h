@@ -25,12 +25,14 @@ protected:
     typedef std::_Mem_fn<void (Power::*)(int)>            lineEditCallback;
     typedef std::_Mem_fn<void (Power::*)(bool)>           checkBoxCallback;
     typedef std::_Mem_fn<void (Power::*)(int)>            comboBoxCallback;
+    typedef std::_Mem_fn<void (Power::*)(int,int)>        activatedCallback;
     typedef std::_Mem_fn<void (Power::*)(void)>           pushButtonCallback;
     typedef std::_Mem_fn<void (Power::*)(int, int, bool)> treeCallback;
 
     QCheckBox*   createCheckBox(QWidget*, QVBoxLayout*, QString, checkBoxCallback, int before = -1);
     QCheckBox*   createCheckBox(QWidget*, QVBoxLayout*, QString, int before = -1);
     QComboBox*   createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, comboBoxCallback, int before = -1);
+    QComboBox*   createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, activatedCallback, int before = -1);
     QComboBox*   createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, int before = -1);
     QLabel*      createLabel(QWidget*, QVBoxLayout*, QString, int before = -1);
     QLineEdit*   createLineEdit(QWidget*, QVBoxLayout*, QString, lineEditCallback callback, int before = -1);
@@ -51,6 +53,7 @@ protected:
 
     std::map<QCheckBox*,   checkBoxCallback>   _callbacksCB;
     std::map<QComboBox*,   comboBoxCallback>   _callbacksCBox;
+    std::map<QComboBox*,   activatedCallback>  _callbacksActivatedCBox;
     std::map<QLineEdit*,   lineEditCallback>   _callbacksEdit;
     std::map<QTreeWidget*, treeCallback>       _callbacksTree;
     std::map<QPushButton*, pushButtonCallback> _callbacksBtn;
@@ -171,6 +174,7 @@ public:
                                                    obj["modifiers"] = mods;
                                                    return obj;
                                                  }
+    virtual void        activate(int, int)       { }
     virtual Fraction    adv()                    { return Fraction(0); }
     virtual void        checked(bool)            { }
     virtual void        clicked(void)            { }
@@ -248,6 +252,7 @@ public:
 
     void callback(QCheckBox*);
     void callback(QComboBox*);
+    void callback(QComboBox*, bool);
     void callback(QLineEdit*);
     void callback(QTreeWidget* tree);
     void callback(QPushButton* btn);
@@ -437,6 +442,5 @@ private:
     QLineEdit* powerName;
     QCheckBox* varies;
 };
-
 
 #endif // POWERS_H
