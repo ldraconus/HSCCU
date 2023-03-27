@@ -299,7 +299,11 @@ private:
         indexed(pick, true);
     }
 
+#ifdef ISHSC
+    void indexed(int pick, bool) {
+#else
     void indexed(int pick, bool update = DoUpdate) {
+#endif
         int idx = _layout->indexOf(lasting);
         QList<QWidget*> widgets { };
         switch (pick) {

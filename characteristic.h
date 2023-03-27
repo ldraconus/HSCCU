@@ -13,8 +13,8 @@ public:
         : _base(0), _cost(0_cp), _init(0), _per(0), _primary(0), _secondary(0) { }
     Characteristic(int base, Points cost, int per = 1, int init = 0, int primary = 0, int secondary = 0)
         : _base(base), _cost(cost), _init(init == 0 ? base : init), _per(per), _primary(primary), _secondary(secondary) { }
-    Characteristic(const Characteristic& c): Characteristic(c._base, c._cost, c._init, c._primary, c._secondary) { }
-    Characteristic(Characteristic&& c): Characteristic(c._base, c._cost, c._init, c._primary, c._secondary) { }
+    Characteristic(const Characteristic& c): Characteristic(c._base, c._cost, c._per, c._init, c._primary, c._secondary) { }
+    Characteristic(Characteristic&& c): Characteristic(c._base, c._cost, c._per, c._init, c._primary, c._secondary) { }
     Characteristic(const QJsonObject& c);
 
     Characteristic& operator=(const Characteristic& c);

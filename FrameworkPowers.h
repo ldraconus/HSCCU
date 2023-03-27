@@ -181,7 +181,7 @@ public:
         for (const auto& pe: v._powers) {
             QString descr = pe->description();
             if (descr == "-") descr = "";
-                if (descr.isEmpty()) {
+            if (!descr.isEmpty()) {
                 pe->parent(this);
                 for (const auto& mod: pe->advantagesList()) {
                     if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
