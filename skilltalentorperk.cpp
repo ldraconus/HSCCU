@@ -357,9 +357,9 @@ void SkillTalentOrPerk::ClearForm(QVBoxLayout* layout) {
     }
 }
 
-void SkillTalentOrPerk::createForm(QWidget* parent, QVBoxLayout* layout) {
+bool SkillTalentOrPerk::createForm(QWidget* parent, QVBoxLayout* layout) {
     ClearForm(layout);
-    form(parent, layout);
+    return form(parent, layout);
 }
 
 QList<QString> SkillTalentOrPerk::Available() {

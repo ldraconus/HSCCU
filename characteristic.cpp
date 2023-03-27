@@ -3,28 +3,18 @@
 Characteristic::Characteristic(const QJsonObject& c)
     : _cost(this->cost())
 {
-    if (c.find("base")      == c.end() ||
-        c.find("primary")   == c.end() ||
-        c.find("secondary") == c.end()) throw("");
+    if (c.find("base") == c.end()) throw("");
 
-    _base      = c["base"].toInt(0);
-    _primary   = c["primary"].toInt(0);
-    _secondary = c["secondary"].toInt(0);
+    _base = c["base"].toInt(0);
 }
 
 Characteristic& Characteristic::operator=(const Characteristic& c) {
-    if (this != &c) {
-        _base      = c._base;
-        _primary   = c._primary;
-        _secondary = c._secondary;
-    }
+    if (this != &c) _base = c._base;
     return *this;
 }
 
 Characteristic& Characteristic::operator=(Characteristic&& c) {
-    _base      = c._base;
-    _primary   = c._primary;
-    _secondary = c._secondary;
+    _base = c._base;
     return *this;
 }
 
@@ -43,9 +33,7 @@ QString Characteristic::roll() {
 
 QJsonObject Characteristic::toJson() {
     QJsonObject obj;
-    obj["base"]      = _base;
-    obj["primary"]   = _primary;
-    obj["secondary"] = _secondary;
+    obj["base"] = _base;
     return obj;
 }
 

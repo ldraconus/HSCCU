@@ -156,5 +156,4 @@ extern bool      operator>(long x,  const Fraction f);
 extern Fraction  operator*(long x,  const Fraction f);
 extern Fraction  operator/(long x,  const Fraction f);
 
-
 #endif // FRACTION_H

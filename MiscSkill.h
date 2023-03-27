@@ -36,9 +36,9 @@ public:
     bool isSkill() override { return true; }
 
     QString description(bool showRoll = false) override { return v._name +  (showRoll ? "" : ""); }
-    void form(QWidget*, QVBoxLayout*) override          { }
+    bool form(QWidget*, QVBoxLayout*) override          { return false; }
     QString name() override                             { return v._name; }
-    Points points(bool noStore = false) override      { if (!noStore) store(); return 0_cp; }
+    Points points(bool noStore = false) override        { if (!noStore) store(); return 0_cp; }
     void restore() override                             { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
@@ -84,12 +84,13 @@ public:
                                                    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   size = createComboBox(parent, layout, "Type of skill?", { "One mode of movement",
                                                                                                                             "Any mode of movement" });
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   QList<Points> size { 0_cp,  2_cp, 3_cp };
                                                                   return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
@@ -151,9 +152,10 @@ public:
                                                           }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v._plus) + ") ": "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { what = createLineEdit(parent, layout, "What power?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createLineEdit(parent, layout, "What power?");
                                                                   plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   stat = createComboBox(parent, layout, "Base on a stat?", { "No", "STR", "DEX", "CON", "INT", "EGO", "PRE"});
+                                                                  return true;
                                                                 }
     Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   return v._plus * 2_cp + 3_cp;
@@ -217,7 +219,7 @@ public:
                                                             }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                   size = createComboBox(parent, layout, "For?", { "One Skill or Characteristic",
                                                                                                                   "Any three pre-defined Skills",
@@ -225,8 +227,9 @@ public:
                                                                                                                   "All Agility Skills",
                                                                                                                   "All Non-Combat Skills",
                                                                                                                   "Overall" });
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   QList<Points> size { 0_cp, 2_cp, 3_cp, 4_cp, 6_cp, 10_cp, 12_cp };
                                                                   return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;

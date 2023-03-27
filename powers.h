@@ -152,6 +152,8 @@ public:
 
     static const bool NoStore = true;
     static const bool ShowEND = true;
+    static const bool NoUpdate = false;
+    static const bool DoUpdate = true;
 
     virtual QString     description(bool roll = false) { return roll ? "" : ""; };
     virtual void        form(QWidget*, QVBoxLayout*)   { }

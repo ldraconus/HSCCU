@@ -831,7 +831,7 @@ public:
         createLabel(widget, smallBoldNarrowFont, "Hair Color",     {  66, 1439 }, { 100, 22 });
         createLabel(widget, smallBoldNarrowFont, "Eye Color",      { 196, 1439 }, { 100, 22 });
 
-        charactername2 = createLabel(widget, font, "", { 184, 1391 }, 20);
+        charactername2 = createLabel(widget, font, "", { 184, 1388 }, 20);
         height    = createLineEdit(widget, font,    "2m", { 124, 1414 }, { 72, 20 }, "Your characters height (certain powers may override)");
         weight    = createLineEdit(widget, font, "100kg", { 249, 1414 }, { 76, 20 }, "Your characters weight (certain powers may override)");
         haircolor = createLineEdit(widget, font,      "", { 139, 1440 }, { 58, 20 }, "Your characters hair color");

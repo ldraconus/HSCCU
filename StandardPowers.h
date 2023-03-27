@@ -3,6 +3,7 @@
 
 #include "powers.h"
 #ifndef ISHSC
+#include "powerdialog.h"
 #include "sheet.h"
 #endif
 
@@ -739,7 +740,7 @@ private:
         if (v._ami > 0) res += "; Creature(s) are " + amicable[v._ami];
         if (v._tasks > 0) res += QString("; x%1 Tasks").arg((int) pow(2, v._tasks));
         QStringList expand { "", "Very Limited Group of Creatures", "Limited Group of Creatures", "Any Creature" };
-        if (v._expand) res += "; " + expand[v._expand];
+        if (v._expand > 0) res += "; " + expand[v._expand + 1];
         if (v._spec) res += "; Specific Beingϴ";
         QStringList weak { "", "Weak Willed", "Very Weak Willed" };
         if (v._weak > 0) res += "; " + weak[v._weak];

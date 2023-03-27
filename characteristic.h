@@ -43,8 +43,8 @@ private:
     Points _cost;
     int    _init;
     int    _per;
-    int    _primary;
-    int    _secondary;
+    int    _primary = 0;
+    int    _secondary = 0;
 };
 
 #endif // CHARACTERISTIC_H

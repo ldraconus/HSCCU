@@ -30,7 +30,7 @@ public:
     bool isSkill() override { return true; }
 
     QString description(bool showRoll = false) override { return showRoll ? v._name : v._name; }
-    void form(QWidget*, QVBoxLayout*) override          { throw "No options, immediately accept"; }
+    bool form(QWidget*, QVBoxLayout*) override          { return false; }
     QString name() override                             { return v._name; }
     Points points(bool noStore = false) override      { if (!noStore) store(); return 10_cp; }
     void restore() override                             { }
@@ -78,12 +78,13 @@ public:
                                                                 }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + CombatSkills::description() + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { accurateSprayfire     = createCheckBox(parent, layout, "Accurate Sprayfire");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { accurateSprayfire     = createCheckBox(parent, layout, "Accurate Sprayfire");
                                                                   concentratedSprayfire = createCheckBox(parent, layout, "Concetrated Sprayfire");
                                                                   rapidAutofire         = createCheckBox(parent, layout, "Rapid Autofire");
                                                                   skipoverSprayfire     = createCheckBox(parent, layout, "Skipover Sprayfire");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   return (v._accurateSprayfire ? 5_cp : 0_cp) +
                                                                          (v._concentratedSprayfire ? 5_cp : 0_cp) +
                                                                          (v._rapidAutofire ? 5_cp : 0_cp) +
@@ -143,7 +144,7 @@ public:
                                                      }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                   size = createComboBox(parent, layout, "Size of affected group", { "Single Attack",
                                                                                                                                     "Small Group",
@@ -151,6 +152,7 @@ public:
                                                                                                                                     "All HTH Combat",
                                                                                                                                     "All Ranged Combat",
                                                                                                                                     "All Combat" });
+                                                                  return true;
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   QList<Points> size{ 0_cp, 2_cp, 3_cp, 5_cp, 8_cp, 8_cp, 10_cp };
@@ -216,12 +218,13 @@ public:
     DefenseManeuver(const QJsonObject& json): CombatSkills(json) { v._which = json["which"].toInt(0); }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { which = createComboBox(parent, layout, "Which defense maneuver?", { "Defense Maneuver I",
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { which = createComboBox(parent, layout, "Which defense maneuver?", { "Defense Maneuver I",
                                                                                                                                       "Defense Maneuver II",
                                                                                                                                       "Defense Maneuver III",
                                                                                                                                       "Defense Maneuver IV" });
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   QList<Points> which{ 0_cp, 3_cp, 5_cp, 8_cp, 10_cp };
                                                                   return which[v._which + 1]; }
     void    restore() override                                  { vars s = v;
@@ -284,7 +287,7 @@ public:
                                                                }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { chokehold        = createCheckBox(parent, layout, "Choke Hold");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { chokehold        = createCheckBox(parent, layout, "Choke Hold");
                                                                   defensivestrike  = createCheckBox(parent, layout, "Defensive Strike");
                                                                   killingstrike    = createCheckBox(parent, layout, "Killing Strike");
                                                                   legsweep         = createCheckBox(parent, layout, "Legsweep");
@@ -302,8 +305,9 @@ public:
                                                                   extradamageclass = createLineEdit(parent, layout, "Extra Damage Classes", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   weaponelements   = createLineEdit(parent, layout, "Weapon Elements", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   weapons          = createLineEdit(parent, layout, "Weapons?");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   return (v._chokehold ? 4_cp : 0_cp) +
                                                                          (v._defensivestrike ? 5_cp : 0_cp) +
                                                                          (v._killingstrike ? 4_cp : 0_cp) +
@@ -471,13 +475,14 @@ public:
                                                        }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                   size = createComboBox(parent, layout, "Size of affected group", { "Specific",
                                                                                                                                     "Small Group",
                                                                                                                                     "All MentalCombat" });
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   QList<Points> size{ 0_cp, 1_cp, 3_cp, 6_cp };
                                                                   return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
@@ -540,15 +545,16 @@ public:
                                                       }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   what = createComboBox(parent, layout, "Penalty versus?", { "Single attack (OCV)",
                                                                                                                              "Tight group of attacks (OCV)",
                                                                                                                              "All attacks (OCV)",
                                                                                                                              "Single condition (DCV)",
                                                                                                                              "Group of conditions (DCV)"});
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   QList<Points> what{ 0_cp, 1_cp, 2_cp, 3_cp, 2_cp, 3_cp };
                                                                   return v._plus * what[v._what + 1]; }
     void    restore() override                                  { vars s = v;
@@ -616,11 +622,12 @@ public:
                                                                    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { what = createComboBox(parent, layout, "Familar with?", { "One class of weapons",
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createComboBox(parent, layout, "Familar with?", { "One class of weapons",
                                                                                                                            "Broad category of weapons"});
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   QList<Points> what{ 0_cp, 1_cp, 2_cp };
                                                                   return what[v._what + 1]; }
     void    restore() override                                  { vars s = v;

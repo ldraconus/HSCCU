@@ -30,7 +30,7 @@ public:
     bool isSkill() override { return true; }
 
     QString  description(bool) override            { return v._name; }
-    void     form(QWidget*, QVBoxLayout*) override { throw "just accept"; }
+    bool     form(QWidget*, QVBoxLayout*) override { return false; }
     QString  name() override                       { return v._name; }
     Points   points(bool noStore = false) override { if (!noStore) store(); return 3_cp; }
     void     restore() override                    { }

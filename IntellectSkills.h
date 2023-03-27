@@ -35,8 +35,9 @@ public:
 
     QString description(bool showRoll = false) override      { return v._name + " (" + (v._topic.isEmpty() ? "" : v._topic + "; ") +
                                                                                        (showRoll ? roll() : "+" + QString("%1").arg(v._plus)) + ")"; }
-    void form(QWidget* parent, QVBoxLayout* layout) override { topic = createLineEdit(parent, layout, "Specific Topic?");
-                                                               plus  = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric)); }
+    bool form(QWidget* parent, QVBoxLayout* layout) override { topic = createLineEdit(parent, layout, "Specific Topic?");
+                                                               plus  = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                               return true; }
     QString name() override                                  { return v._name; }
     Points points(bool noStore = false) override             { if (!noStore) store(); return 3_cp + v._plus * 2_cp; }
     void restore() override                                  { vars s = v;

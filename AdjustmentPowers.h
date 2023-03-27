@@ -39,7 +39,7 @@ public:
                                                                    varying   = createCheckBox(parent, layout, "Varying Effect");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return Points(v._body); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();

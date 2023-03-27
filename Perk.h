@@ -33,9 +33,9 @@ public:
     bool isPerk() override { return true; }
 
     QString description(bool showRoll = false) override { return v._name + (showRoll ? "" : ""); }
-    void    form(QWidget*, QVBoxLayout*) override       { }
+    bool    form(QWidget*, QVBoxLayout*) override       { return false; }
     QString name() override                             { return v._name; }
-    Points points(bool noStore = false) override      { if (!noStore) store(); return 0_cp; }
+    Points points(bool noStore = false) override        { if (!noStore) store(); return 0_cp; }
     void    restore() override                          { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
@@ -80,11 +80,12 @@ public:
                                                   }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Applies to what?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                   cost    = createComboBox(parent, layout, "How many Points?", { "1", "2", "3", "4", "5" });
                                                                   hide    = createLineEdit(parent, layout, "Bonus to hiding access", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return (v._cost + 1) * 1_cp + v._hide; }
     void    restore() override                                  { vars s = v;
                                                                   cost->setCurrentIndex(s._cost);
@@ -138,9 +139,10 @@ public:
                                                      }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { extra = createLineEdit(parent, layout, "Extra cost", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { extra = createLineEdit(parent, layout, "Extra cost", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return 3_cp + v._extra; }
     void    restore() override                                  { vars s = v;
                                                                   extra->setText(QString("%1").arg(s._extra));
@@ -182,10 +184,11 @@ public:
                                                         }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Applies to what?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                   value   = createLineEdit(parent, layout, "Bonus for value", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return v._value + 1_cp; }
     void    restore() override                                  { vars s = v;
                                                                   value->setText(QString("%1").arg(s._value));
@@ -241,7 +244,7 @@ public:
                                                   }
 
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { who      = createLineEdit(parent, layout, "Contact is?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { who      = createLineEdit(parent, layout, "Contact is?");
                                                                   base     = createComboBox(parent, layout, "Base Contact Roll", { "8-", "11-" });
                                                                   plus     = createLineEdit(parent, layout, "Bonus to Contact Roll", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   limited  = createCheckBox(parent, layout, "Limited by PC identity");
@@ -257,8 +260,9 @@ public:
                                                                                                                                            "Very Good",
                                                                                                                                            "Slavishly Loyal" });
                                                                   org = createCheckBox(parent, layout, "Contact is an organization");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   auto pts = (v._base + 1_cp + v._plus - (v._limited ? 1_cp : 0_cp) + (v._useful > 0 ? 1_cp * v._useful: 0_cp) + (v._access ? 1_cp : 0_cp) +
                                                                           (v._contacts ? 1_cp : 0_cp) + ((v._relate == 0) ? -2 : v._relate - 1)) * (v._org ? 3_cp : 1_cp);
 #ifndef ISHSC
@@ -360,9 +364,10 @@ public:
                                                      }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { as = createLineEdit(parent, layout, "What is the cover identity?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { as = createLineEdit(parent, layout, "What is the cover identity?");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return 2_cp; }
     void    restore() override                                  { vars s = v; as->setText(v._as); v = s;
                                                                 }
@@ -397,10 +402,11 @@ public:
                                                 }
 
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { who  = createLineEdit(parent, layout, "Who owes the favor?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { who  = createLineEdit(parent, layout, "Who owes the favor?");
                                                                   cost = createLineEdit(parent, layout, "How much does the favor cost?", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   auto pts = (v._cost > 0) ? Points(v._cost) : 1_cp;
 #ifndef ISHSC
                                                                   if (Sheet::ref().character().hasWellConnected()) pts -= 1_cp;
@@ -458,9 +464,10 @@ public:
                                                    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { who  = createLineEdit(parent, layout, "Who is/are the follower(s)?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { who  = createLineEdit(parent, layout, "Who is/are the follower(s)?");
                                                                   pnts = createLineEdit(parent, layout, "How many points in the follower?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   mult = createLineEdit(parent, layout, "How many multiples of followers?", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  return true;
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   return (v._pnts + 3) / 5 + v._mult * 5_cp; }
@@ -516,10 +523,11 @@ public:
                                                         }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "What is it?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "What is it?");
                                                                   cost    = createLineEdit(parent, layout, "Cost of the fringe benefit", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return Points(v._cost); }
     void    restore() override                                  { vars s = v;
                                                                   cost->setText(QString("%1").arg(s._cost));
@@ -567,7 +575,7 @@ public:
                                                 }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { amount = createComboBox(parent, layout, "How much money do you make a year?", { "Well Off ($100,000 or less)",
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { amount = createComboBox(parent, layout, "How much money do you make a year?", { "Well Off ($100,000 or less)",
                                                                                                                                                   "Well Off ($200,000 or less)",
                                                                                                                                                   "Well Off ($300,000 or less)",
                                                                                                                                                   "Well Off ($400,000 or less)",
@@ -579,8 +587,9 @@ public:
                                                                                                                                                   "Wealthy ($5,000,000 or less)",
                                                                                                                                                   "Filthy Rich (Unlimited)"
                                                                                                                                                 });
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return ((v._amount < 0) ? 0_cp : ((v._amount < 10) ? (v._amount + 1) * 1_cp : 15_cp)); }
     void    restore() override                                  { vars s = v; amount->setCurrentIndex(s._amount); v = s;
                                                                 }
@@ -628,13 +637,14 @@ public:
                                                               }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Reputation for what?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Reputation for what?");
                                                                   level   = createComboBox(parent, layout, "How widely known?", { "Small to medium size group",
                                                                                                                                   "Medium sized group",
                                                                                                                                   "Large group" });
                                                                   known   = createComboBox(parent, layout, "How well known?", { "8-", "11-", "14-"});
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return (v._lvl + 1_cp) + v._knwn - 1_cp; }
     void    restore() override                                  { vars s = v;
                                                                   level->setCurrentIndex(s._lvl);
@@ -682,17 +692,18 @@ public:
     VehiclesAndBases(): Perks("Vehicles And Bases")        { }
     VehiclesAndBases(const VehiclesAndBases& s): Perks(s)  { }
     VehiclesAndBases(VehiclesAndBases&& s): Perks(s)       { }
-    VehiclesAndBases(const QJsonObject& json): Perks(json) { v._what = json["who"].toString("");
+    VehiclesAndBases(const QJsonObject& json): Perks(json) { v._what = json["what"].toString("");
                                                              v._pnts = json["pnts"].toInt(1);
                                                              v._mult = json["mult"].toInt(0);
                                                            }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { what  = createLineEdit(parent, layout, "What is the thing?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { what  = createLineEdit(parent, layout, "What is the thing?");
                                                                   pnts = createLineEdit(parent, layout, "How many points in the thing?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   mult = createLineEdit(parent, layout, "How many multiples of things?", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   return (v._pnts + 3) / 5 + v._mult * 5_cp; }
     void    restore() override                                  { vars s = v;
                                                                   what->setText(s._what);
@@ -700,7 +711,7 @@ public:
                                                                   mult->setText(QString("%1").arg(s._mult));
                                                                   v = s;
                                                                 }
-    QString roll() override                                     { return "14-"; }
+    QString roll() override                                     { return ""; }
     void    store() override                                    { v._what = what->text();
                                                                   v._pnts = pnts->text().toInt();
                                                                   v._mult = mult->text().toInt();

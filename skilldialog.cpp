@@ -47,7 +47,7 @@ void SkillDialog::pickOne(int) {
     }
 
     _skilltalentorperk = SkillTalentOrPerk::ByName(ui->availableComboBox->currentText());
-    try { _skilltalentorperk->createForm(this, layout); } catch (...) { accept(); }
+    if (!_skilltalentorperk->createForm(this, layout)) accept();
 
     createLabel(layout, "");
     _points      = createLabel(layout, "-1 Points");

@@ -136,7 +136,7 @@ public:
     static const bool ShowRoll = true;
 
     virtual QString     description(bool roll = false) = 0;
-    virtual void        form(QWidget*, QVBoxLayout*)   = 0;
+    virtual bool        form(QWidget*, QVBoxLayout*)   = 0;
     virtual QString     name()                         = 0;
     virtual Points      points(bool noStore = false)   = 0;
     virtual void        restore()                      = 0;
@@ -157,7 +157,7 @@ public:
 
     void callback(QCheckBox*);
     void callback(QLineEdit*);
-    void createForm(QWidget*, QVBoxLayout*);
+    bool createForm(QWidget*, QVBoxLayout*);
 
     static QList<QString>      Available();
     static void                ClearForm(QVBoxLayout*);

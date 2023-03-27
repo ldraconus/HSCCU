@@ -96,7 +96,7 @@ private:
         QList<QWidget*> widgets;
         QString         val;
 
-        effects(int w, int i, int l, QList<QWidget*> wl, QString v = "")
+        effects(int w, int i, int l, QList<QWidget*> wl = { }, QString v = "")
             : which(w)
             , idx(i)
             , level(l)
@@ -112,20 +112,23 @@ public:
     ChangeEnvironment(const ChangeEnvironment& s): AllPowers(s) { }
     ChangeEnvironment(ChangeEnvironment&& s): AllPowers(s)      { }
     ChangeEnvironment(const QJsonObject& json): AllPowers(json) { QJsonArray arr = json["effects"].toArray();
-                                                                     _create = false;
-                                                                     _data   = true;
-                                                                     for (int i = 0; i < arr.count(); ++i) {
-                                                                         QJsonObject obj = arr[i].toObject();
-                                                                         index(obj["which"].toInt());
-                                                                         v._effects[i].idx   = obj["idx"].toInt(0);
-                                                                         v._effects[i].level = obj["level"].toInt(0);
-                                                                         v._effects[i].val   = obj["val"].toString("");
-                                                                     }
-                                                                     v._lasting = json["lasting"].toInt(0);
-                                                                     v._varying = json["varying"].toBool(false);
-                                                                     v._envs    = json["envs"].toInt(0);
-                                                                     v._what    = json["what"].toString("");
-                                                                   }
+                                                                  _create = false;
+                                                                  _data   = true;
+                                                                  for (int i = 0; i < arr.count(); ++i) {
+                                                                      QJsonObject obj = arr[i].toObject();
+                                                                      effects eff(obj["which"].toInt(0),
+                                                                                  obj["idx"].toInt(0),
+                                                                                  obj["level"].toInt(0),
+                                                                                  { },
+                                                                                  obj["val"].toString(""));
+                                                                      v._effects.push_back(eff);
+                                                                  }
+                                                                  v._lasting = json["lasting"].toInt(0);
+                                                                  v._varying = json["varying"].toBool(false);
+                                                                  v._envs    = json["envs"].toInt(0);
+                                                                  v._what    = json["what"].toString("");
+                                                                }
+
     virtual ChangeEnvironment& operator=(const ChangeEnvironment& s) {
         if (this != &s) {
             AllPowers::operator=(s);
@@ -170,9 +173,9 @@ public:
                                                                    _create = true;
                                                                    _data   = false;
                                                                    _index  = 0;
-                                                                   for (auto& effect: v._effects) { index(effect.which); ++_index; }
                                                                    _layout = layout;
                                                                    _parent = parent;
+                                                                   for (auto& effect: v._effects) { indexed(effect.which, NoUpdate); ++_index; }
                                                                    _data = true;
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
@@ -292,7 +295,7 @@ private:
         return pts;
     }
 
-    void index(int pick) override {
+    void indexed(int pick, bool update = DoUpdate) {
         int idx = _layout->indexOf(lasting);
         QList<QWidget*> widgets { };
         switch (pick) {
@@ -444,18 +447,21 @@ private:
         }
 
 #ifndef ISHSC
-        PowerDialog::ref().updateForm();
+        if (update) PowerDialog::ref().updateForm();
 #endif
     }
 
     QString describe(const effects& effect) {
-        QStringList movement { "Running",
+        if (effect.idx < 0) return "";
+        QStringList movement { "None",
+                               "Running",
                                "Swimming",
                                "Jumping",
                                "Flight",
                                "Teleportation",
                                "Tunneling" };
-        QStringList sense { "Normal Hearing",
+        QStringList sense { "None",
+                            "Normal Hearing",
                             "Active Sonar",
                             "Ultrasonic Perception",
                             "Mental Awareness",
@@ -469,29 +475,31 @@ private:
                             "Normal Smell",
                             "Normal Taste",
                             "Normal Touch" };
-        QStringList senseGroup { "Hearing",
+        QStringList senseGroup { "None",
+                                 "Hearing",
                                  "Mental",
                                  "Radio",
                                  "Sight",
                                  "Smell/Taste",
                                  "Touch" };
-        QStringList stat { "STR",
+        QStringList stat { "None",
+                           "STR",
                            "DEX",
                            "CON",
                            "INT",
                            "EGO",
                            "PRE" };
         switch (effect.which) {
-        case 0:  return QString("-%1m ").arg(effect.level) + movement[effect.idx];
-        case 1:  return QString("-%1 PER Roll w/").arg(effect.level) + sense[effect.idx];
-        case 2:  return QString("-%1 PER Roll w/").arg(effect.level) + senseGroup[effect.idx];
-        case 3:  return QString("-%1 Roll w/").arg(effect.level) + stat[effect.idx];
+        case 0:  return QString("-%1m ").arg(effect.level) + movement[effect.idx + 1];
+        case 1:  return QString("-%1 PER Roll w/").arg(effect.level) + sense[effect.idx + 1];
+        case 2:  return QString("-%1 PER Roll w/").arg(effect.level) + senseGroup[effect.idx + 1];
+        case 3:  return QString("-%1 Roll w/").arg(effect.level) + stat[effect.idx + 1];
         case 4:  return QString("-%1 w/").arg(effect.level) + effect.val;
         case 5:  return QString("+%1 Temperature Level%2").arg(effect.level).arg((effect.level > 1) ? "s" : "");
         case 6:  return QString("-%1 Temperature Level%2").arg(effect.level).arg((effect.level > 1) ? "s" : "");
         case 7:  return QString("+%1 to Range MOD").arg(effect.level);
         case 8:  return QString("-%1 w/").arg(effect.level) + effect.val + "▲";
-        case 9:  return QString("-%1 Roll w/").arg(effect.level) + stat[effect.idx] + " and Skills";
+        case 9:  return QString("-%1 Roll w/").arg(effect.level) + stat[effect.idx + 1] + " and Skills";
         case 10: return QString("%1 Damage").arg(effect.level);
         case 11: return QString("%1 Telekinetic STR").arg(effect.level);
         case 12: return QString("+%1 Wind Level%2").arg(effect.level).arg((effect.level > 1) ? "s" : "");
@@ -964,7 +972,7 @@ public:
                                                                    str   = createCheckBox(parent, layout, "No STR Bonus");
                                                                  }
     Fraction lim() override                                      { return (v._decr + 1) * Fraction(1, 4) + (v._str ? Fraction(1, 2) : Fraction(0)); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._dice * 15 + ((v._extra > -1) ? v._extra * 5_cp : 0_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -1031,7 +1039,6 @@ private:
             if (rem >= 5) extra = 1;
             else extra = 0;
         }
-        dice += v._dice;
         switch (v._extra) {
         case 0: break;
         case 1:
@@ -1057,7 +1064,7 @@ private:
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1%2d6%3 %4").arg(v._dice).arg((v._extra == 2) ? Fraction(1, 2).toString() : "", (v._extra == 1) ? "+1" : "", v._range ? "R" : "H") + "KA vs " +
-               ((v._pded == 0) ? "PD, " : "ED, ") + (v._range ? "" : KAwSTR() + " w/STR");
+               ((v._pded == 0) ? "PD" : "ED") + ((v._range || v._str) ? "" : ", " + KAwSTR() + " w/STR");
         if (v._incr > 0) res += "; " + QString("+%1 Increased STUN Multiplier").arg(v._incr);
         if (v._decr > 0) res += "; "+ QString("-%1 Decreased STUN Multipier").arg(v._decr + 1);
         if (v._str) res += "; No STR Bonus";

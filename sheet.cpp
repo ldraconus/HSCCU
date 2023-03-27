@@ -535,7 +535,7 @@ void Sheet::addPower(shared_ptr<Power> power) {
     for (const auto& mod: power->limitationsList()) power->modifiers().append(mod);
 
     updatePower(power);
-    updateTotals();
+    updateDisplay();
     _changed = true;
 }
 
@@ -561,9 +561,9 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
         auto& def = _widget2Def[val];
         int save = def.characteristic()->base();
         if (!txt.isEmpty()) def.characteristic()->base(txt.toInt());
+        int primary = def.characteristic()->base() + def.characteristic()->primary();
+        int secondary = primary + def.characteristic()->secondary();
         if (val == Ui->spdval) {
-            int primary = def.characteristic()->base() + def.characteristic()->primary();
-            int secondary = primary + def.characteristic()->secondary();
             if (primary > 12 || secondary > 12) {
                 val->undo();
                 def.characteristic()->base(save);
@@ -578,9 +578,6 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
 
         if (val == Ui->strval) {
             setDamage(def, Ui->hthdamage);
-
-            int primary = def.characteristic()->base() + def.characteristic()->primary();
-            int secondary = primary + def.characteristic()->secondary();
             QString end = QString("%1").arg((primary + 4) / 10);
             if (primary != secondary) end += QString("/%1").arg((secondary + 4) / 10);
             Ui->strendcost->setText(end);
@@ -590,8 +587,6 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
             Ui->lift->setText(lift);
         } else if (val == Ui->spdval) {
             if (def.characteristic()->base() < 1) return;
-            int primary = def.characteristic()->base() + def.characteristic()->primary();
-            int secondary = primary + def.characteristic()->secondary();
             QList<int> chart = phases[secondary];
             for (auto& x: Ui->phases) x->setText("");
             for (const auto& x: chart) Ui->phases[x - 1]->setText("X");
@@ -777,7 +772,6 @@ void Sheet::doLoadImage() {
 void Sheet::skipLoadImage() {
     Ui->notes->setPlainText(_character.notes());
     updateDisplay();
-    update();
     _changed = _saveChanged;
 }
 #endif
@@ -795,7 +789,6 @@ void Sheet::fileOpen(const QByteArray& data, QString filename) {
     _character.load(_option, data);
     Ui->notes->setPlainText(_character.notes());
     updateDisplay();
-    update();
     _changed = false;
 }
 #else
@@ -822,7 +815,8 @@ void Sheet::fileOpen() {
                                    "the character sheet?",
                                    std::bind(&Sheet::doLoadImage, this),
                                    std::bind(&Sheet::skipLoadImage, this));
-        }
+            else skipLoadImage();
+        } else skipLoadImage();
     }
 }
 #endif
@@ -1210,11 +1204,6 @@ void Sheet::rebuildCharacteristics() {
         Ui->bodyval, Ui->stunval
     };
 
-    for (int i = 0; i < 17; ++i) {
-        _character.characteristic(i).primary(0);
-        _character.characteristic(i).secondary(0);
-    }
-
     rebuildDefenses();
 
     for (int i = 0; i < 17; ++i) {
@@ -1290,6 +1279,11 @@ void Sheet::rebuildDefenses() {
                 _character.temprED() = _character.temprED() + skill->rED();
             }
         }
+    }
+
+    for (int i = 0; i < 17; ++i) {
+        _character.characteristic(i).primary(0);
+        _character.characteristic(i).secondary(0);
     }
 
     rebuildCharFromPowers(_character.powersOrEquipment());
@@ -2094,7 +2088,7 @@ void Sheet::deleteComplication() {
     _complicationPoints -= complication->points(Complication::NoStore);
     Ui->complications->removeRow(row);
     Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints.points).arg(_option.complications().points));
-    updateTotals();
+    updateDisplay();
     _changed = true;
 }
 
@@ -2124,7 +2118,7 @@ void Sheet::deleteSkillstalentsandperks() {
 
     Ui->skillstalentsandperks->removeRow(row);
     Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints.points));
-    updateTotals();
+    updateDisplay();
     _changed = true;
 }
 
@@ -2422,7 +2416,6 @@ void Sheet::noteChanged() {
 }
 
 void Sheet::doOpen() {
-
 #ifdef __wasm__
     QFileDialog::getOpenFileContent("Characters (*.hsccu)", [&](const QString& fileName, const QByteArray& fileContent) {
         fileOpen(fileContent, fileName);
@@ -2515,7 +2508,7 @@ void Sheet::pasteComplication() {
 
     _complicationPoints += complication->points(Complication::NoStore);
     Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints.points).arg(_option.complications().points));
-    updateTotals();
+    updateDisplay();
     _changed = true;
 }
 
@@ -2553,7 +2546,7 @@ void Sheet::pasteSkillTalentOrPerk() {
 
     _skillsTalentsOrPerksPoints += stp->points(Complication::NoStore);
     Ui->totalskillstalentsandperkscost->setText(QString("%1").arg(_skillsTalentsOrPerksPoints.points));
-    updateTotals();
+    updateDisplay();
     _changed = true;
 }
 

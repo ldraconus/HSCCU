@@ -34,7 +34,7 @@ public:
     bool isSkill() override { return true; }
 
     QString description(bool showRoll = false) override { return showRoll ? v._name : v._name; }
-    void form(QWidget*, QVBoxLayout*) override          { }
+    bool form(QWidget*, QVBoxLayout*) override          { return true; }
     QString name() override                             { return v._name; }
     Points points(bool noStore = false) override      { return noStore ? 0_cp : 0_cp; }
     void restore() override                             { }
@@ -88,10 +88,11 @@ public:
 #endif
                                                                                     QString("%1-").arg(11 + v._plus)) + " "
                                                                                    : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { introll = createCheckBox(parent, layout, "Base off INT");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { introll = createCheckBox(parent, layout, "Base off INT");
                                                                   plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   type = createComboBox(parent, layout, "Type of Knowledge Skill", { "Group", "People", "Areas", "City", "Things" });
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
+                                                                  return true;
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._plus * 2_cp + (v._introll ? 3_cp : 2_cp);
@@ -178,12 +179,13 @@ public:
                                                              }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { which    = createLineEdit(parent, layout, "Which language?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { which    = createLineEdit(parent, layout, "Which language?");
                                                                   level    = createComboBox(parent, layout, "Fluency", { "Basic", "Fluent", "Fluent w/accent",
                                                                                                                          "Idiomatic", "Imitate Dialects" });
                                                                   literate = createCheckBox(parent, layout, "Literate (If not standard)");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._level + 1_cp + (v._literate ? 1_cp : 0_cp);
 #ifndef ISHSC
                                                                   if (Sheet::ref().character().hasLinguist()) pts -= 1_cp;
@@ -237,9 +239,10 @@ public:
                                                        }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v._plus) + ") ": "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { what = createLineEdit(parent, layout, "What profession?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createLineEdit(parent, layout, "What profession?");
                                                                   plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   stat = createComboBox(parent, layout, "Base on a stat?", { "", "STR", "DEX", "CON", "INT", "EGO", "PRE"});
+                                                                  return true;
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._plus * 1_cp + (2_cp + ((v._stat >= 1) ? 1_cp : 0_cp));
@@ -313,11 +316,12 @@ public:
                                                        }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v._plus) + ") ": "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { what    = createLineEdit(parent, layout, "What profession?");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { what    = createLineEdit(parent, layout, "What profession?");
                                                                   plus    = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   intstat = createCheckBox(parent, layout, "Based on INT");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v._plus * 1_cp + (2_cp + (v._int ? 1_cp : 0_cp));
 #ifndef ISHSC
                                                                   if (Sheet::ref().character().hasScientist()) pts -= 1_cp;
@@ -388,11 +392,12 @@ public:
                                                        }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { what = createComboBox(parent, layout, "Familar with?", { "One class of conveyances",
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createComboBox(parent, layout, "Familar with?", { "One class of conveyances",
                                                                                                                            "Broad category of conveyances"});
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   QList<Points> cost { 0_cp, 1_cp, 2_cp };
                                                                   return cost[v._what + 1]; }
     void    restore() override                                  { vars s = v;

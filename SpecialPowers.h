@@ -6,6 +6,7 @@
 #ifndef ISHSC
 #include "skilldialog.h"
 #include "modifiersdialog.h"
+#include "powerdialog.h"
 #include "sheet.h"
 #endif
 
@@ -429,7 +430,7 @@ private:
     QComboBox* time;
 
     QString optOut(bool showEND) {
-        if (v._body < 1 && v._body < 1) return "<incomplete>";
+        if (v._body < 1 && v._time < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         QStringList time { "", "Week", "Day", "6 Hours", "Hour", "20 Minutes", "Minute",

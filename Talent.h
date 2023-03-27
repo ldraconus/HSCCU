@@ -32,9 +32,9 @@ public:
     bool isTalent() override { return true; }
 
     QString description(bool showRoll = false) override { return v._name + (showRoll ? "" : ""); }
-    void    form(QWidget*, QVBoxLayout*) override       { throw "No options, immediately accept"; }
+    bool    form(QWidget*, QVBoxLayout*) override       { return false; }
     QString name() override                             { return v._name; }
-    Points points(bool noStore = false) override      { if (!noStore) store(); return 0_cp; }
+    Points points(bool noStore = false) override        { if (!noStore) store(); return 0_cp; }
     void    restore() override                          { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
@@ -79,9 +79,10 @@ public:
                                                          }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { offhand = createLineEdit(parent, layout, "Offhand penalties offset", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { offhand = createLineEdit(parent, layout, "Offhand penalties offset", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return Points(v._offhand); }
     void    restore() override                                  { vars s = v;
                                                                   QString msg = QString("%1").arg(s._offhand);
@@ -124,8 +125,9 @@ public:
                                                       }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { levels = createLineEdit(parent, layout, "Levels of Combat Luck?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { levels = createLineEdit(parent, layout, "Levels of Combat Luck?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   put    = createComboBox(parent, layout, "Add to?", { "Nothing", "Primary", "Secondary" });
+                                                                  return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return 6_cp * v._levels; }
@@ -179,10 +181,11 @@ public:
                                                        }
 
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus to toll?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus to toll?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   sense = createCheckBox(parent, layout, "Make a sense");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return 15_cp + v._plus + (v._sense ? 2_cp : 0_cp); }
     void    restore() override                                  { vars s = v;
                                                                   QString msg = QString("%1").arg(v._plus);
@@ -247,7 +250,7 @@ public:
                                                        }
 
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus   = createLineEdit(parent, layout, "Plus to toll?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus   = createLineEdit(parent, layout, "Plus to toll?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   sense  = createCheckBox(parent, layout, "Make a sense");
                                                                   intuit = createCheckBox(parent, layout, "Intutiton", std::mem_fn(&SkillTalentOrPerk::checked));
                                                                   anlze  = createCheckBox(parent, layout, "Analyze");
@@ -261,8 +264,9 @@ public:
                                                                                                                      "Anyone in immediate area",
                                                                                                                      "Anyone in general area",
                                                                                                                      "Anyone in any area" });
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return 15_cp +
                                                                          _plus +
                                                                          (_sense ? 2_cp : 0_cp) -
@@ -398,14 +402,15 @@ public:
                                                       }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { mult   = createLineEdit(parent, layout, "Multiples?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { mult   = createLineEdit(parent, layout, "Multiples?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   circ   = createComboBox(parent, layout, "Circumstances?", { "Very limited circumstances or group",
                                                                                                                               "Limited circumstances or group",
                                                                                                                               "Broad circumstances or group" });
                                                                   ranged = createCheckBox(parent, layout, "Ranged");
                                                                   versus = createLineEdit(parent, layout, "Against?");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   QList<Points> circ { 0_cp, 12_cp, 16_cp, 19_cp };
                                                                   return circ[v._circ + 1] * v._mult; }
     void    restore() override                                  { vars s = v;
@@ -470,10 +475,11 @@ public:
                                                          }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { size  = createComboBox(parent, layout, "How many senses?", { "All", "Two", "One" });
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { size  = createComboBox(parent, layout, "How many senses?", { "All", "Two", "One" });
                                                                   sense = createLineEdit(parent, layout, "Sense?");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   QList<Points> size { 0_cp, 5_cp, 3_cp, 2_cp };
                                                                   return size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
@@ -518,10 +524,11 @@ public:
                                                                      }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus   = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus   = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   versus = createLineEdit(parent, layout, "Environment?");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return v._plus * 2_cp; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
@@ -572,7 +579,7 @@ public:
                                                             }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   level = createComboBox(parent, layout, "Level?", { "Act first with All Actions",
                                                                                                                      "Act first with All HTH Attacks",
                                                                                                                      "Act first with All Ranged Attacks",
@@ -580,8 +587,9 @@ public:
                                                                                                                      "Act first with a Small Group of Actions",
                                                                                                                      "Act first with a Single Action" });
                                                                   with  = createLineEdit(parent, layout, "Environment?");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return v._plus * 2_cp; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
@@ -647,9 +655,10 @@ public:
                                                                           QString("+%1").arg(v._plus)
 #endif
                                                                           + " " : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return Points(v._plus); }
     void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
                                                                 }
@@ -697,9 +706,10 @@ public:
                                                                   QString("+%1").arg(v._plus) +
 #endif
                                                                   " " : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                 return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return (v._plus + 1) * 3_cp; }
     void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
                                                                 }
@@ -747,9 +757,10 @@ public:
                                                         }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { mult = createLineEdit(parent, layout, "x10?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { mult = createLineEdit(parent, layout, "x10?", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                 return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return 4_cp + (v._mult - 1) * 2_cp; }
     void    restore() override                                  { vars s = v; mult->setText(QString("%1").arg(s._mult)); v = s;
                                                                 }
@@ -792,10 +803,11 @@ public:
                                                                }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { limit = createCheckBox(parent, layout, "Specific group");
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { limit = createCheckBox(parent, layout, "Specific group");
                                                                   who  = createLineEdit(parent, layout, "Who is affected?");
+                                                                  return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return v._limit ? 2_cp : 3_cp; }
     void    restore() override                                  { vars s = v;
                                                                   limit->setChecked(s._limit);
@@ -844,7 +856,8 @@ public:
                                                                           QString("+%1").arg(v._plus) +
 #endif
                                                                           " " : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return 20_cp + v._plus; }
@@ -896,13 +909,14 @@ public:
                                                         }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
-    void    form(QWidget* parent, QVBoxLayout* layout) override { mult    = createLineEdit(parent, layout, "Multiples?", std::mem_fn(&SkillTalentOrPerk::numeric));
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { mult    = createLineEdit(parent, layout, "Multiples?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   wpns    = createComboBox(parent, layout, "Weapons?", { "Very limited group of weapons",
                                                                                                                          "Limited group of weapons",
                                                                                                                          "Broad group of weapons" });
                                                                   ranged  = createCheckBox(parent, layout, "Ranged");
                                                                   killing = createCheckBox(parent, layout, "Kllling");
                                                                   with    = createLineEdit(parent, layout, "With?");
+                                                                  return true;
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   QList<Points> wpns { 0_cp, 12_cp, 16_cp, 19_cp };

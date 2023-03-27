@@ -34,7 +34,7 @@ public:
     bool isSkill() override { return true; }
 
     QString description(bool showRoll = false) override      { return v._name + " (" + (showRoll ? roll() : "+" + QString("%1").arg(v._plus)) + ")"; }
-    void form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric)); }
+    bool form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric)); return true; }
     QString name() override                                  { return v._name; }
     Points points(bool noStore = false) override           { if (!noStore) store(); return 3_cp + v._plus * 2_cp; }
     void restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s; }
