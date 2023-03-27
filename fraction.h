@@ -117,6 +117,11 @@ public:
         return n._numerator == 0;
     }
     bool     operator==(const long n) { return *this == Fraction(n); }
+    bool     operator!=(const Fraction f) {
+        Fraction n = *this - f;
+        return n._numerator != 0;
+    }
+    bool     operator!=(const long n) { return *this == Fraction(n); }
     bool     operator>=(const Fraction f) {
         Fraction n = *this - f;
         return n._numerator >= 0;
@@ -151,6 +156,7 @@ extern Fraction  operator-(long x,  const Fraction f);
 extern bool      operator<(long x,  const Fraction f);
 extern bool      operator<=(long x, const Fraction f);
 extern bool      operator==(long x, const Fraction f);
+extern bool      operator!=(long x, const Fraction f);
 extern bool      operator>=(long x, const Fraction f);
 extern bool      operator>(long x,  const Fraction f);
 extern Fraction  operator*(long x,  const Fraction f);

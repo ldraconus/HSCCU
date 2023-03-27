@@ -49,5 +49,6 @@ Fraction operator/(long x,   const Fraction f) { return Fraction(x) / f; }
 bool     operator<(long x,   const Fraction f) { return Fraction(x) < f; }
 bool     operator<=(long x,  const Fraction f) { return Fraction(x) <= f; }
 bool     operator==(long x,  const Fraction f) { return Fraction(x) == f; }
+bool     operator!=(long x,  const Fraction f) { return Fraction(x) != f; }
 bool     operator>=(long x,  const Fraction f) { return Fraction(x) >= f; }
 bool     operator>(long x,   const Fraction f) { return Fraction(x) > f; }
