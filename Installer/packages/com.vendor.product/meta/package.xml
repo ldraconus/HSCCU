@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>HeroSystem CharacterCreator</DisplayName>
+    <Description>Install the character creator</Description>
+    <Version>1.0.0</Version>
+    <ReleaseDate>2022-06-18</ReleaseDate>
+    <Licenses>
+        <License name="MIT Public License Agreement" file="license.txt" />
+    </Licenses>
+    <Default>true</Default>
+</Package>
