@@ -5584,14 +5584,14 @@ public:
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { rType = createCheckBox(p, l, "Skill Roll", std::mem_fn(&ModifierBase::checked));
                                                               when  = createCheckBox(p, l, "Every phase or Use", std::mem_fn(&ModifierBase::checked));
-                                                              roll  = createComboBox(p, l, "Unmodified Roll?", { "", "7-", "8-", "9-", "10-", "11-", "12-", "13-", "14-" },
+                                                              roll  = createComboBox(p, l, "Unmodified Roll?", { "Unmodified Roll?", "7-", "8-", "9-", "10-", "11-", "12-", "13-", "14-" },
                                                                                      std::mem_fn(&ModifierBase::index));
                                                               skill = createLineEdit(p, l, "What skill?", std::mem_fn(&ModifierBase::changed));
                                                               isa   = createCheckBox(p, l, "Is a KS, PS, or SS?", std::mem_fn(&ModifierBase::checked));
                                                               two   = createCheckBox(p, l, "Choose Between Two Skills", std::mem_fn(&ModifierBase::checked));
-                                                              per   = createComboBox(p, l, "-1 per?", { "", "20 Active points", "10 Active Points", "5 Active Points" },
+                                                              per   = createComboBox(p, l, "-1 per?", { "20 Active points", "10 Active Points", "5 Active Points" },
                                                                                      std::mem_fn(&ModifierBase::index));
-                                                              fails = createComboBox(p, l, "How fragile is it?", { "", "Burnout", "Jammed" },
+                                                              fails = createComboBox(p, l, "How fragile is it?", { "Normal", "Burnout", "Jammed" },
                                                                                      std::mem_fn(&ModifierBase::index));
                                                               roll->setEnabled(!v._type);
                                                               skill->setEnabled(v._type);
@@ -5639,11 +5639,11 @@ public:
         Fraction f(1, 2);
         if (v._type) {
             if (v._isa) f -= Fraction(1, 4);
-            if (v._per == 1) f -= Fraction(1, 4);
-            else if (v._per == 3) f += Fraction(1, 2);
+            if (v._per == 0) f -= Fraction(1, 4);
+            else if (v._per == 2) f += Fraction(1, 2);
             if (v._two) f -= Fraction(1, 4);
         } else f -= (v._roll - 5) * Fraction(1, 4);
-        if (v._fails == 2) f += Fraction(1, 2);
+        if (v._fails >= 1) f += Fraction(1, 2);
         if (f < Fraction(1, 4)) f = Fraction(1, 4);
         return f;
     }
@@ -5670,19 +5670,18 @@ private:
     QComboBox* fails;
 
     QString optOut(bool show) {
-        QStringList per { "", "20 Active points", "10 Active Points", "5 Active Points" };
+        QStringList per { "20 Active points", "10 Active Points", "5 Active Points" };
         QStringList roll { "", "7-", "8-", "9-", "10-", "11-", "12-", "13-", "14-" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         QString sep;
-        if (v._fails < 1) return "<incomplete>";
         if (v._type) {
             if (v._skill.isEmpty() || v._per < 1) return "<incomplete>";
             desc = "Skill Roll: " + v._skill + " (-1 per " + per[v._per];
             sep = "; ";
         } else {
             if (v._roll < 1) return "<incomplete>";
-            desc = "Activate " + roll[v._roll];
+            desc = "Roll " + roll[v._roll];
             sep = " (";
         }
         if (v._when) { desc += sep + "Every phase or Use"; sep = "; "; }

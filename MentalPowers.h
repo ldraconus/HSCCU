@@ -322,16 +322,17 @@ public:
                                                                                                                          "Unlimited, pan-dimensional" });
                                                                    los      = createCheckBox(parent, layout, "No LOS Needed");
                                                                    bond     = createLineEdit(parent, layout, "Psychic Bond(s)");
-                                                                   floating = createCheckBox(parent, layout, "No LOS Needed");
+                                                                   floating = createCheckBox(parent, layout, "Floating Psychic Bond");
                                                                    feed     = createComboBox(parent, layout, "Feedback?", { "None", "STUN", "STUN and BODY" });
                                                                    only     = createCheckBox(parent, layout, "Only With Others Who Have Mind Link");
                                                                  }
-    Fraction lim() override                                      { return Fraction(v._feed) + (v._only ? Fraction(1) : Fraction(0)); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   Points pts = 5_cp * v._inv;
-                                                                   int steps = (int) (log((double) v._minds) / log(2.0));
-                                                                   pts = pts + steps * 5_cp;
+    Fraction lim() override                                      { return Fraction(v._feed < 0 ? 0 : v._feed) + (v._only ? Fraction(1) : Fraction(0)); }
+    Points points(bool noStore = false) override                 { if (!noStore) store();
+                                                                   Points pts = 5_cp * (v._inv < 0 ? 0 : v._inv);
+                                                                   int steps = 0;
+                                                                   if (v._minds > 0) steps = (int) (log((double) v._minds) / log(2.0));                                                                  pts = pts + steps * 5_cp;
                                                                    pts = pts + (v._los ? 10_cp : 0_cp);
+                                                                   pts = pts + (v._range < 0 ? 0 : v._range) * 5;
                                                                    pts = pts + countCommas(v._bond) * 5_cp;
                                                                    pts = pts + (v._float ? 10_cp : 0_cp);
                                                                    return pts;

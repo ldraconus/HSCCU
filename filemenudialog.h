@@ -1,6 +1,4 @@
-#ifndef FILEMENUDIALOG_H
-#define FILEMENUDIALOG_H
-#ifdef __wasm__
+#pragma once
 #include <QDialog>
 
 namespace Ui {
@@ -27,6 +25,3 @@ public slots:
     void doOpen();
     void doSave();
 };
-#endif
-
-#endif // FILEMENUDIALOG_H

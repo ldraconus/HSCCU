@@ -1,7 +1,8 @@
 #ifndef FRACTION_H
 #define FRACTION_H
 
-#include <QObject>
+#include <QString>
+#include <cmath>
 
 class Fraction
 {

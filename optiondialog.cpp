@@ -19,7 +19,7 @@ optionDialog::optionDialog(QWidget *parent) :
     connect(ui->totalPointsLineEdit,   SIGNAL(textChanged(QString)),     this, SLOT(numeric(QString)));
     connect(ui->complicationsLineEdit, SIGNAL(textChanged(QString)),     this, SLOT(numeric(QString)));
     connect(ui->comboBox,              SIGNAL(currentIndexChanged(int)), this, SLOT(pickSomething(int)));
-    connect(this,                      SIGNAL(accepted()),               this, SLOT(accepted()));
+    connect(this,                      SIGNAL(accepted()),               this, SLOT(accept()));
 }
 
 optionDialog::~optionDialog()
@@ -41,11 +41,12 @@ QMap<int, int> table {
     { 750, 100 }
 };
 
-void optionDialog::accepted() {
+void optionDialog::accept() {
     Sheet::ref().option().complications(Points(complications()));
-    Sheet::ref().option().showFrquencyRolls(showFrequencyRolls());
+    Sheet::ref().option().showFrequencyRolls(showFrequencyRolls());
     Sheet::ref().option().showNotesPage(showNotesPage());
     Sheet::ref().option().totalPoints(Points(totalPoints()));
+    Sheet::ref().option().normalHumanMaxima(normalHumanMaxima());
     Sheet::ref().option().store();
     Sheet::ref().UI()->optLabel->setVisible(Sheet::ref().option().showNotesPage());
     Sheet::ref().updateDisplay();

@@ -6,6 +6,9 @@
     <Publisher>SoftwareOnHand</Publisher>
     <StartMenuDir>HeroSystem-CharacterCreator</StartMenuDir>
     <TargetDir>@ApplicationsDirX64@/HeroSystem-CharacterCreator</TargetDir>
-        <RunProgram>@TargetDir@/HeroSystem CharacterCreator</RunProgram>
-        <RunProgramDescription>Run HeroSystem CharacterCreator</RunProgramDescription>
-</Installer>
+    <RunProgram>@TargetDir@/HeroSystem CharacterCreator</RunProgram>
+    <RunProgramDescription>Run HeroSystem CharacterCreator</RunProgramDescription>
+    <Background>background.png</Background>
+    <WizardStyle>Mac</WizardStyle>
+    <WizardShowPageList>false</WizardShowPageList>
+    <StyleSheet>Style.qss</StyleSheet></Installer>

@@ -804,6 +804,7 @@ void PowerDialog::setColumns(QTableWidget* tablewidget) {
     auto verticalHeader = tablewidget->verticalHeader();
     verticalHeader->setMaximumSectionSize(hgt);
 }
+
 void PowerDialog::updateForm() {
     if (_power == nullptr) return;
 
@@ -832,8 +833,8 @@ void PowerDialog::updateForm() {
     _limitations->update();
     row = 0;
     for (const auto& lim: _power->limitationsList()) {
-        descr += "; (-" + lim->fraction(Modifier::NoStore).toString() + ") " + lim->description();
-        setCellLabel(_limitations, row, 0, "-" + lim->fraction(Modifier::NoStore).toString(), font);
+        descr += "; (" + lim->fraction(Modifier::NoStore).toString() + ") " + lim->description();
+        setCellLabel(_limitations, row, 0, lim->fraction(Modifier::NoStore).toString(), font);
         setCellLabel(_limitations, row, 1, lim->description(), font);
         row++;
     }

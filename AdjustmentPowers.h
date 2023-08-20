@@ -5,7 +5,7 @@
 
 class Absorption: public AllPowers {
 public:
-    Absorption(): AllPowers("Absorption")                { }
+    Absorption(): AllPowers("Absorption▲")               { }
     Absorption(const Absorption& s): AllPowers(s)        { }
     Absorption(Absorption&& s): AllPowers(s)             { }
     Absorption(const QJsonObject& json): AllPowers(json) { v._body      = json["body"].toInt(0);
@@ -312,7 +312,7 @@ public:
     Healing(): AllPowers("Healing")                   { }
     Healing(const Healing& s): AllPowers(s)           { }
     Healing(Healing&& s): AllPowers(s)                { }
-    Healing(const QJsonObject& json): AllPowers(json) { v._dice = json["body"].toInt(0);
+    Healing(const QJsonObject& json): AllPowers(json) { v._dice = json["dice"].toInt(0);
                                                         v._to   = json["to"].toString("");
                                                         v._rate = json["rate"].toInt(-1);
                                                       }

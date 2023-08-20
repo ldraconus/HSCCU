@@ -3,7 +3,6 @@
 
 #include <QDialog>
 
-#ifdef __wasm__
 namespace Ui {
 class EditMenuDialog;
 }
@@ -28,6 +27,5 @@ public slots:
     void doPaste();
     void doOption();
 };
-#endif
 
 #endif // EDITMENUDIALOG_H

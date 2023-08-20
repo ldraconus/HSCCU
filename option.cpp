@@ -6,6 +6,7 @@ Option::Option()
     : _complications(0_cp)
     , _showFrequencyRolls(false)
     , _showNotesPage(false)
+    , _normalHumanMaxima(false)
     , _totalPoints(0_cp)
 { }
 
@@ -13,6 +14,7 @@ Option::Option(const Option& opt)
     : _complications(opt._complications)
     , _showFrequencyRolls(opt._showFrequencyRolls)
     , _showNotesPage(opt._showNotesPage)
+    , _normalHumanMaxima(opt._normalHumanMaxima)
     , _totalPoints(opt._totalPoints)
 { }
 
@@ -20,6 +22,7 @@ Option::Option(Option&& opt)
     : _complications(opt._complications)
     , _showFrequencyRolls(opt._showFrequencyRolls)
     , _showNotesPage(opt._showNotesPage)
+    , _normalHumanMaxima(opt._normalHumanMaxima)
     , _totalPoints(opt._totalPoints)
 { }
 
@@ -27,25 +30,28 @@ Option::Option(const QJsonObject& obj)
     : _complications(Points(obj["complications"].toInt(75)))
     , _showFrequencyRolls(obj["frequency"].toBool(true))
     , _showNotesPage(obj["notes"].toBool(true))
+    , _normalHumanMaxima(obj["humanMaxima"].toBool(false))
     , _totalPoints(Points(obj["totalPoints"].toInt(400)))
 { }
 
 Option& Option::operator=(const Option& opt) {
     if (this != &opt) {
-        _complications = opt._complications;
+             _complications = opt._complications;
         _showFrequencyRolls = opt._showFrequencyRolls;
-        _showNotesPage = opt._showNotesPage;
-        _totalPoints = opt._totalPoints;
+             _showNotesPage = opt._showNotesPage;
+         _normalHumanMaxima = opt._normalHumanMaxima;
+               _totalPoints = opt._totalPoints;
     }
     return *this;
 }
 
 Option& Option::operator=(Option&& opt) {
     if (this != &opt) {
-        _complications = opt._complications;
+             _complications = opt._complications;
         _showFrequencyRolls = opt._showFrequencyRolls;
-        _showNotesPage = opt._showNotesPage;
-        _totalPoints = opt._totalPoints;
+             _showNotesPage = opt._showNotesPage;
+         _normalHumanMaxima = opt._normalHumanMaxima;
+               _totalPoints = opt._totalPoints;
     }
     return *this;
 }
@@ -58,10 +64,10 @@ void Option::load() {
     if (!ok) _complications = 75_cp;
 
     _showFrequencyRolls = settings.value("frequency").toBool();
+         _showNotesPage = settings.value("notes").toBool();
+     _normalHumanMaxima = settings.value("humanMaxima").toBool();
+           _totalPoints = Points(settings.value("totalPoints").toInt(&ok));
 
-    _showNotesPage = settings.value("notes").toBool();
-
-    _totalPoints = Points(settings.value("totalPoints").toInt(&ok));
     if (!ok) _totalPoints = 400_cp;
 }
 
@@ -70,11 +76,13 @@ void Option::store() {
     settings.setValue("complications", (int) _complications.points);
     settings.setValue("frequency", _showFrequencyRolls);
     settings.setValue("notes", _showNotesPage);
+    settings.setValue("humanMaxima", _normalHumanMaxima);
     settings.setValue("totalPoints",   (int) _totalPoints.points);
 }
 void Option::toJson(QJsonObject& obj) {
     obj["complications"] = (int) _complications.points;
-    obj["frequency"]     = _showFrequencyRolls;
-    obj["notes"]         = _showNotesPage;
-    obj["totalPoints"]   = (int) _totalPoints.points;
+        obj["frequency"] = _showFrequencyRolls;
+            obj["notes"] = _showNotesPage;
+      obj["humanMaxima"] = _normalHumanMaxima;
+      obj["totalPoints"] = (int) _totalPoints.points;
 }

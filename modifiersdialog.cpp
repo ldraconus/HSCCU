@@ -61,7 +61,7 @@ bool ModifiersDialog::modifier(shared_ptr<Modifier>& mod) {
     bool advantage = false;
     if (mod->type() == ModifierBase::isAdvantage) advantage = true;
     else if (mod->type() == ModifierBase::isLimitation) advantage = false;
-    else if (mod->fraction() < 0) advantage = false;
+    else if (mod->fraction(Modifier::NoStore) < 0) advantage = false;
     else advantage = true;
 
     _skipUpdate = true;

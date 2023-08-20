@@ -95,7 +95,83 @@ private:
         x(const QJsonObject& json): IntellectSkills(json) { }\
     };
 
-CLASS(Analyze);
+class Analyze: public IntellectSkills {
+public:
+    Analyze(): IntellectSkills("Analyze")                   { }
+    Analyze(const Analyze& s): IntellectSkills(s)           { }
+    Analyze(Analyze&& s): IntellectSkills(s)                { }
+    Analyze(const QJsonObject& json): IntellectSkills(json) {
+        v._plus    = json["plus"].toInt(1);
+        v._what    = json["what"].toString("");
+    }
+
+    QString description(bool showRoll = false) override {
+        return (showRoll ?
+#ifndef ISHSC
+                               add(Sheet::ref().character().INT().roll(), v._plus)
+#else
+                               QString("+%1").arg(v._plus)
+#endif
+                         : "") + optOut(); }
+    bool    form(QWidget* parent, QVBoxLayout* layout) override {
+        plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
+        what = createLineEdit(parent, layout, "Analyze what?");
+        return true;
+    }
+    Points points(bool noStore = false) override              {
+        if (!noStore) store();
+        auto pts = v._plus * 2_cp + 3_cp;
+        if (pts < 1_cp) pts = 1_cp;
+        return pts;
+    }
+    void    restore() override                                  {
+        vars s = v;
+        plus->setText(QString("%1").arg(s._plus));
+        what->setText(s._what);
+        v = s;
+    }
+#ifndef ISHSC
+    QString roll() override                                     { return add(Sheet::ref().character().INT().roll(), v._plus); }
+#else
+    QString roll() override                                     { return QString("%1-").arg(11 + v._plus); }
+#endif
+    void    store() override                                    {
+        v._plus    = plus->text().toInt(0);
+        v._what    = what->text();
+    }
+    QJsonObject toJson() override                               {
+        QJsonObject obj = IntellectSkills::toJson();
+        obj["plus"]    = v._plus;
+        obj["what"]    = v._what;
+        return obj;
+    }
+
+private:
+    struct vars {
+        int     _plus    = 0;
+        QString _what    = "";
+    } v;
+
+    QLineEdit* plus;
+    QLineEdit* what;
+
+    QString optOut() {
+        if (v._what.isEmpty()) return "<incomplete>";
+        QString res;
+        res += "Analyze " + v._what;
+        QString sep = " (";
+        if (v._plus > 0) { res += sep + QString("+%1").arg(v._plus); sep = ", "; }
+        if (sep != " (") res += ")";
+        return res;
+    }
+
+    void numeric(QString) override {
+        QString txt = plus->text();
+        if (txt.isEmpty() || isNumber(txt)) return;
+        plus->undo();
+    }
+};
+
 CLASS(Bugging);
 CLASS_SPACE(ComputerProgramming, "Computer Programming");
 CLASS(Concealment);

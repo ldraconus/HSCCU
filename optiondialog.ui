@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>394</width>
-    <height>144</height>
+    <width>311</width>
+    <height>228</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,163 +20,213 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::ExpandingFieldsGrow</enum>
-   </property>
-   <property name="labelAlignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Total Points: </string>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
      </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <property name="labelAlignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="formAlignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+      </property>
+      <property name="horizontalSpacing">
+       <number>3</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>3</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item row="7" column="1">
+       <widget class="QCheckBox" name="normalHumanMaxima">
+        <property name="text">
+         <string>Normal Human Maxima</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QCheckBox" name="notePageShown">
+        <property name="text">
+         <string>Note Page Shown</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="complicationsLineEdit">
+        <property name="text">
+         <string>75</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QCheckBox" name="showFrequencyRolls">
+        <property name="text">
+         <string>Show Frequency Rolls</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Character Types: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="comboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>450</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>450</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="currentIndex">
+         <number>7</number>
+        </property>
+        <property name="maxVisibleItems">
+         <number>20</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Standard Normal</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Skilled Normal</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Competent Normal</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Standard Hero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Powerful Hero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Very Powerful Hero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Low-Powered Superhero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Standard Superhero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>High-Powered Superhero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Very High-Powered Superhero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Cosmically Powerful Superhero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Custom</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Complications: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="totalPointsLineEdit">
+        <property name="text">
+         <string>400</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Total Points: </string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="totalPointsLineEdit">
-     <property name="text">
-      <string>400</string>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Complications: </string>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
      </property>
-    </widget>
+    </spacer>
    </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="complicationsLineEdit">
-     <property name="text">
-      <string>75</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="comboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>200</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>450</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="baseSize">
-      <size>
-       <width>450</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="currentIndex">
-      <number>7</number>
-     </property>
-     <property name="maxVisibleItems">
-      <number>20</number>
-     </property>
-     <item>
-      <property name="text">
-       <string>Standard Normal</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Skilled Normal</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Competent Normal</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Standard Hero</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Powerful Hero</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Very Powerful Hero</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Low-Powered Superhero</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Standard Superhero</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>High-Powered Superhero</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Very High-Powered Superhero</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Cosmically Powerful Superhero</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Custom</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Character Types</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QCheckBox" name="showFrequencyRolls">
-     <property name="text">
-      <string>Show Frequency Rolls</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1">
-    <widget class="QCheckBox" name="notePageShown">
-     <property name="text">
-      <string>Note Page Shown</string>
      </property>
     </widget>
    </item>

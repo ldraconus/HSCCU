@@ -475,6 +475,7 @@ bool Sheet::eventFilter(QObject* object, QEvent* event) {
 }
 
 static void closeDialog(shared_ptr<QDialog> dlg, QMouseEvent* me) {
+    if (dlg == nullptr) return;
     QRect dialogRect = dlg->geometry();
     if (dlg->isVisible() && (me == nullptr || !dialogRect.contains(me->pos()))) dlg->done(QDialog::Rejected);
 }
@@ -490,7 +491,7 @@ void Sheet::closeDialogs(QMouseEvent* me) {
     if (_optionDlg != nullptr) closeDialog(_optionDlg, me);
     if (_compDlg   != nullptr) closeDialog(_compDlg,   me);
     if (_powerDlg  != nullptr) closeDialog(_powerDlg,  me);
-    if (_skillDlg  != nullptr) closeDialog(_compDlg,   me);
+    if (_skillDlg  != nullptr) closeDialog(_skillDlg,  me);
 }
 
 void Sheet::mousePressEvent(QMouseEvent* me) {
@@ -581,7 +582,7 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
             QString end = QString("%1").arg((primary + 4) / 10);
             if (primary != secondary) end += QString("/%1").arg((secondary + 4) / 10);
             Ui->strendcost->setText(end);
-
+            rebuildMartialArts();
             QString lift = formatLift(primary);
             if (primary != secondary) lift += "/" + formatLift(secondary);
             Ui->lift->setText(lift);
@@ -1305,28 +1306,47 @@ void Sheet::rebuildDefenses() {
     setDefense(_character.FD(),   0,                              6, 1);
 }
 
+QString Sheet::KAwSTR(int STR) {
+    int dice = STR / 15;
+    int rem = STR % 15;
+    int extra = rem / 10 + 1;
+    if (extra == 1) {
+        if (rem >= 5) extra = 1;
+        else extra = 0;
+    }
+    return QString("%1%2d6%3").arg(dice).arg((extra == 2) ? Fraction(1, 2).toString() : "",(extra == 1) ? "+1" : "");
+}
+
 void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
     static QMap<QString, QStringList> table = {
-        { "Choke Hold",       { "½", "-2", "+0", "Grab 1 limb, 2d6 NND" } },
-        { "Defensive Strike", { "½", "+1", "+3", "STR strike" } },
-        { "Killing Strike",   { "½", "-2", "+0", "HKA ½d6" } },
-        { "Legsweep",         { "½", "+2", "-1", "STR+1d6, target falls" } },
-        { "Martial Block",    { "½", "+2", "+2", "Block, abort" } },
-        { "Martial Disarm",   { "½", "-1", "-1", "Disarm, +10 STR" } },
-        { "Martial Dodge",    { "½", "——", "+5", "Dodge, abort" } },
-        { "Martial Escape",   { "½", "+0", "+0", "+15 STR vs. Grabs" } },
-        { "Martial Grab",     { "½", "-1", "-1", "Grab 2 Limbs, +10 STR" } },
-        { "Martial Strike",   { "½", "+0", "+2", "STR+2d6" } },
-        { "Martial Throw",    { "½", "+0", "+1", "STR+v/10, target falls" } },
-        { "Nerve Strike",     { "½", "-1", "+1", "2d6 NND" } },
-        { "Offensive Strike", { "½", "-2", "+1", "STR+4d6" } },
-        { "Passing Strike",   { "½", "+1", "+0", "STR+v/10, full move" } },
-        { "Sacrifice Throw",  { "½", "+2", "+1", "STR, both fall" } }
+        { "Choke Hold",       { "½", "-2", "+0", "Grab 1 limb, 2d6 NND~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },
+        { "Defensive Strike", { "½", "+1", "+3", "%1 strike~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },             // STR --> A
+        { "Killing Strike",   { "½", "-2", "+0", "HKA %2~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },                // STR --> KA
+        { "Legsweep",         { "½", "+2", "-1", "%3, target falls~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },      // STR+1 --> A
+        { "Martial Block",    { "½", "+2", "+2", "Block, abort~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },
+        { "Martial Disarm",   { "½", "-1", "-1", "Disarm, %4 STR~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },        // STR+10
+        { "Martial Dodge",    { "½", "——", "+5", "Dodge, abort~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },
+        { "Martial Escape",   { "½", "+0", "+0", "%5 STR vs. Grabs~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },      // STR+15
+        { "Martial Grab",     { "½", "-1", "-1", "Grab 2 Limbs, +%4 STR~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },
+        { "Martial Strike",   { "½", "+0", "+2", "%6~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },                    // STR+2 --> A
+        { "Martial Throw",    { "½", "+0", "+1", "(%9+v/10)d6,tgt falls~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },
+        { "Nerve Strike",     { "½", "-1", "+1", "2d6 NND~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },
+        { "Offensive Strike", { "½", "-2", "+1", "%7~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },                    // STR+4 --> A
+        { "Passing Strike",   { "½", "+1", "+0", "(%9+v/10)d6,full mv~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },
+        { "Sacrifice Throw",  { "½", "+2", "+1", "%8 STR, both fall~%1/%2/%3/%4/%5/%6/%7/%8/%9" } }      // STR
     };
 
     auto* man = Ui->attacksandmaneuvers;
     QString d = stp->description().mid(stp->name().length() + 2);
     auto maneuvers = d.split(", ");
+    int extraSTR = 0;
+    for (const auto& m: maneuvers) {
+        if (!table.contains(m)) {
+            auto parts = m.split(" ");
+            if (parts.size() == 4) extraSTR = parts[0].toInt() * 5;
+        }
+    }
+    int STR = _character.STR().base() + _character.STR().primary() + extraSTR;
     for (const auto& m: maneuvers) {
         int size = man->rowCount();
         int row;
@@ -1335,16 +1355,77 @@ void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
             if (static_cast<const QLabel*>(cell)->text() == m) break;
         }
         if (row != size) continue;
-        setCellLabel(man, row, 0, m, font);
-        for (int i = 0; i < 4; i++)  setCellLabel(man, row, i + 1, table[m][i], font);
+        if (table.contains(m)) {
+            setCellLabel(man, row, 0, m, font);
+            for (int i = 0; i < 4; i++) {
+                QString x = table[m][i];
+                if (i == 3) x = QString(x)
+                                     .arg(valueToDice(STR),              // 1
+                                          KAwSTR(STR),                   // 2
+                                          valueToDice(STR + 5))          // 3
+                                     .arg(STR + 10)                      // 4
+                                     .arg(STR + 15)                      // 5
+                                     .arg(valueToDice(STR + 10),         // 6
+                                          valueToDice(STR + 20))         // 7
+                                     .arg(STR)                           // 8
+                                     .arg(valueToDice(STR, noD6));       // 9
+                QStringList t = x.split("~");
+                setCellLabel(man, row, i + 1, t[0], font);
+            }
+        }
+    }
+}
+
+void Sheet::rebuildBasicManeuvers(QFont& font) {
+    const static QList<QStringList> maneuvers = { { "Block",        "½",     "+0",    "+0",  "Block, abort~%1%2%3%4%5%6"             },
+                                                  { "Brace",        "0",     "+2",    "½",   "+2 vs R Mod~%1%2%3%4%5%6"              },
+                                                  { "Disarm",       "½",     "-2",    "+0",  "Disarm, %1 v. STR~%1%2%3%4%5%6"        }, // STR
+                                                  { "Dodge",        "½",     "——",    "+3",  "Abort vs. all attacks~%1%2%3%4%5%6"    },
+                                                  { "Grab",         "½",     "-1",    "-2",  "Grab 2 limbs~%1%2%3%4%5%6"             },
+                                                  { "Grab By",      "½†",    "-3",    "-4",  "Move&Grab;%1+(ͮ⁄₁₀) STR~%1%2%3%4%5%6"   },
+                                                  { "Haymaker",     "½*",    "+0",    "-5",  "+4 DCs to attack~%1%2%3%4%5%6"         },
+                                                  { "Move By",      "½†",    "-2",    "-2",  "(%2+ͮ⁄₁₀)d6; take ⅓~%1%2%3%4%5%6"       }, // STR/2 noD6
+#ifdef __wasm__
+                                                  { "Move Thru",    "½†",    "-ͮ⁄₁₀", "-3",  "(%3+ͮ⁄₆)d6; take ½ or all~%1%2%3%4%5%6"  }, // STR noD6
+                                                  { "Mult.Attx",    "1",     "var",   "½",   "Attack multiple times~%1%2%3%4%5%6"    },
+#else
+                                                  { "Move Through",     "½†", "-ͮ⁄₁₀", "-3", "(%3+ͮ⁄₆)d6; take ½ or all~%1%2%3%4%5%6"  },
+                                                  { "Multiple Attacks", "1",  "var",   "½",  "Attack multiple times~%1%2%3%4%5%6"    },
+#endif
+                                                  { "Set",          "1",     "+1",    "+0",  "Ranged attacks only~%1%2%3%4%5%6"      },
+                                                  { "Shove",        "½",     "-1",    "-1",  "Push %4m~%1%2%3%4%5%6"                 }, // STR/5
+                                                  { "Strike",       "½",     "+0",    "+0",  "%5 or weapon~%1%2%3%4%5%6"             }, // STR d6
+                                                  { "Throw",        "½",     "+0",    "+0",  "Throw w/%5 dmg~%1%2%3%4%5%6"           },
+                                                  { "Trip",         "½",     "-1",    "-2",  "Knock target prone~%1%2%3%4%5%6"       }
+                                                };
+    auto* man = Ui->attacksandmaneuvers;
+    man->setRowCount(0);
+    man->update();
+
+    int row = 0;
+    int STR = _character.STR().base() + _character.STR().primary();
+    int OCV = Ui->ocvval->text().toInt();
+    for (const auto& m: maneuvers) {
+        for (int i = 0; i < 5; i++) {
+            QString x = m[i];
+            if (i == 4) x = QString(x)
+                               .arg(STR)                        // 1
+                               .arg(valueToDice(STR/ 2, noD6),  // 2
+                                    valueToDice(STR, noD6))     // 3
+                               .arg((STR + 2) / 5)              // 4
+                               .arg(valueToDice(STR))           // 5
+                               .arg(OCV);                       // 6
+            QStringList t = x.split("~");
+            setCellLabel(man, row, i, t[0], font);
+        }
+        ++row;
     }
 }
 
 void Sheet::rebuildMartialArts() {
     auto* man = Ui->attacksandmaneuvers;
     QFont font = Ui->smallfont;
-    man->setRowCount(15);
-    man->update();
+    rebuildBasicManeuvers(font);
 
     for (const auto& stp: _character.skillsTalentsOrPerks()) {
         if (stp == nullptr) continue;
@@ -1813,11 +1894,11 @@ void Sheet::updateTotals() {
     totalExperienceEarnedEditingFinished();
 }
 
-QString Sheet::valueToDice(int value) {
+QString Sheet::valueToDice(int value, bool showD6) {
     QString halfDice = "½";
     int dice = value / 5;
     bool half = value % 5 > 2;
-    return QString("%1%2d6").arg(dice).arg(half ? halfDice : "");
+    return QString("%1%2%3").arg(dice).arg(half ? halfDice : "", showD6 ? "d6" : "");
 }
 
 // ---[SLOTS] --------------------------------------------------------------------------------------------
@@ -2456,6 +2537,7 @@ void Sheet::options() {
     _optionDlg->setComplications(_option.complications().points);
     _optionDlg->setShowFrequencyRolls(_option.showFrequencyRolls());
     _optionDlg->setShowNotesPage(_option.showNotesPage());
+    _optionDlg->setNormalHumanMaxima(_option.normalHumanMaxima());
     _optionDlg->setTotalPoints(_option.totalPoints().points);
     _optionDlg->open();
 }

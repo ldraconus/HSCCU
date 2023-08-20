@@ -123,9 +123,9 @@ public:
                                                                                   obj["val"].toString(""));
                                                                       v._effects.push_back(eff);
                                                                   }
-                                                                  v._lasting = json["lasting"].toInt(0);
+                                                                  v._lasting = json["lasting"].toInt(-1);
                                                                   v._varying = json["varying"].toBool(false);
-                                                                  v._envs    = json["envs"].toInt(0);
+                                                                  v._envs    = json["envs"].toInt(-1);
                                                                   v._what    = json["what"].toString("");
                                                                 }
 
@@ -145,7 +145,8 @@ public:
     Fraction adv() override                                      { return (v._envs + 1) * Fraction(1, 4); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   effect  = createComboBox(parent, layout, "Effects?", { "Movement",
+                                                                   effect  = createComboBox(parent, layout, "Effects?", { "",
+                                                                                                                          "Movement",
                                                                                                                           "PER Rolll for one Sense",
                                                                                                                           "PER Rolll for one Sense Group",
                                                                                                                           "Characteristic Roll",
@@ -161,11 +162,12 @@ public:
                                                                                                                           "Decrease Wind Level"
                                                                                                                         },
                                                                                              std::mem_fn(&Power::activate));
-                                                                   lasting = createComboBox(parent, layout, "Lasting?", { "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
+                                                                   lasting = createComboBox(parent, layout, "Lasting?", { "", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                                                                                                                           "1 Hour", "6 Hours", "1 Day", "1 Week",
                                                                                                                           "1 Month", "1 Season", "1 Year", "5 Years" });
                                                                    varying = createCheckBox(parent, layout, "Varying Combat Effects");
-                                                                   envs    = createComboBox(parent, layout, "Varying Environments?", { "Very Limited Group",
+                                                                   envs    = createComboBox(parent, layout, "Varying Environments?", { "",
+                                                                                                                                       "Very Limited Group",
                                                                                                                                        "Limited Group",
                                                                                                                                        "Broad Group"
                                                                                                                                      });
@@ -200,10 +202,10 @@ public:
 private:
     struct vars {
         QList<effects> _effects;
-        int            _lasting;
-        bool           _varying;
-        int            _envs;
-        QString        _what;
+        int            _lasting = -1;
+        bool           _varying = false;
+        int            _envs    = -1;
+        QString        _what    = "";
     } v;
     QVBoxLayout* _layout;
     QWidget*     _parent;
@@ -226,10 +228,10 @@ private:
                 if (combo) combo->setCurrentIndex(effect.idx);
             }
         }
-        lasting->setCurrentIndex(v._lasting);
-        varying->setChecked(v._varying);
-        envs->setCurrentIndex(v._envs);
-        what->setText(v._what);
+        lasting->setCurrentIndex(s._lasting);
+        varying->setChecked(s._varying);
+        envs->setCurrentIndex(s._envs);
+        what->setText(s._what);
         v = s;
         _create = true;
         _data   = true;
@@ -276,20 +278,21 @@ private:
         if (v._varying) pts += 10_cp;
         for (const auto& effect: v._effects) {
             switch (effect.which) {
-            case 0:  pts = pts + effect.level;        break;
-            case 1:  pts = pts + effect.level * 2_cp; break;
-            case 2:
+            case 0:                                   break;
+            case 1:  pts = pts + effect.level;        break;
+            case 2:  pts = pts + effect.level * 2_cp; break;
             case 3:
             case 4:
             case 5:
             case 6:
             case 7:
-            case 8:  pts = pts + effect.level * 3_cp; break;
-            case 9:  pts = pts + effect.level * 4_cp; break;
-            case 10:
+            case 8:
+            case 9:  pts = pts + effect.level * 3_cp; break;
+            case 10: pts = pts + effect.level * 4_cp; break;
             case 11:
             case 12:
-            case 13: pts = pts + effect.level * 5_cp; break;
+            case 13:
+            case 14: pts = pts + effect.level * 5_cp; break;
             }
         }
         return pts;
@@ -307,9 +310,12 @@ private:
         int idx = _layout->indexOf(lasting);
         QList<QWidget*> widgets { };
         switch (pick) {
-        case 0:  // Movement
+        case 0:
+            break;
+        case 1:  // Movement
             if (_create) {
-                widgets.emplaceBack(createComboBox(_parent, _layout, "Movement Type?", { "Running",
+                widgets.emplaceBack(createComboBox(_parent, _layout, "Movement Type?", { "",
+                                                                                         "Running",
                                                                                          "Swimming",
                                                                                          "Jumping",
                                                                                          "Flight",
@@ -321,9 +327,10 @@ private:
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(0, -1, 0, widgets);
             break;
-        case 1:  // PER Roll for one Sense
+        case 2:  // PER Roll for one Sense
             if (_create) {
-                widgets.emplaceBack(createComboBox(_parent, _layout, "Sense?", { "Normal Hearing",
+                widgets.emplaceBack(createComboBox(_parent, _layout, "Sense?", { "",
+                                                                                 "Normal Hearing",
                                                                                  "Active Sonar",
                                                                                  "Ultrasonic Perception",
                                                                                  "Mental Awareness",
@@ -345,9 +352,10 @@ private:
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(1, -1, 0, widgets);
             break;
-        case 2:  // PER Rolll for one Sense Group
+        case 3:  // PER Rolll for one Sense Group
             if (_create) {
-                widgets.emplaceBack(createComboBox(_parent, _layout, "Sense Group?", { "Hearing",
+                widgets.emplaceBack(createComboBox(_parent, _layout, "Sense Group?", { "",
+                                                                                       "Hearing",
                                                                                        "Mental",
                                                                                        "Radio",
                                                                                        "Sight",
@@ -359,9 +367,10 @@ private:
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(2, -1, 0, widgets);
             break;
-        case 3:  // Characteristic Roll
+        case 4:  // Characteristic Roll
             if (_create) {
-                widgets.emplaceBack(createComboBox(_parent, _layout, "Charactreristic?", { "STR",
+                widgets.emplaceBack(createComboBox(_parent, _layout, "Charactreristic?", { "",
+                                                                                           "STR",
                                                                                            "DEX",
                                                                                            "CON",
                                                                                            "INT",
@@ -373,7 +382,7 @@ private:
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(3, -1, 0, widgets);
             break;
-        case 4:  // Skill Roll
+        case 5:  // Skill Roll
             if (_create) {
                 widgets.emplaceBack(createLineEdit(_parent, _layout, "Skills?", idx));
                 widgets.emplaceBack(createLineEdit(_parent, _layout, "Skill Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
@@ -381,28 +390,28 @@ private:
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(4, -1, 0, widgets);
             break;
-        case 5:  // Increase Temperature
+        case 6:  // Increase Temperature
             if (_create) {
                 widgets.emplaceBack(createLineEdit(_parent, _layout, "Temperature Levels Increase?", std::mem_fn(&Power::numeric), idx));
                 if (_data) v._effects.emplaceBack(5, -1, 0, widgets);
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(5, -1, 0, widgets);
             break;
-        case 6:  // Decrease Temperature
+        case 7:  // Decrease Temperature
             if (_create) {
                 widgets.emplaceBack(createLineEdit(_parent, _layout, "Temperature Levels Decrease?", std::mem_fn(&Power::numeric), idx));
                 if (_data) v._effects.emplaceBack(6, -1, 0, widgets);
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(6, -1, 0, widgets);
             break;
-        case 7:  // Range Modifier
+        case 8:  // Range Modifier
             if (_create) {
                 widgets.emplaceBack(createLineEdit(_parent, _layout, "Range Modifier Penalty?", std::mem_fn(&Power::numeric), idx));
                 if (_data) v._effects.emplaceBack(7, -1, 0, widgets);
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(7, -1, 0, widgets);
             break;
-        case 8:  // Negative Combat Modifier▲
+        case 9:  // Negative Combat Modifier▲
             if (_create) {
                 widgets.emplaceBack(createLineEdit(_parent, _layout, "Combat Modifier▲?", idx));
                 widgets.emplaceBack(createLineEdit(_parent, _layout, "Penalty?", std::mem_fn(&Power::numeric), idx + 1));
@@ -410,9 +419,10 @@ private:
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(8, -1, 0, widgets);
             break;
-        case 9:  // Characteristic Roll and all assoc. Skill Rolls
+        case 10:  // Characteristic Roll and all assoc. Skill Rolls
             if (_create) {
-                widgets.emplaceBack(createComboBox(_parent, _layout, "Charactreristic?", { "STR",
+                widgets.emplaceBack(createComboBox(_parent, _layout, "Charactreristic?", { "",
+                                                                                           "STR",
                                                                                            "DEX",
                                                                                            "CON",
                                                                                            "INT",
@@ -424,28 +434,28 @@ private:
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(9, -1, 0, widgets);
             break;
-        case 10: // Damage
+        case 11: // Damage
             if (_create) {
                 widgets.emplaceBack(createLineEdit(_parent, _layout, "Damage Points?", std::mem_fn(&Power::numeric), idx));
                 if (_data) v._effects.emplaceBack(10, -1, 0, widgets);
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(10, -1, 0, widgets);
             break;
-        case 11: // Telekinesis
+        case 12: // Telekinesis
             if (_create) {
                 widgets.emplaceBack(createLineEdit(_parent, _layout, "Telekinetic STR?", std::mem_fn(&Power::numeric), idx));
                 if (_data) v._effects.emplaceBack(11, -1, 0, widgets);
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(11, -1, 0, widgets);
             break;
-        case 12: // Increase Wind Level
+        case 13: // Increase Wind Level
             if (_create) {
                 widgets.emplaceBack(createLineEdit(_parent, _layout, "Wind Increase?", std::mem_fn(&Power::numeric), idx));
                 if (_data) v._effects.emplaceBack(12, -1, 0, widgets);
                 else v._effects[_index].widgets = widgets;
             } else if (_data) v._effects.emplaceBack(12, -1, 0, widgets);
             break;
-        case 13: // Decrease Wind Level
+        case 14: // Decrease Wind Level
             if (_create) {
                 widgets.emplaceBack(createLineEdit(_parent, _layout, "Wind Decrease?", std::mem_fn(&Power::numeric), idx));
                 if (_data) v._effects.emplaceBack(13, -1, 0, widgets);
@@ -498,10 +508,10 @@ private:
                            "EGO",
                            "PRE" };
         switch (effect.which) {
-        case 0:  return QString("-%1m ").arg(effect.level) + movement[effect.idx + 1];
-        case 1:  return QString("-%1 PER Roll w/").arg(effect.level) + sense[effect.idx + 1];
-        case 2:  return QString("-%1 PER Roll w/").arg(effect.level) + senseGroup[effect.idx + 1];
-        case 3:  return QString("-%1 Roll w/").arg(effect.level) + stat[effect.idx + 1];
+        case 0:  return QString("-%1m ").arg(effect.level) + movement[effect.idx];
+        case 1:  return QString("-%1 PER Roll w/").arg(effect.level) + sense[effect.idx];
+        case 2:  return QString("-%1 PER Roll w/").arg(effect.level) + senseGroup[effect.idx];
+        case 3:  return QString("-%1 Roll w/").arg(effect.level) + stat[effect.idx];
         case 4:  return QString("-%1 w/").arg(effect.level) + effect.val;
         case 5:  return QString("+%1 Temperature Level%2").arg(effect.level).arg((effect.level > 1) ? "s" : "");
         case 6:  return QString("-%1 Temperature Level%2").arg(effect.level).arg((effect.level > 1) ? "s" : "");
@@ -518,7 +528,7 @@ private:
     }
 
     QString optOut(bool showEND) {
-        if (v._effects.isEmpty() || (v._envs != -1 && v._what.isEmpty())) return "<incomplete>";
+        if (v._effects.isEmpty() || (v._envs > 0 && v._what.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Change Environment: ";
@@ -530,7 +540,7 @@ private:
                               "1 Month", "1 Season", "1 Year", "5 Years" };
         if (v._lasting != -1) { res += sep + "Long Lasting: " + lasting[v._lasting]; sep = "; "; }
         if (v._varying) { res += sep + "Varying Combat Effects "; sep = "; "; }
-        if (v._envs) { res += sep + " Varying Environments (" + v._what + ")"; sep += "; "; }
+        if (v._envs > 0) { res += sep + " Varying Environments (" + v._what + ")"; sep += "; "; }
         if (sep == "; ") res += ")";
         return res;
     }
@@ -745,8 +755,8 @@ private:
         if (v._foci) res += "; Allows use of Foci";
         if (v._one) res += "; 1 BODY";
         if (v._nodef) res += "; No Defense";
-        if (v._set > -1) {
-            if (v._set == 0) res += "; Only Hands";
+        if (v._set > 0) {
+            if (v._set == 1) res += "; Only Hands";
             else res += "; Only Feet";
         }
         QStringList common { "", " (Uncommon)", " (Common)", " (Very Common)" };

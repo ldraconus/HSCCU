@@ -20,12 +20,14 @@ public:
     Points  complications()      { return _complications; }
     bool    showNotesPage()      { return _showNotesPage; }
     bool    showFrequencyRolls() { return _showFrequencyRolls; }
+    bool    normalHumanMaxima()  { return _normalHumanMaxima; }
     Points  totalPoints()        { return _totalPoints; }
 
-    Option& complications(Points x)   { _complications = x;      return *this; }
-    Option& showNotesPage(bool f)     { _showNotesPage = f;      return *this; }
-    Option& showFrquencyRolls(bool f) { _showFrequencyRolls = f; return *this; }
-    Option& totalPoints(Points x)     { _totalPoints = x;        return *this; }
+    Option& complications(Points x)    { _complications = x;      return *this; }
+    Option& showNotesPage(bool f)      { _showNotesPage = f;      return *this; }
+    Option& normalHumanMaxima(bool f)  { _normalHumanMaxima = f;  return *this; }
+    Option& showFrequencyRolls(bool f) { _showFrequencyRolls = f; return *this; }
+    Option& totalPoints(Points x)      { _totalPoints = x;        return *this; }
 
     void load();
     void store();
@@ -35,6 +37,7 @@ private:
     Points _complications;
     bool   _showFrequencyRolls;
     bool   _showNotesPage;
+    bool   _normalHumanMaxima;
     Points _totalPoints;
 };
 

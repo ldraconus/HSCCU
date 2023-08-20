@@ -19,11 +19,13 @@ public:
     int  complications()      { return ui->complicationsLineEdit->text().toInt(); }
     bool showFrequencyRolls() { return ui->showFrequencyRolls->isChecked(); }
     bool showNotesPage()      { return ui->notePageShown->isChecked(); }
+    bool normalHumanMaxima()  { return ui->normalHumanMaxima->isChecked(); }
     int  totalPoints()        { return ui->totalPointsLineEdit->text().toInt(); }
 
     void setComplications(int x)       { ui->complicationsLineEdit->setText(QString("%1").arg(x)); }
     void setShowFrequencyRolls(bool f) { ui->showFrequencyRolls->setChecked(f); }
     void setShowNotesPage(bool f)      { ui->notePageShown->setChecked(f); }
+    void setNormalHumanMaxima(bool f)  { ui->normalHumanMaxima->setChecked(f); }
     void setTotalPoints(int x)         { ui->totalPointsLineEdit->setText(QString("%1").arg(x)); }
 
 private:
@@ -32,7 +34,7 @@ private:
     bool isNumber(QString& txt) { bool ok; txt.toInt(&ok); return ok; }
 
 public slots:
-    void accepted();
+    void accept();
     void numeric(QString);
     void pickSomething(int);
 };

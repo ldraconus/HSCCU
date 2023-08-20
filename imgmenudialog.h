@@ -1,6 +1,5 @@
 #ifndef IMGMENUDIALOG_H
 #define IMGMENUDIALOG_H
-#ifdef __wasm__
 #include <QDialog>
 
 namespace Ui {
@@ -27,5 +26,4 @@ public slots:
     void clearImage();
     void newImage();
 };
-#endif
 #endif // IMGMENUDIALOG_H

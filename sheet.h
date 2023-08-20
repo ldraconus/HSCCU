@@ -132,6 +132,7 @@ private:
     QPrinter*  printer;
 
     static const bool DontUpdateTotal = false;
+    static const bool noD6            = false;
 
     bool   _changed                    = false;
     Points _complicationPoints         = 0_cp;
@@ -185,6 +186,8 @@ private:
     int                getPageLines(QPlainTextEdit*, double, QPainter*);
     shared_ptr<Power>& getPower(int, QList<shared_ptr<Power>>&);
     void               justClose();
+    QString            KAwSTR(int);
+
     void               loadImage(QPixmap&, QString);
 #ifdef __wasm__
     void               loadImage(const QByteArray&, QString);
@@ -202,6 +205,7 @@ private:
     void               rebuildCombatSkillLevels();
     void               rebuildDefFromPowers(QList<shared_ptr<Power>>&);
     void               rebuildDefenses();
+    void               rebuildBasicManeuvers(QFont& font);
     void               rebuildMartialArt(shared_ptr<SkillTalentOrPerk>, QFont&);
     void               rebuildMartialArts();
     void               rebuildMoveFromPowers(QList<shared_ptr<Power>>&, QMap<QString, int>&, QMap<QString, QString>&, QMap<QString, int>&);
@@ -235,7 +239,7 @@ private:
     void               updateSkillRolls();
     void               updateSkills(shared_ptr<SkillTalentOrPerk>);
     void               updateTotals();
-    QString            valueToDice(int);
+    QString            valueToDice(int, bool showD6 = !noD6);
 
     static Sheet_UI _Sheet_UI;
 

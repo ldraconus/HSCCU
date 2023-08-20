@@ -15,11 +15,7 @@ SOURCES += \
     characteristic.cpp \
     complication.cpp \
     complicationsdialog.cpp \
-    complicationsmenudialog.cpp \
-    editmenudialog.cpp \
-    filemenudialog.cpp \
     fraction.cpp \
-    imgmenudialog.cpp \
     main.cpp \
     modifier.cpp \
     modifiersdialog.cpp \
@@ -74,11 +70,7 @@ HEADERS += \
     characteristic.h \
     complication.h \
     complicationsdialog.h \
-    complicationsmenudialog.h \
-    editmenudialog.h \
-    filemenudialog.h \
     fraction.h \
-    imgmenudialog.h \
     modifier.h \
     modifiersdialog.h \
     option.h \
@@ -96,20 +88,34 @@ HEADERS += \
 
 FORMS += \
     complicationsdialog.ui \
-    complicationsmenudialog.ui \
-    editmenudialog.ui \
-    filemenudialog.ui \
-    imgmenudialog.ui \
     modifiersdialog.ui \
     optiondialog.ui \
     powerdialog.ui \
     printwindow.ui \
     sheet.ui \
     skilldialog.ui \
-    skillmenudialog.ui \
-    wasm.ui
+    skillmenudialog.ui
 
 wasm {
+SOURCES += \
+    complicationsmenudialog.cpp \
+    editmenudialog.cpp \
+    filemenudialog.cpp \
+    imgmenudialog.cpp
+
+HEADERS += \
+    complicationsmenudialog.h \
+    editmenudialog.h \
+    filemenudialog.h \
+    imgmenudialog.h
+
+FORMS += \
+    complicationsmenudialog.ui \
+    editmenudialog.ui \
+    filemenudialog.ui \
+    imgmenudialog.ui \
+    wasm.ui
+
     QMAKE_LFLAGS += -sASYNCIFY -Os
 }
 
@@ -122,4 +128,11 @@ RESOURCES += \
     res.qrc
 
 DISTFILES += \
+    ../build-HSCCU-WebAssembly_Qt_6_6_0_single_threaded-Release/HSCCU.html \
+    ../build-HSCCU-WebAssembly_Qt_6_6_0_single_threaded-Release/HSCCU.js \
+    ../build-HSCCU-WebAssembly_Qt_6_6_0_single_threaded-Release/qtloader.js \
+    Installer/config/Style.qss \
+    Installer/config/config.xml \
+    Installer/packages/com.vendor.product/meta/license.txt \
+    Installer/packages/com.vendor.product/meta/package.xml \
     TODO

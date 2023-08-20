@@ -1,4 +1,5 @@
 #include "characteristic.h"
+#include "sheet.h"
 
 Characteristic::Characteristic(const QJsonObject& c)
     : _cost(this->cost())
@@ -19,9 +20,16 @@ Characteristic& Characteristic::operator=(Characteristic&& c) {
 }
 
 Points Characteristic::points() {
+    Option& opt = Sheet::ref().option();
+
     int half = _per / 2;
     if (_per % 2 == 0) half--;
-    return Points(((_base - _init) * _cost.points + half) / _per);
+    int max = opt.normalHumanMaxima() ? _maxima : INT_MAX;
+    int val = _base - _init;
+    int min = (val > max) ? max : val;
+    int dbl = val - min;
+
+    return Points(((min + dbl) * _cost.points + dbl * _cost.points + half) / _per);
 }
 
 

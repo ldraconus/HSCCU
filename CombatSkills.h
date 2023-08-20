@@ -281,7 +281,7 @@ public:
                                                                v._offensivestrike  = json["offensive strike"].toBool(false);
                                                                v._passingstrike    = json["passing strike"].toBool(false);
                                                                v._sacrifcethrow    = json["sacrifce throw"].toBool(false);
-                                                               v._extradamageclass = json["extra damage clsases"].toInt(0);
+                                                               v._extradamageclass = json["extra damage classes"].toInt(0);
                                                                v._weaponelements   = json["weapon elements"].toInt(0);
                                                                v._weapons          = json["weapons"].toString("");
                                                                }
