@@ -116,7 +116,7 @@ FORMS += \
     imgmenudialog.ui \
     wasm.ui
 
-    QMAKE_LFLAGS += -sASYNCIFY -Os
+QMAKE_LFLAGS += -sASYNCIFY -Os
 }
 
 # Default rules for deployment.
@@ -132,6 +132,7 @@ DISTFILES += \
     ../build-HSCCU-WebAssembly_Qt_6_6_0_single_threaded-Release/HSCCU.js \
     ../build-HSCCU-WebAssembly_Qt_6_6_0_single_threaded-Release/qtloader.js \
     Installer/config/Style.qss \
+    Installer/config/background.png \
     Installer/config/config.xml \
     Installer/packages/com.vendor.product/meta/license.txt \
     Installer/packages/com.vendor.product/meta/package.xml \

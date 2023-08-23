@@ -19,14 +19,14 @@ class ModifiersDialog : public QDialog
     Q_OBJECT
 
 public:
-    static const bool Advantage = true;
-    static const bool Limitation = false;
+    static constexpr bool Advantage = true;
+    static constexpr bool Limitation = false;
 
     explicit ModifiersDialog(bool, QWidget *parent = nullptr);
     ~ModifiersDialog();
 
-    shared_ptr<class Modifier> modifier() { return _modifier; }
-    bool modifier(shared_ptr<class Modifier>&);
+    std::shared_ptr<class Modifier> modifier() { return _modifier; }
+    bool modifier(std::shared_ptr<class Modifier>&);
 
     void updateForm();
 

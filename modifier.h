@@ -1,8 +1,6 @@
 ﻿#ifndef MODIFIER_H
 #define MODIFIER_H
 
-#include <cmath>
-
 #include "fraction.h"
 #ifndef ISHSC
 #include "modifiersdialog.h"
