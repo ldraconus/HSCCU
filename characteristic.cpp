@@ -25,8 +25,8 @@ Points Characteristic::points() {
     int half = _per / 2;
     if (_per % 2 == 0) half--;
     int max = opt.normalHumanMaxima() ? _maxima : INT_MAX;
-    int val = _base;
-    int min = (val > max) ? max : val;
+    int val = _base - _init;
+    int min = (val + _init > max) ? max - _init : val;
     int dbl = val - min;
 
     return Points(((min + dbl) * _cost.points + dbl * _cost.points + half) / _per);
@@ -50,3 +50,4 @@ QString Characteristic::value() {
     if (_secondary != 0) v += QString("/%1").arg(_base + _primary + _secondary);
     return v;
 }
+
