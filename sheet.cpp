@@ -616,7 +616,7 @@ void Sheet::characteristicEditingFinished(QLineEdit* val) {
             characteristicChanged(val, txt);
         }
         txt = "0";
-    }
+    }/
     auto& def = _widget2Def[val];
     txt = def.characteristic()->value();
     val->setText(txt);
