@@ -51,6 +51,7 @@ void optionDialog::accept() {
     Sheet::ref().UI()->optLabel->setVisible(Sheet::ref().option().showNotesPage());
     Sheet::ref().updateDisplay();
     Sheet::ref().changed();
+    close();
 }
 
 void optionDialog::numeric(QString) {

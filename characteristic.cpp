@@ -25,7 +25,7 @@ Points Characteristic::points() {
     int half = _per / 2;
     if (_per % 2 == 0) half--;
     int max = opt.normalHumanMaxima() ? _maxima : INT_MAX;
-    int val = _base - _init;
+    int val = _base;
     int min = (val > max) ? max : val;
     int dbl = val - min;
 

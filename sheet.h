@@ -17,6 +17,7 @@
 #include "editmenudialog.h"
 #include "filemenudialog.h"
 #include "imgmenudialog.h"
+#include "PowerMenuDialog.h"
 #include "skillmenudialog.h"
 #endif
 #include "character.h"
@@ -118,13 +119,12 @@ private:
     QAction* actionC_opy;
     QAction* action_Paste;
     QAction* actionOptions;
-#ifdef __wasm__
     shared_ptr<ComplicationsMenuDialog>  _complicationsMenuDialog = nullptr;
     shared_ptr<FileMenuDialog>           _fileMenuDialog          = nullptr;
     shared_ptr<EditMenuDialog>           _editMenuDialog          = nullptr;
     shared_ptr<ImgMenuDialog>            _imgMenuDialog           = nullptr;
+    shared_ptr<PowerMenuDialog>          _powerMenuDialog         = nullptr;
     shared_ptr<SkillMenuDialog>          _skillMenuDialog         = nullptr;
-#endif
 
 private:
 #endif

@@ -11,6 +11,7 @@ CONFIG += c++20
 RC_ICONS = HeroSystem.ico
 
 SOURCES += \
+    PowerMenuDialog.cpp \
     character.cpp \
     characteristic.cpp \
     complication.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     NegativeReputation.h \
     Perk.h \
     PhysicalComplication.h \
+    PowerMenuDialog.h \
     PsychologicalComplication.h \
     Rivalry.h \
     SenseAffectingPowers.h \
@@ -87,6 +89,7 @@ HEADERS += \
     wasm.h
 
 FORMS += \
+    PowerMenuDialog.ui \
     complicationsdialog.ui \
     modifiersdialog.ui \
     optiondialog.ui \

@@ -404,10 +404,10 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->moveSkillTalentOrPerkDown, SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkDown()));
 
     connect(Ui->powersandequipment,       SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
+    connect(Ui->powersandequipment,       SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
 #ifdef __wasm__
 //  connect(Ui->powersandequipment,       SIGNAL(showmenu()),                           this, SLOT(aboutToShowPowersAndEquipmentMenu()));
 #else
-    connect(Ui->powersandequipment,       SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
     connect(Ui->powersandequipmentMenu,   SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
 #endif
     connect(Ui->newPowerOrEquipment,      SIGNAL(triggered()),                          this, SLOT(newPowerOrEquipment()));
@@ -487,6 +487,7 @@ void Sheet::closeDialogs(QMouseEvent* me) {
     if (_fileMenuDialog          != nullptr) closeDialog(_fileMenuDialog,          me);
     if (_imgMenuDialog           != nullptr) closeDialog(_imgMenuDialog,           me);
     if (_skillMenuDialog         != nullptr) closeDialog(_skillMenuDialog,         me);
+    if (_powerMenuDialog         != nullptr) closeDialog(_powerMenuDialog,         me);
 #endif
     if (_optionDlg != nullptr) closeDialog(_optionDlg, me);
     if (_compDlg   != nullptr) closeDialog(_compDlg,   me);
@@ -1956,21 +1957,20 @@ void Sheet::aboutToShowFileMenu() {
 #endif
 
 void Sheet::aboutToShowPowersAndEquipmentMenu() {
-#ifdef __wasm__
-    ui->toolBar->clear();
-    ui->toolBar->addAction(Ui->newPowerOrEquipment);
-    ui->toolBar->addAction(Ui->editPowerOrEquipment);
-    ui->toolBar->addAction(Ui->deletePowerOrEquipment);
-    ui->toolBar->addAction(Ui->cutPowerOrEquipment);
-    ui->toolBar->addAction(Ui->copyPowerOrEquipment);
-    ui->toolBar->addAction(Ui->pastePowerOrEquipment);
-    ui->toolBar->addAction(Ui->movePowerOrEquipmentUp);
-    ui->toolBar->addAction(Ui->movePowerOrEquipmentDown);
-#else
     const auto selection = Ui->powersandequipment->selectedItems();
     bool show = !selection.isEmpty();
     int row = -1;
     if (show) row = selection[0]->row();
+#ifdef __wasm__
+    bool canPaste = false;
+    _powerMenuDialog->setEdit(show);
+    _powerMenuDialog->setDelete(show);
+    _powerMenuDialog->setCut(show);
+    _powerMenuDialog->setCopy(show);
+    _powerMenuDialog->setPaste(canPaste);
+    _powerMenuDialog->setMoveUp(show && row != 0);
+    _powerMenuDialog->setMoveDown(show && row != _character.complications().count() - 1);
+#else
     Ui->editPowerOrEquipment->setEnabled(show);
     Ui->deletePowerOrEquipment->setEnabled(show);
     Ui->cutPowerOrEquipment->setEnabled(show);
@@ -2638,9 +2638,18 @@ void Sheet::playerNameChanged(QString txt) {
 }
 
 void Sheet::powersandequipmentMenu(QPoint pos) {
+#ifdef __wasm__
+    closeDialogs(nullptr);
+    _powerMenuDialog = make_shared<PowerMenuDialog>();
+    _powerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    _powerMenuDialog->setPos(mapToGlobal(pos + Ui->powersandequipment->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    aboutToShowPowersAndEquipmentMenu();
+    _powerMenuDialog->open();
+#else
     Ui->powersandequipmentMenu->exec(mapToGlobal(pos
                                                  + Ui->powersandequipment->pos()
                                                  - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+#endif
 }
 
 void Sheet::print() {
