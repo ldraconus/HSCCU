@@ -20,6 +20,7 @@ public:
             , json["notDistinctive"].toBool(false)
             , json["reaction"].toInt(0)
             , json["what"].toString("") } { }
+    ~DistinctiveFeature() override { }
 
     DistinctiveFeature& operator=(const DistinctiveFeature& ac) {
         if (this != &ac) v = ac.v;
@@ -53,7 +54,7 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return 5_cp * (v._concealability + 1) + v._reaction * 5_cp - v._detectable * 5_cp - (v._notDistinctive ? 5_cp : 0_cp);
+        return 5_cp * (v._concealability + 1) + v._reaction * 5_cp - v._detectable * 5_cp - (v._notDistinctive ? 5_cp : 0_cp); // NOLINT
     }
     void restore() override {
         vars s = v;
@@ -91,11 +92,11 @@ private:
         QString _what = "";
     } v;
 
-    QComboBox* concealability;
-    QComboBox* detectable;
-    QCheckBox* notDistinctive;
-    QComboBox* reaction;
-    QLineEdit* what;
+    gsl::owner<QComboBox*> concealability = nullptr;
+    gsl::owner<QComboBox*> detectable = nullptr;
+    gsl::owner<QCheckBox*> notDistinctive = nullptr;
+    gsl::owner<QComboBox*> reaction = nullptr;
+    gsl::owner<QLineEdit*> what = nullptr;
 };
 
 #endif // DISTINCTIVEFEATURE_H

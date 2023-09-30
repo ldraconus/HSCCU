@@ -19,6 +19,7 @@ public:
     AccidentalChange(const QJsonObject& json)
         : Complication()
         , v { json["circumstance"].toInt(0), json["frequency"].toInt(0), json["what"].toString("") } { }
+    ~AccidentalChange() override { }
 
     AccidentalChange& operator=(const AccidentalChange& ac) {
         if (this != &ac) v = ac.v;
@@ -56,7 +57,7 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._circumstance > -1 && v._frequency > -1) ? (v._circumstance - 1) * 5_cp + v._frequency * 5_cp : 0_cp;
+        return (v._circumstance > -1 && v._frequency > -1) ? (v._circumstance - 1) * 5_cp + v._frequency * 5_cp : 0_cp; // NOLINT
     }
     void restore() override {
         vars s = v;
@@ -86,9 +87,9 @@ private:
         QString _what = "";
     } v;
 
-    QComboBox* circumstance;
-    QComboBox* frequency;
-    QLineEdit* what;
+    gsl::owner<QComboBox*> circumstance = nullptr;
+    gsl::owner<QComboBox*> frequency = nullptr;
+    gsl::owner<QLineEdit*> what = nullptr;
 };
 
 #endif // ACCIDENTALCHANGE_H

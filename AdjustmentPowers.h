@@ -2,6 +2,7 @@
 #define ADJUSTMENTPOWERS_H
 
 #include "powers.h"
+#include "powerdialog.h"
 
 class Absorption: public AllPowers {
 public:
@@ -13,14 +14,16 @@ public:
                                                            v._defensive = json["defensive"].toInt(0);
                                                            v._varying   = json["varying"].toBool(false);
                                                          }
-    virtual Absorption& operator=(const Absorption& s) {
+    ~Absorption() override { }
+
+    Absorption& operator=(const Absorption& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Absorption& operator=(Absorption&& s) {
+    Absorption& operator=(Absorption&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -71,10 +74,10 @@ private:
         bool    _varying = false;
     } v;
 
-    QLineEdit* body;
-    QLineEdit* to;
-    QComboBox* defensive;
-    QCheckBox* varying;
+    QLineEdit* body = nullptr;
+    QLineEdit* to = nullptr;
+    QComboBox* defensive = nullptr;
+    QCheckBox* varying = nullptr;
 
     QString optOut(bool showEND) {
         if (v._defensive < 1 && v._to.isEmpty()) return "<incomplete>";
@@ -129,14 +132,16 @@ public:
                                                     v._boost = json["boost"].toBool(false);
                                                     v._who   = json["who"].toInt(0);
                                                   }
-    virtual Aid& operator=(const Aid& s) {
+    ~Aid() override { }
+
+    Aid& operator=(const Aid& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Aid& operator=(Aid&& s) {
+    Aid& operator=(Aid&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -152,7 +157,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return def(); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._dice * 6_cp; }
+                                                                   return v._dice * 6_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));
@@ -183,10 +188,10 @@ private:
         int     _who = -1;
     } v;
 
-    QLineEdit* dice;
-    QLineEdit* to;
-    QCheckBox* boost;
-    QComboBox* who;
+    QLineEdit* dice = nullptr;
+    QLineEdit* to = nullptr;
+    QCheckBox* boost = nullptr;
+    QComboBox* who = nullptr;
 
     QString optOut(bool showEND) {
         if (v._dice < 1 || v._to.isEmpty()) return "<incomplete>";
@@ -236,14 +241,16 @@ public:
                                                       v._from     = json["from"].toString("");
                                                       v._suppress = json["suppress"].toBool(false);
                                                     }
-    virtual Drain& operator=(const Drain& s) {
+    ~Drain() override { }
+
+    Drain& operator=(const Drain& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Drain& operator=(Drain&& s) {
+    Drain& operator=(Drain&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -257,8 +264,8 @@ public:
                                                                    suppress = createCheckBox(parent, layout, "Suppress");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points(v._dice * 10); }
+    Points points(bool noStore = false) override                 { if (!noStore) store();
+                                                                   return Points(v._dice * 10); } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));
@@ -285,9 +292,9 @@ private:
         bool    _suppress = false;
     } v;
 
-    QLineEdit* dice;
-    QLineEdit* from;
-    QCheckBox* suppress;
+    QLineEdit* dice = nullptr;
+    QLineEdit* from = nullptr;
+    QCheckBox* suppress = nullptr;
 
     QString optOut(bool showEND) {
         if (v._dice < 1 || v._from.isEmpty()) return "<incomplete>";
@@ -316,14 +323,16 @@ public:
                                                         v._to   = json["to"].toString("");
                                                         v._rate = json["rate"].toInt(-1);
                                                       }
-    virtual Healing& operator=(const Healing& s) {
+    ~Healing() override { }
+
+    Healing& operator=(const Healing& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Healing& operator=(Healing&& s) {
+    Healing& operator=(Healing&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -339,7 +348,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points(v._dice * 10); }
+                                                                   return Points(v._dice * 10); } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));
@@ -366,9 +375,9 @@ private:
         int     _rate = -1;
     } v;
 
-    QLineEdit* dice;
-    QLineEdit* to;
-    QComboBox* rate;
+    QLineEdit* dice = nullptr;
+    QLineEdit* to = nullptr;
+    QComboBox* rate = nullptr;
 
     Fraction def() {
         if (v._rate >= 1) return v._rate * Fraction(1, 4);

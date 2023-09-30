@@ -40,40 +40,40 @@ void PowerMenuDialog::showEvent(QShowEvent*) {
 
 void PowerMenuDialog::newButton() {
     done(QDialog::Accepted);
-    emit Sheet::ref().getUi()->newComplication->triggered();
+    emit Sheet::ref().getUi()->newPowerOrEquipment->triggered();
 }
 
 void PowerMenuDialog::editButton() {
     done(QDialog::Accepted);
-    emit Sheet::ref().getUi()->editComplication->triggered();
+    emit Sheet::ref().getUi()->editPowerOrEquipment->triggered();
 }
 
 void PowerMenuDialog::deleteButton() {
     done(QDialog::Accepted);
-    emit Sheet::ref().getUi()->deleteComplication->triggered();
+    emit Sheet::ref().getUi()->deletePowerOrEquipment->triggered();
 }
 
 void PowerMenuDialog::cutButton() {
     done(QDialog::Accepted);
-    emit Sheet::ref().getUi()->cutComplication->triggered();
+    emit Sheet::ref().getUi()->cutPowerOrEquipment->triggered();
 }
 
 void PowerMenuDialog::copyButton() {
     done(QDialog::Accepted);
-    emit Sheet::ref().getUi()->copyComplication->triggered();
+    emit Sheet::ref().getUi()->copyPowerOrEquipment->triggered();
 }
 
 void PowerMenuDialog::pasteButton() {
     done(QDialog::Accepted);
-    emit Sheet::ref().getUi()->pasteComplication->triggered();
+    emit Sheet::ref().getUi()->pastePowerOrEquipment->triggered();
 }
 
 void PowerMenuDialog::moveUpButton() {
     done(QDialog::Accepted);
-    emit Sheet::ref().getUi()->moveComplicationUp->triggered();
+    emit Sheet::ref().getUi()->movePowerOrEquipmentUp->triggered();
 }
 
 void PowerMenuDialog::moveDownButtons() {
     done(QDialog::Accepted);
-    emit Sheet::ref().getUi()->moveComplicationDown->triggered();
+    emit Sheet::ref().getUi()->movePowerOrEquipmentDown->triggered();
 }

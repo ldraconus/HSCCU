@@ -23,6 +23,7 @@ public:
             , json["weakness"].toBool(false)
             , json["what"].toString() } { }
 
+    ~Dependence() override { }
     Dependence& operator=(const Dependence& d) {
         if (this != &d) v = d.v;
         return *this;
@@ -72,8 +73,8 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return v._rarity * 5_cp + v._damage * 5_cp + v._roll * 5_cp + (v._competence ? 5_cp : 0_cp) + (v._weakness ? 5_cp : 0_cp) +
-               (v._addiction ? 5_cp : (30_cp - 5_cp * v._timeStep));
+        return v._rarity * 5_cp + v._damage * 5_cp + v._roll * 5_cp + (v._competence ? 5_cp : 0_cp) + (v._weakness ? 5_cp : 0_cp) + // NOLINT
+               (v._addiction ? 5_cp : (30_cp - 5_cp * v._timeStep)); // NOLINT
     }
     void restore() override {
         vars s = v;
@@ -123,14 +124,14 @@ private:
         QString _what = "";
     } v;
 
-    QCheckBox* addiction;
-    QCheckBox* competence;
-    QComboBox* damage;
-    QComboBox* rarity;
-    QComboBox* roll;
-    QComboBox* timeStep;
-    QCheckBox* weakness;
-    QLineEdit* what;
+    gsl::owner<QCheckBox*> addiction = nullptr;
+    gsl::owner<QCheckBox*> competence = nullptr;
+    gsl::owner<QComboBox*> damage = nullptr;
+    gsl::owner<QComboBox*> rarity = nullptr;
+    gsl::owner<QComboBox*> roll = nullptr;
+    gsl::owner<QComboBox*> timeStep = nullptr;
+    gsl::owner<QCheckBox*> weakness = nullptr;
+    gsl::owner<QLineEdit*> what = nullptr;
 
     void checked(bool on) override { timeStep->setEnabled(!on); }
 };

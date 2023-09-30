@@ -21,12 +21,13 @@ public:
     AgilitySkills(const QJsonObject& json)
         : SkillTalentOrPerk()
         , v { json["name"].toString(""), json["plus"].toInt(0) } { }
+    ~AgilitySkills() override { }
 
-    virtual AgilitySkills& operator=(const AgilitySkills& s) {
+    AgilitySkills& operator=(const AgilitySkills& s) {
         if (this != &s) v = s.v;
         return *this;
     }
-    virtual AgilitySkills& operator=(AgilitySkills&& s) {
+    AgilitySkills& operator=(AgilitySkills&& s) {
         v = s.v;
         return *this;
     }
@@ -54,11 +55,11 @@ public:
 
 private:
     struct vars {
-        QString _name;
-        int     _plus;
+        QString _name = "";
+        int     _plus = 0;
     } v;
 
-    QLineEdit* plus;
+    QLineEdit* plus = nullptr;
 
     void numeric(QString) override {
         QString txt = plus->text();
@@ -67,21 +68,49 @@ private:
     }
 };
 
-#define CLASS(x)\
-    class x: public AgilitySkills {\
-    public:\
-        x(): AgilitySkills(#x) { }\
-        x(const x& s): AgilitySkills(s) { }\
-        x(x&& s): AgilitySkills(s) { }\
-        x(const QJsonObject& json): AgilitySkills(json) { }\
+// NOLINTNEXTLINE
+#define CLASS(x)                                         \
+    class x: public AgilitySkills {                      \
+    public:                                              \
+        x()                                              \
+            : AgilitySkills(#x) { }                      \
+        x(const x& s)                                    \
+            : AgilitySkills(s) { }                       \
+        x(x&& s)                                         \
+            : AgilitySkills(s) { }                       \
+        x(const QJsonObject& json)                       \
+            : AgilitySkills(json) { }                    \
+        ~x() { }                                         \
+        x& operator=(const x& s) {                       \
+            if (this != &s) AgilitySkills::operator=(s); \
+            return *this;                                \
+        }                                                \
+        x& operator=(x&& s) {                            \
+            AgilitySkills::operator=(s);                 \
+            return *this;                                \
+        }                                                \
     };
-#define CLASS_SPACE(x,y)\
-    class x: public AgilitySkills {\
-    public:\
-        x(): AgilitySkills(y) { }\
-        x(const x& s): AgilitySkills(s) { }\
-        x(x&& s): AgilitySkills(s) { }\
-        x(const QJsonObject& json): AgilitySkills(json) { }\
+// NOLINTNEXTLINE
+#define CLASS_SPACE(x, y)                                \
+    class x: public AgilitySkills {                      \
+    public:                                              \
+        x()                                              \
+            : AgilitySkills(y) { }                       \
+        x(const x& s)                                    \
+            : AgilitySkills(s) { }                       \
+        x(x&& s)                                         \
+            : AgilitySkills(s) { }                       \
+        x(const QJsonObject& json)                       \
+            : AgilitySkills(json) { }                    \
+        ~x() { }                                         \
+        x& operator=(const x& s) {                       \
+            if (this != &s) AgilitySkills::operator=(s); \
+            return *this;                                \
+        }                                                \
+        x& operator=(x&& s) {                            \
+            AgilitySkills::operator=(s);                 \
+            return *this;                                \
+        }                                                \
     };
 
 CLASS(Acrobatics);

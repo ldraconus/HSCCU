@@ -21,12 +21,13 @@ public:
     BackgroundSkill(const QJsonObject& json)
         : SkillTalentOrPerk()
         , v { json["name"].toString("") } { }
+    ~BackgroundSkill() override { }
 
-    virtual BackgroundSkill& operator=(const BackgroundSkill& s) {
+    BackgroundSkill& operator=(const BackgroundSkill& s) {
         if (this != &s) v = s.v;
         return *this;
     }
-    virtual BackgroundSkill& operator=(BackgroundSkill&& s) {
+    BackgroundSkill& operator=(BackgroundSkill&& s) {
         v = s.v;
         return *this;
     }
@@ -53,6 +54,7 @@ private:
     } v;
 };
 
+// NOLINTNEXTLINE
 #define CLASS(x)\
     class x: public BackgroundSkill {\
     public:\
@@ -61,6 +63,7 @@ private:
         x(x&& s): BackgroundSkill(s) { }\
         x(const QJsonObject& json): BackgroundSkill(json) { }\
     };
+// NOLINTNEXTLINE
 #define CLASS_SPACE(x,y)\
     class x: public BackgroundSkill {\
     public:\
@@ -79,14 +82,28 @@ public:
                                                          v._plus    = json["plus"].toInt(1);
                                                          v._for     = json["for"].toString("");
                                                          v._type    = json["type"].toInt(0);
-                                                       }
+    }
+    ~KS() override { }
+
+    KS& operator=(const KS& s) {
+        if (this != &s) {
+            BackgroundSkill::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    KS& operator=(KS&& s) {
+        BackgroundSkill::operator=(s);
+        v = s.v;
+        return *this;
+    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? (
 #ifndef ISHSC
                                                                                 v._introll ? add(Sheet::ref().character().INT().roll(), v._plus)
                                                                                                  :
 #endif
-                                                                                    QString("%1-").arg(11 + v._plus)) + " "
+                                                                                    QString("%1-").arg(11 + v._plus)) + " " // NOLINT
                                                                                    : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { introll = createCheckBox(parent, layout, "Base off INT");
                                                                   plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -111,7 +128,7 @@ public:
                                                                   v = s;
                                                                 }
 #ifndef ISHSC
-    QString roll() override                                     { return v._introll ? add(Sheet::ref().character().INT().roll(), v._plus) : QString("%1-").arg(11 + v._plus); }
+    QString roll() override                                     { return v._introll ? add(Sheet::ref().character().INT().roll(), v._plus) : QString("%1-").arg(11 + v._plus); } // NOLINT
 #else
     QString roll() override                                     { return QString("%1-").arg(11 + v._plus); }
 #endif
@@ -136,10 +153,10 @@ private:
         int     _type    = -1;
     } v;
 
-    QCheckBox* introll;
-    QLineEdit* plus;
-    QLineEdit* forwhat;
-    QComboBox* type;
+    QCheckBox* introll = nullptr;
+    QLineEdit* plus = nullptr;
+    QLineEdit* forwhat = nullptr;
+    QComboBox* type = nullptr;
 
     QString optOut() {
         if (v._for.isEmpty()) return "<incomplete>";
@@ -177,6 +194,20 @@ public:
                                                                v._level    = json["level"].toInt(0);
                                                                v._literate = json["literate"].toBool(false);
                                                              }
+    ~Language() override { }
+
+    Language& operator=(const Language& s) {
+        if (this != &s) {
+            BackgroundSkill::operator=(s);
+            v = s.v;
+       }
+       return *this;
+    }
+    Language& operator=(Language&& s) {
+        BackgroundSkill::operator=(s);
+        v = s.v;
+        return *this;
+    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { which    = createLineEdit(parent, layout, "Which language?");
@@ -218,9 +249,9 @@ private:
         bool    _literate = "";
     } v;
 
-    QLineEdit* which;
-    QComboBox* level;
-    QCheckBox* literate;
+    QLineEdit* which = nullptr;
+    QComboBox* level = nullptr;
+    QCheckBox* literate = nullptr;
 
     QString optOut() {
         if (v._level < 1 || v._which.isEmpty()) return "<incomplete>";
@@ -237,6 +268,20 @@ public:
                                                          v._plus = json["plus"].toInt(0);
                                                          v._stat = json["stat"].toInt(-1);
                                                        }
+    ~PS() override { }
+
+    PS& operator=(const PS& s) {
+        if (this != &s) {
+            BackgroundSkill::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    PS& operator=(PS&& s) {
+        BackgroundSkill::operator=(s);
+        v = s.v;
+        return *this;
+    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v._plus) + ") ": "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createLineEdit(parent, layout, "What profession?");
@@ -260,7 +305,7 @@ public:
                                                                 }
 #ifndef ISHSC
     QString roll() override                                     { return (v._stat >= 1) ? add(Sheet::ref().character().characteristic(v._stat - 1).roll(), v._plus)
-                                                                                        : QString("%1-").arg(11 + v._plus); }
+                                                                                        : QString("%1-").arg(11 + v._plus); } // NOLINT
 #else
     QString roll() override                                     { return QString("%1-").arg(11 + v._plus); }
 #endif
@@ -282,9 +327,9 @@ private:
         int     _stat  = -1;
     } v;
 
-    QLineEdit* what;
-    QLineEdit* plus;
-    QComboBox* stat;
+    QLineEdit* what = nullptr;
+    QLineEdit* plus = nullptr;
+    QComboBox* stat = nullptr;
 
     QString optOut() {
         if (v._what.isEmpty()) return "<incomplete>";
@@ -314,6 +359,20 @@ public:
                                                          v._plus = json["plus"].toInt(0);
                                                          v._int  = json["int"].toBool(false);
                                                        }
+    ~SS() override { }
+
+    SS& operator=(const SS& s) {
+        if (this != &s) {
+            BackgroundSkill::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    SS& operator=(SS&& s) {
+        BackgroundSkill::operator=(s);
+        v = s.v;
+        return *this;
+    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v._plus) + ") ": "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what    = createLineEdit(parent, layout, "What profession?");
@@ -337,7 +396,7 @@ public:
                                                                 }
 #ifndef ISHSC
     QString roll() override                                     { return v._int ? add(Sheet::ref().character().INT().roll(), v._plus)
-                                                                                : QString("%1-").arg(11 + v._plus); }
+                                                                                : QString("%1-").arg(11 + v._plus); } // NOLINT
 #else
     QString roll() override                                     { return QString("%1-").arg(11 + v._plus); }
 #endif
@@ -359,9 +418,9 @@ private:
         bool    _int = false;
     } v;
 
-    QLineEdit* what;
-    QLineEdit* plus;
-    QCheckBox* intstat;
+    QLineEdit* what = nullptr;
+    QLineEdit* plus = nullptr;
+    QCheckBox* intstat = nullptr;
 
     QString optOut() {
         if (v._what.isEmpty()) return "<incomplete>";
@@ -390,7 +449,20 @@ public:
     TF(const QJsonObject& json): BackgroundSkill(json) { v._what = json["what"].toInt(0);
                                                          v._with = json["with"].toString("");
                                                        }
+    ~TF() override { }
 
+    TF& operator=(const TF& s) {
+        if (this != &s) {
+            BackgroundSkill::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    TF& operator=(TF&& s) {
+        BackgroundSkill::operator=(s);
+        v = s.v;
+        return *this;
+    }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createComboBox(parent, layout, "Familar with?", { "One class of conveyances",
                                                                                                                            "Broad category of conveyances"});
@@ -421,8 +493,8 @@ private:
         QString _with = "";
     } v;
 
-    QComboBox* what;
-    QLineEdit* with;
+    QComboBox* what = nullptr;
+    QLineEdit* with = nullptr;
 
     QString optOut() {
         if (v._with.isEmpty()) return "<incomplete>";

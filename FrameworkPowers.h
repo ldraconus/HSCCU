@@ -21,12 +21,13 @@ public:
     FrameworkPowers(const QJsonObject& json)
         : Power()
         , v { json["name"].toString(), json["powerName"].toString(""), { } } { loadPowers(json["powers"].toArray()); }
+    ~FrameworkPowers() override { }
 
-    virtual FrameworkPowers& operator=(const FrameworkPowers& s) {
+    FrameworkPowers& operator=(const FrameworkPowers& s) {
         if (this != &s) v = s.v;
         return *this;
     }
-    virtual FrameworkPowers& operator=(FrameworkPowers&& s) {
+    FrameworkPowers& operator=(FrameworkPowers&& s) {
         v = s.v;
         return *this;
     }
@@ -99,12 +100,12 @@ public:
 
 protected:
     struct vars {
-        QString                  _name;
-        QString                  _powerName;
-        QList<shared_ptr<Power>> _powers;
+        QString _name = "";
+        QString _powerName = "";
+        QList<shared_ptr<Power>> _powers {};
     } v;
 
-    QLineEdit* powerName;
+    QLineEdit* powerName = nullptr;
 };
 
 class Group: public FrameworkPowers {

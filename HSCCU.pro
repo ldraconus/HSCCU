@@ -11,6 +11,7 @@ CONFIG += c++20
 RC_ICONS = HeroSystem.ico
 
 SOURCES += \
+    Equipment.cpp \
     PowerMenuDialog.cpp \
     character.cpp \
     characteristic.cpp \
@@ -39,11 +40,13 @@ HEADERS += \
     BackgroundSkills.h \
     BodyAffectingPowers.h \
     CombatSkills.h \
+    Debug.h \
     DefensePowers.h \
     Dependence.h \
     Dependent.h \
     DistinctiveFeature.h \
     Enraged.h \
+    Equipment.h \
     FrameworkPowers.h \
     Hunted.h \
     IntellectSkills.h \
@@ -139,4 +142,5 @@ DISTFILES += \
     Installer/config/config.xml \
     Installer/packages/com.vendor.product/meta/license.txt \
     Installer/packages/com.vendor.product/meta/package.xml \
-    TODO
+    TODO \
+    equipment.json

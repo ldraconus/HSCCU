@@ -1,8 +1,6 @@
 #ifndef MODIFIERSDIALOG_H
 #define MODIFIERSDIALOG_H
 
-#include "shared.h"
-
 #include <QDialog>
 #include <QLabel>
 #include <QPushButton>
@@ -10,9 +8,13 @@
 #include <QTreeWidgetItem>
 #include <QVBoxLayout>
 
+#include "shared.h"
+
 namespace Ui {
 class ModifiersDialog;
 }
+
+using std::shared_ptr;
 
 class ModifiersDialog : public QDialog
 {

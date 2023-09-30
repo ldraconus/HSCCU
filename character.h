@@ -18,6 +18,7 @@ public:
     Character();
     Character(const Character& c);
     Character(Character&& c): Character(c) { }
+    ~Character() { }
 
     Character& operator=(const Character& c);
     Character& operator=(Character&& c);
@@ -84,18 +85,18 @@ public:
         case 2:  return _CON;
         case 3:  return _INT;
         case 4:  return _EGO;
-        case 5:  return _PRE;
-        case 6:  return _OCV;
-        case 7:  return _DCV;
-        case 8:  return _OMCV;
-        case 9:  return _DMCV;
-        case 10: return _SPD;
-        case 11: return _PD;
-        case 12: return _ED;
-        case 13: return _REC;
-        case 14: return _END;
-        case 15: return _BODY;
-        default: return _STUN;
+        case 5:  return _PRE; // NOLINT
+        case 6:  return _OCV; // NOLINT
+        case 7:  return _DCV; // NOLINT
+        case 8:  return _OMCV; // NOLINT
+        case 9:  return _DMCV; // NOLINT
+        case 10: return _SPD; // NOLINT
+        case 11: return _PD; // NOLINT
+        case 12: return _ED; // NOLINT
+        case 13: return _REC; // NOLINT
+        case 14: return _END; // NOLINT
+        case 15: return _BODY; // NOLINT
+        default: return _STUN; // NOLINT
         }
     }
 
@@ -157,7 +158,7 @@ private:
     int _temprED  = 0;
     int _tempPD   = 0;
     int _tempED   = 0;
-    int _running  = 12;
+    int _running  = 12; // NOLINT
     int _leaping  = 4;
     int _swimming = 4;
 

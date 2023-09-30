@@ -2,6 +2,7 @@
 #include "ui_modifiersdialog.h"
 #include "modifier.h"
 #include "powerdialog.h"
+#include "shared.h"
 
 ModifiersDialog* ModifiersDialog::_modifiersDialog = nullptr;
 

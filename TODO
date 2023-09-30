@@ -1,6 +1,4 @@
-[ ] Rebuild installer for windows
-[X] Rebuild installer for WASM
-[X] Fix WASM bug where you can't pick a power
+[/] Touch support for WASM mode
 [ ] Plain-Jane Custom powers/skills/talents/perks/complications
 [ ] Lua custom powers/skills/talents/perks/complications
 [/] Test! Test!! Test!!!

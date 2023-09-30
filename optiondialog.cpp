@@ -18,6 +18,7 @@ optionDialog::optionDialog(QWidget *parent) :
 
     connect(ui->totalPointsLineEdit,   SIGNAL(textChanged(QString)),     this, SLOT(numeric(QString)));
     connect(ui->complicationsLineEdit, SIGNAL(textChanged(QString)),     this, SLOT(numeric(QString)));
+    connect(ui->activePointsPerEND,    SIGNAL(textChanged(QString)),     this, SLOT(numeric(QString)));
     connect(ui->comboBox,              SIGNAL(currentIndexChanged(int)), this, SLOT(pickSomething(int)));
     connect(this,                      SIGNAL(accepted()),               this, SLOT(accept()));
 }
@@ -43,8 +44,10 @@ QMap<int, int> table {
 
 void optionDialog::accept() {
     Sheet::ref().option().complications(Points(complications()));
+    Sheet::ref().option().equipmentFree(equipmentFree());
     Sheet::ref().option().showFrequencyRolls(showFrequencyRolls());
     Sheet::ref().option().showNotesPage(showNotesPage());
+    Sheet::ref().option().activePerEND(Points(activePointsPerEND()));
     Sheet::ref().option().totalPoints(Points(totalPoints()));
     Sheet::ref().option().normalHumanMaxima(normalHumanMaxima());
     Sheet::ref().option().store();

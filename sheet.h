@@ -7,8 +7,6 @@
 #include <QMainWindow>
 #include <QPrinter>
 
-#include "shared.h"
-
 #include "powerdialog.h"
 #include "complicationsdialog.h"
 #include "skilldialog.h"
@@ -22,6 +20,7 @@
 #endif
 #include "character.h"
 #include "option.h"
+#include "shared.h"
 #include "sheet_ui.h"
 
 QT_BEGIN_NAMESPACE

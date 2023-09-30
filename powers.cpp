@@ -8,6 +8,7 @@
 #include "AutomatonPowers.h"
 #include "BodyAffectingPowers.h"
 #include "DefensePowers.h"
+#include "Equipment.h"
 #include "FrameworkPowers.h"
 #include "MentalPowers.h"
 #include "MovementPowers.h"
@@ -16,7 +17,11 @@
 #include "SpecialPowers.h"
 #include "StandardPowers.h"
 
+#include <QFile>
 #include <QHeaderView>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QScreen>
 #include <QScrollBar>
 #include <QWidget>
@@ -119,6 +124,11 @@ namespace statics {
     MAKE(Group);
     MAKE(Multipower);
     MAKE(VPP);
+
+    // Equipment
+    MAKE(Weapon);
+    MAKE(Armor);
+    MAKE(Equip);
 }
 
 QMap<QString, Power::allBase*> Power::_adjustmentPower {
@@ -265,6 +275,12 @@ QMap<QString, Power::allBase*> Power::_standardPower {
     SPCS("Summonϴ",             Summon),
     SPCS("Telekinesis",         Telekinesis),
     SPCS("Transformϴ",          Transform)
+};
+
+QMap<QString, Power::allBase*> Power::_equipment {
+    SPCS("Weapon",    Weapon),
+    SPCS("Armor",     Armor),
+    SPCS("Equipment", Equip)
 };
 
 #ifndef ISHSC
@@ -539,7 +555,8 @@ QList<QString> Power::Available() {
            SenseAffectingPowers() +
            SensoryPowers() +
            SpecialPowers() +
-           StandardPowers();
+           StandardPowers() +
+           Equipment();
 }
 
 QList<QString> Power::AdjustmentPowers() {
@@ -590,6 +607,40 @@ QList<QString> Power::StandardPowers() {
     return _standardPower.keys();
 }
 
+QList<QString> Power::Equipment() {
+    static bool loaded = false;
+
+    if (!loaded) loaded = LoadEquipment();
+    return _equipment.keys();
+}
+
+bool Power::LoadEquipment() {
+    QString data;
+    QString fileName(":/data/equipment.json");
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) return false;
+    data = file.readAll();
+    file.close();
+
+    QJsonDocument json = QJsonDocument::fromJson(data.toUtf8());
+    if (json.isEmpty()) return false;
+    QJsonObject top = json.object();
+    QJsonArray arr = top["equipment"].toArray();
+    int count = arr.count();
+    for (int i = 0; i < count; ++i) {
+        QJsonArray equip = arr[i].toArray();
+        QString type = equip[0].toString();
+        QJsonObject obj = equip[1].toObject();
+        QString name = obj["powerName"].toString();
+
+        if (type == "weapon") Weapon::catalog()[name] = obj;
+        else if (type == "armor") Armor::catalog()[name] = obj;
+        else Equip::catalog()[name] = obj;
+    }
+    return true;
+}
+
 shared_ptr<Power> Power::ByName(QString name) {
     if (_adjustmentPower.find(name) != _adjustmentPower.end()) return _adjustmentPower[name]->create();
     if (_attackPower.find(name) != _attackPower.end()) return _attackPower[name]->create();
@@ -603,6 +654,7 @@ shared_ptr<Power> Power::ByName(QString name) {
     if (_specialPower.find(name) != _specialPower.end()) return _specialPower[name]->create();
     if (_standardPower.find(name) != _standardPower.end()) return _standardPower[name]->create();
     if (_frameworkPower.find(name) != _frameworkPower.end()) return _frameworkPower[name]->create();
+    if (_equipment.find(name) != _equipment.end()) return _equipment[name]->create();
     else return nullptr;
 }
 
@@ -620,7 +672,10 @@ shared_ptr<Power> Power::FromJson(QString name, const QJsonObject& json) {
     else if (_specialPower.find(name) != _specialPower.end()) power = _specialPower[name]->create(json);
     else if (_standardPower.find(name) != _standardPower.end()) power = _standardPower[name]->create(json);
     else if (_frameworkPower.find(name) != _frameworkPower.end()) power = _frameworkPower[name]->create(json);
-    else return nullptr;
+    else {
+        if (_equipment.find(name) != _equipment.end()) power = _equipment[name]->create(json);
+        else return nullptr;
+    }
     QJsonObject obj = json["modifiers"].toObject();
     QStringList keys = obj.keys();
     for (const auto& key: keys) {
@@ -659,26 +714,27 @@ QString Power::end() {
         else if (mod->isAdder()) active += mod->points(Modifier::NoStore);
     }
     Fraction reduced(1);
+    auto opt = Sheet::ref().getOption();
     auto adv = this->endLessActing();
     active = Points((active.points * adv).toInt());
-    int per = 10;
+    int per = opt.activePerEND().points;
     if (findModifier("Charges") != _modifiers.end()) per = 0;
     auto mod = findModifier("Costs Endurance");
     if (mod != _modifiers.end()) {
-        per = 10;
+        per = opt.activePerEND().points;
         if ((*mod)->endChange() == Fraction(1, 2)) active = active / 2_cp;
     }
     mod = findModifier("Reduced Endurance");
     if (mod != _modifiers.end() && (*mod)->endChange() != Fraction(1, 2)) per = 0;
     mod = findModifier("Increased END Cost");
     if (mod != _modifiers.end()) {
-        if (per == 0) per = 10;
+        if (per == 0) per = opt.activePerEND().points;
         active = Points((active.points * (*mod)->endChange()).toInt());
     }
-    if (findModifier("Costs END Only To Activate") != _modifiers.end() && per == 0) per = 10;
+    if (findModifier("Costs END Only To Activate") != _modifiers.end() && per == 0) per = opt.activePerEND().points;
     mod = findModifier("Costs Endurance To Maintain");
     if (mod != _modifiers.end()) {
-        if (per == 0) per = 10;
+        if (per == 0) per = opt.activePerEND().points;
         active = Points((active.points * (*mod)->endChange()).toInt());
     }
 
@@ -695,6 +751,7 @@ QString Power::end() {
 }
 
 QString Power::noEnd() {
+    auto opt = Sheet::ref().getOption();
     Points active(points(NoStore));
     for (const auto& mod: advantagesList()) {
         if (mod->name() == "Reduced Endurance") continue;
@@ -707,18 +764,18 @@ QString Power::noEnd() {
     if (findModifier("Charges") != _modifiers.end()) per = 0;
     auto mod = findModifier("Costs Endurance");
     if (mod != _modifiers.end()) {
-        per = 10;
+        per = opt.activePerEND().points;
         if ((*mod)->endChange() == Fraction(1, 2)) active = active / 2_cp;
     }
     mod = findModifier("Increased END Cost");
     if (mod != _modifiers.end()) {
-        if (per == 0) per = 10;
+        if (per == 0) per = opt.activePerEND().points;
         active = Points((active.points * (*mod)->endChange()).toInt());
     }
-    if (findModifier("Costs END Only To Activate") != _modifiers.end() && per == 0) per = 10;
+    if (findModifier("Costs END Only To Activate") != _modifiers.end() && per == 0) per = opt.activePerEND().points;
     mod = findModifier("Costs Endurance To Maintain");
     if (mod != _modifiers.end()) {
-        if (per == 0) per = 10;
+        if (per == 0) per = opt.activePerEND().points;
         active = Points((active.points * (*mod)->endChange()).toInt());
     }
     mod = findModifier("Reduced Endurance");

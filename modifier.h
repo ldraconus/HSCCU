@@ -5,7 +5,6 @@
 #ifndef ISHSC
 #include "modifiersdialog.h"
 #endif
-#include "shared.h"
 
 #include <QCheckBox>
 #include <QComboBox>

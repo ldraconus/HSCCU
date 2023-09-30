@@ -20,6 +20,7 @@ public:
             , json["regain"].toInt(0)
             , json["type"].toBool(false)
             , json["what"].toString("") } { }
+    ~Enraged() override { }
 
     Enraged& operator=(const Enraged& ac) {
         if (this != &ac) v = ac.v;
@@ -46,7 +47,7 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._frequency + 1) * 5_cp + v._chance * 5_cp + v._regain * 5_cp + (v._type ? 10_cp : 0_cp);
+        return (v._frequency + 1) * 5_cp + v._chance * 5_cp + v._regain * 5_cp + (v._type ? 10_cp : 0_cp); // NOLINT
     }
     void restore() override {
         vars s = v;
@@ -80,15 +81,15 @@ private:
         int     _chance = -1;
         int     _frequency = -1;
         int     _regain = -1;
-        bool    _type;
+        bool    _type = false;
         QString _what = "";
     } v;
 
-    QComboBox* chance;
-    QComboBox* frequency;
-    QComboBox* regain;
-    QCheckBox* type;
-    QLineEdit* what;
+    gsl::owner<QComboBox*> chance = nullptr;
+    gsl::owner<QComboBox*> frequency = nullptr;
+    gsl::owner<QComboBox*> regain = nullptr;
+    gsl::owner<QCheckBox*> type = nullptr;
+    gsl::owner<QLineEdit*> what = nullptr;
 };
 
 #endif // ENRAGED_H

@@ -82,8 +82,6 @@ protected:
     int    _row    = -1;
 
 public:
-    //Ui::PowerDialog* ui;
-
     QLineEdit* labeledEdit(QWidget* w)       { return _labeledEdits[w]; }
     bool       labeledEditExists(QWidget* w) { return _labeledEdits.find(w) != _labeledEdits.end(); }
 
@@ -109,7 +107,6 @@ public:
         shared_ptr<Power> create() override                        { return make_shared<T>(); }
         shared_ptr<Power> create(const QJsonObject& json) override { return make_shared<T>(json); }
     };
-
 
     Power();
     Power(const Power& p)
@@ -209,6 +206,7 @@ public:
 
     virtual int characteristic(int) { return 0; }
 
+    virtual bool                      isEquipment()                  { return false; }
     virtual bool                      isFramework()                  { return false; }
     virtual bool                      isMultipower()                 { return false; }
     virtual bool                      isVPP()                        { return false; }
@@ -262,11 +260,13 @@ public:
     static QList<QString>    Available();
     static void              ClearForm(QVBoxLayout*);
     static void              ClearLabeledEdits() { _labeledEdits.clear(); }
+    static bool              LoadEquipment();
     static QList<QString>    AdjustmentPowers();
     static QList<QString>    AttackPowers();
     static QList<QString>    AutomatonPowers();
     static QList<QString>    BodyAffectingPowers();
     static QList<QString>    DefensePowers();
+    static QList<QString>    Equipment();
     static QList<QString>    FrameworkPowers();
     static QList<QString>    MentalPowers();
     static QList<QString>    MovementPowers();
@@ -294,6 +294,7 @@ private:
     static QMap<QString, allBase*> _sensoryPower;
     static QMap<QString, allBase*> _specialPower;
     static QMap<QString, allBase*> _standardPower;
+    static QMap<QString, allBase*> _equipment;
 };
 
 class AllPowers: public Power {
@@ -383,8 +384,7 @@ public:
         : Power(s)
         , v(s.v) { }
     AllPowers(const QJsonObject& json)
-        : Power()
-        , v { json["name"].toString(), json["powerName"].toString(""), json["varies"].toBool(false) } { }
+        : Power() { load(json); }
 
     virtual AllPowers& operator=(const AllPowers& s) {
         if (this != &s) {
@@ -399,6 +399,13 @@ public:
         return *this;
     }
 
+    void load(const QJsonObject& json, const QString& name = "") {
+        if (name.isEmpty()) v._name = json["name"].toString();
+        else v._name = name;
+        v._powerName = json["powerName"].toString("");
+        v._varies = json["varies"].toBool(false);
+    }
+
     QString     description(bool roll = false) override = 0;
     Points      points(bool noStore = false) override   = 0;
 
@@ -407,21 +414,23 @@ public:
     Fraction lim() override         { return Fraction(0); }
     void     numeric(int) override  { }
 
-    void        form(QWidget* widget, QVBoxLayout* layout) override { powerName = createLineEdit(widget, layout, "Nickname of power");
-                                                                      if (_parent != nullptr && _parent->isMultipower()) varies = createCheckBox(widget, layout, "Varies");
-                                                                      else if (_inMultipower) varies = createCheckBox(widget, layout, "Varies");
-                                                                      else varies = nullptr;
-                                                                    }
+    void form(QWidget* widget, QVBoxLayout* layout) override {
+        if (isEquipment()) powerName = nullptr;
+        else powerName = createLineEdit(widget, layout, "Nickname of power");
+        if (_parent != nullptr && _parent->isMultipower()) varies = createCheckBox(widget, layout, "Varies");
+        else if (_inMultipower) varies = createCheckBox(widget, layout, "Varies");
+        else varies = nullptr;
+    }
     QString     name() override                                     { return v._name;
                                                                     }
     QString     nickname() override                                 { return v._powerName;
                                                                     }
     void        restore() override                                  { vars s = v;
-                                                                      powerName->setText(s._powerName);
+                                                                      if (powerName) powerName->setText(s._powerName);
                                                                       if (varies != nullptr) varies->setChecked(s._varies);
                                                                       v = s;
                                                                     }
-    void        store() override                                    { v._powerName = powerName->text();
+    void        store() override                                    { v._powerName = powerName ? powerName->text() : "";
                                                                       if (varies != nullptr) v._varies = varies->isChecked();
                                                                     }
     QJsonObject toJson() override                                   { QJsonObject obj = Power::toJson();

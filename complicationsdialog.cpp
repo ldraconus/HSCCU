@@ -7,7 +7,10 @@
 
 ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ComplicationsDialog)
+    ui(new Ui::ComplicationsDialog),
+    _description(nullptr),
+    _ok(nullptr),
+    _points(nullptr)
 {
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
@@ -19,7 +22,7 @@ ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
     QList<QString> complications = Complication::Available();
     for (const auto& complication: complications) ui->comboBox->addItem(complication);
 
-    _ok = ui->buttonBox->button(QDialogButtonBox::Ok);
+    _ok = ui->buttonBox->button(QDialogButtonBox::Ok); // NOLINT
     _ok->setEnabled(false);
 }
 
@@ -32,13 +35,13 @@ ComplicationsDialog& ComplicationsDialog::complication(shared_ptr<Complication>&
     QJsonObject obj = c->toJson();
     QString name = obj["name"].toString();
     if (name.isEmpty()) return *this;
-    int idx = Complication::Available().indexOf(name);
+    qsizetype idx = Complication::Available().indexOf(name);
     if (idx == -1) return *this;
     _skipUpdate = true;
-    ui->comboBox->setCurrentIndex(idx);
+    ui->comboBox->setCurrentIndex(gsl::narrow<int>(idx));
     _complication = c;
     ui->comboBox->setEnabled(false);
-    auto* layout = new QVBoxLayout(ui->form);
+    gsl::owner<QVBoxLayout*> layout = new QVBoxLayout(ui->form);
     try { _complication->createForm(this, layout); } catch (...) { accept(); return *this; }
     createLabel(layout, "");
     _points      = createLabel(layout, "-1 Points");
@@ -50,8 +53,8 @@ ComplicationsDialog& ComplicationsDialog::complication(shared_ptr<Complication>&
     return *this;
 }
 
-QLabel* ComplicationsDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap) {
-    QLabel* label = new QLabel();
+gsl::owner<QLabel*> ComplicationsDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap) {
+    gsl::owner<QLabel*> label = new QLabel();
     if (label != nullptr) {
         label->setText(text);
         label->setWordWrap(wordWrap);
@@ -66,7 +69,7 @@ void ComplicationsDialog::pickComplication(int idx) {
         return;
     }
 
-    QVBoxLayout* layout = static_cast<QVBoxLayout*>(ui->form->layout());
+    gsl::owner<QVBoxLayout*> layout = dynamic_cast<gsl::owner<QVBoxLayout*>>(ui->form->layout());
     if (layout == nullptr) {
         layout = new QVBoxLayout(ui->form);
         ui->form->setLayout(layout);
@@ -83,13 +86,13 @@ void ComplicationsDialog::pickComplication(int idx) {
 }
 
 void ComplicationsDialog::stateChanged(int) {
-    QCheckBox* checkBox = static_cast<QCheckBox*>(sender());
+    QCheckBox* checkBox = dynamic_cast<QCheckBox*>(sender());
     _complication->callback(checkBox);
     updateForm();
 }
 
 void ComplicationsDialog::textChanged(QString) {
-    QLineEdit* text = static_cast<QLineEdit*>(sender());
+    QLineEdit* text = dynamic_cast<QLineEdit*>(sender());
     _complication->callback(text);
     updateForm();
 }

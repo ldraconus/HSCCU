@@ -7,6 +7,8 @@ Characteristic::Characteristic(const QJsonObject& c)
     if (c.find("base") == c.end()) throw("");
 
     _base = c["base"].toInt(0);
+    _init = this->init();
+    _per = this->per();
 }
 
 Characteristic& Characteristic::operator=(const Characteristic& c) {
@@ -34,8 +36,12 @@ Points Characteristic::points() {
 
 
 QString Characteristic::roll() {
-    QString r = QString("%1-").arg(9 + (_base + _primary + 2) / 5);
-    if (_secondary != 0) r += QString("/%1-").arg(9 + (_base + _primary + _secondary + 2) / 5);
+    constexpr int baseRoll = 9;
+    constexpr int step = 5;
+    constexpr int halfStep = step / 2;
+
+    QString r = QString("%1-").arg(baseRoll + (_base + _primary + halfStep) / step);
+    if (_secondary != 0) r += QString("/%1-").arg(baseRoll + (_base + _primary + _secondary + halfStep) / step);
     return r;
 }
 

@@ -15,8 +15,14 @@ class ComplicationsDialog : public QDialog
     Q_OBJECT
 
 public:
+    ComplicationsDialog() = delete;
+    ComplicationsDialog(const ComplicationsDialog&) = delete;
+    ComplicationsDialog(ComplicationsDialog &&) = delete;
     explicit ComplicationsDialog(QWidget *parent = nullptr);
-    ~ComplicationsDialog();
+    ~ComplicationsDialog() override;
+
+    ComplicationsDialog& operator=(const ComplicationsDialog&) = delete;
+    ComplicationsDialog& operator=(ComplicationsDialog&&) = delete;
 
     shared_ptr<Complication> complication() { return _complication; }
     ComplicationsDialog& complication(shared_ptr<Complication>& c);
@@ -26,14 +32,14 @@ private:
 
     static const bool WordWrap = true;
 
-    shared_ptr<Complication> _complication;
-    QLabel*                  _description;
-    QPushButton*             _ok;
-    QLabel*                  _points;
+    shared_ptr<Complication> _complication = nullptr;
+    gsl::owner<QLabel*>      _description = nullptr;
+    gsl::owner<QPushButton*> _ok = nullptr;
+    gsl::owner<QLabel*>      _points = nullptr;
     bool                     _skipUpdate = false;
 
-    QLabel* createLabel(QVBoxLayout*, QString, bool wordWrap = false);
-    void    updateForm();
+    gsl::owner<QLabel*> createLabel(QVBoxLayout*, QString, bool wordWrap = false);
+    void                updateForm();
 
 public slots:
     void currentIndexChanged(int) { updateForm(); }

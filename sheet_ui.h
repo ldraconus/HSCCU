@@ -24,7 +24,12 @@ class ClickableLabel : public QLabel {
     Q_OBJECT
 
 public:
-    explicit ClickableLabel(QWidget* parent = Q_NULLPTR): QLabel(parent) { }
+    explicit ClickableLabel(QWidget* parent = Q_NULLPTR)
+        : QLabel(parent) {
+#ifdef __wasm__
+        this->setAttribute(Qt::WA_AcceptTouchEvents);
+#endif
+    }
     ~ClickableLabel() { }
 
 signals:
@@ -32,16 +37,29 @@ signals:
 
 protected:
 #ifdef __wasm__
-    void mousePressEvent(QMouseEvent* me) {
+    void mousePressEvent(QMouseEvent* me) override {
         if (me->buttons() == Qt::RightButton)
             emit customContextMenuRequested(me->pos());
         else
             emit clicked();
+    }
+    bool event(QEvent* e) override {
+        QTouchEvent* te = dynamic_cast<QTouchEvent*>(e);
+        if (te == nullptr) return QLabel::event(e);
+        if (te->type() == QEvent::TouchEnd) {
+            te->accept();
+            if (te->pointCount() == 2) {
+                QPoint pnt = te->point(0).position().toPoint();
+                emit customContextMenuRequested(pnt);
+            }
+        }
+        return true;
+    }
 #else
     void mousePressEvent(QMouseEvent*) {
         emit clicked();
-#endif
     }
+#endif
 
 };
 
@@ -49,7 +67,12 @@ class ClickableTable : public QTableWidget {
     Q_OBJECT
 
 public:
-    explicit ClickableTable(QWidget* parent = Q_NULLPTR): QTableWidget(parent) { }
+    explicit ClickableTable(QWidget* parent = Q_NULLPTR)
+        : QTableWidget(parent) {
+#ifdef __wasm__
+        this->setAttribute(Qt::WA_AcceptTouchEvents);
+#endif
+    }
     ~ClickableTable() { }
 
 signals:
@@ -57,17 +80,30 @@ signals:
 
 protected:
 #ifdef __wasm__
-    void mousePressEvent(QMouseEvent* me) {
+    void mousePressEvent(QMouseEvent* me) override {
         if (me->buttons() == Qt::RightButton)
             emit customContextMenuRequested(me->pos());
         else
             emit showmenu();
+    }
+    bool event(QEvent* e) override {
+        QTouchEvent* te = dynamic_cast<QTouchEvent*>(e);
+        if (te == nullptr) return QTableWidget::event(e);
+        if (te->type() == QEvent::TouchEnd) {
+            te->accept();
+            if (te->pointCount() == 2) {
+                emit showmenu();
+                emit customContextMenuRequested(te->point(0).position().toPoint());
+            }
+        }
+        return true;
+    }
 #else
     void mousePressEvent(QMouseEvent* me) {
         emit showmenu();
         QTableWidget::mousePressEvent(me);
-#endif
     }
+#endif
 };
 
 class Sheet_UI
@@ -75,9 +111,9 @@ class Sheet_UI
 private:
     void moveTo(QWidget* w, At p, Size s = { }) {
         QRect r = w->geometry();
-        r.moveTo({ p.x, p.y });
-        if (s.l != -1) r.setWidth(s.l);
-        if (s.h != -1) r.setHeight(s.h);
+        r.moveTo({ p.x(), p.y() });
+        if (s.l() != -1) r.setWidth(s.l());
+        if (s.h() != -1) r.setHeight(s.h());
         w->setGeometry(r);
     }
 
@@ -85,7 +121,7 @@ private:
         QLabel* label = new QLabel(parent);
         label->setFont(font);
         label->setText(val);
-        if (s.h == -1) moveTo(label, p, { s.h, s.l });
+        if (s.h() == -1) moveTo(label, p, { s.h(), s.l() });
         else moveTo(label, p, s);
         if (parent != page3) widgets.append(label);
         else hiddenWidgets.append(label);
@@ -106,7 +142,7 @@ private:
         if (selectable) label->setContextMenuPolicy(Qt::CustomContextMenu);
 #endif
         label->setStyleSheet(style);
-        if (s.h == -1) moveTo(label, p, { s.h, s.l });
+        if (s.h() == -1) moveTo(label, p, { s.h(), s.l() });
         else moveTo(label, p, s);
         widgets.append(label);
         return label;
@@ -136,7 +172,7 @@ private:
         line->setFrameShape(QFrame::HLine);
         QFont f = lineedit->font();
         QFontMetrics metrics(f);
-        moveTo(line, { p.x, p.y + s.h - metrics.descent() + 2 }, { s.l, 1 });
+        moveTo(line, { p.x(), p.y() + s.h() - metrics.descent() + 2 }, { s.l(), 1 });
         return lineedit;
     }
 
@@ -165,7 +201,7 @@ private:
         line->setFrameShape(QFrame::HLine);
         QFont f = lineedit->font();
         QFontMetrics metrics(f);
-        moveTo(line, { p.x, p.y + s.h - metrics.descent() + 2 }, { s.l, 1 });
+        moveTo(line, { p.x(), p.y() + s.h() - metrics.descent() + 2 }, { s.l(), 1 });
         return lineedit;
     }
 
@@ -247,23 +283,23 @@ private:
         verticalHeader->setVisible(false);
 #ifdef __wasm__
         verticalHeader->setMinimumSectionSize(sz + 2);
-        verticalHeader->setMaximumSectionSize(selectable ? s.l : sz + 2);
+        verticalHeader->setMaximumSectionSize(selectable ? s.l() : sz + 2);
         verticalHeader->setDefaultSectionSize(sz + 2);
 #else
         verticalHeader->setMinimumSectionSize(1);
-        verticalHeader->setMaximumSectionSize(selectable ? s.l : sz);
+        verticalHeader->setMaximumSectionSize(selectable ? s.l() : sz);
         verticalHeader->setDefaultSectionSize(1);
 #endif
         verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
         auto horizontalHeader = tablewidget->horizontalHeader();
         horizontalHeader->setStretchLastSection(true);
-        horizontalHeader->setMaximumSectionSize(s.l);
+        horizontalHeader->setMaximumSectionSize(s.l());
         horizontalHeader->setDefaultSectionSize(10);
         horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
 #ifdef __wasm__
         horizontalHeader->setMaximumSize(s.l, sz + 2);
 #else
-        horizontalHeader->setMaximumSize(s.l, sz);
+        horizontalHeader->setMaximumSize(s.l(), sz);
 #endif
         tablewidget->setSelectionMode(selectable ? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
         tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -327,7 +363,7 @@ private:
             tablewidget->resizeColumnToContents(i - 1);
             total += tablewidget->columnWidth(i - 1);
         }
-        tablewidget->setColumnWidth(headers.size() - 1, s.l - total);
+        tablewidget->setColumnWidth(headers.size() - 1, s.l() - total);
 #endif
         widgets.append(tablewidget);
 
@@ -753,6 +789,7 @@ public:
         createLabel(widget, tinyFont,     "-10",      { 909, 522 }, { 30, 20 });
 
         image     = createImage(widget, { 663, 555 }, { 285, 533 }, Selectable);
+
         imageMenu = createMenu(image, font, { { "New Image",   &newImage   },
                                               { "Clear Image", &clearImage } } );
 

@@ -9,6 +9,16 @@ public:
     CannotBeStunned(const CannotBeStunned& s): AllPowers(s)   { }
     CannotBeStunned(CannotBeStunned&& s): AllPowers(s)        { }
     CannotBeStunned(const QJsonObject& json): AllPowers(json) { }
+    ~CannotBeStunned() override { }
+
+    CannotBeStunned& operator=(const CannotBeStunned& s) {
+        if (this != &s) AllPowers::operator=(s);
+        return *this;
+    }
+    CannotBeStunned& operator=(CannotBeStunned&& s) {
+        AllPowers::operator=(s);
+        return *this;
+    }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -16,8 +26,8 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 15_cp; }
+    Points points(bool noStore = false) override                 { if (!noStore) store();
+                                                                   return 15_cp; } // NOLINT
     void     restore() override                                  { AllPowers::restore();
                                                                  }
     void     store() override                                    { AllPowers::store();
@@ -41,6 +51,16 @@ public:
     DoesNotBleed(const DoesNotBleed& s): AllPowers(s)      { }
     DoesNotBleed(DoesNotBleed&& s): AllPowers(s)           { }
     DoesNotBleed(const QJsonObject& json): AllPowers(json) { }
+    ~DoesNotBleed() override { }
+
+    DoesNotBleed& operator=(const DoesNotBleed& s) {
+        if (this != &s) AllPowers::operator=(s);
+        return *this;
+    }
+    DoesNotBleed& operator=(DoesNotBleed&& s) {
+        AllPowers::operator=(s);
+        return *this;
+    }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -48,8 +68,8 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 15_cp; }
+    Points points(bool noStore = false) override                 { if (!noStore) store();
+                                                                   return 15_cp; } // NOLINT
     void     restore() override                                  { AllPowers::restore();
                                                                  }
     void     store() override                                    { AllPowers::store();
@@ -73,6 +93,16 @@ public:
     NoHitLocations(const NoHitLocations& s): AllPowers(s)    { }
     NoHitLocations(NoHitLocations&& s): AllPowers(s)         { }
     NoHitLocations(const QJsonObject& json): AllPowers(json) { }
+    ~NoHitLocations() override { }
+
+    NoHitLocations& operator=(const NoHitLocations& s) {
+        if (this != &s) AllPowers::operator=(s);
+        return *this;
+    }
+    NoHitLocations& operator=(NoHitLocations&& s) {
+        AllPowers::operator=(s);
+        return *this;
+    }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -80,8 +110,8 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 10_cp; }
+    Points points(bool noStore = false) override                 { if (!noStore) store();
+                                                                   return 10_cp; } // NOLINT
     void     restore() override                                  { AllPowers::restore();
                                                                  }
     void     store() override                                    { AllPowers::store();
@@ -105,15 +135,17 @@ public:
     TakesNoSTUN(const TakesNoSTUN& s): AllPowers(s)       { }
     TakesNoSTUN(TakesNoSTUN&& s): AllPowers(s)            { }
     TakesNoSTUN(const QJsonObject& json): AllPowers(json) { v._damage = json["damage"].toBool(false);
-                                                                }
-    virtual TakesNoSTUN& operator=(const TakesNoSTUN& s) {
+                                                          }
+    ~TakesNoSTUN() override { }
+
+    TakesNoSTUN& operator=(const TakesNoSTUN& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual TakesNoSTUN& operator=(TakesNoSTUN&& s) {
+    TakesNoSTUN& operator=(TakesNoSTUN&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -126,8 +158,8 @@ public:
                                                                    damage = createCheckBox(parent, layout, "Loses powers on BODY damage");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return (v._damage ? 45_cp : 60_cp); }
+    Points points(bool noStore = false) override                 { if (!noStore) store();
+                                                                   return (v._damage ? 45_cp : 60_cp); } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    damage->setChecked(s._damage);
@@ -146,7 +178,7 @@ private:
         bool _damage = false;
     } v;
 
-    QCheckBox* damage;
+    QCheckBox* damage = nullptr;
 
     QString optOut(bool showEND) {
         QString res;

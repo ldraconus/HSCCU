@@ -4,6 +4,7 @@
 #include "shared.h"
 
 #include <functional>
+#include <gsl/gsl>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -16,14 +17,15 @@
 class Complication
 {
 protected:
-    QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (Complication::*)(bool)>);
-    QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString);
-    QComboBox* createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, std::_Mem_fn<void (Complication::*)(int)>);
-    QComboBox* createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
-    QLabel*    createLabel(QWidget*, QVBoxLayout*, QString);
-    QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (Complication::*)(QString)> callback);
-    QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString);
+    gsl::owner<QCheckBox*> createCheckBox(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (Complication::*)(bool)>);
+    gsl::owner<QCheckBox*> createCheckBox(QWidget*, QVBoxLayout*, QString);
+    gsl::owner<QComboBox*> createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, std::_Mem_fn<void (Complication::*)(int)>);
+    gsl::owner<QComboBox*> createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
+    gsl::owner<QLabel*>    createLabel(QWidget*, QVBoxLayout*, QString);
+    gsl::owner<QLineEdit*> createLineEdit(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (Complication::*)(QString)> callback);
+    gsl::owner<QLineEdit*> createLineEdit(QWidget*, QVBoxLayout*, QString);
 
+private:
     QMap<QCheckBox*, std::_Mem_fn<void (Complication::*)(bool)>>     _callbacksCB;
     QMap<QComboBox*, std::_Mem_fn<void (Complication::*)(int)>>      _callbacksCBox;
     QMap<QLineEdit*, std::_Mem_fn<void (Complication::*)(QString)>>  _callbacksEdit;
@@ -31,7 +33,12 @@ protected:
 
 public:
     Complication() { }
+    Complication(const Complication&) { }
+    Complication(const Complication&&) { }
     virtual ~Complication() { }
+
+    Complication& operator=(const Complication&) { return *this; }
+    Complication& operator=(Complication&&)      { return *this; }
 
     static const bool NoStore = true;
 
@@ -65,6 +72,7 @@ public:
         : Complication() { }
     BlankComp(const QJsonObject&)
         : Complication() { }
+    ~BlankComp() override { }
 
     BlankComp& operator=(const BlankComp&) { return *this; }
     BlankComp& operator=(BlankComp&&)      { return *this; }

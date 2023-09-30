@@ -19,6 +19,8 @@
 #endif
 #include "sheet_ui.h"
 
+#include "shared.h"
+
 #ifdef _WIN64
 #include <Shlobj.h>
 #endif
@@ -250,7 +252,7 @@ Sheet::Sheet(QWidget *parent)
 
     Modifiers mods;
 
-    printer = new QPrinter(QPrinter::HighResolution);
+    printer = nullptr;
 
     _dir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
@@ -367,13 +369,13 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->newImage,   SIGNAL(triggered()),                        this, SLOT(newImage()));
     connect(Ui->clearImage, SIGNAL(triggered()),                        this, SLOT(clearImage()));
 #else
-    connect(Ui->image,      SIGNAL(showMenu()),                         this, SLOT(outsideImageArea()));
+//    connect(Ui->image,      SIGNAL(showMenu()),                         this, SLOT(outsideImageArea()));
 #endif
 
     connect(Ui->complications,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(complicationDoubleClicked(QTableWidgetItem*)));
     connect(Ui->complications,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(complicationsMenu(QPoint)));
 #ifdef __wasm__
-//  connect(Ui->complications,        SIGNAL(showmenu()),                           this, SLOT(aboutToShowComplicationsMenu()));
+//    connect(Ui->complications,        SIGNAL(showmenu()),                           this, SLOT(aboutToShowComplicationsMenu()));
 #else
     connect(Ui->complicationsMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowComplicationsMenu()));
 #endif
@@ -390,7 +392,7 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->skillstalentsandperks,     SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(skillstalentsandperksDoubleClicked(QTableWidgetItem*)));
     connect(Ui->skillstalentsandperks,     SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(skillstalentsandperksMenu(QPoint)));
 #ifdef __wasm__
-//  connect(Ui->skillstalentsandperks,     SIGNAL(showmenu()),                           this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
+//    connect(Ui->skillstalentsandperks,     SIGNAL(showmenu()),                           this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
 #else
     connect(Ui->skillstalentsandperksMenu, SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
 #endif
@@ -406,7 +408,7 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->powersandequipment,       SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
     connect(Ui->powersandequipment,       SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
 #ifdef __wasm__
-//  connect(Ui->powersandequipment,       SIGNAL(showmenu()),                           this, SLOT(aboutToShowPowersAndEquipmentMenu()));
+//   connect(Ui->powersandequipment,       SIGNAL(showmenu()),                           this, SLOT(aboutToShowPowersAndEquipmentMenu()));
 #else
     connect(Ui->powersandequipmentMenu,   SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
 #endif
@@ -580,8 +582,8 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
 
         if (val == Ui->strval) {
             setDamage(def, Ui->hthdamage);
-            QString end = QString("%1").arg((primary + 4) / 10);
-            if (primary != secondary) end += QString("/%1").arg((secondary + 4) / 10);
+            QString end = QString("%1").arg((primary + 4) / _option.activePerEND().points);
+            if (primary != secondary) end += QString("/%1").arg((secondary + 4) / _option.activePerEND().points);
             Ui->strendcost->setText(end);
             rebuildMartialArts();
             QString lift = formatLift(primary);
@@ -616,7 +618,7 @@ void Sheet::characteristicEditingFinished(QLineEdit* val) {
             characteristicChanged(val, txt);
         }
         txt = "0";
-    }/
+    }
     auto& def = _widget2Def[val];
     txt = def.characteristic()->value();
     val->setText(txt);
@@ -749,7 +751,7 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
         descr += "; (-" + mod->fraction(Power::NoStore).abs().toString() + ") " + mod->description(false);
     }
     Fraction pts(pe->real().points);
-    if ((!pe->isFramework() || pe->isVPP() || pe->isMultipower()) && !descr.isEmpty() && pts.toInt() == 0) pts = Fraction(1);
+    if (((!pe->isFramework() && !pe->isEquipment()) || pe->isVPP() || pe->isMultipower()) && !descr.isEmpty() && pts.toInt() == 0) pts = Fraction(1);
     if (pe->isVPP()) pts += pe->pool().points;
     if (pts.toInt() != 0) setCell(Ui->powersandequipment, row, 0, QString("%1").arg(pts.toInt()), font);
     else setCell(Ui->powersandequipment, row, 0, "", font);
@@ -1799,7 +1801,7 @@ void Sheet::updatePower(shared_ptr<Power> power) {
     updatePowersAndEquipment();
 }
 
-void Sheet::updatePowersAndEquipment(){
+void Sheet::updatePowersAndEquipment() {
     Ui->powersandequipment->setRowCount(0);
     Ui->powersandequipment->update();
 
@@ -2538,6 +2540,8 @@ void Sheet::options() {
     _optionDlg->setShowFrequencyRolls(_option.showFrequencyRolls());
     _optionDlg->setShowNotesPage(_option.showNotesPage());
     _optionDlg->setNormalHumanMaxima(_option.normalHumanMaxima());
+    _optionDlg->setActivePointsPerEND(_option.activePerEND().points);
+    _optionDlg->setEquipmentFree(_option.equipmentFree());
     _optionDlg->setTotalPoints(_option.totalPoints().points);
     _optionDlg->open();
 }
@@ -2654,6 +2658,8 @@ void Sheet::powersandequipmentMenu(QPoint pos) {
 
 void Sheet::print() {
     bool saveChanged = _changed;
+
+    if (printer == nullptr) printer = new QPrinter(QPrinter::HighResolution);
 
     QPrintPreviewDialog preview(printer, this);
     preview.setWindowTitle("Print Chracter");

@@ -17,8 +17,9 @@
 #include "Vulnerability.h"
 
 bool Complication::isNumber(QString txt) {
-    bool ok;
-    txt.toInt(&ok, 10);
+    bool ok = false;
+    constexpr int base10 = 10;
+    txt.toInt(&ok, base10);
     return ok;
 }
 
@@ -36,8 +37,8 @@ void Complication::callback(QLineEdit* edit) {
     function(this, edit->text());
 }
 
-QCheckBox* Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt) {
-    QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
+gsl::owner<QCheckBox*> Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt) {
+    gsl::owner<QCheckBox*> checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
     layout->addWidget(checkBox);
@@ -45,8 +46,8 @@ QCheckBox* Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QS
     return checkBox;
 }
 
-QCheckBox* Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(bool)> callback) {
-    QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
+gsl::owner<QCheckBox*> Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(bool)> callback) {
+    gsl::owner<QCheckBox*> checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
     layout->addWidget(checkBox);
@@ -55,8 +56,8 @@ QCheckBox* Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QS
     return checkBox;
 }
 
-QComboBox* Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (Complication::*)(int)> callback) {
-    QComboBox* comboBox = new QComboBox(layout->parentWidget());
+gsl::owner<QComboBox*> Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (Complication::*)(int)> callback) {
+    gsl::owner<QComboBox*> comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setPlaceholderText(prompt);
     comboBox->setCurrentIndex(-1);
@@ -66,8 +67,8 @@ QComboBox* Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QS
     return comboBox;
 }
 
-QComboBox* Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options) {
-    QComboBox* comboBox = new QComboBox(layout->parentWidget());
+gsl::owner<QComboBox*> Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options) {
+    gsl::owner<QComboBox*> comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setPlaceholderText(prompt);
     comboBox->setCurrentIndex(-1);
@@ -76,15 +77,15 @@ QComboBox* Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QS
     return comboBox;
 }
 
-QLabel* Complication::createLabel(QWidget*, QVBoxLayout* layout, QString text) {
-    QLabel* label = new QLabel(layout->parentWidget());
+gsl::owner<QLabel*> Complication::createLabel(QWidget*, QVBoxLayout* layout, QString text) {
+    gsl::owner<QLabel*> label = new QLabel(layout->parentWidget());
     label->setText(text);
     layout->addWidget(label);
     return label;
 }
 
-QLineEdit* Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(QString)> callback) {
-    QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
+gsl::owner<QLineEdit*> Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(QString)> callback) {
+    gsl::owner<QLineEdit*> lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
@@ -92,8 +93,8 @@ QLineEdit* Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QS
     return lineEdit;
 }
 
-QLineEdit* Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt) {
-    QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
+gsl::owner<QLineEdit*> Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt) {
+    gsl::owner<QLineEdit*> lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
@@ -101,7 +102,7 @@ QLineEdit* Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QS
 }
 
 void Complication::createForm(QWidget* parent, QVBoxLayout* layout) {
-    QLayoutItem* item;
+    gsl::owner<QLayoutItem*> item = nullptr;
     while ((item = layout->takeAt(0)) != NULL) {
         delete item->widget();
         delete item;

@@ -6,6 +6,10 @@
 #include "sheet.h"
 #endif
 
+constexpr Points BaseCost5  = 5_cp;
+constexpr Points BaseCost10 = 10_cp;
+constexpr Points BaseCost15 = 15_cp;
+
 class Barrier: public AllPowers {
 public:
     Barrier(): AllPowers("Barrier")                   { }
@@ -27,14 +31,15 @@ public:
                                                         v._restr    = json["restr"].toBool(false);
                                                         v._what     = json["what"].toString();
                                                       }
-    virtual Barrier& operator=(const Barrier& s) {
+    ~Barrier() override { }
+    Barrier& operator=(const Barrier& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Barrier& operator=(Barrier&& s) {
+    Barrier& operator=(Barrier&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -74,7 +79,7 @@ public:
 #endif
                                                                       defCost = 3_cp * ((v._pd + v._ed) / 2);
                                                                    return 3_cp + (v._length - 1) + (v._height - 1) + (v._thick - 1) + v._body +
-                                                                           defCost + (v._anchor ? 10_cp : 0_cp); }
+                                                                           defCost + (v._anchor ? BaseCost10 : 0_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    length->setText(QString("%1").arg(s._length));
@@ -155,21 +160,21 @@ private:
         QString _what     = "";
     } v;
 
-    QLineEdit* length;
-    QLineEdit* height;
-    QLineEdit* thick;
-    QLineEdit* pd;
-    QLineEdit* ed;
-    QCheckBox* put;
-    QLineEdit* body;
-    QCheckBox* config;
-    QCheckBox* anchor;
-    QComboBox* trans;
-    QLineEdit* to;
-    QCheckBox* englobe;
-    QCheckBox* feedback;
-    QCheckBox* restr;
-    QLineEdit* what;
+    QLineEdit* length = nullptr;
+    QLineEdit* height = nullptr;
+    QLineEdit* thick = nullptr;
+    QLineEdit* pd = nullptr;
+    QLineEdit* ed = nullptr;
+    QCheckBox* put = nullptr;
+    QLineEdit* body = nullptr;
+    QCheckBox* config = nullptr;
+    QCheckBox* anchor = nullptr;
+    QComboBox* trans = nullptr;
+    QLineEdit* to = nullptr;
+    QCheckBox* englobe = nullptr;
+    QCheckBox* feedback = nullptr;
+    QCheckBox* restr = nullptr;
+    QLineEdit* what = nullptr;
 
     QString optOut(bool showEND) {
         if (v._length < 1 || v._height < 1 || v._thick < 1 || v._pd + v._ed + v._body < 1 ||
@@ -214,14 +219,16 @@ public:
                                                                v._what    = json["what"].toString();
                                                                v._resist  = json["rests"].toBool(false);
                                                              }
-    virtual DamageNegation& operator=(const DamageNegation& s) {
+    ~DamageNegation() override { }
+
+    DamageNegation& operator=(const DamageNegation& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual DamageNegation& operator=(DamageNegation&& s) {
+    DamageNegation& operator=(DamageNegation&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -240,12 +247,12 @@ public:
                                                                    resist  = createCheckBox(parent, layout, "Nonresitant");
                                                                  }
     Fraction lim() override                                      { return (v._resist  ? Fraction(1, 4) : Fraction(0)); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return (
 #ifndef ISHSC
-                                                                              Sheet::ref().character().hasTakesNoSTUN() ? 15_cp :
+                                                                              Sheet::ref().character().hasTakesNoSTUN() ? BaseCost15 :
 #endif
-                                                                                  5_cp) * v._dc; }
+                                                                                  BaseCost5) * v._dc; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dc->setText(QString("%1").arg(s._dc));
@@ -276,10 +283,10 @@ private:
         bool    _resist  = false;
     } v;
 
-    QLineEdit* dc;
-    QComboBox* against;
-    QLineEdit* what;
-    QCheckBox* resist;
+    QLineEdit* dc = nullptr;
+    QComboBox* against = nullptr;
+    QLineEdit* what = nullptr;
+    QCheckBox* resist = nullptr;
 
     QString optOut(bool showEND) {
         if (v._dc < 1 || v._against < 0 ||
@@ -318,14 +325,16 @@ public:
                                                                  v._what    = json["what"].toString();
                                                                  v._resist  = json["rests"].toBool(false);
                                                                }
-    virtual DamageResistance& operator=(const DamageResistance& s) {
+    ~DamageResistance() override { }
+
+    DamageResistance& operator=(const DamageResistance& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual DamageResistance& operator=(DamageResistance&& s) {
+    DamageResistance& operator=(DamageResistance&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -345,8 +354,8 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   QList<Points> n { 0_cp, 10_cp, 20_cp, 30_cp };
-                                                                   QList<Points> r { 0_cp, 15_cp, 30_cp, 60_cp };
+                                                                   QList<Points> n { 0_cp, 10_cp, 20_cp, 30_cp }; // NOLINT
+                                                                   QList<Points> r { 0_cp, 15_cp, 30_cp, 60_cp }; // NOLINT
                                                                    return (
 #ifndef ISHSC
                                                                               Sheet::ref().character().hasTakesNoSTUN() ? 3 :
@@ -383,17 +392,17 @@ private:
         bool    _resist  = false;
     } v;
 
-    QComboBox* perc;
-    QComboBox* against;
-    QLineEdit* what;
-    QCheckBox* resist;
+    QComboBox* perc = nullptr;
+    QComboBox* against = nullptr;
+    QLineEdit* what = nullptr;
+    QCheckBox* resist = nullptr;
 
     QString optOut(bool showEND) {
         if (v._perc < 0 || v._against < 0 ||
             (v._against == 3 && v._what.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v._perc * 25) + "% Damage Resistance▲ Against";
+        res += QString("%1").arg(v._perc * 25) + "% Damage Resistance▲ Against"; // NOLINT
         switch (v._against) {
         case 0: res += " Physical Attacks"; break;
         case 1: res += " Energy Attacks";   break;
@@ -420,20 +429,31 @@ public:
     Deflection(): AllPowers("Deflection▲")        { }
     Deflection(const Deflection& s): AllPowers(s)  { }
     Deflection(Deflection&& s): AllPowers(s)       { }
-    Deflection(const QJsonObject& json): AllPowers(json) {
-                                                             }
+    Deflection(const QJsonObject& json): AllPowers(json) { }
+    ~Deflection() override { }
+
+    Deflection& operator=(const Deflection& s) {
+        if (this != &s) {
+            AllPowers::operator=(s);
+        }
+        return *this;
+    }
+    Deflection& operator=(Deflection&& s) {
+        AllPowers::operator=(s);
+        return *this;
+    }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return
 #ifndef ISHSC
-                                                                       Sheet::ref().character().hasTakesNoSTUN() ? 60_cp :
+                                                                       Sheet::ref().character().hasTakesNoSTUN() ? 60_cp : // NOLINT
 #endif
-                                                                       20_cp; }
+                                                                       20_cp; } // NOLINT
     void     restore() override                                  { AllPowers::restore();
                                                                  }
     void     store() override                                    { AllPowers::store();
@@ -467,15 +487,16 @@ public:
     FlashDefense(const FlashDefense& s): AllPowers(s)      { }
     FlashDefense(FlashDefense&& s): AllPowers(s)           { }
     FlashDefense(const QJsonObject& json): AllPowers(json) { v._def = json["def"].toInt(0);
-                                                               }
-    virtual FlashDefense& operator=(const FlashDefense& s) {
+                                                           }
+    ~FlashDefense() override { }
+    FlashDefense& operator=(const FlashDefense& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual FlashDefense& operator=(FlashDefense&& s) {
+    FlashDefense& operator=(FlashDefense&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -488,7 +509,7 @@ public:
                                                                    def = createLineEdit(parent, layout, "Defense?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return v._def * (
 #ifndef ISHSC
                                                                               Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
@@ -514,7 +535,7 @@ private:
         int _def = 0;
     } v;
 
-    QLineEdit* def;
+    QLineEdit* def = nullptr;
 
     QString optOut(bool showEND) {
         if (v._def < 1) return "<incomplete>";
@@ -542,14 +563,15 @@ public:
     KnockbackResistance(KnockbackResistance&& s): AllPowers(s)      { }
     KnockbackResistance(const QJsonObject& json): AllPowers(json)   { v._pts = json["pts"].toInt(0);
                                                                     }
-    virtual KnockbackResistance& operator=(const KnockbackResistance& s) {
+    ~KnockbackResistance() override { }
+    KnockbackResistance& operator=(const KnockbackResistance& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual KnockbackResistance& operator=(KnockbackResistance&& s) {
+    KnockbackResistance& operator=(KnockbackResistance&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -586,7 +608,7 @@ private:
         int _pts = 0;
     } v;
 
-    QLineEdit* pts;
+    QLineEdit* pts = nullptr;
 
     QString optOut(bool showEND) {
         if (v._pts < 1) return "<incomplete>";
@@ -615,14 +637,15 @@ public:
     MentalDefense(const QJsonObject& json): AllPowers(json) { v._def = json["def"].toInt(0);
                                                               v._put = json["put"].toInt(1);
                                                             }
-    virtual MentalDefense& operator=(const MentalDefense& s) {
+    ~MentalDefense() override { }
+    MentalDefense& operator=(const MentalDefense& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual MentalDefense& operator=(MentalDefense&& s) {
+    MentalDefense& operator=(MentalDefense&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -636,7 +659,7 @@ public:
                                                                    put = createComboBox(parent, layout, "Add to?", { "Nothing", "Primary", "Secondary" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return v._def * (
 #ifndef ISHSC
                                                                               Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
@@ -667,8 +690,8 @@ private:
         int _put = 0;
     } v;
 
-    QLineEdit* def;
-    QComboBox* put;
+    QLineEdit* def = nullptr;
+    QComboBox* put = nullptr;
 
     QString optOut(bool showEND) {
         if (v._def < 1) return "<incomplete>";
@@ -696,14 +719,15 @@ public:
     PowerDefense(PowerDefense&& s): AllPowers(s)           { }
     PowerDefense(const QJsonObject& json): AllPowers(json) { v._def = json["def"].toInt(0);
                                                                }
-    virtual PowerDefense& operator=(const PowerDefense& s) {
+    ~PowerDefense() override { }
+    PowerDefense& operator=(const PowerDefense& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual PowerDefense& operator=(PowerDefense&& s) {
+    PowerDefense& operator=(PowerDefense&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -716,7 +740,7 @@ public:
                                                                    def = createLineEdit(parent, layout, "Defense?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return v._def * (
 #ifndef ISHSC
                                                                               Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
@@ -742,7 +766,7 @@ private:
         int _def = 0;
     } v;
 
-    QLineEdit* def;
+    QLineEdit* def = nullptr;
 
     QString optOut(bool showEND) {
         if (v._def < 1) return "<incomplete>";
@@ -774,14 +798,15 @@ public:
                                                                  v._protect = json["protect"].toBool(false);
                                                                  v._put     = json["put"].toInt(0);
                                                                }
-    virtual ResistantDefense& operator=(const ResistantDefense& s) {
+    ~ResistantDefense() override { }
+    ResistantDefense& operator=(const ResistantDefense& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual ResistantDefense& operator=(ResistantDefense&& s) {
+    ResistantDefense& operator=(ResistantDefense&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -798,14 +823,14 @@ public:
                                                                    protect = createCheckBox(parent, layout, "Protects Carried Items");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    Points defCost = 0_cp;
 #ifndef ISHSC
                                                                    if (Sheet::ref().character().hasTakesNoSTUN()) defCost = (3_cp * (3 * ((v._pd + v._ed) + 1)) / 2);
                                                                    else
 #endif
                                                                        defCost = (3_cp * ((v._pd + v._ed + 1) / 2));
-                                                                   return defCost + (v._protect ? 10_cp : 0_cp); }
+                                                                   return defCost + (v._protect ? 10_cp : 0_cp); } // NOLINT
     void     restore() override                                  { vars s = v;                                                                   
                                                                    AllPowers::restore();
                                                                    put->setCurrentIndex(s._put);
@@ -846,11 +871,11 @@ private:
         bool    _protect = false;
     } v;
 
-    QLineEdit* pd;
-    QLineEdit* ed;
-    QComboBox* put;
-    QCheckBox* imperm;
-    QCheckBox* protect;
+    QLineEdit* pd = nullptr;
+    QLineEdit* ed = nullptr;
+    QComboBox* put = nullptr;
+    QCheckBox* imperm = nullptr;
+    QCheckBox* protect = nullptr;
 
     QString optOut(bool showEND) {
         if (v._pd + v._ed < 1) return "<incomplete>";

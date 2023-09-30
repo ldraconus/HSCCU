@@ -16,6 +16,7 @@ public:
     Characteristic(const Characteristic& c): Characteristic(c._base, c._cost, c._maxima, c._per, c._init, c._primary, c._secondary) { }
     Characteristic(Characteristic&& c): Characteristic(c._base, c._cost, c._maxima, c._per, c._init, c._primary, c._secondary) { }
     Characteristic(const QJsonObject& c);
+    ~Characteristic() { }
 
     Characteristic& operator=(const Characteristic& c);
     Characteristic& operator=(Characteristic&& c);
@@ -41,10 +42,10 @@ public:
     QString     value();
 
 private:
-    int    _base;
-    Points _cost;
-    int    _init;
-    int    _per;
+    int    _base = 0;
+    Points _cost = 0_cp;
+    int    _init = 0;
+    int    _per = 0;
     int    _primary = 0;
     int    _secondary = 0;
     int    _maxima = 0;

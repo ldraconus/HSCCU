@@ -17,12 +17,13 @@ public:
     CombatSkills(const QJsonObject& json)
         : SkillTalentOrPerk()
         , v { json["name"].toString("") } { }
+    ~CombatSkills() override { }
 
-    virtual CombatSkills& operator=(const CombatSkills& s) {
+    CombatSkills& operator=(const CombatSkills& s) {
         if (this != &s) v = s.v;
         return *this;
     }
-    virtual CombatSkills& operator=(CombatSkills&& s) {
+    CombatSkills& operator=(CombatSkills&& s) {
         v = s.v;
         return *this;
     }
@@ -32,7 +33,7 @@ public:
     QString description(bool showRoll = false) override { return showRoll ? v._name : v._name; }
     bool form(QWidget*, QVBoxLayout*) override          { return false; }
     QString name() override                             { return v._name; }
-    Points points(bool noStore = false) override      { if (!noStore) store(); return 10_cp; }
+    Points points(bool noStore = false) override        { if (!noStore) store(); return 10_cp; } // NOLINT
     void restore() override                             { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
@@ -49,21 +50,49 @@ private:
     } v;
 };
 
-#define CLASS(x)\
-    class x: public CombatSkills {\
-    public:\
-        x(): CombatSkills(#x) { }\
-        x(const x& s): CombatSkills(s) { }\
-        x(x&& s): CombatSkills(s) { }\
-        x(const QJsonObject& json): CombatSkills(json) { }\
+// NOLINTNEXTLINE
+#define CLASS(x)                                        \
+    class x: public CombatSkills {                      \
+    public:                                             \
+        x()                                             \
+            : CombatSkills(#x) { }                      \
+        x(const x& s)                                   \
+            : CombatSkills(s) { }                       \
+        x(x&& s)                                        \
+            : CombatSkills(s) { }                       \
+        x(const QJsonObject& json)                      \
+            : CombatSkills(json) { }                    \
+        ~x() override { }                               \
+        x& operator=(const x& s) {                      \
+            if (this != &s) CombatSkills::operator=(s); \
+            return *this;                               \
+        }                                               \
+        x& operator=(x&& s) {                           \
+            CombatSkills::operator=(s);                 \
+            return *this;                               \
+        }                                               \
     };
-#define CLASS_SPACE(x,y)\
-    class x: public CombatSkills {\
-    public:\
-        x(): CombatSkills(y) { }\
-        x(const x& s): CombatSkills(s) { }\
-        x(x&& s): CombatSkills(s) { }\
-        x(const QJsonObject& json): CombatSkills(json) { }\
+// NOLINTNEXTLINE
+#define CLASS_SPACE(x, y)                               \
+    class x: public CombatSkills {                      \
+    public:                                             \
+        x()                                             \
+            : CombatSkills(y) { }                       \
+        x(const x& s)                                   \
+            : CombatSkills(s) { }                       \
+        x(x&& s)                                        \
+            : CombatSkills(s) { }                       \
+        x(const QJsonObject& json)                      \
+            : CombatSkills(json) { }                    \
+        ~x() override { }                               \
+        x& operator=(const x& s) {                      \
+            if (this != &s) CombatSkills::operator=(s); \
+            return *this;                               \
+        }                                               \
+        x& operator=(x&& s) {                           \
+            CombatSkills::operator=(s);                 \
+            return *this;                               \
+        }                                               \
     };
 
 class AutofireSkills: public CombatSkills {
@@ -74,8 +103,21 @@ public:
     AutofireSkills(const QJsonObject& json): CombatSkills(json) { v._accurateSprayfire     = json["accurate sprayfire"].toBool(false);
                                                                   v._concentratedSprayfire = json["concetrade sprayfire"].toBool(false);
                                                                   v._rapidAutofire         = json["rapid autofire"].toBool(false);
-                                                                  v._skipoverSprayfire     = json["skipover sprayfire"].toBool(false);
-                                                                }
+                                                                  v._skipoverSprayfire = json["skipover sprayfire"].toBool(false);
+    }
+    ~AutofireSkills() override { }
+    AutofireSkills& operator=(const AutofireSkills& s) {
+        if (this != &s) {
+            CombatSkills::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    AutofireSkills& operator=(AutofireSkills&& s) {
+        CombatSkills::operator=(s);
+        v = s.v;
+        return *this;
+    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + CombatSkills::description() + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { accurateSprayfire     = createCheckBox(parent, layout, "Accurate Sprayfire");
@@ -85,10 +127,10 @@ public:
                                                                   return true;
                                                                 }
     Points   points(bool noStore = false) override              { if (!noStore) store();
-                                                                  return (v._accurateSprayfire ? 5_cp : 0_cp) +
-                                                                         (v._concentratedSprayfire ? 5_cp : 0_cp) +
-                                                                         (v._rapidAutofire ? 5_cp : 0_cp) +
-                                                                         (v._skipoverSprayfire ? 5_cp : 0_cp); }
+                                                                  return (v._accurateSprayfire ? 5_cp : 0_cp) + // NOLINT
+                                                                         (v._concentratedSprayfire ? 5_cp : 0_cp) + // NOLINT
+                                                                         (v._rapidAutofire ? 5_cp : 0_cp) + // NOLINT
+                                                                         (v._skipoverSprayfire ? 5_cp : 0_cp); } // NOLINT
     void    restore() override                                  { vars s = v;
                                                                   accurateSprayfire->setChecked(s._accurateSprayfire);
                                                                   concentratedSprayfire->setChecked(s._concentratedSprayfire);
@@ -117,10 +159,10 @@ private:
         bool _skipoverSprayfire = false;
     } v;
 
-    QCheckBox* accurateSprayfire;
-    QCheckBox* concentratedSprayfire;
-    QCheckBox* rapidAutofire;
-    QCheckBox* skipoverSprayfire;
+    QCheckBox* accurateSprayfire = nullptr;
+    QCheckBox* concentratedSprayfire = nullptr;
+    QCheckBox* rapidAutofire = nullptr;
+    QCheckBox* skipoverSprayfire = nullptr;
 
     QString optOut() {
         QString res;
@@ -142,6 +184,19 @@ public:
                                                        v._for  = json["for"].toString("");
                                                        v._size = json["size"].toInt(0);
                                                      }
+    ~CSL() override { }
+    CSL& operator=(const CSL& s) {
+        if (this != &s) {
+            CombatSkills::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    CSL& operator=(CSL&& s) {
+        CombatSkills::operator=(s);
+        v = s.v;
+        return *this;
+    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -154,8 +209,8 @@ public:
                                                                                                                                     "All Combat" });
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points> size{ 0_cp, 2_cp, 3_cp, 5_cp, 8_cp, 8_cp, 10_cp };
+    Points points(bool noStore = false) override                { if (!noStore) store();
+                                                                  QList<Points> size{ 0_cp, 2_cp, 3_cp, 5_cp, 8_cp, 8_cp, 10_cp }; // NOLINT
                                                                   return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s._plus));
@@ -182,9 +237,9 @@ private:
         int     _size = -1;
     } v;
 
-    QLineEdit* plus;
-    QLineEdit* forwhat;
-    QComboBox* size;
+    QLineEdit* plus = nullptr;
+    QLineEdit* forwhat = nullptr;
+    QComboBox* size = nullptr;
 
     QString optOut() {
         if (v._plus < 1) return "<incomplete>";
@@ -196,7 +251,7 @@ private:
         case 2: res += QString("+%1 with large group (%2)").arg(v._plus).arg(v._for); break;
         case 3: res += QString("+%1 with small all HTH combat").arg(v._plus);         break;
         case 4: res += QString("+%1 with small all ranged combat").arg(v._plus);      break;
-        case 5: res += QString("+%1 with all combat").arg(v._plus);                   break;
+        case 5: res += QString("+%1 with all combat").arg(v._plus);                   break; // NOLINT
         default: return "<incomplete>";
         }
 
@@ -216,6 +271,19 @@ public:
     DefenseManeuver(const DefenseManeuver& s): CombatSkills(s) { }
     DefenseManeuver(DefenseManeuver&& s): CombatSkills(s)      { }
     DefenseManeuver(const QJsonObject& json): CombatSkills(json) { v._which = json["which"].toInt(0); }
+    ~DefenseManeuver() override { }
+    DefenseManeuver& operator=(const DefenseManeuver& s) {
+        if (this != &s) {
+            CombatSkills::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    DefenseManeuver& operator=(DefenseManeuver&& s) {
+        CombatSkills::operator=(s);
+        v = s.v;
+        return *this;
+    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { which = createComboBox(parent, layout, "Which defense maneuver?", { "Defense Maneuver I",
@@ -225,7 +293,7 @@ public:
                                                                   return true;
                                                                 }
     Points   points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points> which{ 0_cp, 3_cp, 5_cp, 8_cp, 10_cp };
+                                                                  QList<Points> which{ 0_cp, 3_cp, 5_cp, 8_cp, 10_cp }; // NOLINT
                                                                   return which[v._which + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   which->setCurrentIndex(s._which);
@@ -244,7 +312,7 @@ private:
         int _which = 1;
     } v;
 
-    QComboBox* which;
+    QComboBox* which = nullptr;
 
     QString optOut() {
         if (v._which < 0) return "<incomplete>";
@@ -285,6 +353,19 @@ public:
                                                                v._weaponelements   = json["weapon elements"].toInt(0);
                                                                v._weapons          = json["weapons"].toString("");
                                                                }
+    ~MartialArts() override { }
+    MartialArts& operator=(const MartialArts& s) {
+        if (this != &s) {
+            CombatSkills::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    MartialArts& operator=(MartialArts&& s) {
+        CombatSkills::operator=(s);
+        v = s.v;
+        return *this;
+    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { chokehold        = createCheckBox(parent, layout, "Choke Hold");
@@ -309,7 +390,7 @@ public:
                                                                 }
     Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   return (v._chokehold ? 4_cp : 0_cp) +
-                                                                         (v._defensivestrike ? 5_cp : 0_cp) +
+                                                                         (v._defensivestrike ? 5_cp : 0_cp) + // NOLINT
                                                                          (v._killingstrike ? 4_cp : 0_cp) +
                                                                          (v._legsweep ? 3_cp : 0_cp) +
                                                                          (v._martialblock ? 4_cp : 0_cp) +
@@ -320,8 +401,8 @@ public:
                                                                          (v._martialstrike ? 4_cp : 0_cp) +
                                                                          (v._martialthrow ? 3_cp : 0_cp) +
                                                                          (v._nervestrike ? 4_cp : 0_cp) +
-                                                                         (v._offensivestrike ? 5_cp : 0_cp) +
-                                                                         (v._passingstrike ? 5_cp : 0_cp) +
+                                                                         (v._offensivestrike ? 5_cp : 0_cp) + // NOLINT
+                                                                         (v._passingstrike ? 5_cp : 0_cp) + // NOLINT
                                                                          (v._sacrifcethrow ? 3_cp : 0_cp) +
                                                                          v._extradamageclass * 4_cp +
                                                                          v._weaponelements;
@@ -411,27 +492,27 @@ private:
         QString _weapons       = "";
     } v;
 
-    QCheckBox* chokehold;
-    QCheckBox* defensivestrike;
-    QCheckBox* killingstrike;
-    QCheckBox* legsweep;
-    QCheckBox* martialblock;
-    QCheckBox* martialdisarm;
-    QCheckBox* martialdodge;
-    QCheckBox* martialescape;
-    QCheckBox* martialgrab;
-    QCheckBox* martialstrike;
-    QCheckBox* martialthrow;
-    QCheckBox* nervestrike;
-    QCheckBox* offensivestrike;
-    QCheckBox* passingstrike;
-    QCheckBox* sacrifcethrow;
-    QLineEdit* extradamageclass;
-    QLineEdit* weaponelements;
-    QLineEdit* weapons;
+    QCheckBox* chokehold = nullptr;
+    QCheckBox* defensivestrike = nullptr;
+    QCheckBox* killingstrike = nullptr;
+    QCheckBox* legsweep = nullptr;
+    QCheckBox* martialblock = nullptr;
+    QCheckBox* martialdisarm = nullptr;
+    QCheckBox* martialdodge = nullptr;
+    QCheckBox* martialescape = nullptr;
+    QCheckBox* martialgrab = nullptr;
+    QCheckBox* martialstrike = nullptr;
+    QCheckBox* martialthrow = nullptr;
+    QCheckBox* nervestrike = nullptr;
+    QCheckBox* offensivestrike = nullptr;
+    QCheckBox* passingstrike = nullptr;
+    QCheckBox* sacrifcethrow = nullptr;
+    QLineEdit* extradamageclass = nullptr;
+    QLineEdit* weaponelements = nullptr;
+    QLineEdit* weapons = nullptr;
 
     QString optOut() {
-        if (points(SkillTalentOrPerk::NoStore) < 10) return "<incomplete>";
+        if (points(SkillTalentOrPerk::NoStore) < 10) return "<incomplete>"; // NOLINT
         if (v._weaponelements > 0 && v._weapons.isEmpty()) return "<incomplete>";
         QString res = CombatSkills::description();
         QString sep = ": ";
@@ -457,7 +538,7 @@ private:
     }
 
     void numeric(QString) override {
-        QLineEdit* fld = static_cast<QLineEdit*>(SkillTalentOrPerk::sender());
+        QLineEdit* fld = dynamic_cast<QLineEdit*>(SkillTalentOrPerk::sender());
         QString txt = fld->text();
         if (txt.isEmpty() || isNumber(txt)) return;
         fld->undo();
@@ -473,6 +554,19 @@ public:
                                                          v._for  = json["for"].toString("");
                                                          v._size = json["size"].toInt(0);
                                                        }
+    ~MCSL() override { }
+    MCSL& operator=(const MCSL& s) {
+        if (this != &s) {
+            CombatSkills::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    MCSL& operator=(MCSL&& s) {
+        CombatSkills::operator=(s);
+        v = s.v;
+        return *this;
+    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -483,7 +577,7 @@ public:
                                                                   return true;
                                                                 }
     Points   points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points> size{ 0_cp, 1_cp, 3_cp, 6_cp };
+                                                                  QList<Points> size{ 0_cp, 1_cp, 3_cp, 6_cp }; // NOLINT
                                                                   return v._plus * size[v._size + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(v._plus));
@@ -510,9 +604,9 @@ private:
         int     _size = -1;
     } v;
 
-    QLineEdit* plus;
-    QLineEdit* forwhat;
-    QComboBox* size;
+    QLineEdit* plus = nullptr;
+    QLineEdit* forwhat = nullptr;
+    QComboBox* size = nullptr;
 
     QString optOut() {
         if (v._plus < 1) return "<incomplete>";
@@ -542,7 +636,20 @@ public:
     PenaltySkillLevels(const QJsonObject& json): CombatSkills(json) { v._plus = json["plus"].toInt(0);
                                                                       v._what = json["what"].toInt(0);
                                                                       v._with = json["with"].toString("");
-                                                      }
+                                                                    }
+    ~PenaltySkillLevels() override { }
+    PenaltySkillLevels& operator=(const PenaltySkillLevels& s) {
+        if (this != &s) {
+            CombatSkills::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    PenaltySkillLevels& operator=(PenaltySkillLevels&& s) {
+        CombatSkills::operator=(s);
+        v = s.v;
+        return *this;
+    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many?", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -582,9 +689,9 @@ private:
         QString _with = "";
     } v;
 
-    QLineEdit* plus;
-    QComboBox* what;
-    QLineEdit* with;
+    QLineEdit* plus = nullptr;
+    QComboBox* what = nullptr;
+    QLineEdit* with = nullptr;
 
     QString optOut() {
         if (v._plus < 1 || v._with.isEmpty()) return "<incomplete>";
@@ -620,6 +727,19 @@ public:
     WeaponFamiliarity(const QJsonObject& json): CombatSkills(json) { v._what = json["what"].toInt(0);
                                                                      v._with = json["with"].toString("");
                                                                    }
+    ~WeaponFamiliarity() override { }
+    WeaponFamiliarity& operator=(const WeaponFamiliarity& s) {
+        if (this != &s) {
+            CombatSkills::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    WeaponFamiliarity& operator=(WeaponFamiliarity&& s) {
+        CombatSkills::operator=(s);
+        v = s.v;
+        return *this;
+    }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createComboBox(parent, layout, "Familar with?", { "One class of weapons",
@@ -651,8 +771,8 @@ private:
         QString _with = "";
     } v;
 
-    QComboBox* what;
-    QLineEdit* with;
+    QComboBox* what = nullptr;
+    QLineEdit* with = nullptr;
 
     QString optOut() {
         if (v._with.isEmpty()) return "<incomplete>";

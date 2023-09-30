@@ -17,4 +17,7 @@
     <qresource prefix="/font">
         <file>SegoeUIHS.ttf</file>
     </qresource>
+    <qresource prefix="/data">
+        <file>equipment.json</file>
+    </qresource>
 </RCC>

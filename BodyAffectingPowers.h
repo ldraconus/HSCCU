@@ -2,6 +2,7 @@
 #define BODYAFFECTINGPOWERS_H
 
 #include "powers.h"
+#include "powerdialog.h"
 
 class DensityIncrease: public AllPowers {
 public:
@@ -12,14 +13,16 @@ public:
                                                                 v._nopded = json["nopded"].toBool(false);
                                                                 v._nostr  = json["nostr"].toBool(false);
                                                               }
-    virtual DensityIncrease& operator=(const DensityIncrease& s) {
+    ~DensityIncrease() override { }
+
+    DensityIncrease& operator=(const DensityIncrease& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual DensityIncrease& operator=(DensityIncrease&& s) {
+    DensityIncrease& operator=(DensityIncrease&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -55,7 +58,7 @@ public:
                                                                    return obj;
                                                                  }
 
-    int str() override { return v._nostr  ? 0 : 5 * v._levels; }
+    int str() override { return v._nostr  ? 0 : 5 * v._levels; } // NOLINT
     int rPD() override { return v._nopded ? 0 : v._levels; }
     int rED() override { return v._nopded ? 0 : v._levels; }
 
@@ -66,17 +69,17 @@ private:
         bool _nostr = false;
     } v;
 
-    QLineEdit* levels;
-    QCheckBox* nopded;
-    QCheckBox* nostr;
+    QLineEdit* levels = nullptr;
+    QCheckBox* nopded = nullptr;
+    QCheckBox* nostr = nullptr;
 
     QString optOut(bool showEND) {
         if (v._levels < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1").arg(v._levels) + " Levels Density Increase (";
-        res += QString("Mass: %L1 kg").arg((int) pow(2, v._levels) * 100);
-        if (!v._nostr) res += QString("; +%1 STR").arg(5 * v._levels);
+        res += QString("Mass: %L1 kg").arg((int) pow(2, v._levels) * 100); // NOLINT
+        if (!v._nostr) res += QString("; +%1 STR").arg(5 * v._levels);     // NOLINT
         res += QString("; -%1 KB").arg(2 * v._levels);
         if (!v._nopded) res += QString("; +%1 PD/+%1 ED").arg(v._levels);
         res += ")";
@@ -104,14 +107,16 @@ public:
                                                                  v._protect = json["protect"].toBool(false);
                                                                  v._affect  = json["affect"].toString();
                                                                }
-    virtual Desolidification& operator=(const Desolidification& s) {
+    ~Desolidification() override { }
+
+    Desolidification& operator=(const Desolidification& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Desolidification& operator=(Desolidification&& s) {
+    Desolidification& operator=(Desolidification&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -127,7 +132,7 @@ public:
     Fraction lim() override                                      { return (v._solid ? Fraction(1, 2) : Fraction(0)) +
                                                                           (v._protect  ? Fraction(1)    : Fraction(0)); }
     Points   points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 40_cp; }
+                                                                   return 40_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    solid->setChecked(s._solid);
@@ -154,9 +159,9 @@ private:
         QString _affect = "";
     } v;
 
-    QCheckBox* solid;
-    QCheckBox* protect;
-    QLineEdit* affect;
+    QCheckBox* solid = nullptr;
+    QCheckBox* protect = nullptr;
+    QLineEdit* affect = nullptr;
 
     QString optOut(bool showEND) {
         QString res;
@@ -184,14 +189,16 @@ public:
                                                             v._feedback = json["feedback"].toInt(0);
                                                             v._average  = json["average"].toBool(false);
                                                           }
-    virtual Duplication& operator=(const Duplication& s) {
+    ~Duplication() override { }
+
+    Duplication& operator=(const Duplication& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Duplication& operator=(Duplication&& s) {
+    Duplication& operator=(Duplication&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -226,7 +233,7 @@ public:
                                                                           ((v._feedback == 2) ? Fraction(1, 2) : Fraction(0)) +
                                                                           ((v._feedback == 3) ? Fraction(1)    : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._levels + v._easy * 5_cp; }
+                                                                   return v._levels + v._easy * 5_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    levels->setText(QString("%1").arg(s._levels));
@@ -273,20 +280,20 @@ private:
         bool _average  = false;
     } v;
 
-    QLineEdit* levels;
-    QComboBox* altered;
-    QComboBox* easy;
-    QCheckBox* ranged;
-    QLineEdit* rapid;
-    QCheckBox* recom;
-    QComboBox* feedback;
-    QCheckBox* average;
+    QLineEdit* levels = nullptr;
+    QComboBox* altered = nullptr;
+    QComboBox* easy = nullptr;
+    QCheckBox* ranged = nullptr;
+    QLineEdit* rapid = nullptr;
+    QCheckBox* recom = nullptr;
+    QComboBox* feedback = nullptr;
+    QCheckBox* average = nullptr;
 
     QString optOut(bool showEND) {
         if (v._levels < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v._levels) + " cp in Duplication▲ (" + QString("%1").arg(v._levels * 5) + " cp duplicates)";
+        res += QString("+%1").arg(v._levels) + " cp in Duplication▲ (" + QString("%1").arg(v._levels * 5) + " cp duplicates)"; // NOLINT
         QStringList altered { "",
                               Fraction(1, 4).toString() + " points different",
                               Fraction(1, 2).toString() + " points different",
@@ -323,14 +330,15 @@ public:
     ExtraLimbs(const QJsonObject& json): AllPowers(json) { v._limbs   = json["limbs"].toInt(0);
                                                            v._limited = json["limited"].toBool(false);
                                                          }
-    virtual ExtraLimbs& operator=(const ExtraLimbs& s) {
+    ~ExtraLimbs() override { }
+    ExtraLimbs& operator=(const ExtraLimbs& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual ExtraLimbs& operator=(ExtraLimbs&& s) {
+    ExtraLimbs& operator=(ExtraLimbs&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -340,12 +348,12 @@ public:
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   limbs   = createLineEdit(parent, layout, "Nunmber of Extra Limbs?", std::mem_fn(&Power::numeric));
+                                                                   limbs   = createLineEdit(parent, layout, "Number of Extra Limbs?", std::mem_fn(&Power::numeric));
                                                                    limited = createCheckBox(parent, layout, "No Increased PD/ED");
                                                                  }
     Fraction lim() override                                      { return (v._limited ? Fraction(1, 4) : Fraction(0)); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 5_cp; }
+    Points points(bool noStore = false) override                 { if (!noStore) store();
+                                                                   return 5_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    limbs->setText(QString("%1").arg(s._limbs));
@@ -368,8 +376,8 @@ private:
         bool _limited = false;
     } v;
 
-    QLineEdit* limbs;
-    QCheckBox* limited;
+    QLineEdit* limbs = nullptr;
+    QCheckBox* limited = nullptr;
 
     QString optOut(bool showEND) {
         if (v._limbs < 1) return "<incomplete>";
@@ -397,14 +405,15 @@ public:
     Growth(Growth&& s): AllPowers(s)                 { }
     Growth(const QJsonObject& json): AllPowers(json) { v._size = json["size"].toInt(0);
                                                      }
-    virtual Growth& operator=(const Growth& s) {
+    ~Growth() override { }
+    Growth& operator=(const Growth& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Growth& operator=(Growth&& s) {
+    Growth& operator=(Growth&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -418,7 +427,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   QList<Points> points { 0_cp, 25_cp, 50_cp, 90_cp, 120_cp, 150_cp, 215_cp };
+                                                                   QList<Points> points { 0_cp, 25_cp, 50_cp, 90_cp, 120_cp, 150_cp, 215_cp }; // NOLINT
                                                                    return points[v._size + 1]; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -440,15 +449,15 @@ private:
         int _size = -1;
     } v;
 
-    QComboBox* size;
+    QComboBox* size = nullptr;
 
     QList<sizeMods> SizeMods {
-        { 15,  5,  5,  3,  3,  3,  6,  1, 12,  -6, 0, "Phys. Comp.: Large (Infrequently, Slightly Impairing)" },
-        { 30, 10, 10,  6,  6,  6, 12,  3, 24, -12, 0, "Phys. Comp.: Enormous (Frequently, Slightly Impairing)" },
-        { 45, 15, 15,  9,  9,  9, 18,  7, 36, -18, 1, "Phys. Comp.: Huge (Frequently, Greatly Impairing)" },
-        { 60, 20, 20, 12, 12, 12, 24, 15, 48, -24, 2, "Phys. Comp.: Gigantic (Frequently, Greatly Impairing)" },
-        { 75, 25, 25, 15, 15, 14, 30, 31, 60, -30, 4, "Phys. Comp.: Gargantuan (Very Frequently, Greatly Impairing)" },
-        { 90, 30, 30, 18, 18, 18, 36, 63, 72, -36, 8, "Phys. Comp.: Colossal (All The Time, Greatly Impairing)" }
+        { 15,  5,  5,  3,  3,  3,  6,  1, 12,  -6, 0, "Phys. Comp.: Large (Infrequently, Slightly Impairing)" },        // NOLINT
+        { 30, 10, 10,  6,  6,  6, 12,  3, 24, -12, 0, "Phys. Comp.: Enormous (Frequently, Slightly Impairing)" },       // NOLINT
+        { 45, 15, 15,  9,  9,  9, 18,  7, 36, -18, 1, "Phys. Comp.: Huge (Frequently, Greatly Impairing)" },            // NOLINT
+        { 60, 20, 20, 12, 12, 12, 24, 15, 48, -24, 2, "Phys. Comp.: Gigantic (Frequently, Greatly Impairing)" },        // NOLINT
+        { 75, 25, 25, 15, 15, 14, 30, 31, 60, -30, 4, "Phys. Comp.: Gargantuan (Very Frequently, Greatly Impairing)" }, // NOLINT
+        { 90, 30, 30, 18, 18, 18, 36, 63, 72, -36, 8, "Phys. Comp.: Colossal (All The Time, Greatly Impairing)" }       // NOLINT
     };
 
     QString optOut(bool showEND) {
@@ -486,20 +495,21 @@ public:
                                                           v._loss    = json["loss"].toInt(0);
                                                           v._revert  = json["revert"].toInt(0);
                                                         }
-    virtual Multiform& operator=(const Multiform& s) {
+    ~Multiform() override { }
+    Multiform& operator=(const Multiform& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Multiform& operator=(Multiform&& s) {
+    Multiform& operator=(Multiform&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
     }
 
-    Fraction adv() override                                      { return ((v._revert == 5) ? Fraction(1)                        : Fraction(0)) +
+    Fraction adv() override                                      { return ((v._revert == 5) ? Fraction(1)                        : Fraction(0)) +   // NOLINT
                                                                           ((v._revert == 4) ? Fraction(1, 2)                     : Fraction(0)) +
                                                                           ((v._loss >= 1) ? (2 - (v._loss - 1) * Fraction(1, 4)) : Fraction(0)); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -522,7 +532,7 @@ public:
     Fraction lim() override                                      { return ((v._revert == 1) ? Fraction(1)    : Fraction(0)) +
                                                                           ((v._revert == 2) ? Fraction(1, 2) : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return (v._points + 2_cp) / 5 + (v._instant ? 5_cp : 0_cp) + v._mult * 5_cp; }
+                                                                   return (v._points + 2_cp) / 5 + (v._instant ? 5_cp : 0_cp) + v._mult * 5_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    point->setText(QString("%1").arg(s._points));
@@ -561,12 +571,12 @@ private:
         int     _revert  = -1;
     } v;
 
-    QLineEdit* point;
-    QLineEdit* frm;
-    QLineEdit* mult;
-    QComboBox* loss;
-    QCheckBox* instant;
-    QComboBox* revert;
+    QLineEdit* point = nullptr;
+    QLineEdit* frm = nullptr;
+    QLineEdit* mult = nullptr;
+    QComboBox* loss = nullptr;
+    QCheckBox* instant = nullptr;
+    QComboBox* revert = nullptr;
 
     QString optOut(bool showEND) {
         if (v._points < 1) return "<incomplete>";
@@ -612,14 +622,15 @@ public:
                                                            v._instant  = json["instant"].toBool(false);
                                                            v._makeover = json["makeover"].toBool(false);
                                                            v._body     = json["body"].toBool(false);}
-    virtual ShapeShift& operator=(const ShapeShift& s) {
+    ~ShapeShift() override { }
+    ShapeShift& operator=(const ShapeShift& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual ShapeShift& operator=(ShapeShift&& s) {
+    ShapeShift& operator=(ShapeShift&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -651,19 +662,19 @@ public:
     Fraction lim() override                                      { return v._body ? Fraction(1, 4) : Fraction(0);
                                                                  }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   QList<Points> change { 0_cp, 0_cp, 3_cp, 5_cp, 10_cp };
+                                                                   QList<Points> change { 0_cp, 0_cp, 3_cp, 5_cp, 10_cp }; // NOLINT
                                                                    Points pts = change[v._change + 1];
-                                                                   pts += v._sight    ?  8_cp : 0_cp;
-                                                                   pts += v._hearing  ?  5_cp : 0_cp;
-                                                                   pts += v._touch    ?  5_cp : 0_cp;
+                                                                   pts += v._sight    ?  8_cp : 0_cp; // NOLINT
+                                                                   pts += v._hearing  ?  5_cp : 0_cp; // NOLINT
+                                                                   pts += v._touch    ?  5_cp : 0_cp; // NOLINT
                                                                    pts += v._mental   ?  2_cp : 0_cp;
                                                                    pts += v._radio    ?  2_cp : 0_cp;
                                                                    pts += v._smell    ?  2_cp : 0_cp;
                                                                    pts += v._clair    ?  3_cp : 0_cp;
                                                                    pts += v._spatial  ?  3_cp : 0_cp;
-                                                                   pts += v._cellular ? 10_cp : 0_cp;
-                                                                   pts += v._instant  ?  5_cp : 0_cp;
-                                                                   pts += v._makeover ?  5_cp : 0_cp;
+                                                                   pts += v._cellular ? 10_cp : 0_cp; // NOLINT
+                                                                   pts += v._instant  ?  5_cp : 0_cp; // NOLINT
+                                                                   pts += v._makeover ?  5_cp : 0_cp; // NOLINT
                                                                    return pts;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -738,21 +749,21 @@ private:
         bool    _body     = false;
     } v;
 
-    QComboBox* change;
-    QLineEdit* forms;
-    QCheckBox* sight;
-    QCheckBox* hearing;
-    QCheckBox* touch;
-    QCheckBox* mental;
-    QCheckBox* radio;
-    QCheckBox* smell;
-    QCheckBox* clair;
-    QCheckBox* spatial;
-    QCheckBox* cellular;
-    QCheckBox* imitate;
-    QCheckBox* instant;
-    QCheckBox* makeover;
-    QCheckBox* body;
+    QComboBox* change = nullptr;
+    QLineEdit* forms = nullptr;
+    QCheckBox* sight = nullptr;
+    QCheckBox* hearing = nullptr;
+    QCheckBox* touch = nullptr;
+    QCheckBox* mental = nullptr;
+    QCheckBox* radio = nullptr;
+    QCheckBox* smell = nullptr;
+    QCheckBox* clair = nullptr;
+    QCheckBox* spatial = nullptr;
+    QCheckBox* cellular = nullptr;
+    QCheckBox* imitate = nullptr;
+    QCheckBox* instant = nullptr;
+    QCheckBox* makeover = nullptr;
+    QCheckBox* body = nullptr;
 
     QString optOut(bool showEND) {
         if (v._change == -1 || (v._change < 3 && v._forms.isEmpty())) return "<incomplete>";
@@ -809,14 +820,15 @@ public:
                                                           v._mass   = json["mass"].toBool(false);
                                                           v._perc   = json["perc"].toBool(false);
                                                         }
-    virtual Shrinking& operator=(const Shrinking& s) {
+    ~Shrinking() override { }
+    Shrinking& operator=(const Shrinking& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Shrinking& operator=(Shrinking&& s) {
+    Shrinking& operator=(Shrinking&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -833,8 +845,8 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v._perc ? Fraction(1, 4) : Fraction(0));
                                                                  }
-    Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._levels * 6_cp; }
+    Points points(bool noStore = false) override                 { if (!noStore) store();
+                                                                   return v._levels * 6_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    levels->setText(QString("%1").arg(s._levels));
@@ -861,23 +873,23 @@ private:
         bool _perc   = false;
     } v;
 
-    QLineEdit* levels;
-    QComboBox* mass;
-    QCheckBox* perc;
+    QLineEdit* levels = nullptr;
+    QComboBox* mass = nullptr;
+    QCheckBox* perc = nullptr;
 
     QString optOut(bool showEND) {
         if (v._levels < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1").arg(v._levels) + " Levels Shrinking (";
-        res += QString("Height: %2m").arg(2.0 / pow(2.0, v._levels));
+        res += QString("Height: %2m").arg(2.0 / pow(2.0, v._levels)); // NOLINT
         if (v._mass == -1) {
-            res += QString("; Mass: %1 kg").arg(1.0 / (8.0 * pow(2, v._levels)));
-            res += QString("; +%1 KB").arg(6 * v._levels);
+            res += QString("; Mass: %1 kg").arg(1.0 / (8.0 * pow(2, v._levels))); // NOLINT
+            res += QString("; +%1 KB").arg(6 * v._levels); // NOLINT
         }
         if (v._mass == 1) {
-            res += QString("; Optionally %1 kg").arg(1.0 / (8.0 * pow(2, v._levels)));
-            res += QString("; Optionally +%1 KB").arg(6 * v._levels);
+            res += QString("; Optionally %1 kg").arg(1.0 / (8.0 * pow(2, v._levels))); // NOLINT
+            res += QString("; Optionally +%1 KB").arg(6 * v._levels); // NOLINT
         }
         if (!v._perc) res += QString("; -%1 PER Rolls Against").arg(2 * v._levels);
         res += ")";
@@ -914,14 +926,15 @@ public:
                                                            v._cause   = json["cause"].toBool(false);
                                                            v._range   = json["range"].toBool(false);
                                                          }
-    virtual Stretching& operator=(const Stretching& s) {
+    ~Stretching() override { }
+    Stretching& operator=(const Stretching& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Stretching& operator=(Stretching&& s) {
+    Stretching& operator=(Stretching&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -951,7 +964,7 @@ public:
                                                                           (v._cause  ? Fraction(1, 2) : Fraction(0)) +
                                                                           (v._range  ? Fraction(1, 4) : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._meters + 5_cp * v._distort + 5_cp * v._noncom; }
+                                                                   return v._meters + 5_cp * v._distort + 5_cp * v._noncom; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    meters->setText(QString("%1").arg(s._meters));
@@ -1010,17 +1023,17 @@ private:
         bool    _range   = false;
     } v;
 
-    QLineEdit* meters;
-    QLineEdit* distort;
-    QCheckBox* space;
-    QLineEdit* noncom;
-    QCheckBox* direct;
-    QCheckBox* damage;
-    QCheckBox* limit;
-    QLineEdit* parts;
-    QCheckBox* nonon;
-    QCheckBox* cause;
-    QCheckBox* range;
+    QLineEdit* meters = nullptr;
+    QLineEdit* distort = nullptr;
+    QCheckBox* space = nullptr;
+    QLineEdit* noncom = nullptr;
+    QCheckBox* direct = nullptr;
+    QCheckBox* damage = nullptr;
+    QCheckBox* limit = nullptr;
+    QLineEdit* parts = nullptr;
+    QCheckBox* nonon = nullptr;
+    QCheckBox* cause = nullptr;
+    QCheckBox* range = nullptr;
 
     QString optOut(bool showEND) {
         if (v._meters < 1 || (v._limit && v._parts.isEmpty()) || (v._cause && v._damage)) return "<incomplete>";

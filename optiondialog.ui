@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>311</width>
-    <height>228</height>
+    <width>339</width>
+    <height>269</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,14 +54,14 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item row="7" column="1">
+      <item row="8" column="1">
        <widget class="QCheckBox" name="normalHumanMaxima">
         <property name="text">
          <string>Normal Human Maxima</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="1">
+      <item row="10" column="1">
        <widget class="QCheckBox" name="notePageShown">
         <property name="text">
          <string>Note Page Shown</string>
@@ -75,7 +75,7 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="7" column="1">
        <widget class="QCheckBox" name="showFrequencyRolls">
         <property name="text">
          <string>Show Frequency Rolls</string>
@@ -201,6 +201,27 @@
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Total Points: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1">
+       <widget class="QCheckBox" name="equipmentFree">
+        <property name="text">
+         <string>Normal Equipment Free</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLineEdit" name="activePointsPerEND">
+        <property name="text">
+         <string>10</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Active Points per END:</string>
         </property>
        </widget>
       </item>

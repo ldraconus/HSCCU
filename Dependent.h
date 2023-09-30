@@ -26,6 +26,7 @@ public:
             , json["unaware"].toBool(false)
             , json["useful"].toBool(false)
             , json["who"].toString("") } { }
+    ~Dependent() override { }
 
     Dependent& operator=(const Dependent& ac) {
         if (this != &ac) v = ac.v;
@@ -73,9 +74,9 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        int mult = (int) (log((double) v._multiples) / log(2.0));
+        int mult = (int) (log((double) v._multiples) / log(2.0)); // NOLINT
         if (mult < 0) mult = 0;
-        return 10_cp - (v._competence < 0 ? 0 : v._competence) * 5_cp + (v._useful ? 5_cp : 0_cp) + 5_cp * (v._frequency + 1) + (v._unaware ? 5_cp : 0_cp) + mult * 5_cp;
+        return 10_cp - (v._competence < 0 ? 0 : v._competence) * 5_cp + (v._useful ? 5_cp : 0_cp) + 5_cp * (v._frequency + 1) + (v._unaware ? 5_cp : 0_cp) + mult * 5_cp; // NOLINT
     }
     void restore() override {
         vars s = v;
@@ -117,12 +118,12 @@ private:
         QString _who = "";
     } v;
 
-    QComboBox* competence;
-    QComboBox* frequency;
-    QLineEdit* multiples;
-    QCheckBox* unaware;
-    QCheckBox* useful;
-    QLineEdit* who;
+    gsl::owner<QComboBox*> competence = nullptr;
+    gsl::owner<QComboBox*> frequency = nullptr;
+    gsl::owner<QLineEdit*> multiples = nullptr;
+    gsl::owner<QCheckBox*> unaware = nullptr;
+    gsl::owner<QCheckBox*> useful = nullptr;
+    gsl::owner<QLineEdit*> who = nullptr;
 
     void numeric(QString) override {
         QString txt = multiples->text();

@@ -47,6 +47,7 @@ public:
 
     static PowerDialog* _ptr;
 
+    void setEquipment() { _equipment = true; }
 private:
     Ui::PowerDialog *ui;
 
@@ -59,6 +60,7 @@ private:
     QPushButton*                _cancel;
     QLabel*                     _description;
     bool                        _done = false;
+    bool                        _equipment = false;
     bool                        _inMultipower;
     QTableWidget*               _limitations;
     QMenu*                      _limitationsMenu;

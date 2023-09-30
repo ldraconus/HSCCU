@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <cmath>
+#include <gsl/gsl>
 
 class Fraction
 {
@@ -28,6 +29,7 @@ public:
     Fraction(Fraction&& f)
         : _numerator(f._numerator)
         , _denominator(f._denominator) { }
+    virtual ~Fraction() { }
 
     long numerator()   { return _numerator; }
     long denominator() { return _denominator; }
@@ -68,7 +70,7 @@ public:
         long long d1 = _denominator;
         long long n2 = f._numerator;
         long long d2 = f._denominator;
-        Fraction fr(n1 * d2 + n2 * d1, d1 * d2);
+        Fraction fr(gsl::narrow<long>(n1 * d2 + n2 * d1), gsl::narrow<long>(d1 * d2));
         fr.reduce();
         return fr;
     }
@@ -78,7 +80,7 @@ public:
         long long d1 = _denominator;
         long long n2 = f._numerator;
         long long d2 = f._denominator;
-        Fraction fr(n1 * d2 - n2 * d1, d1 * d2);
+        Fraction fr(gsl::narrow<long>(n1 * d2 - n2 * d1), gsl::narrow<long>(d1 * d2));
         fr.reduce();
         return fr;
     }
@@ -88,7 +90,7 @@ public:
         long long d1 = _denominator;
         long long n2 = f._numerator;
         long long d2 = f._denominator;
-        Fraction fr(n1 * n2, d1 * d2);
+        Fraction fr(gsl::narrow<long>(n1 * n2), gsl::narrow<long>(d1 * d2));
         fr.reduce();
         return fr;
     }
@@ -98,7 +100,7 @@ public:
         long long d1 = _denominator;
         long long n2 = f._numerator;
         long long d2 = f._denominator;
-        Fraction fr(n1 * d2, ::abs(d1 * n2));
+        Fraction fr(gsl::narrow<long>(n1 * d2), ::abs(gsl::narrow<long>(d1 * n2)));
         fr.reduce();
         return fr;
     }
