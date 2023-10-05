@@ -310,6 +310,16 @@ public:
         return keys[v._which];
     }
 
+    QString hitLocations() {
+        return v._hitLocations;
+    }
+    int DEF() {
+        QList<int> value {1, 2, 2, 3, 1, 2, 3, 1, 3, 3, 3, 2, 4, 4, 4, 3, 5, 5, 5, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8}; // NOLINT
+        int def = v._bonus + value[v._type];
+        if (def < 0) def = 0;
+        return def;
+    }
+
     void index(int idx) override {
         auto keys = _armors.keys();
         load(_armors[keys[idx]]);
@@ -386,10 +396,10 @@ private:
     QString optOut(bool b) {
         if (v._type < 0 || v._which < 0) return "<incomplete>";
         QStringList typeOf {"Heavy Cloth", "Padded Cloth", "Woven Cord", "Heavy Animal Hides", "Soft Leather", "Heavy Leather", "Cuir-Bouilli", "Studded Soft Leather", "Ring Armor (Soft Leather)", "Bezainted Soft Leather", "Jazeraint Soft Leather", "Studded Heavy Leather", "Ring Armor (Heavy Leather)", "Bezainted Heavy Leather", "Jazeraint Heavy Leather", "Studded Cuir-Bouilli", "Ring Armor (Cuir-Bouilli)", "Bezainted Cuir-Bouilli", "Jazeraint Cuir-Bouilli", "Brigandine", "Lamellar (Splint Armor)", "Banded Mail", "Chainmail", "Double Mail/Bar Mail", "Reinforced Chainmail", "Plate And Chain", "Plate Armor", "Field Plate Armor", "Full Plate Armor"};
-        QList<int> price {20, 40, 40, 50, 30, 50, 75, 36, 75, 80, 90, 90, 90, 100, 110, 110, 100, 125, 150, 150, 200, 200, 275, 350, 500, 800}; // NOLINT
-        QList<double> mass {3.5, 5.0, 5.0, 7.0, 3.5, 5.0, 7.0, 3.5, 7.0, 7.0, 7.0, 10.0, 10.0, 10.0, 7.0, 14.0, 14.0, 14.0, 10.0, 14.0, 20.0, 20.0, 28.0, 28.0, 28.0, 28.0, 28.0, 40.0}; // NOLINT
+        QList<int> price   {20,            40,             40,           50,                   30,             50,              75,             36,                     75,                          80,                       90,                       90,                      90,                           100,                       110,                       110,                    100,                         110,                      110,                      100,          125,                       150,           150,         200,                    200,                    275,               350,           500,                 800}; // NOLINT
+        QList<double> mass {3.5,           5.0,            5.0,          7.0,                  3.5,            5.0,             7.0,            3.5,                    7.0,                         7.0,                      7.0,                      5.0,                     10.0,                         10.0,                      10.0,                      7.0,                    14.0,                        14.0,                     14.0,                     10.0,         14.0,                      20.0,          20.0,        28.0,                   28.0,                   28.0,              28.0,          28.0,                40.0}; // NOLINT
         QList<int> value {1, 2, 2, 3, 1, 2, 3, 1, 3, 3, 3, 2, 4, 4, 4, 3, 5, 5, 5, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8}; // NOLINT
-        QString res = Equipment::optOut(b, 10.0 * v._weights[value[v._type]] * value[v._type] / 8.0, price[v._type] * v._weights[value[v._type]] / mass[v._type]); // NOLINT
+        QString res = Equipment::optOut(b, 10.0 * v._weights[value[v._type] - 1] * value[v._type] / 8.0, price[v._type] * v._weights[value[v._type] - 1] / mass[v._type]); // NOLINT
         QString sep = ", ";
         res += sep + typeOf[v._type];
         int def = v._bonus + value[v._type];

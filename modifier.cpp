@@ -4,8 +4,8 @@
 #include <QHeaderView>
 #include <QScreen>
 
-#define MAKE(x)           Modifier::mod<x> _##x
-#define LINK(w, x, y, z)  _modifiers[w] = make_shared<Modifier>(w, x, y, &statics::_##z);
+#define MAKE(x)           Modifier::mod<x> _##x // NOLINT
+#define LINK(w, x, y, z)  _modifiers[w] = make_shared<Modifier>(w, x, y, &statics::_##z); // NOLINT
 
 namespace statics {
     MAKE(Ablative);
@@ -150,7 +150,7 @@ namespace statics {
     MAKE(WorksAgainstEGONotCharacteristic);
 }
 
-QMap<QString, shared_ptr<Modifier>> Modifiers::_modifiers;
+QMap<QString, shared_ptr<Modifier>> Modifiers::_modifiers; // NOLINT
 
 Modifiers::Modifiers()
 {
@@ -314,9 +314,11 @@ QList<shared_ptr<Modifier>> Modifiers::operator()(Modifier::ModifierType type) c
     return modifiers;
 }
 
+constexpr int Base10 = 10;
+
 bool Modifier::isNumber(QString txt) {
-    bool ok;
-    txt.toInt(&ok, 10);
+    bool ok {};
+    txt.toInt(&ok, Base10);
     return ok;
 }
 
@@ -357,8 +359,8 @@ bool Modifier::createForm(QWidget* parent, QVBoxLayout* layout) {
     return form(parent, layout);
 }
 
-QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt) {
-    QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
+gsl::owner<QCheckBox*> Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt) {
+    gsl::owner<QCheckBox*> checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
     layout->addWidget(checkBox);
@@ -366,8 +368,8 @@ QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QStrin
     return checkBox;
 }
 
-QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (ModifierBase::*)(bool)> callback) {
-    QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
+gsl::owner<QCheckBox*> Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (ModifierBase::*)(bool)> callback) {
+    gsl::owner<QCheckBox*> checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
     layout->addWidget(checkBox);
@@ -376,8 +378,8 @@ QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QStrin
     return checkBox;
 }
 
-QComboBox* Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (ModifierBase::*)(int)> callback) {
-    QComboBox* comboBox = new QComboBox(layout->parentWidget());
+gsl::owner<QComboBox*> Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (ModifierBase::*)(int)> callback) {
+    gsl::owner<QComboBox*> comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setPlaceholderText(prompt);
     comboBox->setToolTip(prompt);
@@ -388,8 +390,8 @@ QComboBox* Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QStrin
     return comboBox;
 }
 
-QComboBox* Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options) {
-    QComboBox* comboBox = new QComboBox(layout->parentWidget());
+gsl::owner<QComboBox*> Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options) {
+    gsl::owner<QComboBox*> comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setPlaceholderText(prompt);
     comboBox->setToolTip(prompt);
@@ -399,15 +401,15 @@ QComboBox* Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QStrin
     return comboBox;
 }
 
-QLabel* Modifier::createLabel(QWidget*, QVBoxLayout* layout, QString text) {
-    QLabel* label = new QLabel(layout->parentWidget());
+gsl::owner<QLabel*> Modifier::createLabel(QWidget*, QVBoxLayout* layout, QString text) {
+    gsl::owner<QLabel*> label = new QLabel(layout->parentWidget());
     label->setText(text);
     layout->addWidget(label);
     return label;
 }
 
-QLineEdit* Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (ModifierBase::*)(QString)> callback) {
-    QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
+gsl::owner<QLineEdit*> Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (ModifierBase::*)(QString)> callback) {
+    gsl::owner<QLineEdit*> lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);
     lineEdit->setText("");
@@ -417,8 +419,8 @@ QLineEdit* Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QStrin
     return lineEdit;
 }
 
-QLineEdit* Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt) {
-    QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
+gsl::owner<QLineEdit*> Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt) {
+    gsl::owner<QLineEdit*> lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);
     layout->addWidget(lineEdit);
@@ -433,15 +435,15 @@ static QTreeWidgetItem* createTWItem(QString str) {
     return item;
 }
 
-QTreeWidget* Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<QString, QStringList> options, std::_Mem_fn<void (ModifierBase::*)(int, int, bool)> callback) {
-    QTreeWidget* tree = new QTreeWidget(layout->parentWidget());
+gsl::owner<QTreeWidget*> Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<QString, QStringList> options, std::_Mem_fn<void (ModifierBase::*)(int, int, bool)> callback) {
+    gsl::owner<QTreeWidget*> tree = new QTreeWidget(layout->parentWidget());
     QStringList keys = options.keys();
     double height = 0.0;
     QFont font;
     for (const auto& key: keys) {
         auto* twitem = createTWItem(key);
         font = twitem->font(0);
-        height += font.pointSizeF() + 4.0;
+        height += font.pointSizeF() + 4.0; // NOLINT
         for (const auto& child: options[key]) {
             auto* twchild = createTWItem(child);
             twitem->addChild(twchild);
@@ -452,7 +454,7 @@ QTreeWidget* Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QM
         twitem->setExpanded(true);
     }
     QScreen* screen = parent->screen();
-    int hgt = height * screen->physicalDotsPerInchY() / 72.0;
+    int hgt = height * screen->physicalDotsPerInchY() / 72.0; // NOLINT
     tree->setMinimumHeight(hgt);
     tree->setStyleSheet("QTreeWidget { border-style: none; }");
     layout->addWidget(tree);
@@ -464,15 +466,15 @@ QTreeWidget* Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QM
     return tree;
 }
 
-QTreeWidget* Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<QString, QStringList> options) {
-    QTreeWidget* tree = new QTreeWidget(layout->parentWidget());
+gsl::owner<QTreeWidget*> Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<QString, QStringList> options) {
+    gsl::owner<QTreeWidget*> tree = new QTreeWidget(layout->parentWidget());
     QStringList keys = options.keys();
     double height = 0.0;
     QFont font;
     for (const auto& key: keys) {
         auto* twitem = createTWItem(key);
         font = twitem->font(0);
-        height += font.pointSizeF() + 4.0;
+        height += font.pointSizeF() + 4.0; // NOLINT
         for (const auto& child: options[key]) {
             auto* twchild = createTWItem(child);
             twitem->addChild(twchild);
@@ -483,7 +485,7 @@ QTreeWidget* Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QM
         twitem->setExpanded(true);
     }
     QScreen* screen = parent->screen();
-    int hgt = height * screen->physicalDotsPerInchY() / 72.0;
+    int hgt = height * screen->physicalDotsPerInchY() / 72.0; // NOLINT
     tree->setMinimumHeight(hgt);
     tree->setStyleSheet("QTreeWidget { border-style: none; }");
     layout->addWidget(tree);
@@ -501,10 +503,10 @@ shared_ptr<Modifier> Modifiers::ByName(QString name) {
 }
 
 void Modifier::ClearForm(QVBoxLayout* layout) {
-    QLayoutItem* item;
+    QLayoutItem* item {};
     while ((item = layout->takeAt(0)) != NULL) {
-        delete item->widget();
-        delete item;
+        delete item->widget(); // NOLINT
+        delete item;           // NOLINT
     }
 }
 

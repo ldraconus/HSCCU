@@ -1,23 +1,28 @@
 #ifndef SENSEAFFECTINGPOWERS_H
 #define SENSEAFFECTINGPOWERS_H
 #include "powers.h"
+#ifndef ISHSC
+#include "powerdialog.h"
+#endif
 
 class Darkness: public AllPowers {
 public:
     Darkness(): AllPowers("Darkness")                  { }
     Darkness(const Darkness& s): AllPowers(s)          { }
     Darkness(Darkness&& s): AllPowers(s)               { }
-    Darkness(const QJsonObject& json): AllPowers(json) { v._rad  = json["speed"].toInt(0);
-                                                                    v._what = toStringList(json["what"].toArray());
-                                                                  }
-    virtual Darkness& operator=(const Darkness& s) {
+    Darkness(const QJsonObject& json): AllPowers(json) {
+        v._rad  = json["speed"].toInt(0);
+        v._what = toStringList(json["what"].toArray());
+    }
+    ~Darkness() override { }
+    Darkness& operator=(const Darkness& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Darkness& operator=(Darkness&& s) {
+    Darkness& operator=(Darkness&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -77,25 +82,25 @@ private:
                 found = str;
             }
         }
-        if (targeting) p = 5_cp;
+        if (targeting) p = 5_cp; // NOLINT
         else p = 3_cp;
         bool first = true;
         for (const auto& str: v._what) {
             if (!groups.contains(str)) continue;
             if (first) {
                 if (str == found && group) first = false;
-                else if (target.contains(str)) p += 10_cp;
-                else p += 5_cp;
-            } else if (target.contains(str)) p += 10_cp;
-            else p += 5_cp;
+                else if (target.contains(str)) p += 10_cp; // NOLINT
+                else p += 5_cp; // NOLINT
+            } else if (target.contains(str)) p += 10_cp; // NOLINT
+            else p += 5_cp; // NOLINT
         }
         for (const auto& str: v._what) {
             if (groups.contains(str)) continue;
             if (first) {
                 if (str == found) first = false;
-                else if (target.contains(str)) p += 5_cp;
+                else if (target.contains(str)) p += 5_cp; // NOLINT
                 else p += 3_cp;
-            } else if (target.contains(str)) p += 5_cp;
+            } else if (target.contains(str)) p += 5_cp; // NOLINT
             else p += 3_cp;
         }
         return p * v._rad;
@@ -106,8 +111,8 @@ private:
         QStringList _what { };
     } v;
 
-    QLineEdit*   rad;
-    QTreeWidget* what;
+    QLineEdit*   rad = nullptr;
+    QTreeWidget* what = nullptr;
 
     QString optOut(bool showEND) {
         if (v._rad < 1 || v._what.size() < 1) return "<incomplete>";
@@ -115,8 +120,8 @@ private:
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("%1m Radius Darkness to ").arg(v._rad);
         res += v._what[0];
-        int len = v._what.length();
-        for (int i = 1; i < len; ++i) {
+        auto len = v._what.length();
+        for (auto i = 1; i < len; ++i) {
             if (i != len - 1) res += ", ";
             else res += ", and ";
             res += v._what[i];
@@ -147,14 +152,15 @@ public:
                                                        v._set    = json["set"].toBool(false);
                                                        v._effect = json["effect"].toString();
                                                      }
-    virtual Images& operator=(const Images& s) {
+    ~Images() override { }
+    Images& operator=(const Images& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Images& operator=(Images&& s) {
+    Images& operator=(Images&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -177,7 +183,7 @@ public:
                                                                                                      { "Smell/Taste", { "Normal Smell",
                                                                                                                         "Normal Taste" } },
                                                                                                      { "Touch",       { "Normal Touch" } } });
-                                                                   per    = createLineEdit(p, l, "Minus to PER Roll?", std::mem_fn(&Power::numeric));
+                                                                   per    = createLineEdit(p, l, "Adjustment to PER Roll?", std::mem_fn(&Power::numeric));
                                                                    diff   = createComboBox(p, l, "Difficult to Alter?", { "Zero Phase",
                                                                                                                           "Half Phase",
                                                                                                                           "Full Phase" });
@@ -192,7 +198,7 @@ public:
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    setTreeWidget(what, s._what);
-                                                                   per->setText(QString("%1").arg(s._per));
+                                                                   per->setText(QString("%2%1").arg(s._per).arg(s._per >= 0 ? "+" : ""));
                                                                    diff->setCurrentIndex(s._diff);
                                                                    only->setChecked(s._only);
                                                                    set->setChecked(s._set);
@@ -201,7 +207,7 @@ public:
                                                                  }
     void     store() override                                    { AllPowers::store();
                                                                    v._what   = treeWidget(what);
-                                                                   v._per    = per->text().toInt();
+                                                                   v._per    = normalize(per->text()).toInt();
                                                                    v._diff   = diff->currentIndex();
                                                                    v._only   = only->isChecked();
                                                                    v._set    = set->isChecked();
@@ -218,6 +224,10 @@ public:
                                                                  }
 
 private:
+    QString normalize(const QString& num) {
+       if (!num.isEmpty() && num[0] == '+') return num.right(num.length() - 1);
+       return num;
+    }
     Points points(bool noStore = false) override {
         if (!noStore) store();
         Points p(0);
@@ -234,28 +244,37 @@ private:
                 found = str;
             }
         }
-        if (targeting) p = 10_cp;
-        else p = 5_cp;
+        if (targeting) p = 10_cp; // NOLINT
+        else p = 5_cp; // NOLINT
         bool first = true;
         for (const auto& str: v._what) {
             if (!groups.contains(str)) continue;
             if (first) {
                 if (str == found && group) first = false;
-                else if (target.contains(str)) p += 10_cp;
-                else p += 5_cp;
-            } else if (target.contains(str)) p += 10_cp;
-            else p += 5_cp;
+                else if (target.contains(str)) p += 10_cp; // NOLINT
+                else p += 5_cp; // NOLINT
+            } else if (target.contains(str)) p += 10_cp; // NOLINT
+            else p += 5_cp; // NOLINT
         }
         for (const auto& str: v._what) {
             if (groups.contains(str)) continue;
             if (first) {
                 if (str == found) first = false;
-                else if (target.contains(str)) p += 5_cp;
+                else if (target.contains(str)) p += 5_cp; // NOLINT
                 else p += 3_cp;
-            } else if (target.contains(str)) p += 5_cp;
+            } else if (target.contains(str)) p += 5_cp; // NOLINT
             else p += 3_cp;
         }
-        return p + v._per * 3_cp;
+        return p + abs(v._per) * 3_cp;
+    }
+
+    bool isNumber(QString txt) {
+        bool ok = true;
+        QString check = txt;
+        if (txt.isEmpty()) return ok;
+        if (txt[0] == '+' || txt[0] == '-') check = txt.right(txt.length() - 1);
+        if (!check.isEmpty()) check.toInt(&ok, 10); // NOLINT
+        return ok;
     }
 
     struct vars {
@@ -267,12 +286,12 @@ private:
         QString     _effect = "";
     } v;
 
-    QTreeWidget* what;
-    QLineEdit*   per;
-    QComboBox*   diff;
-    QCheckBox*   only;
-    QCheckBox*   set;
-    QLineEdit*   effect;
+    QTreeWidget* what = nullptr;
+    QLineEdit*   per = nullptr;
+    QComboBox*   diff = nullptr;
+    QCheckBox*   only = nullptr;
+    QCheckBox*   set = nullptr;
+    QLineEdit*   effect = nullptr;
 
     QString optOut(bool showEND) {
         if (v._what.size() < 1 || (v._set && v._effect.isEmpty())) return "<incomplete>";
@@ -280,13 +299,13 @@ private:
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Images affecting ";
         res += v._what[0];
-        int len = v._what.length();
-        for (int i = 1; i < len; ++i) {
+        auto len = v._what.length();
+        for (auto i = 1; i < len; ++i) {
             if (i != len - 1) res += ", ";
             else res += ", and ";
             res += v._what[i];
         }
-        if (v._per > 0) res += QString("; -%1 to PER rolls").arg(v._per);
+        if (v._per > 0) res += QString("; %2%1 to PER rolls").arg(v._per).arg(v._per >= 0 ? "+" : "");
         if (v._diff == 1) res += "; Half-Phase Action To Change";
         if (v._diff == 2) res += "; Full-Phase Action To CHange";
         if (v._only) res += "; Only To Create Light";
@@ -316,14 +335,15 @@ public:
                                                              v._cham   = json["only"].toBool(false);
                                                              v._not    = json["set"].toBool(false);
                                                            }
-    virtual Invisibility& operator=(const Invisibility& s) {
+    ~Invisibility() override { }
+    Invisibility& operator=(const Invisibility& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Invisibility& operator=(Invisibility&& s) {
+    Invisibility& operator=(Invisibility&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -397,28 +417,28 @@ private:
                 found = str;
             }
         }
-        if (targeting) p = 20_cp;
-        else p = 10_cp;
+        if (targeting) p = 20_cp; // NOLINT
+        else p = 10_cp; // NOLINT
         bool first = true;
         for (const auto& str: v._what) {
             if (!groups.contains(str)) continue;
             if (first) {
                 if (str == found && group) first = false;
-                else if (target.contains(str)) p += 10_cp;
-                else p += 5_cp;
-            } else if (target.contains(str)) p += 10_cp;
-            else p += 5_cp;
+                else if (target.contains(str)) p += 10_cp; // NOLINT
+                else p += 5_cp; // NOLINT
+            } else if (target.contains(str)) p += 10_cp; // NOLINT
+            else p += 5_cp; // NOLINT
         }
         for (const auto& str: v._what) {
             if (groups.contains(str)) continue;
             if (first) {
                 if (str == found) first = false;
-                else if (target.contains(str)) p += 5_cp;
+                else if (target.contains(str)) p += 5_cp; // NOLINT
                 else p += 3_cp;
-            } else if (target.contains(str)) p += 5_cp;
+            } else if (target.contains(str)) p += 5_cp; // NOLINT
             else p += 3_cp;
         }
-        return p + (v._no ? 10_cp : 0_cp);
+        return p + (v._no ? 10_cp : 0_cp); // NOLINT
     }
 
     struct vars {
@@ -429,11 +449,11 @@ private:
         bool        _not    = false;
     } v;
 
-    QTreeWidget* what;
-    QCheckBox*   no;
-    QCheckBox*   bright;
-    QCheckBox*   cham;
-    QCheckBox*   knot;
+    QTreeWidget* what = nullptr;
+    QCheckBox*   no = nullptr;
+    QCheckBox*   bright = nullptr;
+    QCheckBox*   cham = nullptr;
+    QCheckBox*   knot = nullptr;
 
     QString optOut(bool showEND) {
         if (v._what.size() < 1) return "<incomplete>";
@@ -441,8 +461,8 @@ private:
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Invisibility to ";
         res += v._what[0];
-        int len = v._what.length();
-        for (int i = 1; i < len; ++i) {
+        auto len = v._what.length();
+        for (auto i = 1; i < len; ++i) {
             if (i != len - 1) res += ", ";
             else res += ", and ";
             res += v._what[i];

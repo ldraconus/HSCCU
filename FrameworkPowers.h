@@ -43,7 +43,7 @@ public:
     }
 
     bool isFramework() override                      { return true; }
-    int  count() override                            { return v._powers.count(); }
+    int  count() override                            { return gsl::narrow<int>(v._powers.count()); }
     void append(shared_ptr<Power> p) override        { v._powers.append(p);    p->parent(this); }
     void insert(int n, shared_ptr<Power> p) override { v._powers.insert(n, p); p->parent(this); }
     void remove(int n) override                      { v._powers[n]->parent(nullptr); v._powers.removeAt(n); }
@@ -103,7 +103,12 @@ protected:
         QString _name = "";
         QString _powerName = "";
         QList<shared_ptr<Power>> _powers {};
-    } v;
+    };
+
+    vars& super() { return v; }
+
+private:
+    vars v;
 
     QLineEdit* powerName = nullptr;
 };
@@ -114,6 +119,15 @@ public:
     Group(const Group& s): FrameworkPowers(s)             { }
     Group(Group&& s): FrameworkPowers(s)                  { }
     Group(const QJsonObject& json): FrameworkPowers(json) { }
+    ~Group() override { }
+
+    Group& operator=(const Group&) {
+        return *this;
+    }
+    Group& operator=(Group&&) {
+        return *this;
+    }
+
 
     bool isValid(shared_ptr<Power>) override { return true; }
 
@@ -146,7 +160,7 @@ public:
         auto limit = limitations();
         auto advtg = advantages();
         auto modif = modifiers();
-        for (const auto& pe: v._powers) {
+        for (const auto& pe: super()._powers) {
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
@@ -179,7 +193,7 @@ public:
         auto advtg = advantages();
         auto modif = modifiers();
         int r = 1;
-        for (const auto& pe: v._powers) {
+        for (const auto& pe: super()._powers) {
             QString descr = pe->description();
             if (descr == "-") descr = "";
             if (!descr.isEmpty()) {
@@ -221,6 +235,16 @@ public:
     Multipower(Multipower&& s): FrameworkPowers(s)             { }
     Multipower(const QJsonObject& json): FrameworkPowers(json) { v._points = json["points"].toInt(0);
                                                                }
+    ~Multipower() override { }
+
+    Multipower& operator=(const Multipower& s) {
+        if (this != &s) v = s.v;
+        return *this;
+    }
+    Multipower& operator=(Multipower&& s) {
+        v = s.v;
+        return *this;
+    }
 
     bool isMultipower() override { return true; }
     bool isValid(shared_ptr<Power> power) override {
@@ -259,7 +283,7 @@ public:
         auto limit = limitations();
         auto advtg = advantages();
         auto modif = modifiers();
-        for (const auto& pe: FrameworkPowers::v._powers) {
+        for (const auto& pe: FrameworkPowers::super()._powers) {
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
@@ -271,8 +295,8 @@ public:
             for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Fraction cost(pe->real().points);
             Fraction pts(pe->real(advtg, modif, limit).points);
-            if (pe->varying()) pts = pts / 5;
-            else pts = pts / 10;
+            if (pe->varying()) pts = pts / 5; // NOLINT
+            else pts = pts / 10; // NOLINT
             if (pts.toInt(true) == 0) pts = Fraction(1);
 #ifndef ISHSC
             Sheet::ref().setCell(tbl, row, 0, descr.isEmpty() ? "" : QString("%1%2").arg(pts.toInt(true)).arg(pe->varying() ? "v" : "f"), font);
@@ -298,7 +322,7 @@ public:
         auto limit = limitations();
         auto advtg = advantages();
         auto modif = modifiers();
-        for (const auto& pe: FrameworkPowers::v._powers) {
+        for (const auto& pe: FrameworkPowers::super()._powers) {
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
@@ -310,8 +334,8 @@ public:
             for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Points pnts(pe->real());
             Fraction pts(pe->real(advtg, modif, limit).points);
-            if (pe->varying()) pts = pts / 5;
-            else pts = pts / 10;
+            if (pe->varying()) pts = pts / 5;  // NOLINT
+            else pts = pts / 10;  // NOLINT
             if (pts.toInt() == 0) pts = Fraction(1);
             if (!descr.isEmpty()) {
                 out += QString("%1%2\t").arg(pts.toInt(), 3).arg(pe->varying() ? "v" : "f");
@@ -329,10 +353,10 @@ public:
 
 private:
     struct vars {
-        int _points;
+        int _points = 0;
     } v;
 
-    QLineEdit* pnts;
+    QLineEdit* pnts = nullptr;
 
     QString optOut(bool) {
         QString res = "Multipower Pool " + QString("(%1 cp)").arg(v._points);
@@ -368,6 +392,16 @@ public:
                                                           v._one     = json["one"].toInt(0);
                                                           v._power   = json["power"].toString();
                                                         }
+    ~VPP() override { }
+
+    VPP& operator=(const VPP& s) {
+        if (this != &s) v = s.v;
+        return *this;
+    }
+    VPP& operator=(VPP&& s) {
+        v = s.v;
+        return *this;
+    }
 
     bool isVPP() override { return true; }
     bool isValid(shared_ptr<Power> power) override     { return power->acting() <= v._control && power->real() <= v._pool; }
@@ -471,7 +505,7 @@ public:
         auto limit = limitations() - lim();
         auto advtg = advantages() - adv();
         auto modif = modifiers();
-        for (const auto& pe: FrameworkPowers::v._powers) {
+        for (const auto& pe: FrameworkPowers::super()._powers) {
             if (pe == nullptr) continue;
             QString descr = pe->description();
             if (descr == "-") descr = "";
@@ -508,7 +542,7 @@ public:
         auto limit = limitations() - lim();
         auto advtg = advantages() - adv();
         auto modif = modifiers();
-        for (const auto& pe: FrameworkPowers::v._powers) {
+        for (const auto& pe: FrameworkPowers::super()._powers) {
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
@@ -550,18 +584,18 @@ private:
         QString _power   = "";
     } v;
 
-    QLineEdit* Pool;
-    QLineEdit* ctrl;
-    QComboBox* time;
-    QCheckBox* skll;
-    QCheckBox* givn;
-    QLineEdit* circ;
-    QCheckBox* how;
-    QCheckBox* whn2;
-    QComboBox* clss;
-    QLineEdit* what;
-    QComboBox* one;
-    QLineEdit* powr;
+    QLineEdit* Pool = nullptr;
+    QLineEdit* ctrl = nullptr;
+    QComboBox* time = nullptr;
+    QCheckBox* skll = nullptr;
+    QCheckBox* givn = nullptr;
+    QLineEdit* circ = nullptr;
+    QCheckBox* how = nullptr;
+    QCheckBox* whn2 = nullptr;
+    QComboBox* clss = nullptr;
+    QLineEdit* what = nullptr;
+    QComboBox* one = nullptr;
+    QLineEdit* powr = nullptr;
 
     QString optOut(bool showEND) {
         QString res;

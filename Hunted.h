@@ -25,6 +25,7 @@ public:
             , json["motivation"].toInt(0)
             , json["nci"].toBool(false)
             , json["who"].toString("") } { }
+    ~Hunted() override { }
 
     Hunted& operator=(const Hunted& ac) {
         if (this != &ac) v = ac.v;
@@ -70,7 +71,7 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._capabilities + 1) * 5_cp + v._frequency * 5_cp + (v._easy ? 5_cp : 0_cp) + (v._nci ? 5_cp : 0_cp) - (v._limited ? 5_cp : 0_cp) - (2 - v._motivation) * 5_cp;
+        return (v._capabilities + 1) * 5_cp + v._frequency * 5_cp + (v._easy ? 5_cp : 0_cp) + (v._nci ? 5_cp : 0_cp) - (v._limited ? 5_cp : 0_cp) - (2 - v._motivation) * 5_cp; // NOLINT
     }
     void restore() override {
         vars s = v;
@@ -116,13 +117,13 @@ private:
         QString _who = "";
     } v;
 
-    QComboBox* capabilities;
-    QComboBox* frequency;
-    QCheckBox* easy;
-    QCheckBox* limited;
-    QComboBox* motivation;
-    QCheckBox* nci;
-    QLineEdit* who;
+    gsl::owner<QComboBox*> capabilities = nullptr;
+    gsl::owner<QComboBox*> frequency = nullptr;
+    gsl::owner<QCheckBox*> easy = nullptr;
+    gsl::owner<QCheckBox*> limited = nullptr;
+    gsl::owner<QComboBox*> motivation = nullptr;
+    gsl::owner<QCheckBox*> nci = nullptr;
+    gsl::owner<QLineEdit*> who = nullptr;
 };
 
 #endif // HUNTED_H

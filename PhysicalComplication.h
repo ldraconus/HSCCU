@@ -16,15 +16,10 @@ public:
     PhysicalComplication(const QJsonObject& json)
         : Complication()
         , v { json["frequency"].toInt(0), json["impairs"].toInt(0), json["what"].toString("") } { }
+    ~PhysicalComplication() override { }
 
-    PhysicalComplication& operator=(const PhysicalComplication& ac) {
-        if (this != &ac) v = ac.v;
-        return *this;
-    }
-    PhysicalComplication& operator=(PhysicalComplication&& ac) {
-        v = ac.v;
-        return *this;
-    }
+    PhysicalComplication& operator=(const PhysicalComplication& ac) = delete;
+    PhysicalComplication& operator=(PhysicalComplication&& ac) = delete;
 
     QString description() override {
         static QList<QString> impr { "Barely", "Slightly", "Greatly", "Fully" };
@@ -39,7 +34,7 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._frequency + 1) * 5_cp + (v._impairs < 0 ? 0 : v._impairs) * 5_cp;
+        return (v._frequency + 1) * 5_cp + (v._impairs < 0 ? 0 : v._impairs) * 5_cp; // NOLINT
     }
     void restore() override {
         vars s = v;
@@ -69,9 +64,9 @@ private:
         QString _what = "";
     } v;
 
-    QComboBox* frequency;
-    QComboBox* impairs;
-    QLineEdit* what;
+    gsl::owner<QComboBox*> frequency = nullptr;
+    gsl::owner<QComboBox*> impairs = nullptr;
+    gsl::owner<QLineEdit*> what = nullptr;
 };
 
 #endif // PHYSICALCOMPLICATION_H

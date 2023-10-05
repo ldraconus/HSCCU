@@ -21,12 +21,12 @@ public:
     InteractionSkills(const QJsonObject& json)
         : SkillTalentOrPerk()
         , v { json["name"].toString(""), json["plus"].toInt(0) } { }
-
-    virtual InteractionSkills& operator=(const InteractionSkills& s) {
+    ~InteractionSkills() override { }
+    InteractionSkills& operator=(const InteractionSkills& s) {
         if (this != &s) v = s.v;
         return *this;
     }
-    virtual InteractionSkills& operator=(InteractionSkills&& s) {
+    InteractionSkills& operator=(InteractionSkills&& s) {
         v = s.v;
         return *this;
     }
@@ -54,11 +54,11 @@ public:
 
 private:
     struct vars {
-        QString _name;
-        int     _plus;
+        QString _name = "";
+        int     _plus = 0;
     } v;
 
-    QLineEdit* plus;
+    QLineEdit* plus = nullptr;
 
     void numeric(QString) override {
         QString txt = plus->text();
@@ -67,6 +67,7 @@ private:
     }
 };
 
+// NOLINTNEXTLINE
 #define CLASS(x)\
     class x: public InteractionSkills {\
     public:\
@@ -74,7 +75,11 @@ private:
         x(const x& s): InteractionSkills(s) { }\
         x(x&& s): InteractionSkills(s) { }\
         x(const QJsonObject& json): InteractionSkills(json) { }\
+        ~x() override { } \
+        x& operator=(const x&) { return *this; } \
+        x& operator=(x&&) { return *this; } \
     };
+// NOLINTNEXTLINE
 #define CLASS_SPACE(x,y)\
     class x: public InteractionSkills {\
     public:\
@@ -82,6 +87,9 @@ private:
         x(const x& s): InteractionSkills(s) { }\
         x(x&& s): InteractionSkills(s) { }\
         x(const QJsonObject& json): InteractionSkills(json) { }\
+        ~x() override { } \
+        x& operator=(const x&) { return *this; } \
+        x& operator=(x&&) { return *this; } \
     };
 
 CLASS(Acting);

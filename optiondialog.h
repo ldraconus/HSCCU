@@ -14,7 +14,12 @@ class optionDialog : public QDialog
 
 public:
     explicit optionDialog(QWidget *parent = nullptr);
-    ~optionDialog();
+    optionDialog(const optionDialog&) = delete;
+    optionDialog(optionDialog&&) = delete;
+    ~optionDialog() override;
+
+    optionDialog& operator=(const optionDialog&) = delete;
+    optionDialog& operator=(optionDialog&&) = delete;
 
     int  complications()      { return ui->complicationsLineEdit->text().toInt(); }
     bool equipmentFree()      { return ui->equipmentFree->isChecked(); }
@@ -35,10 +40,14 @@ public:
 private:
     Ui::optionDialog *ui;
 
-    bool isNumber(QString& txt) { bool ok; txt.toInt(&ok); return ok; }
+    bool isNumber(QString& txt) {
+        bool ok {};
+        txt.toInt(&ok);
+        return ok;
+    }
 
 public slots:
-    void accept();
+    void accept() override;
     void numeric(QString);
     void pickSomething(int);
 };

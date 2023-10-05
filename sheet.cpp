@@ -1,3 +1,4 @@
+#include "Equipment.h"
 #include "complicationsdialog.h"
 #include "complication.h"
 #include "modifier.h"
@@ -647,6 +648,10 @@ bool Sheet::checkClose() {
     return true;
 }
 
+void Sheet::clearHitLocations() {
+    for (auto& x: _hitLocations) x = 0;
+}
+
 #ifdef __wasm__
 QWidget* Sheet::createToolBarItem(QToolBar* sb, const QString name, const QString tip, QAction* action) {
     QToolButton *tb = new QToolButton();
@@ -737,6 +742,9 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
     QFont italic = font;
     italic.setItalic(true);
     QString descr = pe->description(false);
+
+    if (pe->isEquipment() && pe->name() == "Armor") hitLocations(pe);
+
     if (descr == "-") descr = "";
     for (const auto& mod: pe->advantagesList()) {
         if (mod == nullptr) continue;
@@ -797,10 +805,12 @@ void Sheet::fileOpen(const QByteArray& data, QString filename) {
 }
 #else
 void Sheet::fileOpen() {
-    int ext = _filename.lastIndexOf(".hsccu");
+    Power::Equipment(); // pre-load equipment if needed
+
+    auto ext = _filename.lastIndexOf(".hsccu");
     if (ext != -1) _filename = _filename.left(ext);
 
-    int sep = _filename.lastIndexOf("/");
+    auto sep = _filename.lastIndexOf("/");
     if (sep != -1) {
         _dir = _filename.left(sep);
         _filename = _filename.mid(sep + 1);
@@ -986,6 +996,26 @@ shared_ptr<Power>& Sheet::getPower(int row, QList<shared_ptr<Power>>& in) {
         }
     }
     return null;
+}
+
+QList<int> expandHitLocations(const QString& loc) {
+    QList<int> expanded;
+    QList<QString> commas = loc.split(",");
+    for (const auto& x: commas) {
+        QList<QString> dashes = x.split("-");
+        if (dashes.count() == 1) expanded.append(dashes[0].toInt());
+        int start = dashes[0].toInt();
+        int end = dashes[1].toInt();
+        for (int y = start; y <= end; ++y) expanded.append(y);
+    }
+    return expanded;
+}
+
+void Sheet::hitLocations(std::shared_ptr<Power>& pe) {
+    Armor* arm = dynamic_cast<Armor*>(pe.get());
+    QList<int> locations = expandHitLocations(arm->hitLocations());
+    int def = arm->DEF();
+    for (const auto& x: locations) if (def > _hitLocations[x]) _hitLocations[x] = def; // NOLINT
 }
 
 void Sheet::loadImage(QPixmap& pixmap, QString filename) {
@@ -1752,6 +1782,70 @@ void Sheet::updateComplications() {
     Ui->totalcomplicationpts->setText(QString("%1/%2").arg(_complicationPoints.points).arg(_option.complications().points));
 }
 
+struct hitLocationMapping {
+    QLabel* lbl = nullptr;
+    QList<int> loc;
+};
+
+static QString hit2String(const QList<int>& loc, std::array<int, 19>& hitLoc) {
+    if (loc.count() == 1) return QString("%1").arg(hitLoc[loc[0]]);
+    bool same = true;
+    bool first = true;
+    int comp = 0;
+    for (const auto& x: loc) {
+        if (first) {
+            first = false;
+            comp = hitLoc[x];
+        } else if (comp != hitLoc[x]) {
+            same = false;
+            break;
+        }
+    }
+    QString res = "";
+    if (same) return QString("%1").arg(hitLoc[loc[0]]);
+    else {
+        first = true;
+        for (const auto x: loc) {
+            if (first) first = false;
+            else res += "/";
+            res += QString("%1").arg(hitLoc[x]);
+        }
+    }
+    return res;
+}
+
+void Sheet::updateHitLocations() {
+    hitLocationMapping mapping[] = {
+  // NOLINT
+        {     Ui->head, {3, 4, 5}}, // NOLINT
+        {    Ui->hands,       {6}}, // NOLINT
+        {     Ui->arms,    {7, 8}}, // NOLINT
+        {Ui->shoulders,       {9}}, // NOLINT
+        {    Ui->chest,  {10, 11}}, // NOLINT
+        {  Ui->stomach,      {12}}, // NOLINT
+        {   Ui->vitals,      {13}}, // NOLINT
+        {   Ui->thighs,      {14}}, // NOLINT
+        {     Ui->legs,  {15, 16}}, // NOLINT
+        {     Ui->feet,  {17, 18}}  // NOLINT
+    };
+
+    for (const auto& x: mapping) x.lbl->setText(hit2String(x.loc, _hitLocations));
+
+    int def = 0;
+    for (int i = 9; i <= 14; ++i) def += _hitLocations[i];
+    int count = ((_hitLocations[3] != 0) ? 1 : 0) +
+        ((_hitLocations[4] != 0) ? 1 : 0) +
+        ((_hitLocations[5] != 0) ? 1 : 0);
+    if (count > 1) {
+        int max = _hitLocations[3];
+        for (int i = 4; i <= 5; ++i)
+            if (max < _hitLocations[i]) max = _hitLocations[i];
+        def += max;
+    }
+    def = (def + 3) / 7;
+    Ui->averageDEF->setText(QString("%1").arg(def));
+}
+
 void Sheet::updateDisplay() {
     updateCharacter();
     rebuildPowers(false);
@@ -1807,12 +1901,14 @@ void Sheet::updatePowersAndEquipment() {
 
     _powersOrEquipmentPoints = 0_cp;
     int row = 0;
+    clearHitLocations();
     for (const auto& pe: _character.powersOrEquipment()) {
         if (pe == nullptr) continue;
 
         _powersOrEquipmentPoints += Points(displayPowerAndEquipment(row, pe));
     }
     Ui->powersandequipment->resizeRowsToContents();
+    updateHitLocations();
 
     Ui->totalpowersandequipmentcost->setText(QString("%1").arg(_powersOrEquipmentPoints.points));
 }

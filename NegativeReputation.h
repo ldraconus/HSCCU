@@ -17,15 +17,10 @@ public:
     NegativeReputation(const QJsonObject& json)
         : Complication()
         , v { json["extreme"].toBool(false), json["frequency"].toInt(0), json["limited"].toBool(false), json["what"].toString("") } { }
+    ~NegativeReputation() override { }
 
-    NegativeReputation& operator=(const NegativeReputation& ac) {
-        if (this != &ac) v = ac.v;
-        return *this;
-    }
-    NegativeReputation& operator=(NegativeReputation&& ac) {
-        v = ac.v;
-        return *this;
-    }
+    NegativeReputation& operator=(const NegativeReputation& ac) = delete;
+    NegativeReputation& operator=(NegativeReputation&& ac) = delete;
 
     QString description() override {
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
@@ -55,7 +50,7 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._extreme ? 5_cp : 0_cp) + (v._frequency + 1) * 5_cp - (v._limited ? 5_cp : 0_cp);
+        return (v._extreme ? 5_cp : 0_cp) + (v._frequency + 1) * 5_cp - (v._limited ? 5_cp : 0_cp); // NOLINT
     }
     void restore() override {
         vars s = v;
@@ -89,10 +84,10 @@ private:
         QString _what = "";
     } v;
 
-    QCheckBox* extreme;
-    QComboBox* frequency;
-    QCheckBox* limited;
-    QLineEdit* what;
+    gsl::owner<QCheckBox*> extreme = nullptr;
+    gsl::owner<QComboBox*> frequency = nullptr;
+    gsl::owner<QCheckBox*> limited = nullptr;
+    gsl::owner<QLineEdit*> what = nullptr;
 };
 
 #endif // NEGATIVEREPUTATION_H

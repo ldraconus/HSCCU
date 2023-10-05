@@ -151,12 +151,15 @@ private:
     Option    _option;
     bool      _saveChanged;
 
+    std::array<int, 19> _hitLocations { }; // NOLINT
+
     QMap<QObject*, _CharacteristicDef> _widget2Def;
 
     Points             characteristicsCost();
     void               characteristicChanged(QLineEdit*, QString, bool update = true);
     void               characteristicEditingFinished(QLineEdit*);
     bool               checkClose();
+    void               clearHitLocations();
     void               closeDialogs(QMouseEvent*);
 #ifdef __wasm__
     QWidget*           createToolBarItem(QToolBar*, QAction*, const QString, const QString, QAction*);
@@ -184,6 +187,7 @@ private:
     int                getPageCount();
     int                getPageLines(QPlainTextEdit*, double, QPainter*);
     shared_ptr<Power>& getPower(int, QList<shared_ptr<Power>>&);
+    void               hitLocations(std::shared_ptr<Power>&);
     void               justClose();
     QString            KAwSTR(int);
 
@@ -233,6 +237,7 @@ private:
     void               updateCharacteristics();
     void               updateCharacter();
     void               updateComplications();
+    void               updateHitLocations();
     void               updatePowersAndEquipment();
     void               updateSkillsTalentsAndPerks();
     void               updateSkillRolls();

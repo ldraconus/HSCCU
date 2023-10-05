@@ -24,6 +24,7 @@ public:
             , json["what"].toString() } { }
 
     ~Dependence() override { }
+
     Dependence& operator=(const Dependence& d) {
         if (this != &d) v = d.v;
         return *this;

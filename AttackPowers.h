@@ -147,8 +147,8 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    effect  = createComboBox(parent, layout, "Effects?", { "",
                                                                                                                           "Movement",
-                                                                                                                          "PER Rolll for one Sense",
-                                                                                                                          "PER Rolll for one Sense Group",
+                                                                                                                          "PER Roll for one Sense",
+                                                                                                                          "PER Roll for one Sense Group",
                                                                                                                           "Characteristic Roll",
                                                                                                                           "Skill Roll",
                                                                                                                           "Increase Temperature",
@@ -546,7 +546,7 @@ private:
     }
 
     void numeric(int) override {
-        QLineEdit* line = static_cast<QLineEdit*>(sender());
+        QLineEdit* line = dynamic_cast<QLineEdit*>(sender());
         QString txt = line->text();
         if (!txt.isEmpty() && txt == "0") {
             line->undo();

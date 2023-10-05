@@ -15,6 +15,7 @@ public:
     MoneyComp(const QJsonObject& json)
         : Complication()
         , v { json["amount"].toInt(0) } { }
+    ~MoneyComp() override { }
 
     MoneyComp& operator=(const MoneyComp& d) {
         if (this != &d) {
@@ -38,7 +39,7 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._amount < 0) ? 0_cp : ((2 - v._amount) * 5_cp);
+        return (v._amount < 0) ? 0_cp : ((2 - v._amount) * 5_cp); // NOLINT
     }
     void restore() override {
         vars s = v;
@@ -60,7 +61,7 @@ private:
         int _amount = -1;
     } v;
 
-    QComboBox* amount;
+    gsl::owner<QComboBox*> amount = nullptr;
 };
 
 #endif // MONEY_H

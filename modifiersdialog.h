@@ -10,6 +10,8 @@
 
 #include "shared.h"
 
+#include <gsl/gsl>
+
 namespace Ui {
 class ModifiersDialog;
 }
@@ -25,7 +27,12 @@ public:
     static constexpr bool Limitation = false;
 
     explicit ModifiersDialog(bool, QWidget *parent = nullptr);
-    ~ModifiersDialog();
+    ModifiersDialog(const ModifiersDialog&) = delete;
+    ModifiersDialog(ModifiersDialog&&) = delete;
+    ~ModifiersDialog() override;
+
+    ModifiersDialog& operator=(const ModifiersDialog&) = delete;
+    ModifiersDialog& operator=(ModifiersDialog&&) = delete;
 
     std::shared_ptr<class Modifier> modifier() { return _modifier; }
     bool modifier(std::shared_ptr<class Modifier>&);
@@ -41,7 +48,7 @@ public:
     static ModifiersDialog& ref() { return *_modifiersDialog; }
 
 private:
-    static ModifiersDialog* _modifiersDialog;
+    static ModifiersDialog* _modifiersDialog; // NOLINT
     Ui::ModifiersDialog *ui;
 
     shared_ptr<class Modifier>  _modifier = nullptr;
@@ -49,14 +56,13 @@ private:
 
     bool                 _accepted = false;
     bool                 _add = false;
-    QLabel*              _description;
+    gsl::owner<QLabel*>  _description = nullptr;
     bool                 _justAccept = false;
-    QLabel*              _mod;
-    QPushButton*         _ok;
+    QPushButton*         _ok = nullptr;
     bool                 _skipUpdate = false;
 
-    QLabel* createLabel(QVBoxLayout*, QString, bool wrap = false);
-    void    setModifiers(bool);
+    gsl::owner<QLabel*> createLabel(QVBoxLayout*, QString, bool wrap = false);
+    void                setModifiers(bool);
 
 public slots:
     void doAccepted();

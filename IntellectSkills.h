@@ -21,12 +21,13 @@ public:
     IntellectSkills(const QJsonObject& json)
         : SkillTalentOrPerk()
         , v { json["name"].toString(""), json["topic"].toString(""), json["plus"].toInt(0) } { }
+    ~IntellectSkills() override { }
 
-    virtual IntellectSkills& operator=(const IntellectSkills& s) {
+    IntellectSkills& operator=(const IntellectSkills& s) {
         if (this != &s) v = s.v;
         return *this;
     }
-    virtual IntellectSkills& operator=(IntellectSkills&& s) {
+    IntellectSkills& operator=(IntellectSkills&& s) {
         v = s.v;
         return *this;
     }
@@ -63,13 +64,13 @@ public:
 
 private:
     struct vars {
-        QString _name;
-        QString _topic;
-        int     _plus;
+        QString _name = "";
+        QString _topic = "";
+        int     _plus = 0;
     } v;
 
-    QLineEdit* topic;
-    QLineEdit* plus;
+    QLineEdit* topic = nullptr;
+    QLineEdit* plus = nullptr;
 
     void numeric(QString) override {
         QString txt = plus->text();
@@ -78,6 +79,7 @@ private:
     }
 };
 
+// NOLINTNEXTLINE
 #define CLASS(x)\
     class x: public IntellectSkills {\
     public:\
@@ -85,7 +87,11 @@ private:
         x(const x& s): IntellectSkills(s) { }\
         x(x&& s): IntellectSkills(s) { }\
         x(const QJsonObject& json): IntellectSkills(json) { }\
+        ~x() override { } \
+        x& operator=(const x&) { return *this; } \
+        x& operator=(x&&) { return *this; } \
     };
+// NOLINTNEXTLINE
 #define CLASS_SPACE(x,y)\
     class x: public IntellectSkills {\
     public:\
@@ -93,6 +99,9 @@ private:
         x(const x& s): IntellectSkills(s) { }\
         x(x&& s): IntellectSkills(s) { }\
         x(const QJsonObject& json): IntellectSkills(json) { }\
+        ~x() override { } \
+        x& operator=(const x&) { return *this; } \
+        x& operator=(x&&) { return *this; } \
     };
 
 class Analyze: public IntellectSkills {
@@ -103,6 +112,16 @@ public:
     Analyze(const QJsonObject& json): IntellectSkills(json) {
         v._plus    = json["plus"].toInt(1);
         v._what    = json["what"].toString("");
+    }
+    ~Analyze() override { }
+
+    Analyze& operator=(const Analyze& s) {
+        if (this != &s) v = s.v;
+        return *this;
+    }
+    Analyze& operator=(Analyze&& s) {
+        v = s.v;
+        return *this;
     }
 
     QString description(bool showRoll = false) override {
@@ -152,8 +171,8 @@ private:
         QString _what    = "";
     } v;
 
-    QLineEdit* plus;
-    QLineEdit* what;
+    QLineEdit* plus = nullptr;
+    QLineEdit* what = nullptr;
 
     QString optOut() {
         if (v._what.isEmpty()) return "<incomplete>";

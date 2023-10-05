@@ -2,6 +2,7 @@
 #define MENTAL_POWERS_H
 
 #include "powers.h"
+#include "powerdialog.h"
 
 class MentalBlast: public AllPowers {
 public:
@@ -9,15 +10,16 @@ public:
     MentalBlast(const MentalBlast& s): AllPowers(s)       { }
     MentalBlast(MentalBlast&& s): AllPowers(s)            { }
     MentalBlast(const QJsonObject& json): AllPowers(json) { v._dice = json["dice"].toInt(0);
-                                                             }
-    virtual MentalBlast& operator=(const MentalBlast& s) {
+                                                          }
+    ~MentalBlast() override { }
+    MentalBlast& operator=(const MentalBlast& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual MentalBlast& operator=(MentalBlast&& s) {
+    MentalBlast& operator=(MentalBlast&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -29,8 +31,8 @@ public:
                                                                    dice = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._dice * 10_cp; }
+    Points points(bool noStore = false) override                 { if (!noStore) store();
+                                                                   return v._dice * 10_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));
@@ -49,7 +51,7 @@ private:
         int _dice = 0;
     } v;
 
-    QLineEdit* dice;
+    QLineEdit* dice = nullptr;
 
     QString optOut(bool showEND) {
         if (v._dice < 1) return "<incomplete>";
@@ -81,14 +83,15 @@ public:
                                                                   v._sense  = json["sense"].toInt(0);
                                                                   v._self   = json["self"].toBool(false);
                                                                 }
-    virtual MentalIllusions& operator=(const MentalIllusions& s) {
+    ~MentalIllusions() override { }
+    MentalIllusions& operator=(const MentalIllusions& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual MentalIllusions& operator=(MentalIllusions&& s) {
+    MentalIllusions& operator=(MentalIllusions&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -110,7 +113,7 @@ public:
                                                                           (v._self   ? Fraction(1)    : Fraction(0)) +
                                                                           v._sense * Fraction(1, 4); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._dice * 5_cp; }
+                                                                   return v._dice * 5_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));
@@ -142,14 +145,14 @@ private:
         bool _harm   = false;
         bool _depend = false;
         int  _sense  = -1;
-        bool _self;
+        bool _self = false;
     } v;
 
-    QLineEdit* dice;
-    QCheckBox* harm;
-    QCheckBox* depend;
-    QComboBox* sense;
-    QCheckBox* self;
+    QLineEdit* dice = nullptr;
+    QCheckBox* harm = nullptr;
+    QCheckBox* depend = nullptr;
+    QComboBox* sense = nullptr;
+    QCheckBox* self = nullptr;
 
     QString optOut(bool showEND) {
         if (v._dice < 1) return "<incomplete>";
@@ -188,14 +191,15 @@ public:
                                                                v._set  = json["set"].toInt(0);
                                                                v._cmd  = json["cmd"].toString();
                                                              }
-    virtual MindControl& operator=(const MindControl& s) {
+    ~MindControl() override { }
+    MindControl& operator=(const MindControl& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual MindControl& operator=(MindControl&& s) {
+    MindControl& operator=(MindControl&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -217,7 +221,7 @@ public:
                                                                           ((v._set >= 1) ? Fraction(1, 4) : Fraction(0)) +
                                                                           v._set * Fraction(1, 4); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._dice * 5_cp; }
+                                                                   return v._dice * 5_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));
@@ -252,11 +256,11 @@ private:
         QString _cmd  = "";
     } v;
 
-    QLineEdit* dice;
-    QCheckBox* tele;
-    QCheckBox* lit;
-    QComboBox* set;
-    QLineEdit* cmd;
+    QLineEdit* dice = nullptr;
+    QCheckBox* tele = nullptr;
+    QCheckBox* lit = nullptr;
+    QComboBox* set = nullptr;
+    QLineEdit* cmd = nullptr;
 
     QString optOut(bool showEND) {
         if (v._dice < 1) return "<incomplete>";
@@ -295,14 +299,15 @@ public:
                                                          v._feed  = json["feed"].toInt(0);
                                                          v._only  = json["only"].toBool(false);
                                                        }
-    virtual MindLink& operator=(const MindLink& s) {
+    ~MindLink() override { }
+    MindLink& operator=(const MindLink& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual MindLink& operator=(MindLink&& s) {
+    MindLink& operator=(MindLink&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -328,13 +333,14 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(v._feed < 0 ? 0 : v._feed) + (v._only ? Fraction(1) : Fraction(0)); }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   Points pts = 5_cp * (v._inv < 0 ? 0 : v._inv);
+                                                                   Points pts = 5_cp * (v._inv < 0 ? 0 : v._inv); // NOLINT
                                                                    int steps = 0;
-                                                                   if (v._minds > 0) steps = (int) (log((double) v._minds) / log(2.0));                                                                  pts = pts + steps * 5_cp;
-                                                                   pts = pts + (v._los ? 10_cp : 0_cp);
-                                                                   pts = pts + (v._range < 0 ? 0 : v._range) * 5;
-                                                                   pts = pts + countCommas(v._bond) * 5_cp;
-                                                                   pts = pts + (v._float ? 10_cp : 0_cp);
+                                                                   if (v._minds > 0) steps = (int) (log((double) v._minds) / log(2.0)); // NOLINT
+                                                                   pts = pts + steps * 5_cp; // NOLINT
+                                                                   pts = pts + (v._los ? 10_cp : 0_cp); // NOLINT
+                                                                   pts = pts + (v._range < 0 ? 0 : v._range) * 5; // NOLINT
+                                                                   pts = pts + countCommas(v._bond) * 5_cp; // NOLINT
+                                                                   pts = pts + (v._float ? 10_cp : 0_cp); // NOLINT
                                                                    return pts;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -387,15 +393,15 @@ private:
         bool    _only  = false;
     } v;
 
-    QLineEdit* minds;
-    QComboBox* inv;
-    QLineEdit* who;
-    QComboBox* range;
-    QCheckBox* los;
-    QLineEdit* bond;
-    QCheckBox* floating;
-    QComboBox* feed;
-    QCheckBox* only;
+    QLineEdit* minds = nullptr;
+    QComboBox* inv = nullptr;
+    QLineEdit* who = nullptr;
+    QComboBox* range = nullptr;
+    QCheckBox* los = nullptr;
+    QLineEdit* bond = nullptr;
+    QCheckBox* floating = nullptr;
+    QComboBox* feed = nullptr;
+    QCheckBox* only = nullptr;
 
     QString optOut(bool showEND) {
         if (v._minds < 1 || v._inv < 0 || (v._inv != 2 && v._who.isEmpty()) || v._range < 0) return "<incomplete>";
@@ -446,14 +452,15 @@ public:
                                                             v._cant  = json["cant"].toInt(0);
                                                             v._part  = json["part"].toBool(false);
                                                           }
-    virtual MindScan& operator=(const MindScan& s) {
+    ~MindScan() override { }
+    MindScan& operator=(const MindScan& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual MindScan& operator=(MindScan&& s) {
+    MindScan& operator=(MindScan&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -475,7 +482,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return ((v._cant > 0) ? v._cant * Fraction(1, 2) : Fraction(0)) + (v._part ? Fraction(1, 2) : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._dice * 5_cp + v._bonus * 2_cp; }
+                                                                   return v._dice * 5_cp + v._bonus * 2_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));
@@ -514,12 +521,12 @@ private:
         bool _part  = false;
     } v;
 
-    QLineEdit* dice;
-    QCheckBox* link;
-    QCheckBox* lock;
-    QLineEdit* bonus;
-    QComboBox* cant;
-    QCheckBox* part;
+    QLineEdit* dice = nullptr;
+    QCheckBox* link = nullptr;
+    QCheckBox* lock = nullptr;
+    QLineEdit* bonus = nullptr;
+    QComboBox* cant = nullptr;
+    QCheckBox* part = nullptr;
 
     QString optOut(bool showEND) {
         if (v._dice < 1) return "<incomplete>";
@@ -563,14 +570,15 @@ public:
                                                              v._lang  = json["lang"].toBool(false);
                                                              v._recv  = json["recv"].toBool(false);
                                                            }
-    virtual Telepathy& operator=(const Telepathy& s) {
+    ~Telepathy() override { }
+    Telepathy& operator=(const Telepathy& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Telepathy& operator=(Telepathy&& s) {
+    Telepathy& operator=(Telepathy&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -599,7 +607,7 @@ public:
                                                                           (v._lang ? Fraction(1, 2) : Fraction(0)) +
                                                                           (v._recv ? Fraction(1, 2) : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._dice * 5_cp; }
+                                                                   return v._dice * 5_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
                                                                    dice->setText(QString("%1").arg(s._dice));
@@ -646,14 +654,14 @@ private:
         bool    _recv  = false;
     } v;
 
-    QLineEdit* dice;
-    QCheckBox* bcast;
-    QCheckBox* excl;
-    QComboBox* emp;
-    QLineEdit* emo;
-    QComboBox* feed;
-    QCheckBox* lang;
-    QCheckBox* recv;
+    QLineEdit* dice = nullptr;
+    QCheckBox* bcast = nullptr;
+    QCheckBox* excl = nullptr;
+    QComboBox* emp = nullptr;
+    QLineEdit* emo = nullptr;
+    QComboBox* feed = nullptr;
+    QCheckBox* lang = nullptr;
+    QCheckBox* recv = nullptr;
 
     QString optOut(bool showEND) {
         if (v._dice < 1 || (v._emp == 1 && v._emo.isEmpty())) return "<incomplete>";

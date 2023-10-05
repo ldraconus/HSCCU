@@ -13,6 +13,7 @@ public:
     Option(const Option&);
     Option(Option&&);
     Option(const QJsonObject& obj);
+    virtual ~Option() { }
 
     Option& operator=(const Option&);
     Option& operator=(Option&&);
@@ -38,13 +39,13 @@ public:
     void toJson(QJsonObject&);
 
 private:
-    Points _complications;
-    bool   _equipmentFree;
-    bool   _showFrequencyRolls;
-    bool   _showNotesPage;
-    bool   _normalHumanMaxima;
-    Points _activePerEND;
-    Points _totalPoints;
+    Points _complications = 0_cp;
+    bool   _equipmentFree = false;
+    bool   _showFrequencyRolls = false;
+    bool   _showNotesPage = false;
+    bool   _normalHumanMaxima = false;
+    Points _activePerEND = 0_cp;
+    Points _totalPoints = 0_cp;
 };
 
 #endif // OPTION_H

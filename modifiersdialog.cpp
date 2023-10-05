@@ -4,7 +4,7 @@
 #include "powerdialog.h"
 #include "shared.h"
 
-ModifiersDialog* ModifiersDialog::_modifiersDialog = nullptr;
+ModifiersDialog* ModifiersDialog::_modifiersDialog = nullptr; // NOLINT
 
 ModifiersDialog::ModifiersDialog(bool advantage, QWidget *parent)
     : QDialog(parent)
@@ -26,7 +26,7 @@ ModifiersDialog::ModifiersDialog(bool advantage, QWidget *parent)
     connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickOne(int)));
     connect(this,         SIGNAL(accepted()),               this, SLOT(doAccepted()));
 
-    _ok = ui->buttonBox->button(QDialogButtonBox::Ok);
+    _ok = ui->buttonBox->button(QDialogButtonBox::Ok); // NOLINT
     _ok->setEnabled(false);
 
 }
@@ -36,8 +36,8 @@ ModifiersDialog::~ModifiersDialog()
     delete ui;
 }
 
-QLabel* ModifiersDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap) {
-    QLabel* label = new QLabel();
+gsl::owner<QLabel*> ModifiersDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap) {
+    gsl::owner<QLabel*> label = new QLabel();
     if (label != nullptr) {
         label->setText(text);
         label->setWordWrap(wordWrap);
@@ -74,9 +74,9 @@ bool ModifiersDialog::modifier(shared_ptr<Modifier>& mod) {
     ui->comboBox->setCurrentIndex(idx);
     ui->comboBox->setEnabled(false);
 
-    QVBoxLayout* layout = static_cast<QVBoxLayout*>(ui->form->layout());
+    QVBoxLayout* layout = static_cast<QVBoxLayout*>(ui->form->layout()); // NOLINT
     if (layout == nullptr) {
-        layout = new QVBoxLayout(ui->form);
+        layout = new QVBoxLayout(ui->form); // NOLINT
         ui->form->setLayout(layout);
     }
 

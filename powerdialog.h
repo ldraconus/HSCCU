@@ -21,7 +21,12 @@ class PowerDialog : public QDialog
 
 public:
     explicit PowerDialog(QWidget *parent = nullptr, shared_ptr<Power>& save = _dummy);
-    ~PowerDialog();
+    PowerDialog(const PowerDialog&) = delete;
+    PowerDialog(PowerDialog&&) = delete;
+    ~PowerDialog() override;
+
+    PowerDialog& operator=(const PowerDialog&) = delete;
+    PowerDialog& operator=(PowerDialog&&) = delete;
 
     QTableWidget* createAdvantages(QWidget* parent, QVBoxLayout* layout);
     QTableWidget* createLimitations(QWidget* parent, QVBoxLayout* layout);
@@ -45,30 +50,30 @@ public:
 
     static PowerDialog& ref() { return *_ptr; }
 
-    static PowerDialog* _ptr;
+    static PowerDialog* _ptr; // NOLINT
 
     void setEquipment() { _equipment = true; }
 private:
     Ui::PowerDialog *ui;
 
-    static shared_ptr<Power>  _dummy;
+    static shared_ptr<Power> _dummy; // NOLINT
     static const bool WordWrap = true;
 
     bool                        _accepted = false;
-    QTableWidget*               _advantages;
-    QMenu*                      _advantagesMenu;
-    QPushButton*                _cancel;
-    QLabel*                     _description;
+    QTableWidget*               _advantages = nullptr;
+    QMenu*                      _advantagesMenu = nullptr;
+    QPushButton*                _cancel = nullptr;
+    QLabel*                     _description = nullptr;
     bool                        _done = false;
     bool                        _equipment = false;
-    bool                        _inMultipower;
-    QTableWidget*               _limitations;
-    QMenu*                      _limitationsMenu;
-    shared_ptr<ModifiersDialog> _mod;
-    QPushButton*                _ok;
-    QLabel*                     _points;
+    bool                        _inMultipower = false;
+    QTableWidget*               _limitations = nullptr;
+    QMenu*                      _limitationsMenu = nullptr;
+    shared_ptr<ModifiersDialog> _mod = nullptr;
+    QPushButton*                _ok = nullptr;
+    QLabel*                     _points = nullptr;
     shared_ptr<Power>           _power = nullptr;
-    shared_ptr<Power>&          _saved;
+    shared_ptr<Power>&          _saved; // NOLINT
     bool                        _skipUpdate = false;
 
     struct menuItems {
@@ -87,8 +92,13 @@ private:
         menuItems(menuItems&& mi)
             : text(mi.text)
             , action(mi.action) { }
-        QString text;
-        QAction** action;
+        virtual ~menuItems() { }
+
+        menuItems& operator=(const menuItems&) = delete;
+        menuItems& operator=(menuItems&&) = delete;
+
+        QString text = "";
+        QAction** action = nullptr;
     };
 
 

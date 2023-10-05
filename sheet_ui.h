@@ -294,10 +294,10 @@ private:
         auto horizontalHeader = tablewidget->horizontalHeader();
         horizontalHeader->setStretchLastSection(true);
         horizontalHeader->setMaximumSectionSize(s.l());
-        horizontalHeader->setDefaultSectionSize(10);
+        horizontalHeader->setDefaultSectionSize(10); // NOLINT
         horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
 #ifdef __wasm__
-        horizontalHeader->setMaximumSize(s.l, sz + 2);
+        horizontalHeader->setMaximumSize(s.l(), sz + 2);
 #else
         horizontalHeader->setMaximumSize(s.l(), sz);
 #endif
@@ -310,13 +310,13 @@ private:
                                                    "   gridline-color: cyan;"
                                                    "   background-color: cyan;"
                                                    "   border-style: none;"
-                                         + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
+                                         + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) + // NOLINT
                                                    "   color: black;"
                                                    " } "
                                        "QHeaderView::section { background-color: white;"
                                                            "   border-style: none;"
                                                            "   color: black;" +
-                                                   QString("   font: bold %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
+                                                   QString("   font: bold %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) + // NOLINT
                                                            " }");
         else
             tablewidget->setStyleSheet("QTableWidget { selection-color: transparent;"
@@ -325,7 +325,7 @@ private:
                                                    "   border-style: none;"
                                                    "   background-color: transparent;"
                                                    "   color: black;" +
-                                           QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
+                                           QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) + // NOLINT
                                                    " } "
                                        "QHeaderView::section { background-color: white;"
                                                            "   border-style: none;"
@@ -540,7 +540,22 @@ public:
     QGridLayout*  layout                      = nullptr;
 
     QPlainTextEdit* notes = nullptr;
-    QWidget*        page3 = nullptr;;
+    QWidget* page3 = nullptr;
+    ;
+
+    QLabel* head;
+    QLabel* hands;
+    QLabel* arms;
+    QLabel* shoulders;
+    QLabel* chest;
+    QLabel* stomach;
+    QLabel* vitals;
+    QLabel* thighs;
+    QLabel* legs;
+    QLabel* feet;
+    QLabel* averageDEF;
+    QLabel* DCVmod;
+    QLabel* armorNotes;
 
     QList<QWidget*> widgets;
     QList<QWidget*> hiddenWidgets;
@@ -959,6 +974,21 @@ public:
 
         createLabel(hidden, smallBoldWideFont, "HIT LOCATION CHART", { 95, 245 }, { 275, 20 });
         createLabel(hidden, smallBoldWideFont, "HIT LOCATION CHART", { 94, 245 }, { 275, 20 });
+
+        head      = createLabel(hidden, font, "0", { 281, 310 }, { 40, 20 });
+        hands     = createLabel(hidden, font, "0", { 281, 332 }, { 40, 20 });
+        arms      = createLabel(hidden, font, "0", { 281, 355 }, { 40, 20 });
+        shoulders = createLabel(hidden, font, "0", { 281, 378 }, { 40, 20 });
+        chest     = createLabel(hidden, font, "0", { 281, 399 }, { 40, 20 });
+        stomach   = createLabel(hidden, font, "0", { 281, 422 }, { 40, 20 });
+        vitals    = createLabel(hidden, font, "0", { 281, 444 }, { 40, 20 });
+        thighs    = createLabel(hidden, font, "0", { 281, 466 }, { 40, 20 });
+        legs      = createLabel(hidden, font, "0", { 281, 488 }, { 40, 20 });
+        feet      = createLabel(hidden, font, "0", { 281, 510 }, { 40, 20 });
+
+        averageDEF = createLabel(hidden, font, "0",  { 281, 540 }, { 40, 20 });
+        DCVmod     = createLabel(hidden, font, "+0", { 158, 565 }, { 40, 20 });
+        armorNotes = createLabel(hidden, font, "",   { 158, 590 }, { 40, 20 });
 
         createLabel(hidden, smallBoldWideFont, "COMBAT MODIFIERS", { 105, 669 }, { 275, 20 });
         createLabel(hidden, smallBoldWideFont, "COMBAT MODIFIERS", { 104, 669 }, { 275, 20 });

@@ -314,7 +314,7 @@ int Power::doubling() {
 }
 
 bool Power::isNumber(QString txt) {
-    bool ok;
+    bool ok = true;
     txt.toInt(&ok, 10);
     return ok;
 }

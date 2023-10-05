@@ -2,35 +2,30 @@
 #define MOVEMENT_POWERS_H
 
 #include "powers.h"
+#include "powerdialog.h"
 
 class ExtraDimensionalMovement: public AllPowers {
 public:
     ExtraDimensionalMovement(): AllPowers("Extra-Dimensional Movementϴ")      { }
     ExtraDimensionalMovement(const ExtraDimensionalMovement& s): AllPowers(s) { }
     ExtraDimensionalMovement(ExtraDimensionalMovement&& s): AllPowers(s)      { }
-    ExtraDimensionalMovement(const QJsonObject& json): AllPowers(json)        { v._time   = json["time"].toBool(false);
-                                                                                     v._numDim = json["numDim"].toInt(0);
-                                                                                     v._dim    = json["dim"].toString();
-                                                                                     v._loc    = json["loc"].toInt(0);
-                                                                                     v._where  = json["where"].toString();
-                                                                                     v._when   = json["when"].toInt(0);
-                                                                                     v._moment = json["moment"].toString();
-                                                                                     v._span   = json["span"].toInt(0);
-                                                                                     v._timLoc = json["timLoc"].toInt(0);
-                                                                                     v._timWhr = json["timWhr"].toString();
-                                                                                   }
-    virtual ExtraDimensionalMovement& operator=(const ExtraDimensionalMovement& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
+    ExtraDimensionalMovement(const QJsonObject& json)
+        : AllPowers(json) {
+        v._time = json["time"].toBool(false);
+        v._numDim = json["numDim"].toInt(0);
+        v._dim = json["dim"].toString();
+        v._loc = json["loc"].toInt(0);
+        v._where = json["where"].toString();
+        v._when = json["when"].toInt(0);
+        v._moment = json["moment"].toString();
+        v._span = json["span"].toInt(0);
+        v._timLoc = json["timLoc"].toInt(0);
+        v._timWhr = json["timWhr"].toString();
     }
-    virtual ExtraDimensionalMovement& operator=(ExtraDimensionalMovement&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    ~ExtraDimensionalMovement() override { }
+
+    ExtraDimensionalMovement& operator=(const ExtraDimensionalMovement&) = delete;
+    ExtraDimensionalMovement& operator=(ExtraDimensionalMovement&&) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return (showEND ? "" : "") + optOut(showEND); }
@@ -67,11 +62,11 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   auto pts = 20_cp;
+                                                                   auto pts = 20_cp; // NOLINT
                                                                    if (v._time) {
-                                                                       pts += 20_cp;
+                                                                       pts += 20_cp; // NOLINT
                                                                        switch (v._when) {
-                                                                       case 0: pts += 5_cp;                           break;
+                                                                       case 0: pts += 5_cp;                           break; // NOLINT
                                                                        case 1:
                                                                        case 2: pts += (1_cp * (v._span + 1) + 1) / 2; break;
                                                                        case 3: pts += 1_cp * (v._span + 1);           break;
@@ -79,25 +74,25 @@ public:
                                                                        switch (v._timLoc) {
                                                                        case 0:               break;
                                                                        case 1: pts += 2_cp;  break;
-                                                                       case 2: pts += 5_cp;  break;
-                                                                       case 3: pts += 10_cp; break;
+                                                                       case 2: pts += 5_cp;  break; // NOLINT
+                                                                       case 3: pts += 10_cp; break; // NOLINT
                                                                        }
                                                                    } else {
                                                                        switch (v._loc) {
                                                                        case 0: switch (v._numDim) {
-                                                                           case 1: pts += 5_cp;  break;
-                                                                           case 2: pts += 10_cp; break;
+                                                                           case 1: pts += 5_cp;  break; // NOLINT
+                                                                           case 2: pts += 10_cp; break; // NOLINT
                                                                            }
                                                                            break;
                                                                        case 1: switch (v._numDim) {
-                                                                           case 0: pts += 5_cp;  break;
-                                                                           case 1: pts += 10_cp; break;
-                                                                           case 2: pts += 15_cp; break;
+                                                                           case 0: pts += 5_cp;  break; // NOLINT
+                                                                           case 1: pts += 10_cp; break; // NOLINT
+                                                                           case 2: pts += 15_cp; break; // NOLINT
                                                                            }
                                                                            break;
                                                                        case 2: switch (v._numDim) {
                                                                            case 1: pts += 2_cp;  break;
-                                                                           case 2: pts += 7_cp; break;
+                                                                           case 2: pts += 7_cp; break; // NOLINT
                                                                            }
                                                                            break;
                                                                        }
@@ -157,16 +152,16 @@ private:
         QString _timWhr = "";
     } v;
 
-    QCheckBox* time;
-    QComboBox* numDim;
-    QLineEdit* dim;
-    QComboBox* loc;
-    QLineEdit* where;
-    QComboBox* when;
-    QLineEdit* moment;
-    QComboBox* span;
-    QComboBox* timLoc;
-    QLineEdit* timWhr;
+    QCheckBox* time = nullptr;
+    QComboBox* numDim = nullptr;
+    QLineEdit* dim = nullptr;
+    QComboBox* loc = nullptr;
+    QLineEdit* where = nullptr;
+    QComboBox* when = nullptr;
+    QLineEdit* moment = nullptr;
+    QComboBox* span = nullptr;
+    QComboBox* timLoc = nullptr;
+    QLineEdit* timWhr = nullptr;
 
     QString optOut(bool showEND) {
         if (!v._time && v._loc != 1 && v._numDim == 0) return "<incomplete>";
@@ -241,18 +236,10 @@ public:
     FTLTravel(const QJsonObject& json): AllPowers(json) { v._speed   = json["speed"].toInt(0);
                                                           v._instant = json["instant"].toBool(false);
                                                         }
-    virtual FTLTravel& operator=(const FTLTravel& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual FTLTravel& operator=(FTLTravel&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    ~FTLTravel() override { }
+
+    FTLTravel& operator=(const FTLTravel&) = delete;
+    FTLTravel& operator=(FTLTravel&&) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -262,8 +249,8 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   Points pts = (v._instant ? 20_cp : 10_cp);
-                                                                   int steps = (int) (log((double) v._speed) / log(2.0));
+                                                                   Points pts = (v._instant ? 20_cp : 10_cp); // NOLINT
+                                                                   int steps = (int) (log((double) v._speed) / log(2.0)); // NOLINT
                                                                    pts = pts + steps * 2_cp;
                                                                    return pts;
                                                                  }
@@ -292,8 +279,8 @@ private:
         bool    _instant = false;
     } v;
 
-    QLineEdit* speed;
-    QCheckBox* instant;
+    QLineEdit* speed = nullptr;
+    QCheckBox* instant = nullptr;
 
     QString optOut(bool showEND) {
         if (v._speed < 1) return "<incomplete>";
@@ -325,18 +312,9 @@ public:
                                                        v._glide   = json["glide"].toBool(false);
                                                        v._surface = json["surface"].toBool(false);
                                                      }
-    virtual Flight& operator=(const Flight& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual Flight& operator=(Flight&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    ~Flight() override { }
+    virtual Flight& operator=(const Flight&) = delete;
+    virtual Flight& operator=(Flight&&) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -386,10 +364,10 @@ private:
         bool _surface = false;
     } v;
 
-    QLineEdit* speed;
-    QComboBox* hover;
-    QCheckBox* glide;
-    QCheckBox* surface;
+    QLineEdit* speed = nullptr;
+    QComboBox* hover = nullptr;
+    QCheckBox* glide = nullptr;
+    QCheckBox* surface = nullptr;
 
     QString optOut(bool showEND) {
         if (v._speed < 1) return "<incomplete>";
@@ -421,20 +399,12 @@ public:
     Leaping(Leaping&& s): AllPowers(s)                { }
     Leaping(const QJsonObject& json): AllPowers(json) { v._speed    = json["speed"].toInt(0);
                                                         v._accurate = json["accurate"].toBool(false);
-                                                        v._limit    = json["limit"].toInt(0);
+                                                        v._limit = json["limit"].toInt(0);
                                                       }
-    virtual Leaping& operator=(const Leaping& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual Leaping& operator=(Leaping&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    ~Leaping() override { }
+
+    Leaping& operator=(const Leaping& s) = delete;
+    Leaping& operator=(Leaping&& s) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return (showEND ? "" : "") + optOut(showEND); }
@@ -446,7 +416,7 @@ public:
     Fraction lim() override                                      { return (v._limit > 0 ? Fraction(1) : Fraction(0));
                                                                  }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return (v._speed + 1) / 2 * 1_cp + v._accurate * 5_cp;
+                                                                   return (v._speed + 1) / 2 * 1_cp + v._accurate * 5_cp; // NOLINT
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -476,9 +446,9 @@ private:
         int  _limit    = -1;
     } v;
 
-    QLineEdit* speed;
-    QCheckBox* accurate;
-    QComboBox* limit;
+    QLineEdit* speed = nullptr;
+    QCheckBox* accurate = nullptr;
+    QComboBox* limit = nullptr;
 
     QString optOut(bool showEND) {
         if (v._speed < 1) return "<incomplete>";
@@ -510,19 +480,11 @@ public:
     Running(const QJsonObject& json): AllPowers(json) { v._speed   = json["speed"].toInt(0);
                                                         v._correct = json["hover"].toBool(false);
                                                         v._terrain = json["terrain"].toString();
-                                                      }
-    virtual Running& operator=(const Running& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
     }
-    virtual Running& operator=(Running&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    ~Running() override { }
+
+    Running& operator=(const Running& s) = delete;
+    Running& operator=(Running&& s) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -564,9 +526,9 @@ private:
         QString _terrain = "";
     } v;
 
-    QLineEdit* speed;
-    QCheckBox* correct;
-    QLineEdit* terrain;
+    QLineEdit* speed = nullptr;
+    QCheckBox* correct = nullptr;
+    QLineEdit* terrain = nullptr;
 
     QString optOut(bool showEND) {
         if (v._speed < 1 || (v._correct && v._terrain.isEmpty())) return "<incomplete>";
@@ -593,21 +555,15 @@ public:
     Swimming(): AllPowers("Swimming")                  { }
     Swimming(const Swimming& s): AllPowers(s)          { }
     Swimming(Swimming&& s): AllPowers(s)               { }
-    Swimming(const QJsonObject& json): AllPowers(json) { v._speed   = json["speed"].toInt(0);
-                                                         v._surface = json["surface"].toBool(false);
-                                                       }
-    virtual Swimming& operator=(const Swimming& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
+    Swimming(const QJsonObject& json)
+        : AllPowers(json) {
+        v._speed = json["speed"].toInt(0);
+        v._surface = json["surface"].toBool(false);
     }
-    virtual Swimming& operator=(Swimming&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    ~Swimming() override { }
+
+    Swimming& operator=(const Swimming& s) = delete;
+    Swimming& operator=(Swimming&& s) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -644,8 +600,8 @@ private:
         bool    _surface = false;
     } v;
 
-    QLineEdit* speed;
-    QCheckBox* surface;
+    QLineEdit* speed = nullptr;
+    QCheckBox* surface = nullptr;
 
     QString optOut(bool showEND) {
         if (v._speed < 1) return "<incomplete>";
@@ -672,20 +628,14 @@ public:
     Swinging(): AllPowers("Swinging")                  { }
     Swinging(const Swinging& s): AllPowers(s)          { }
     Swinging(Swinging&& s): AllPowers(s)               { }
-    Swinging(const QJsonObject& json): AllPowers(json) { v._speed   = json["speed"].toInt(0);
-                                                       }
-    virtual Swinging& operator=(const Swinging& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
+    Swinging(const QJsonObject& json)
+        : AllPowers(json) {
+        v._speed = json["speed"].toInt(0);
     }
-    virtual Swinging& operator=(Swinging&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    ~Swinging() override { }
+
+    Swinging& operator=(const Swinging& s) = delete;
+    Swinging& operator=(Swinging&& s) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -717,7 +667,7 @@ private:
         int     _speed   = 0;
     } v;
 
-    QLineEdit* speed;
+    QLineEdit* speed = nullptr;
 
     QString optOut(bool showEND) {
         if (v._speed < 1) return "<incomplete>";
@@ -747,20 +697,11 @@ public:
                                                               v._veloc = json["veloc"].toBool(false);
                                                               v._safe  = json["safe"].toBool(false);
                                                               v._fixed = json["fixed"].toInt(0);
-                                                              v._pass  = json["pass"].toBool(false);
-                                                            }
-    virtual Teleportation& operator=(const Teleportation& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
+                                                              v._pass = json["pass"].toBool(false);
     }
-    virtual Teleportation& operator=(Teleportation&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    ~Teleportation() override { }
+    Teleportation& operator=(const Teleportation& s) = delete;
+    Teleportation& operator=(Teleportation&& s) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -776,7 +717,7 @@ public:
     Fraction lim() override                                      { return ((v._fixed > -1) ? v._fixed * Fraction(1, 2) : Fraction(0)) + (v._pass ? Fraction(1, 4) : Fraction(0));
                                                                  }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return v._speed * 1_cp + (v._veloc ? 10_cp : 0_cp) + (v._safe ? 5_cp : 0_cp);
+                                                                   return v._speed * 1_cp + (v._veloc ? 10_cp : 0_cp) + (v._safe ? 5_cp : 0_cp); // NOLINT
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -814,11 +755,11 @@ private:
         bool _pass  = false;
     } v;
 
-    QLineEdit* speed;
-    QCheckBox* veloc;
-    QCheckBox* safe;
-    QComboBox* fixed;
-    QCheckBox* pass;
+    QLineEdit* speed = nullptr;
+    QCheckBox* veloc = nullptr;
+    QCheckBox* safe = nullptr;
+    QComboBox* fixed = nullptr;
+    QCheckBox* pass = nullptr;
 
     QString optOut(bool showEND) {
         if (v._speed < 1) return "<incomplete>";
@@ -853,20 +794,12 @@ public:
                                                           v._pd     = json["pd"].toInt(0);
                                                           v._fillin = json["fillin"].toBool(false);
                                                           v._limit  = json["limit"].toInt(0);
-                                                          v._to     = json["to"].toString();
+                                                          v._to = json["to"].toString();
                                                         }
-    virtual Tunneling& operator=(const Tunneling& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual Tunneling& operator=(Tunneling&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    ~Tunneling() override { }
+
+    Tunneling& operator=(const Tunneling& s) = delete;
+    Tunneling& operator=(Tunneling&& s) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -882,7 +815,7 @@ public:
     Fraction lim() override                                      { return (v._limit != -1) ? v._limit * Fraction(1, 2) : Fraction(0);
                                                                  }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return v._speed * 1_cp + v._pd * 2_cp + (v._fillin ? 10_cp : 0_cp);
+                                                                   return v._speed * 1_cp + v._pd * 2_cp + (v._fillin ? 10_cp : 0_cp); // NOLINT
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -920,11 +853,11 @@ private:
         QString _to     = "";
     } v;
 
-    QLineEdit* speed;
-    QLineEdit* pd;
-    QCheckBox* fillin;
-    QComboBox* limit;
-    QCheckBox* to;
+    QLineEdit* speed = nullptr;
+    QLineEdit* pd = nullptr;
+    QCheckBox* fillin = nullptr;
+    QComboBox* limit = nullptr;
+    QCheckBox* to = nullptr;
 
     QString optOut(bool showEND) {
         if (v._speed < 1 || v._pd < 1 || (v._limit > 0 && v._to.isEmpty())) return "<incomplete>";

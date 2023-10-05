@@ -20,15 +20,10 @@ public:
     Perks(const QJsonObject& json)
         : SkillTalentOrPerk()
         , v { json["name"].toString("") } { }
+    ~Perks() override { }
 
-    virtual Perks& operator=(const Perks& s) {
-        if (this != &s) v = s.v;
-        return *this;
-    }
-    virtual Perks& operator=(Perks&& s) {
-        v = s.v;
-        return *this;
-    }
+    Perks& operator=(const Perks& s) = delete;
+    Perks& operator=(Perks&& s) = delete;
 
     bool isPerk() override { return true; }
 
@@ -49,9 +44,10 @@ public:
 private:
     struct vars {
         QString _name;
-    } v;
+    } v {};
 };
 
+// NOLINTNEXTLINE
 #define CLASS(x)\
     class x: public AgilitySkills {\
     public:\
@@ -60,6 +56,7 @@ private:
         x(x&& s): AgilitySkills(s) { }\
         x(const QJsonObject& json): AgilitySkills(json) { }\
     };
+// NOLINTNEXTLINE
 #define CLASS_SPACE(x,y)\
     class x: public AgilitySkills {\
     public:\
@@ -77,7 +74,11 @@ public:
     Access(const QJsonObject& json): Perks(json)  { v._cost = json["cost"].toInt(1);
                                                     v._for  = json["for"].toString("");
                                                     v._hide = json["hide"].toInt(0);
-                                                  }
+    }
+    ~Access() override { }
+
+    Access& operator=(const Access&) = delete;
+    Access& operator=(Access&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Applies to what?");
@@ -112,9 +113,9 @@ private:
         int     _hide = 0;
     } v;
 
-    QComboBox* cost;
-    QLineEdit* forwhat;
-    QLineEdit* hide;
+    QComboBox* cost = nullptr;
+    QLineEdit* forwhat = nullptr;
+    QLineEdit* hide = nullptr;
 
     QString optOut() {
         if (v._cost < 0 || v._for.isEmpty()) return "<incomplete>";
@@ -133,10 +134,16 @@ private:
 class Anonymity: public Perks {
 public:
     Anonymity(): Perks("Anonymity")                  { }
-    Anonymity(const Access& s): Perks(s)             { }
+    Anonymity(const Anonymity& s): Perks(s)          { }
     Anonymity(Anonymity&& s): Perks(s)               { }
-    Anonymity(const QJsonObject& json): Perks(json)  { v._extra = json["extra"].toInt(1);
-                                                     }
+    Anonymity(const QJsonObject& json)
+        : Perks(json) {
+        v._extra = json["extra"].toInt(1);
+    }
+    ~Anonymity() override { }
+
+    Anonymity& operator=(const Anonymity&) = delete;
+    Anonymity& operator=(Anonymity&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { extra = createLineEdit(parent, layout, "Extra cost", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -161,7 +168,7 @@ private:
         int _extra = 0;
     } v;
 
-    QLineEdit* extra;
+    QLineEdit* extra = nullptr;
 
     QString optOut() {
         return "Anonymity";
@@ -176,12 +183,16 @@ private:
 
 class ComputerLink: public Perks {
 public:
-    ComputerLink(): Perks("Computer Link")                     { }
+    ComputerLink(): Perks("Computer Link")              { }
     ComputerLink(const ComputerLink& s): Perks(s)       { }
     ComputerLink(ComputerLink&& s): Perks(s)            { }
     ComputerLink(const QJsonObject& json): Perks(json)  { v._value = json["value"].toInt(1);
-                                                          v._for   = json["for"].toString("");
-                                                        }
+        v._for = json["for"].toString("");
+    }
+    ~ComputerLink() override { }
+
+    ComputerLink& operator=(const ComputerLink&) = delete;
+    ComputerLink& operator=(ComputerLink&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Applies to what?");
@@ -211,8 +222,8 @@ private:
         int     _value = 0;
     } v;
 
-    QLineEdit* forwhat;
-    QLineEdit* value;
+    QLineEdit* forwhat = nullptr;
+    QLineEdit* value = nullptr;
 
     QString optOut() {
         if (v._for.isEmpty()) return "<incomplete>";
@@ -240,8 +251,12 @@ public:
                                                     v._access   = json["access"].toBool(false);
                                                     v._contacts = json["contacts"].toBool(false);
                                                     v._relate   = json["relate"].toInt(0);
-                                                    v._org      = json["org"].toBool(false);
-                                                  }
+                                                    v._org = json["org"].toBool(false);
+    }
+    ~Contact() override { }
+
+    Contact& operator=(const Contact&) = delete;
+    Contact& operator=(Contact&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { who      = createLineEdit(parent, layout, "Contact is?");
@@ -283,7 +298,7 @@ public:
                                                                   org->setChecked(s._org);
                                                                   v = s;
                                                                 }
-    QString roll() override                                     { return QString("%1-").arg(8 + v._base * 3 + v._plus); }
+    QString roll() override                                     { return QString("%1-").arg(8 + v._base * 3 + v._plus); } // NOLINT
     void    store() override                                    { v._base     = base->currentIndex();
                                                                   v._plus     = plus->text().toInt(0);
                                                                   v._limited  = limited->isChecked();
@@ -320,15 +335,15 @@ private:
         bool    _org = false;
     } v;
 
-    QComboBox* base;
-    QLineEdit* plus;
-    QCheckBox* limited;
-    QLineEdit* who;
-    QComboBox* useful;
-    QCheckBox* access;
-    QCheckBox* contacts;
-    QComboBox* relate;
-    QCheckBox* org;
+    QComboBox* base = nullptr;
+    QLineEdit* plus = nullptr;
+    QCheckBox* limited = nullptr;
+    QLineEdit* who = nullptr;
+    QComboBox* useful = nullptr;
+    QCheckBox* access = nullptr;
+    QCheckBox* contacts = nullptr;
+    QComboBox* relate = nullptr;
+    QCheckBox* org = nullptr;
 
     QString optOut() {
         if (v._base < 0 || v._useful < 0 || v._relate < 0 || v._who.isEmpty()) return "<incomplete>";
@@ -360,8 +375,14 @@ public:
     DeepCover(): Perks("Deep Cover")                 { }
     DeepCover(const DeepCover& s): Perks(s)          { }
     DeepCover(DeepCover&& s): Perks(s)               { }
-    DeepCover(const QJsonObject& json): Perks(json)  { v._as   = json["as"].toString("");
-                                                     }
+    DeepCover(const QJsonObject& json)
+        : Perks(json) {
+        v._as = json["as"].toString("");
+    }
+    ~DeepCover() override { }
+
+    DeepCover& operator=(const DeepCover&) = delete;
+    DeepCover& operator=(DeepCover&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { as = createLineEdit(parent, layout, "What is the cover identity?");
@@ -384,7 +405,7 @@ private:
         QString _as = "";
     } v;
 
-    QLineEdit* as;
+    QLineEdit* as = nullptr;
 
     QString optOut() {
         if (v._as.isEmpty()) return "<incomplete>";
@@ -398,8 +419,12 @@ public:
     Favor(const Favor& s): Perks(s)             { }
     Favor(Favor&& s): Perks(s)                  { }
     Favor(const QJsonObject& json): Perks(json) { v._who  = json["who"].toString("");
-                                                  v._cost = json["cost"].toInt(1);
-                                                }
+        v._cost = json["cost"].toInt(1);
+    }
+    ~Favor() override { }
+
+    Favor& operator=(const Favor&) = delete;
+    Favor& operator=(Favor&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { who  = createLineEdit(parent, layout, "Who owes the favor?");
@@ -434,8 +459,8 @@ private:
         int     _cost = 1;
     } v;
 
-    QLineEdit* who;
-    QLineEdit* cost;
+    QLineEdit* who = nullptr;
+    QLineEdit* cost = nullptr;
 
     QString optOut() {
         if (v._who.isEmpty()) return "<incomplete>";
@@ -461,7 +486,11 @@ public:
     Follower(const QJsonObject& json): Perks(json) { v._who  = json["who"].toString("");
                                                      v._pnts = json["pnts"].toInt(1);
                                                      v._mult = json["mult"].toInt(0);
-                                                   }
+    }
+    ~Follower() override { }
+
+    Follower& operator=(const Follower&) = delete;
+    Follower& operator=(Follower&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { who  = createLineEdit(parent, layout, "Who is/are the follower(s)?");
@@ -469,8 +498,8 @@ public:
                                                                   mult = createLineEdit(parent, layout, "How many multiples of followers?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
-                                                                  return (v._pnts + 3) / 5 + v._mult * 5_cp; }
+    Points points(bool noStore = false) override                { if (!noStore) store();
+                                                                  return (v._pnts + 3) / 5 + v._mult * 5_cp; } // NOLINT
     void    restore() override                                  { vars s= v;
                                                                   who->setText(s._who);
                                                                   pnts->setText(QString("%1").arg(s._pnts));
@@ -496,17 +525,18 @@ private:
     int     _mult = 0;
     } v;
 
-    QLineEdit* who;
-    QLineEdit* pnts;
-    QLineEdit* mult;
+    QLineEdit* who = nullptr;
+    QLineEdit* pnts = nullptr;
+    QLineEdit* mult = nullptr;
 
     QString optOut() {
         if (v._who.isEmpty() || v._pnts == 0) return "<incomplete>";
+        // NOLINTNEXTLINE
         return QString("%1Follower%2: ").arg(v._mult != 0 ? QString("x%1 ").arg(pow(2.0, v._mult)) : "", v._mult != 0 ? "s" : "") + v._who + QString(" (%1 points)").arg(v._pnts);
     }
 
     void numeric(QString) override {
-        QLineEdit* edit = static_cast<QLineEdit*>(sender());
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
@@ -518,9 +548,15 @@ public:
     FringeBenefit(): Perks("Fringe Benefit")            { }
     FringeBenefit(const FringeBenefit& s): Perks(s)     { }
     FringeBenefit(FringeBenefit&& s): Perks(s)          { }
-    FringeBenefit(const QJsonObject& json): Perks(json) { v._cost = json["cost"].toInt(1);
-                                                          v._for  = json["for"].toString("");
-                                                        }
+    FringeBenefit(const QJsonObject& json)
+        : Perks(json) {
+        v._cost = json["cost"].toInt(1);
+        v._for = json["for"].toString("");
+    }
+    ~FringeBenefit() override { }
+
+    FringeBenefit& operator=(const FringeBenefit&) = delete;
+    FringeBenefit& operator=(FringeBenefit&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "What is it?");
@@ -550,8 +586,8 @@ private:
         int     _cost = 0;
     } v;
 
-    QLineEdit* forwhat;
-    QLineEdit* cost;
+    QLineEdit* forwhat = nullptr;
+    QLineEdit* cost = nullptr;
 
     QString optOut() {
         if (v._for.isEmpty()) return "<incomplete>";
@@ -571,8 +607,14 @@ public:
     Money(): Perks("Money")                     { }
     Money(const Money& s): Perks(s)             { }
     Money(Money&& s): Perks(s)                  { }
-    Money(const QJsonObject& json): Perks(json) { v._amount = json["amount"].toInt(0);
-                                                }
+    Money(const QJsonObject& json)
+        : Perks(json) {
+        v._amount = json["amount"].toInt(0);
+    }
+    ~Money() override { }
+
+    Money& operator=(const Money&) = delete;
+    Money& operator=(Money&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { amount = createComboBox(parent, layout, "How much money do you make a year?", { "Well Off ($100,000 or less)",
@@ -590,7 +632,7 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return ((v._amount < 0) ? 0_cp : ((v._amount < 10) ? (v._amount + 1) * 1_cp : 15_cp)); }
+                                                                  return ((v._amount < 0) ? 0_cp : ((v._amount < 10) ? (v._amount + 1) * 1_cp : 15_cp)); } // NOLINT
     void    restore() override                                  { vars s = v; amount->setCurrentIndex(s._amount); v = s;
                                                                 }
     QString roll() override                                     { return ""; }
@@ -606,7 +648,7 @@ private:
         int _amount = 0;
     } v;
 
-    QComboBox* amount;
+    QComboBox* amount = nullptr;
 
     QString optOut() {
         if (v._amount < 0) return "<incomplete>";
@@ -634,7 +676,11 @@ public:
     PositiveReputation(const QJsonObject& json): Perks(json)  { v._lvl  = json["level"].toInt(1);
                                                                 v._for  = json["for"].toString("");
                                                                 v._knwn = json["known"].toInt(0);
-                                                              }
+    }
+    ~PositiveReputation() override { }
+
+    PositiveReputation& operator=(const PositiveReputation&) = delete;
+    PositiveReputation& operator=(PositiveReputation&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Reputation for what?");
@@ -673,9 +719,9 @@ private:
         int     _knwn = -1;
     } v;
 
-    QComboBox* level;
-    QLineEdit* forwhat;
-    QComboBox* known;
+    QComboBox* level = nullptr;
+    QLineEdit* forwhat = nullptr;
+    QComboBox* known = nullptr;
 
     QString optOut() {
         if (v._lvl < 0 || v._knwn < 0 || v._for.isEmpty()) return "<incomplete>";
@@ -695,7 +741,11 @@ public:
     VehiclesAndBases(const QJsonObject& json): Perks(json) { v._what = json["what"].toString("");
                                                              v._pnts = json["pnts"].toInt(1);
                                                              v._mult = json["mult"].toInt(0);
-                                                           }
+    }
+    ~VehiclesAndBases() override { }
+
+    VehiclesAndBases& operator=(const VehiclesAndBases&) = delete;
+    VehiclesAndBases& operator=(VehiclesAndBases&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what  = createLineEdit(parent, layout, "What is the thing?");
@@ -704,7 +754,7 @@ public:
                                                                   return true;
                                                                 }
     Points  points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return (v._pnts + 3) / 5 + v._mult * 5_cp; }
+                                                                  return (v._pnts + 3) / 5 + v._mult * 5_cp; } // NOLINT
     void    restore() override                                  { vars s = v;
                                                                   what->setText(s._what);
                                                                   pnts->setText(QString("%1").arg(s._pnts));
@@ -730,17 +780,17 @@ private:
         int     _mult = 0;
     } v;
 
-    QLineEdit* what;
-    QLineEdit* pnts;
-    QLineEdit* mult;
+    QLineEdit* what = nullptr;
+    QLineEdit* pnts = nullptr;
+    QLineEdit* mult = nullptr;
 
     QString optOut() {
         if (v._what.isEmpty() || v._pnts == 0) return "<incomplete>";
-        return QString("%1Vehicles and Bases: ").arg(v._mult != 0 ? QString("x%1 ").arg(pow(2.0, v._mult)) : "") + v._what + QString(" (%1 points)").arg(v._pnts);
+        return QString("%1Vehicles and Bases: ").arg(v._mult != 0 ? QString("x%1 ").arg(pow(2.0, v._mult)) : "") + v._what + QString(" (%1 points)").arg(v._pnts); // NOLINT
     }
 
     void numeric(QString) override {
-        QLineEdit* edit = static_cast<QLineEdit*>(sender());
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
         if (txt.isEmpty() || isNumber(txt)) return;
         edit->undo();
