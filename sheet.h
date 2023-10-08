@@ -128,7 +128,7 @@ private:
 private:
 #endif
     Sheet_UI*  Ui;
-    QPrinter*  printer;
+    gsl::owner<QPrinter*>  printer;
 
     static const bool DontUpdateTotal = false;
     static const bool noD6            = false;

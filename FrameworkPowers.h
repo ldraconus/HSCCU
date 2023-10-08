@@ -388,7 +388,7 @@ public:
                                                           v._how     = json["how"].toBool(false);
                                                           v._when2   = json["when2"].toBool(false);
                                                           v._class   = json["class"].toInt(0);
-                                                          v._what    = json["powers"].toString();
+                                                          v._what    = json["what"].toString();
                                                           v._one     = json["one"].toInt(0);
                                                           v._power   = json["power"].toString();
                                                         }

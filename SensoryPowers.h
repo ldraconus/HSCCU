@@ -2,6 +2,7 @@
 #define SENSORYPOWERS_H
 
 #include "powers.h"
+#include "powerdialog.h"
 
 class Clairsentience: public AllPowers {
 public:

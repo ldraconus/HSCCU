@@ -9,6 +9,10 @@
 #include <vector>
 #include <tuple>
 
+#ifdef ANDROID
+#define _Mem_fn __mem_fn
+#endif
+
 template <typename T,
           typename TIter = decltype(std::begin(std::declval<T>())),
           typename = decltype(std::end(std::declval<T>()))>
@@ -24,7 +28,7 @@ constexpr auto enumerate(T && iterable)
     };
     struct iterable_wrapper
     {
-        T iterable;
+        T iterable; // NOLINT
         auto begin() { return iterator{ 0, std::begin(iterable) }; }
         auto end() { return iterator{ 0, std::end(iterable) }; }
     };

@@ -51,14 +51,14 @@
 #include <QStatusBar>
 #include <QToolButton>
 
-Sheet* Sheet::_sheet = nullptr;
-shared_ptr<class QMessageBox> Msg::Box;
-std::function<void ()> Msg::_Cancel;
-std::function<void ()> Msg::_No;
-std::function<void ()> Msg::_Ok;
-std::function<void ()> Msg::_Yes;
+Sheet* Sheet::_sheet = nullptr; // NOLINT
+shared_ptr<class QMessageBox> Msg::Box; // NOLINT
+std::function<void()> Msg::_Cancel; // NOLINT
+std::function<void()> Msg::_No; // NOLINT
+std::function<void()> Msg::_Ok; // NOLINT
+std::function<void ()> Msg::_Yes; // NOLINT
 
-Msg msngr;
+Msg msngr; // NOLINT
 
 void Msg::button(QAbstractButton* btn) {
     QString txt = btn->text();
@@ -69,9 +69,11 @@ void Msg::button(QAbstractButton* btn) {
 }
 
 // --- [static functions] ----------------------------------------------------------------------------------
+constexpr int Base10 = 10;
+
 static bool numeric(QString txt) {
-    bool ok;
-    txt.toInt(&ok, 10);
+    bool ok = false;
+    txt.toInt(&ok, Base10);
     return ok;
 }
 
@@ -152,43 +154,48 @@ void Statement(const QString& msg) {
     Msg::Box->open();
 }
 
-static class lift {
+static class lift { // NOLINT
 public:
+    lift(int x, int y, int z, const QString& s)
+        : STR(x)
+        , _lift(y)
+        , toss(z)
+        , suffix(s) { }
     long STR;
-    long lift;
+    long _lift;
     long toss;
     QString suffix;
-} strTable[] {
-    { 0,          0,   0, "kg" },
-    { 1,          8,   2, "kg" },
-    { 2,         16,   3, "kg" },
-    { 3,         25,   4, "kg" },
-    { 4,         38,   6, "kg" },
-    { 5,         50,   8, "kg" },
-    { 8,         75,  12, "kg" },
-    { 10,       100,  16, "kg" },
-    { 13,       150,  20, "kg" },
-    { 15,       200,  24, "kg" },
-    { 18,       300,  28, "kg" },
-    { 20,       400,  32, "kg" },
-    { 23,       600,  36, "kg" },
-    { 25,       800,  40, "kg" },
-    { 28,      1200,  44, "kg" },
-    { 30,      1600,  48, "kg" },
-    { 35,      3200,  56, "kg" },
-    { 40,      6400,  64, "kg" },
-    { 45,     12500,  72, "tons" },
-    { 50,     25000,  80, "tons" },
-    { 55,     50000,  88, "tons" },
-    { 60,    100000,  96, "tons" },
-    { 65,    200000, 104, "tons" },
-    { 70,    400000, 112, "tons" },
-    { 75,    800000, 120, "tons" },
-    { 80,   1600000, 128, "ktons" },
-    { 85,   3200000, 136, "ktons" },
-    { 90,   6400000, 144, "ktons" },
-    { 95,  12500000, 152, "ktons" },
-    { 100, 25000000, 160, "ktons" }
+} strTable[] { // NOLINT
+    { 0,          0,   0, "kg" },    // NOLINT
+    { 1,          8,   2, "kg" },    // NOLINT
+    { 2,         16,   3, "kg" },    // NOLINT
+    { 3,         25,   4, "kg" },    // NOLINT
+    { 4,         38,   6, "kg" },    // NOLINT
+    { 5,         50,   8, "kg" },    // NOLINT
+    { 8,         75,  12, "kg" },    // NOLINT
+    { 10,       100,  16, "kg" },    // NOLINT
+    { 13,       150,  20, "kg" },    // NOLINT
+    { 15,       200,  24, "kg" },    // NOLINT
+    { 18,       300,  28, "kg" },    // NOLINT
+    { 20,       400,  32, "kg" },    // NOLINT
+    { 23,       600,  36, "kg" },    // NOLINT
+    { 25,       800,  40, "kg" },    // NOLINT
+    { 28,      1200,  44, "kg" },    // NOLINT
+    { 30,      1600,  48, "kg" },    // NOLINT
+    { 35,      3200,  56, "kg" },    // NOLINT
+    { 40,      6400,  64, "kg" },    // NOLINT
+    { 45,     12500,  72, "tons" },  // NOLINT
+    { 50,     25000,  80, "tons" },  // NOLINT
+    { 55,     50000,  88, "tons" },  // NOLINT
+    { 60,    100000,  96, "tons" },  // NOLINT
+    { 65,    200000, 104, "tons" },  // NOLINT
+    { 70,    400000, 112, "tons" },  // NOLINT
+    { 75,    800000, 120, "tons" },  // NOLINT
+    { 80,   1600000, 128, "ktons" }, // NOLINT
+    { 85,   3200000, 136, "ktons" }, // NOLINT
+    { 90,   6400000, 144, "ktons" }, // NOLINT
+    { 95,  12500000, 152, "ktons" }, // NOLINT
+    { 100, 25000000, 160, "ktons" }  // NOLINT
 };
 
 // A is value at 0
@@ -197,28 +204,28 @@ public:
 // T is distance from A to B
 static qlonglong interpolate(int A, int B, int t, int T) {
     double val = (double) A * std::pow((double) B / (double) A, (double) t / (double) T);
-    return (qlonglong) (val + 0.5);
+    return (qlonglong) (val + 0.5); // NOLINT
 }
 
 static int indexOf(int str) {
-    int i;
-    for (i = 0; strTable[i].STR != 100 && strTable[i].STR < str; ++i)
+    int i = 0;
+    for (; strTable[i].STR != 100 && strTable[i].STR < str; ++i) // NOLINT
         ;
-    return (strTable[i].STR != 100) ? i : -1;
+    return (strTable[i].STR != 100) ? i : -1; // NOLINT
 }
 
 static qlonglong interpolateLift(int str) {
-    if (str > 95) {
-        int idx = indexOf(95);
-        return interpolate(strTable[idx].lift, strTable[idx + 1].lift, str - 95, 5);
+    if (str > 95) { // NOLINT
+        int idx = indexOf(95); // NOLINT
+        return interpolate(strTable[idx]._lift, strTable[idx + 1]._lift, str - 95, 5); // NOLINT
     }
     int idx = indexOf(str);
-    return interpolate(strTable[idx].lift, strTable[idx + 1].lift, str - strTable[idx].STR, strTable[idx + 1].STR - strTable[idx].STR);
+    return interpolate(strTable[idx]._lift, strTable[idx + 1]._lift, str - strTable[idx].STR, strTable[idx + 1].STR - strTable[idx].STR); // NOLINT
 }
 
 static QString liftUnits(int str) {
-    if (str > 95) return "ktons";
-    return strTable[indexOf(str)].suffix;
+    if (str > 95) return "ktons"; // NOLINT
+    return strTable[indexOf(str)].suffix; // NOLINT
 }
 
 static QString formatNumber(int num) {
@@ -233,7 +240,7 @@ static QString formatNumber(double num) {
 
 // --- [creation/destruction] -----------------------------------------------------------------------------
 
-Sheet_UI Sheet::_Sheet_UI;
+Sheet_UI Sheet::_Sheet_UI; // NOLINT
 
 Sheet::Sheet(QWidget *parent)
     : QMainWindow(parent)
@@ -243,6 +250,8 @@ Sheet::Sheet(QWidget *parent)
     , ui(new Ui::wasm)
 #endif
     , Ui(&_Sheet_UI)
+    , printer(nullptr)
+    , _saveChanged(false)
 {
     _sheet = this;
 
@@ -253,14 +262,12 @@ Sheet::Sheet(QWidget *parent)
 
     Modifiers mods;
 
-    printer = nullptr;
-
     _dir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
     _option.load();
     ui->optLabel->setVisible(_option.showNotesPage());
 
-    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*,QWidget*)));
+    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*,QWidget*))); // NOLINT
 
 #ifndef __wasm__
     connect(ui->menu_File,         SIGNAL(aboutToShow()), this, SLOT(aboutToShowFileMenu()));
@@ -445,7 +452,7 @@ Sheet::Sheet(QWidget *parent)
     installEventFilter(dynamic_cast<QObject*>(this));
 
 #ifndef __wasm__
-    QStringList args = qApp->arguments();
+    QStringList args = qApp->arguments(); // NOLINT
     if (args.count() > 1) {
         _filename = QDir::fromNativeSeparators(args[1]);
         fileOpen();
@@ -509,20 +516,20 @@ void Sheet::closeEvent(QCloseEvent* event) {
 
 // --- [WORK] -------------------------------------------------------------------------------------------
 
-QList<QList<int>> phases {
+QList<QList<int>> phases {                    // NOLINT
     { },
-    { 7 },
-    { 6, 12 },
-    { 4, 8, 12 },
-    { 3, 6, 9, 12 },
-    { 3, 5, 8, 10, 12 },
-    { 2, 4, 6, 8, 10, 12 },
-    { 2, 4, 6, 7, 9, 11, 12 },
-    { 2, 3, 5, 6, 8, 9, 11, 12 },
-    { 2, 3, 4, 6, 7, 8, 10, 11, 12 },
-    { 2, 3, 4, 5, 6, 8, 9, 10, 11, 12 },
-    { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },
-    { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }
+    { 7 },                                    // NOLINT
+    { 6, 12 },                                // NOLINT
+    { 4, 8, 12 },                             // NOLINT
+    { 3, 6, 9, 12 },                          // NOLINT
+    { 3, 5, 8, 10, 12 },                      // NOLINT
+    { 2, 4, 6, 8, 10, 12 },                   // NOLINT
+    { 2, 4, 6, 7, 9, 11, 12 },                // NOLINT
+    { 2, 3, 5, 6, 8, 9, 11, 12 },             // NOLINT
+    { 2, 3, 4, 6, 7, 8, 10, 11, 12 },         // NOLINT
+    { 2, 3, 4, 5, 6, 8, 9, 10, 11, 12 },      // NOLINT
+    { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },   // NOLINT
+    { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 } // NOLINT
 };
 
 void Sheet::addPower(shared_ptr<Power> power) {
@@ -569,7 +576,7 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
         int primary = def.characteristic()->base() + def.characteristic()->primary();
         int secondary = primary + def.characteristic()->secondary();
         if (val == Ui->spdval) {
-            if (primary > 12 || secondary > 12) {
+            if (primary > 12 || secondary > 12) { // NOLINT
                 val->undo();
                 def.characteristic()->base(save);
                 return;
@@ -701,11 +708,11 @@ void Sheet::delPower(int row) {
     if (power == nullptr) return;
 
     if (power->parent() == nullptr) {
-        int realRow = _character.powersOrEquipment().indexOf(power);
+        auto realRow = _character.powersOrEquipment().indexOf(power);
         _character.powersOrEquipment().removeAt(realRow);
     } else {
         auto& list = power->parent()->list();
-        int realRow = list.indexOf(power);
+        auto realRow = list.indexOf(power);
         list.removeAt(realRow);
     }
 }
@@ -836,12 +843,12 @@ void Sheet::fileOpen() {
 #endif
 
 QString Sheet::formatLift(int str) {
-    int lift = interpolateLift(str);
+    auto lift = interpolateLift(str);
     QString units = liftUnits(str);
-    if (units == "kg") return QString("%1kg").arg(formatNumber(lift));
+    if (units == "kg") return QString("%1kg").arg(formatNumber((int) lift));
     QString num;
-    if (units == "tons") num = QString("%1").arg(formatNumber(lift / 1000.0));
-    else num = QString("%1").arg(formatNumber(lift / 1000000.0));
+    if (units == "tons") num = QString("%1").arg(formatNumber(lift / 1000.0)); // NOLINT
+    else num = QString("%1").arg(formatNumber(lift / 1000000.0)); // NOLINT
     if (num.right(2) == ".0") num = num.left(num.length() - 2);
     return num + " " + units;
 }
@@ -863,14 +870,14 @@ QString Sheet::getCharacter() {
     out += "Eye Color: " + _character.eyeColor() + "\n\n";
 
     QStringList names { "STR", "DEX", "CON", "INT", "EGO", "PRE", "OCV", "DCV", "OMCV", "DMCV", "SPD", "PD", "ED", "REC", "END", "BODY", "STUN" };
-    for (int i = 0; i < 17; ++i) {
+    for (auto i = 0; i < names.count(); ++i) {
         auto characteristic = _character.characteristic(i);
         int primary = characteristic.base() + characteristic.primary();
         int secondary = primary + characteristic.secondary();
         if (primary != secondary) out += QString("%1/%2\t").arg(primary).arg(secondary);
         else out += QString("%1\t").arg(primary);
         out += names[i] + QString("\t%1\t").arg(characteristic.points().points);
-        if (i < 6) out += characteristic.roll();
+        if (i < 6) out += characteristic.roll(); // NOLINT
         if (names[i] == "BODY") out += "Total Cost";
         if (names[i] == "STUN") out += Ui->totalcost->text();
         out += "\n";
@@ -1014,7 +1021,8 @@ QList<int> expandHitLocations(const QString& loc) {
 void Sheet::hitLocations(std::shared_ptr<Power>& pe) {
     Armor* arm = dynamic_cast<Armor*>(pe.get());
     QList<int> locations = expandHitLocations(arm->hitLocations());
-    int def = arm->DEF();
+    int baseDEF = _character.rPD();
+    int def = baseDEF + arm->DEF();
     for (const auto& x: locations) if (def > _hitLocations[x]) _hitLocations[x] = def; // NOLINT
 }
 
@@ -1095,7 +1103,7 @@ void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
                                    "   background-color: white;"
                                    "   selection-background-color: white;"
                                    "   border-style: none;"
-                         + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) +
+                         + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) + // NOLINT
                                    "   color: black;"
                                    "   selection-color: black;"
                                    " } "
@@ -1136,21 +1144,21 @@ void Sheet::putPower(int row, shared_ptr<Power> power) {
         _character.powersOrEquipment().append(power);
     } else if (after->isFramework()) {
         if (power->parent() == after.get()) {
-            int realRow = _character.powersOrEquipment().indexOf(after);
+            auto realRow = _character.powersOrEquipment().indexOf(after);
             power->parent(nullptr);
             _character.powersOrEquipment().insert(realRow, power);
         } else after->insert(0, power);
     } else {
         auto parent = after->parent();
         if (parent == nullptr) {
-            int realRow = _character.powersOrEquipment().indexOf(after);
+            auto realRow = _character.powersOrEquipment().indexOf(after);
             if (power->parent() == nullptr) _character.powersOrEquipment().insert(realRow, power);
             else {
                 power->parent(nullptr);
                 _character.powersOrEquipment().insert(--realRow, power);
             }
         } else {
-            int realRow = parent->list().indexOf(after);
+            auto realRow = parent->list().indexOf(after);
             if (power->parent() == nullptr) parent->list().insert(++realRow, power);
             else parent->list().insert(realRow, power);
             power->parent(parent);
@@ -1218,13 +1226,13 @@ void Sheet::rebuildCharFromPowers(QList<shared_ptr<Power>>& list) {
         } else if (power->name() == "Characteristics") {
             int put = power->characteristic(-1);
             if (put < 1) continue;
-            for (int i = 0; i < 17; ++i) {
+            for (int i = 0; i < 17; ++i) { // NOLINT
                 if (put == 1) _character.characteristic(i).primary(_character.characteristic(i).primary() + power->characteristic(i));
                 else _character.characteristic(i).secondary(_character.characteristic(i).secondary() + power->characteristic(i));
             }
             if (power->hasModifier("Resistant")) {
-                _character.rPD() += power->characteristic(11);
-                _character.rED() += power->characteristic(12);
+                _character.rPD() += power->characteristic(11); // NOLINT
+                _character.rED() += power->characteristic(12); // NOLINT
             }
         } else if (power->isFramework()) rebuildCharFromPowers(power->list());
     }
@@ -1240,7 +1248,7 @@ void Sheet::rebuildCharacteristics() {
 
     rebuildDefenses();
 
-    for (int i = 0; i < 17; ++i) {
+    for (int i = 0; i < characteristicWidgets.count(); ++i) {
         int base = _character.characteristic(i).base();
         characteristicWidgets[i]->setText(QString("%1").arg(base));
         characteristicEditingFinished(characteristicWidgets[i]);
@@ -1315,7 +1323,7 @@ void Sheet::rebuildDefenses() {
         }
     }
 
-    for (int i = 0; i < 17; ++i) {
+    for (int i = 0; i < 17; ++i) { // NOLINT
         _character.characteristic(i).primary(0);
         _character.characteristic(i).secondary(0);
     }
@@ -1335,16 +1343,16 @@ void Sheet::rebuildDefenses() {
     setDefense(_character.rPD(),  _character.temprPD(),           1, 1);
     setDefense(_character.rED(),  _character.temprED(),           3, 1);
     setDefense(_character.MD(),   0,                              4, 1);
-    setDefense(_character.PowD(), 0,                              5, 1);
-    setDefense(_character.FD(),   0,                              6, 1);
+    setDefense(_character.PowD(), 0,                              5, 1); // NOLINT
+    setDefense(_character.FD(),   0,                              6, 1); // NOLINT
 }
 
 QString Sheet::KAwSTR(int STR) {
-    int dice = STR / 15;
-    int rem = STR % 15;
-    int extra = rem / 10 + 1;
+    int dice = STR / 15; // NOLINT
+    int rem = STR % 15; // NOLINT
+    int extra = rem / 10 + 1; // NOLINT
     if (extra == 1) {
-        if (rem >= 5) extra = 1;
+        if (rem >= 5) extra = 1; // NOLINT
         else extra = 0;
     }
     return QString("%1%2d6%3").arg(dice).arg((extra == 2) ? Fraction(1, 2).toString() : "",(extra == 1) ? "+1" : "");
@@ -1376,16 +1384,16 @@ void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
     for (const auto& m: maneuvers) {
         if (!table.contains(m)) {
             auto parts = m.split(" ");
-            if (parts.size() == 4) extraSTR = parts[0].toInt() * 5;
+            if (parts.size() == 4) extraSTR = parts[0].toInt() * 5; // NOLINT
         }
     }
     int STR = _character.STR().base() + _character.STR().primary() + extraSTR;
     for (const auto& m: maneuvers) {
         int size = man->rowCount();
-        int row;
-        for (row = 15; row < size; ++row) {
+        int row = 15; // NOLINT
+        for (; row < size; ++row) {
             const auto* cell = man->cellWidget(row, 0);
-            if (static_cast<const QLabel*>(cell)->text() == m) break;
+            if (dynamic_cast<const QLabel*>(cell)->text() == m) break;
         }
         if (row != size) continue;
         if (table.contains(m)) {
@@ -1395,11 +1403,11 @@ void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
                 if (i == 3) x = QString(x)
                                      .arg(valueToDice(STR),              // 1
                                           KAwSTR(STR),                   // 2
-                                          valueToDice(STR + 5))          // 3
-                                     .arg(STR + 10)                      // 4
-                                     .arg(STR + 15)                      // 5
-                                     .arg(valueToDice(STR + 10),         // 6
-                                          valueToDice(STR + 20))         // 7
+                                          valueToDice(STR + 5))          // 3 NOLINT
+                                     .arg(STR + 10)                      // 4 NOLINT
+                                     .arg(STR + 15)                      // 5 NOLINT
+                                     .arg(valueToDice(STR + 10),         // 6 NOLINT
+                                          valueToDice(STR + 20))         // 7 NOLINT
                                      .arg(STR)                           // 8
                                      .arg(valueToDice(STR, noD6));       // 9
                 QStringList t = x.split("~");
@@ -1439,13 +1447,13 @@ void Sheet::rebuildBasicManeuvers(QFont& font) {
     int STR = _character.STR().base() + _character.STR().primary();
     int OCV = Ui->ocvval->text().toInt();
     for (const auto& m: maneuvers) {
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) { // NOLINT
             QString x = m[i];
             if (i == 4) x = QString(x)
                                .arg(STR)                        // 1
                                .arg(valueToDice(STR/ 2, noD6),  // 2
                                     valueToDice(STR, noD6))     // 3
-                               .arg((STR + 2) / 5)              // 4
+                               .arg((STR + 2) / 5)              // 4 // NOLINT
                                .arg(valueToDice(STR))           // 5
                                .arg(OCV);                       // 6
             QStringList t = x.split("~");
@@ -1510,7 +1518,7 @@ void Sheet::rebuildMoveFromPowers(QList<shared_ptr<Power>>& list,
 }
 
 void Sheet::rebuildMovement() {
-    _character.running()  = 12;
+    _character.running()  = 12; // NOLINT
     _character.leaping()  = 4;
     _character.swimming() = 4;
     QMap<QString, int> movements;
@@ -1588,8 +1596,8 @@ void Sheet::rebuildPowers(bool addTakesNoSTUN) {
         _character.ED().base(1);
         _character.ED().init(1);
         _character.ED().cost(3_cp);
-        _character.DCV().cost(15_cp);
-        _character.DMCV().cost(9_cp);
+        _character.DCV().cost(15_cp); // NOLINT
+        _character.DMCV().cost(9_cp); // NOLINT
         Ui->pdval->setToolTip("Physical Defense: 3 points");
         Ui->edval->setToolTip("Energy Defense: 3 points");
         Ui->dcvval->setToolTip("Defensive Combat Value: 15 points");
@@ -1605,7 +1613,7 @@ void Sheet::rebuildPowers(bool addTakesNoSTUN) {
             _character.ED().init(2);
             _character.ED().cost(1_cp);
         }
-        _character.DCV().cost(5_cp);
+        _character.DCV().cost(5_cp); // NOLINT
         _character.DMCV().cost(3_cp);
         Ui->pdval->setToolTip("Physical Defense: 1 point");
         Ui->edval->setToolTip("Energy Defense: 1 point");
@@ -1659,7 +1667,7 @@ void Sheet::setupIcons() {
 #ifdef _WIN64
     QSettings s("HKEY_CURRENT_USER\\SOFTWARE\\CLASSES", QSettings::NativeFormat);
 
-    QString path = QDir::toNativeSeparators(qApp->applicationFilePath());
+    QString path = QDir::toNativeSeparators(qApp->applicationFilePath()); // NOLINT
     s.setValue(".hsccu/DefaultIcon/.", path);
     s.setValue(".hsccu/.","softwareonhand.hsccu.v1");
     s.setValue("softwareonhand.hsccu.v1/shell/open/command/.", QStringLiteral("\"%1\"").arg(path) + " \"%1\"");
@@ -1677,7 +1685,7 @@ void Sheet::setCVs(_CharacteristicDef& def, QLabel* set) {
 }
 
 void Sheet::setCell(QTableWidget* tbl, int row, int col, QString str, const QFont& font, bool) {
-    QTableWidgetItem* lbl = new QTableWidgetItem(str);
+    gsl::owner<QTableWidgetItem*> lbl = new QTableWidgetItem(str);
     lbl->setFont(font);
     lbl->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
     lbl->setFlags(lbl->flags() & ~Qt::ItemIsEditable);
@@ -1686,16 +1694,16 @@ void Sheet::setCell(QTableWidget* tbl, int row, int col, QString str, const QFon
 }
 
 void Sheet::setCellLabel(QTableWidget* tbl, int row, int col, QString str, const QFont& font) {
-    QLabel* lbl = new QLabel(str);
+    gsl::owner<QLabel*> lbl = new QLabel(str);
     lbl->setFont(font);
     if (row >= tbl->rowCount()) tbl->setRowCount(row + 1);
     tbl->setCellWidget(row, col, lbl);
 }
 
 void Sheet::setCellLabel(QTableWidget* tbl, int row, int col, QString str) {
-    QLabel* lbl = new QLabel(str);
+    gsl::owner<QLabel*> lbl = new QLabel(str);
     if (row >= tbl->rowCount()) tbl->setRowCount(row + 1);
-    QLabel* cell = static_cast<QLabel*>(tbl->cellWidget(row, col));
+    QLabel* cell = dynamic_cast<QLabel*>(tbl->cellWidget(row, col));
     lbl->setFont(cell->font());
     tbl->setCellWidget(row, col, lbl);
 }
@@ -1787,36 +1795,35 @@ struct hitLocationMapping {
     QList<int> loc;
 };
 
-static QString hit2String(const QList<int>& loc, std::array<int, 19>& hitLoc) {
-    if (loc.count() == 1) return QString("%1").arg(hitLoc[loc[0]]);
+static QString hit2String(const QList<int>& loc, std::array<int, 19>& hitLoc) { // NOLINT
+    if (loc.count() == 1) return QString("%1").arg(hitLoc[loc[0]]); // NOLINT
     bool same = true;
     bool first = true;
     int comp = 0;
     for (const auto& x: loc) {
         if (first) {
             first = false;
-            comp = hitLoc[x];
-        } else if (comp != hitLoc[x]) {
+            comp = hitLoc[x]; // NOLINT
+        } else if (comp != hitLoc[x]) { // NOLINT
             same = false;
             break;
         }
     }
     QString res = "";
-    if (same) return QString("%1").arg(hitLoc[loc[0]]);
+    if (same) return QString("%1").arg(hitLoc[loc[0]]); // NOLINT
     else {
         first = true;
         for (const auto x: loc) {
             if (first) first = false;
             else res += "/";
-            res += QString("%1").arg(hitLoc[x]);
+            res += QString("%1").arg(hitLoc[x]); // NOLINT
         }
     }
     return res;
 }
 
 void Sheet::updateHitLocations() {
-    hitLocationMapping mapping[] = {
-  // NOLINT
+    hitLocationMapping mapping[] = { // NOLINT
         {     Ui->head, {3, 4, 5}}, // NOLINT
         {    Ui->hands,       {6}}, // NOLINT
         {     Ui->arms,    {7, 8}}, // NOLINT
@@ -1832,17 +1839,18 @@ void Sheet::updateHitLocations() {
     for (const auto& x: mapping) x.lbl->setText(hit2String(x.loc, _hitLocations));
 
     int def = 0;
-    for (int i = 9; i <= 14; ++i) def += _hitLocations[i];
-    int count = ((_hitLocations[3] != 0) ? 1 : 0) +
-        ((_hitLocations[4] != 0) ? 1 : 0) +
-        ((_hitLocations[5] != 0) ? 1 : 0);
+    int baseDEF = _character.rPD();
+    for (int i = 9; i <= 14; ++i) def += _hitLocations[i] - baseDEF; // NOLINT
+    int count = ((_hitLocations[3] != baseDEF) ? 1 : 0) +
+        ((_hitLocations[4] != baseDEF) ? 1 : 0) +
+        ((_hitLocations[5] != baseDEF) ? 1 : 0); // NOLINT
     if (count > 1) {
         int max = _hitLocations[3];
-        for (int i = 4; i <= 5; ++i)
-            if (max < _hitLocations[i]) max = _hitLocations[i];
+        for (int i = 4; i <= 5; ++i) // NOLINT
+            if (max < _hitLocations[i]) max = _hitLocations[i] - baseDEF; // NOLINT
         def += max;
     }
-    def = (def + 3) / 7;
+    def = baseDEF + (def + 3) / 7; // NOLINT
     Ui->averageDEF->setText(QString("%1").arg(def));
 }
 
@@ -1995,8 +2003,8 @@ void Sheet::updateTotals() {
 
 QString Sheet::valueToDice(int value, bool showD6) {
     QString halfDice = "½";
-    int dice = value / 5;
-    bool half = value % 5 > 2;
+    int dice = value / 5; // NOLINT
+    bool half = value % 5 > 2; // NOLINT
     return QString("%1%2%3").arg(dice).arg(half ? halfDice : "", showD6 ? "d6" : "");
 }
 
@@ -2140,7 +2148,7 @@ void Sheet::copyCharacter() {
 
     QJsonDocument doc = _character.copy(_option);
     QClipboard* clip = QGuiApplication::clipboard();
-    QMimeData* data = new QMimeData();
+    gsl::owner<QMimeData*> data = new QMimeData();
     data->setData("application/complication", doc.toJson());
     QString text = getCharacter();
     data->setData("text/plain", text.toUtf8());
@@ -2149,7 +2157,7 @@ void Sheet::copyCharacter() {
 
 void Sheet::copyComplication() {
     QClipboard* clip = QGuiApplication::clipboard();
-    QMimeData* data = new QMimeData();
+    gsl::owner<QMimeData*> data = new QMimeData();
     auto selection = Ui->complications->selectedItems();
     int row = selection[0]->row();
     shared_ptr<Complication> complication = _character.complications()[row];
@@ -2164,7 +2172,7 @@ void Sheet::copyComplication() {
 
 void Sheet::copyPowerOrEquipment() {
     QClipboard* clip = QGuiApplication::clipboard();
-    QMimeData* data = new QMimeData();
+    gsl::owner<QMimeData*> data = new QMimeData();
     auto selection = Ui->powersandequipment->selectedItems();
     int row = selection[0]->row();
     shared_ptr<Power> power = getPower(row, _character.powersOrEquipment());
@@ -2179,7 +2187,7 @@ void Sheet::copyPowerOrEquipment() {
 
 void Sheet::copySkillTalentOrPerk() {
     QClipboard* clip = QGuiApplication::clipboard();
-    QMimeData* data = new QMimeData();
+    gsl::owner<QMimeData*> data = new QMimeData();
     auto selection = Ui->skillstalentsandperks->selectedItems();
     int row = selection[0]->row();
     shared_ptr<SkillTalentOrPerk> skilltalentorperk = _character.skillsTalentsOrPerks()[row];
@@ -2412,7 +2420,7 @@ void Sheet::focusChanged(QWidget*, QWidget* focus) {
         focus == Ui->recval  ||
         focus == Ui->endval  ||
         focus == Ui->bodyval ||
-        focus == Ui->stunval) characteristicChanged(static_cast<QLineEdit*>(focus), "", DontUpdateTotal);
+        focus == Ui->stunval) characteristicChanged(dynamic_cast<QLineEdit*>(focus), "", DontUpdateTotal);
 }
 
 void Sheet::genreChanged(QString txt) {
@@ -2759,8 +2767,8 @@ void Sheet::print() {
 
     QPrintPreviewDialog preview(printer, this);
     preview.setWindowTitle("Print Chracter");
-    preview.setMinimumHeight(600);
-    preview.setMinimumWidth(800);
+    preview.setMinimumHeight(600); // NOLINT
+    preview.setMinimumWidth(800); // NOLINT
     this->connect(&preview, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printCharacter(QPrinter*)));
 
     preview.exec();
@@ -2780,17 +2788,17 @@ void Sheet::printCharacter(QPrinter* printer) {
     QPainter painter;
     painter.begin(printer);
     QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
-    double pnt = pageRect.height() / (11.0 * 72.0);
-    double xscale = (pageRect.width() - 72.0 * pnt) / page1.width();
-    double yscale = (pageRect.height() - 72.0 * pnt) / page1.height();
+    double pnt = pageRect.height() / (11.0 * 72.0); // NOLINT
+    double xscale = (pageRect.width() - 72.0 * pnt) / page1.width(); // NOLINT
+    double yscale = (pageRect.height() - 72.0 * pnt) / page1.height(); // NOLINT
     double scale = qMin(xscale, yscale);
-    painter.translate(QPoint({ (int) (36 * pnt), (int) (36 * pnt) }));
+    painter.translate(QPoint({ (int) (36 * pnt), (int) (36 * pnt) })); // NOLINT
     painter.scale(scale, scale);
 
-    QPoint offset { 55, 48 };
+    QPoint offset { 55, 48 }; // NOLINT
     painter.drawImage(QPointF { 0.0, 0.0 }, page1.toImage());
     for (const auto& widget: Ui->widgets) {
-        if (widget == nullptr || widget->y() > 1250) continue; // skip things we can't render or are on the seecond page
+        if (widget == nullptr || widget->y() > 1250) continue; // NOLINT  skip things we can't render or are on the seecond page
         print(painter, offset, widget);
     }
 
@@ -2807,13 +2815,13 @@ void Sheet::printCharacter(QPrinter* printer) {
     update();
 
     int page = 0;
-    offset = QPoint({ 50, 1352 });
+    offset = QPoint({ 50, 1352 }); // NOLINT
     int max = getPageCount();
     while (page < max) {
         printer->newPage();
         painter.drawImage(QPointF { 0.0, 0.0 }, page2.toImage());
         for (const auto& widget: Ui->widgets) {
-            if (widget == nullptr || widget->y() < 1250) continue; // skip things we can't render or are on the first page
+            if (widget == nullptr || widget->y() < 1250) continue; // NOLINT  skip things we can't render or are on the first page
             print(painter, offset, widget);
         }
         deletePagefull();
@@ -2823,11 +2831,11 @@ void Sheet::printCharacter(QPrinter* printer) {
     if (_option.showNotesPage()) {
         QString notes = Ui->notes->toPlainText();
         int max = getPageCount(Ui->notes, scale, &painter);
-        offset = QPoint({ 50, 48 });
+        offset = QPoint({ 50, 48 }); // NOLINT
         int page = 0;
         while (page < max) {
             printer->newPage();
-            painter.drawImage(QPointF { -50.0, -48.0 }, page3.toImage());
+            painter.drawImage(QPointF { -50.0, -48.0 }, page3.toImage()); // NOLINT
             for (const auto& widget: Ui->hiddenWidgets) {
                 if (widget == nullptr) continue; // skip things we can't render
                 print(painter, offset, widget);
@@ -2884,10 +2892,10 @@ void Sheet::saveAs() {
     _filename = QFileDialog::getSaveFileName(this, "Save File", _dir, "Characters (*.hsccu)");
     if (_filename.isEmpty()) return;
 
-    int ext = _filename.lastIndexOf(".hsccu");
+    auto ext = _filename.lastIndexOf(".hsccu");
     if (ext != -1) _filename = _filename.left(ext);
 
-    int sep = _filename.lastIndexOf("/");
+    auto sep = _filename.lastIndexOf("/");
     if (sep != -1) {
         _dir = _filename.left(sep);
         _filename = _filename.mid(sep + 1);
