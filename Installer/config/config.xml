@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>HeroSystem Character Creator</Name>
+    <Version>1.1.0</Version>
+    <Title>HeroSystem Character Creator</Title>
+    <Publisher>SoftwareOnHand</Publisher>
+    <StartMenuDir>HeroSystem-Character-Creator</StartMenuDir>
+    <TargetDir>@ApplicationsDirX64@/HeroSystem-Character-Creator</TargetDir>
+    <RunProgram>@TargetDir@/HeroSystem Character Creator</RunProgram>
+    <RunProgramDescription>Run HeroSystem Character Creator</RunProgramDescription>
+    <Background>background.png</Background>
+    <WizardStyle>Mac</WizardStyle>
+    <WizardShowPageList>false</WizardShowPageList>
+    <StyleSheet>Style.qss</StyleSheet></Installer>

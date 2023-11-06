@@ -1,0 +1,3 @@
+[X] Equipment put into group should be free
+[X] System doesn't remember equipment is free (maybe)
+[ ] Menu selecion color and menu not enabled colors are white, need to be light grey

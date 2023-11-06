@@ -1,0 +1,4 @@
+*.pro.user
+*.exe
+*.bak
+Installer/packages/com.vendor.product/data/

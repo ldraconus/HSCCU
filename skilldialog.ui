@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SkillDialog</class>
+ <widget class="QDialog" name="SkillDialog">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>607</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Pick A Skill</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QDialog { color: #000; background: #fff; }</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QComboBox" name="skillTalentOrPerkComboBox">
+     <property name="styleSheet">
+      <string notr="true">QComboBox { color: #000; background: #fff; }
+QComboBox QAbstractItemView {
+    color: #000;
+    background-color: #fff;
+}</string>
+     </property>
+     <property name="currentIndex">
+      <number>-1</number>
+     </property>
+     <property name="placeholderText">
+      <string>Skill, Talent, or Perk?</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>Skill</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Talent</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Perk</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Enhancer</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="availableComboBox">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QComboBox { color: #000; background: #fff; }
+QComboBox QAbstractItemView {
+    color: #000;
+    background-color: #fff;
+}</string>
+     </property>
+     <property name="maxVisibleItems">
+      <number>25</number>
+     </property>
+     <property name="placeholderText">
+      <string>Which one?</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="styleSheet">
+      <string notr="true">background: #fff</string>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>380</width>
+        <height>497</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="form">
+         <property name="styleSheet">
+          <string notr="true">QLabel { color: #000; background: #fff; }</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="styleSheet">
+      <string notr="true">color: #000; background: #fff;</string>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SkillDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>585</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>SkillDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>585</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
