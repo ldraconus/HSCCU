@@ -58,7 +58,7 @@ public:
                                                                    v._defensive = defensive->currentIndex();
                                                                    v._varying   = varying->isChecked();
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    obj["body"]      = v._body;
                                                                    obj["to"]        = v._to;
                                                                    obj["defensive"] = v._defensive;
@@ -172,7 +172,7 @@ public:
                                                                    v._who   = who->currentIndex();
                                                                    v._boost = boost->isChecked();
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"]  = v._dice;
                                                                    obj["to"]    = v._to;
                                                                    obj["who"]   = v._who;
@@ -278,7 +278,7 @@ public:
                                                                    v._from     = from->text();
                                                                    v._suppress = suppress->isChecked();
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"]     = v._dice;
                                                                    obj["from"]     = v._from;
                                                                    obj["suppress"] = v._suppress;
@@ -361,7 +361,7 @@ public:
                                                                    v._to   = to->text();
                                                                    v._rate = rate->currentIndex();
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"] = v._dice;
                                                                    obj["to"]   = v._to;
                                                                    obj["rate"] = v._rate;

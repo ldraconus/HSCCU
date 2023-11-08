@@ -37,6 +37,12 @@
 QComboBox QAbstractItemView {
     color: #000;
     background-color: #fff;
+    selection-background-color: #888;
+}
+QComboBox QAbstractItemView:disabled {
+    color: #888;
+    background-color: #fff;
+    selection-background-color: #888;
 }</string>
      </property>
      <property name="maxVisibleItems">

@@ -15,6 +15,9 @@
 
 class SkillTalentOrPerk
 {
+private:
+    QWidget* _sender {};
+
 protected:
     QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (SkillTalentOrPerk::*)(bool)>);
     QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString);
@@ -42,14 +45,17 @@ protected:
         return res;
     }
 
-    QWidget* _sender;
-
 public:
     class skillBase {
     public:
         skillBase() { }
         skillBase(const skillBase&) { }
+        skillBase(skillBase&&) { }
         skillBase(skillBase*) { }
+        virtual ~skillBase() { }
+
+        skillBase& operator=(const skillBase&) = delete;
+        skillBase& operator=(skillBase&&) = delete;
 
         virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
         virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
@@ -60,7 +66,12 @@ public:
     public:
         skill(): skillBase() { }
         skill(const skill& b): skillBase(b) { }
+        skill(skill&& b): skillBase(b) { }
         skill(skill* b): skillBase(b) { }
+        ~skill() override { }
+
+        skill& operator=(const skill& b) = delete;
+        skill& operator=(skill&& b) = delete;
 
         shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
         shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
@@ -70,7 +81,12 @@ public:
     public:
         perkBase() { }
         perkBase(const perkBase&) { }
+        perkBase(perkBase&&) { }
         perkBase(perkBase*) { }
+        virtual ~perkBase() { }
+
+        perkBase& operator=(const perkBase&) = delete;
+        perkBase& operator=(perkBase&&) = delete;
 
         virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
         virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
@@ -81,7 +97,12 @@ public:
     public:
         perk(): perkBase() { }
         perk(const perk& b): perkBase(b) { }
+        perk(perk&& b): perkBase(b) { }
         perk(perk* b): perkBase(b) { }
+        ~perk() override { }
+
+        perk& operator=(const perk& b) = delete;
+        perk& operator=(perk&& b) = delete;
 
         shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
         shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
@@ -91,7 +112,12 @@ public:
     public:
         talentBase() { }
         talentBase(const talentBase&) { }
+        talentBase(talentBase&&) { }
         talentBase(talentBase*) { }
+        virtual ~talentBase() { }
+
+        talentBase& operator=(const talentBase&) = delete;
+        talentBase&& operator=(talentBase&&) = delete;
 
         virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
         virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
@@ -102,7 +128,12 @@ public:
     public:
         talent(): talentBase() { }
         talent(const talent& b): talentBase(b) { }
+        talent(talent&& b): talentBase(b) { }
         talent(talentBase* b): talentBase(b) { }
+        ~talent() override {}
+
+        talent& operator=(const talent&) = delete;
+        talent& operator=(talent&&) = delete;
 
         shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
         shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
@@ -112,7 +143,12 @@ public:
     public:
         enhancerBase() { }
         enhancerBase(const enhancerBase&) { }
+        enhancerBase(enhancerBase&&) { }
         enhancerBase(enhancerBase*) { }
+        virtual ~enhancerBase() { }
+
+        enhancerBase& operator=(const enhancerBase&) = delete;
+        enhancerBase& operator=(enhancerBase&&) = delete;
 
         virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
         virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
@@ -123,7 +159,12 @@ public:
     public:
         enhancer(): enhancerBase() { }
         enhancer(const enhancer& b): enhancerBase(b) { }
+        enhancer(enhancer&& b): enhancerBase(b) { }
         enhancer(enhancer* b): enhancerBase(b) { }
+        ~enhancer() override {}
+
+        enhancer& operator=(const enhancer&) = delete;
+        enhancer& operator=(enhancer&&) = delete;
 
         shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
         shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
@@ -170,11 +211,13 @@ public:
 
     bool isNumber(QString);
 
+    static constexpr int BaseRoll = 11;
+
 private:
-    static QMap<QString, skillBase*>    _skills;
-    static QMap<QString, talentBase*>   _talents;
-    static QMap<QString, perkBase*>     _perks;
-    static QMap<QString, enhancerBase*> _enhancers;
+    static QMap<QString, skillBase*>    _skills;    // NOLINT
+    static QMap<QString, talentBase*>   _talents;   // NOLINT
+    static QMap<QString, perkBase*>     _perks;     // NOLINT
+    static QMap<QString, enhancerBase*> _enhancers; // NOLINT
 };
 
 #endif // SKILLTALENTORPERK_H

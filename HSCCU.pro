@@ -42,6 +42,7 @@ HEADERS += \
     BackgroundSkills.h \
     BodyAffectingPowers.h \
     CombatSkills.h \
+    CustomSkill.h \
     Debug.h \
     DefensePowers.h \
     Dependence.h \

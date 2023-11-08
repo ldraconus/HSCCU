@@ -63,7 +63,7 @@ public:
         AllPowers::store();
         v._extraNotes = extraNotes->text();
     }
-    QJsonObject toJson() override {
+    QJsonObject toJson() const override {
         QJsonObject obj = AllPowers::toJson();
         obj["cost"] = v._cost;
         obj["weight"] = v._weight;
@@ -187,7 +187,7 @@ public:
         v._bonusDC = bonusDC->text().toInt();
         v._bonusOCV = bonusOCV->text().toInt();
     }
-    QJsonObject toJson() override {
+    QJsonObject toJson() const override {
         QJsonObject obj = Equipment::toJson();
         obj["twoHanded"] = v._twoHanded;
         obj["which"] = v._which;
@@ -363,12 +363,12 @@ public:
         v._type = type->currentIndex();
         v._bonus = bonus->text().toInt();
     }
-    QJsonArray toArray(QList<double>& src) {
+    QJsonArray toArray(const QList<double>& src) const {
         QJsonArray arr;
         for (const auto& x: src) arr.push_back(x);
         return arr;
     }
-    QJsonObject toJson() override {
+    QJsonObject toJson() const override {
         QJsonObject obj = Equipment::toJson();
         obj["hitLocations"] = v._hitLocations;
         obj["which"] = v._which;
@@ -470,7 +470,7 @@ public:
         Equipment::store();
         v._which = which->currentIndex();
     }
-    QJsonObject toJson() override {
+    QJsonObject toJson() const override {
         QJsonObject obj = Equipment::toJson();
         obj["which"] = v._which;
         obj["strMin"] = v._strMin;

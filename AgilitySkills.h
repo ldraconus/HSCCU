@@ -1,5 +1,4 @@
-#ifndef AGILITYSKILLS_H
-#define AGILITYSKILLS_H
+#pragma once
 
 #include "character.h"
 #ifndef ISHSC
@@ -128,5 +127,3 @@ CLASS(Teamwork);
 
 #undef CLASS
 #undef CLASS_SPACE
-
-#endif // AGILITYSKILLS_H

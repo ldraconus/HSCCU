@@ -67,7 +67,7 @@ public:
                                                                     }
     void        store() override                                    { v._powerName = powerName->text();
                                                                     }
-    QJsonObject toJson() override                                   { QJsonObject obj = Power::toJson();
+    QJsonObject toJson() const override                             { QJsonObject obj = Power::toJson();
                                                                       obj["name"]      = v._name;
                                                                       obj["powerName"] = v._powerName;
                                                                       QJsonArray powers;
@@ -143,7 +143,7 @@ public:
                                                                  }
     void     store() override                                    { FrameworkPowers::store();
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = FrameworkPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = FrameworkPowers::toJson();
                                                                    return obj;
                                                                  }
 
@@ -270,7 +270,7 @@ public:
     void     store() override                                    { FrameworkPowers::store();
                                                                    v._points = pnts->text().toInt();
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = FrameworkPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = FrameworkPowers::toJson();
                                                                    obj["points"] = v._points;
                                                                    return obj;
                                                                  }
@@ -484,7 +484,7 @@ public:
                                                                    v._one     = one->currentIndex();
                                                                    v._power   = powr->text();
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = FrameworkPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = FrameworkPowers::toJson();
                                                                    obj["pool"]    = v._pool;
                                                                    obj["control"] = v._control;
                                                                    obj["time"]    = v._time;

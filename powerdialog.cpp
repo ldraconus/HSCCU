@@ -15,17 +15,17 @@
 #include <QScrollBar>
 #include <QTimer>
 
-PowerDialog*      PowerDialog::_ptr;
-shared_ptr<Power> PowerDialog::_dummy = nullptr;
+PowerDialog*      PowerDialog::_ptr = nullptr; // NOLINT
+shared_ptr<Power> PowerDialog::_dummy = nullptr; // NOLINT
 
 PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
     : QDialog(parent)
+    , ui(new Ui::PowerDialog)
     , _saved(save)
 {
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
 
-    ui = new Ui::PowerDialog;
     ui->setupUi(this);
 
 #ifdef unix
@@ -58,6 +58,8 @@ PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
     _ok = ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
     _cancel = ui->buttonBox->button(QDialogButtonBox::StandardButton::Cancel);
 
+    _ok->setEnabled(false);
+
     connect(_ok,     SIGNAL(clicked()), this, SLOT(ok()));
     connect(_cancel, SIGNAL(clicked()), this, SLOT(cancel()));
 
@@ -70,14 +72,14 @@ PowerDialog::~PowerDialog()
 }
 
 QMenu* PowerDialog::createMenu(QWidget* parent, const QFont& font, QList<menuItems> items) {
-    QMenu* menu = new QMenu(parent);
+    gsl::owner<QMenu*> menu = new QMenu(parent);
     menu->setFont(font);
     for (auto& item: items) {
         if (item.action == nullptr) {
             menu->addSeparator();
             continue;
         }
-        QAction*& action = *item.action;
+        gsl::owner<QAction*>& action = *item.action;
         action = new QAction(item.text);
         action->setFont(font);
         menu->addAction(action);
@@ -86,7 +88,7 @@ QMenu* PowerDialog::createMenu(QWidget* parent, const QFont& font, QList<menuIte
 }
 
 QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layout, QList<int> columns, QString w, int h) {
-    QTableWidget* tablewidget = new QTableWidget(parent);
+    gsl::owner<QTableWidget*> tablewidget = new QTableWidget(parent);
     tablewidget->setContextMenuPolicy(Qt::CustomContextMenu);
     tablewidget->setWordWrap(true);
     auto verticalHeader = tablewidget->verticalHeader();
@@ -103,25 +105,24 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
     horizontalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
     horizontalHeader->setStretchLastSection(true);
     horizontalHeader->setMaximumSectionSize(r.width());
-    horizontalHeader->setDefaultSectionSize(10);
+    horizontalHeader->setDefaultSectionSize(10); // NOLINT
     horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
     horizontalHeader->setMaximumSize(r.width(), h != -1 ? h : r.height());
     tablewidget->setSelectionMode(QAbstractItemView::SingleSelection);
     tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     tablewidget->setFont(font);
     QString family = font.family();
-    tablewidget->setStyleSheet("QTableWidget { selection-color: black;"
-                                           "   selection-background-color: white;"
-                                           "   gridline-color: black;"
-                                 + QString("   font: %2pt \"%1\";").arg(family).arg(pnt) +
+    tablewidget->setStyleSheet("QTableWidget { gridline-color: white;"
+                                           "   background-color: white;"
+                                           "   border-color: black;"
+                                 + QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
                                            "   color: black;"
                                            " } "
-                               "QHeaderView::section { background-color: white;"
-                                                   "   border-style: none;"
-                                                   "   color: black;" +
-                                           QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
-                                                   " }");
-    tablewidget->setColumnCount(columns.count());
+                               "QTableWidget::item { background-color: white;"
+                                                 " }"
+                               "QTableWidget::item:selected { background-color: cyan;"
+                                                          " }");
+    tablewidget->setColumnCount(gsl::narrow<int>(columns.count()));
     tablewidget->setRowCount(0);
 
     tablewidget->setToolTip(w);
@@ -130,7 +131,7 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
 
     int total = 0;
     for (int i = 1; i < tablewidget->columnCount(); ++i) total += tablewidget->columnWidth(i - 1);
-    tablewidget->setColumnWidth(columns.count() - 1, r.width() - total);
+    tablewidget->setColumnWidth(gsl::narrow<int>(columns.count()) - 1, gsl::narrow<int>(r.width()) - total);
 
     tablewidget->setGeometry(r);
     layout->addWidget(tablewidget);
@@ -140,7 +141,7 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
 
 QTableWidget* PowerDialog::createAdvantages(QWidget* parent, QVBoxLayout* layout) {
     if (_equipment) return nullptr;
-    _advantages = createTableWidget(parent, layout, { 15, 200 }, "Power Advantages", 75);
+    _advantages = createTableWidget(parent, layout, { 15, 200 }, "Power Advantages", 75); // NOLINT
 #ifndef __wasm__
     _advantagesMenu = createMenu(_advantages, _advantages->font(), { { "New",       &_newAdvantage },
                                                                      { "Edit",      &_editAdvantage },
@@ -627,7 +628,7 @@ void PowerDialog::pickOne(int) {
         return;
     }
 
-    QVBoxLayout* layout = static_cast<QVBoxLayout*>(ui->form->layout());
+    QVBoxLayout* layout = dynamic_cast<QVBoxLayout*>(ui->form->layout());
     if (layout == nullptr) {
         layout = new QVBoxLayout(ui->form);
         ui->form->setLayout(layout);
@@ -775,13 +776,13 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
 }
 
 void PowerDialog::activated(int) {
-    QComboBox* comboBox = static_cast<QComboBox*>(sender());
+    QComboBox* comboBox = dynamic_cast<QComboBox*>(sender());
     _power->callback(comboBox, true);
     updateForm();
 }
 
 void PowerDialog::buttonPressed(bool) {
-    QPushButton* button = static_cast<QPushButton*>(sender());
+    QPushButton* button = dynamic_cast<QPushButton*>(sender());
     _power->callback(button);
     updateForm();
 }
@@ -793,25 +794,25 @@ void PowerDialog::itemChanged(QTreeWidgetItem* itm, int) {
 }
 
 void PowerDialog::currentIndexChanged(int) {
-    QComboBox* comboBox = static_cast<QComboBox*>(sender());
+    QComboBox* comboBox = dynamic_cast<QComboBox*>(sender());
     _power->callback(comboBox);
     updateForm();
 }
 
 void PowerDialog::itemSelectionChanged() {
-    QTreeWidget* tree = static_cast<QTreeWidget*>(sender());
+    QTreeWidget* tree = dynamic_cast<QTreeWidget*>(sender());
     _power->callback(tree);
     updateForm();
 }
 
 void PowerDialog::stateChanged(int) {
-    QCheckBox* checkBox = static_cast<QCheckBox*>(sender());
+    QCheckBox* checkBox = dynamic_cast<QCheckBox*>(sender());
     _power->callback(checkBox);
     updateForm();
 }
 
 void PowerDialog::textChanged(QString) {
-    QLineEdit* text = static_cast<QLineEdit*>(sender());
+    QLineEdit* text = dynamic_cast<QLineEdit*>(sender());
     _power->callback(text);
     updateForm();
 }

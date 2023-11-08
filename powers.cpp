@@ -26,119 +26,125 @@
 #include <QScrollBar>
 #include <QWidget>
 
-#define MAKE(x)    Power::allPower<x> _##x
-#define LINK(x)        { #x, &statics::_##x }
-#define SPCS(x,y)      { x, &statics::_##y }
+// NOLINTNEXTLINE
+#define MAKE(x)    { #x, new Power::allPower<x>() }
+// NOLINTNEXTLINE
+#define SPCS(x,y)  { x, #y }
 
-namespace statics {
-    // Adjustment Powers
-    MAKE(Absorption);
-    MAKE(Aid);
-    MAKE(Drain);
-    MAKE(Healing);
+// NOLINTNEXTLINE
+struct _statics {
+    QMap<QString, Power::allBase*> powers;
+} const statics {
+    .powers {
+        // Adjustment Powers
+        MAKE(Absorption),
+        MAKE(Aid),
+        MAKE(Drain),
+        MAKE(Healing),
 
-    // Attack Powers
-    MAKE(Blast);
-    MAKE(ChangeEnvironment);
-    MAKE(Entangle);
-    MAKE(Flash);
-    MAKE(HandToHandAttack);
-    MAKE(KillingAttack);
-    MAKE(Reflection);
-    MAKE(Telekinesis);
-    MAKE(Transform);
+        // Attack Powers
+        MAKE(Blast),
+        MAKE(ChangeEnvironment),
+        MAKE(Entangle),
+        MAKE(Flash),
+        MAKE(HandToHandAttack),
+        MAKE(KillingAttack),
+        MAKE(Reflection),
+        MAKE(Telekinesis),
+        MAKE(Transform),
 
-    // Automaton Powers
-    MAKE(CannotBeStunned);
-    MAKE(DoesNotBleed);
-    MAKE(NoHitLocations);
-    MAKE(TakesNoSTUN);
+        // Automaton Powers
+        MAKE(CannotBeStunned),
+        MAKE(DoesNotBleed),
+        MAKE(NoHitLocations),
+        MAKE(TakesNoSTUN),
 
-    // Body Affecting Powers
-    MAKE(DensityIncrease);
-    MAKE(Desolidification);
-    MAKE(Duplication);
-    MAKE(ExtraLimbs);
-    MAKE(Growth);
-    MAKE(Multiform);
-    MAKE(ShapeShift);
-    MAKE(Shrinking);
-    MAKE(Stretching);
+        // Body Affecting Powers
+        MAKE(DensityIncrease),
+        MAKE(Desolidification),
+        MAKE(Duplication),
+        MAKE(ExtraLimbs),
+        MAKE(Growth),
+        MAKE(Multiform),
+        MAKE(ShapeShift),
+        MAKE(Shrinking),
+        MAKE(Stretching),
 
-    // Defense Powers
-    MAKE(Barrier);
-    MAKE(DamageNegation);
-    MAKE(DamageResistance);
-    MAKE(Deflection);
-    MAKE(FlashDefense);
-    MAKE(KnockbackResistance);
-    MAKE(MentalDefense);
-    MAKE(PowerDefense);
-    MAKE(ResistantDefense);
+        // Defense Powers
+        MAKE(Barrier),
+        MAKE(DamageNegation),
+        MAKE(DamageResistance),
+        MAKE(Deflection),
+        MAKE(FlashDefense),
+        MAKE(KnockbackResistance),
+        MAKE(MentalDefense),
+        MAKE(PowerDefense),
+        MAKE(ResistantDefense),
 
-    // Mental Powers
-    MAKE(MentalBlast);
-    MAKE(MentalIllusions);
-    MAKE(MindControl);
-    MAKE(MindLink);
-    MAKE(MindScan);
-    MAKE(Telepathy);
+        // Mental Powers
+        MAKE(MentalBlast),
+        MAKE(MentalIllusions),
+        MAKE(MindControl),
+        MAKE(MindLink),
+        MAKE(MindScan),
+        MAKE(Telepathy),
 
-    // Movement Powers
-    MAKE(ExtraDimensionalMovement);
-    MAKE(FTLTravel);
-    MAKE(Flight);
-    MAKE(Leaping);
-    MAKE(Running);
-    MAKE(Swimming);
-    MAKE(Swinging);
-    MAKE(Teleportation);
-    MAKE(Tunneling);
+        // Movement Powers
+        MAKE(ExtraDimensionalMovement),
+        MAKE(FTLTravel),
+        MAKE(Flight),
+        MAKE(Leaping),
+        MAKE(Running),
+        MAKE(Swimming),
+        MAKE(Swinging),
+        MAKE(Teleportation),
+        MAKE(Tunneling),
 
-    // Sense Affecting Powers
-    MAKE(Darkness);
-    MAKE(Images);
-    MAKE(Invisibility);
+        // Sense Affecting Powers
+        MAKE(Darkness),
+        MAKE(Images),
+        MAKE(Invisibility),
 
-    // Sensory Power
-    MAKE(Clairsentience);
-    MAKE(EnhancedSenses);
+        // Sensory Power
+        MAKE(Clairsentience),
+        MAKE(EnhancedSenses),
 
-    // Special Power
-    MAKE(Blank);
-    MAKE(EnduranceReserve);
-    MAKE(IndependantAdvantage);
-    MAKE(Luck);
-    MAKE(Regeneration);
-    MAKE(Skill);
-    MAKE(TeleportLocation);
+        // Special Power
+        MAKE(Blank),
+        MAKE(EnduranceReserve),
+        MAKE(IndependantAdvantage),
+        MAKE(Luck),
+        MAKE(Regeneration),
+        MAKE(Skill),
+        MAKE(TeleportLocation),
 
-    // Standard Power
-    MAKE(Characteristics);
-    MAKE(Clinging);
-    MAKE(Dispel);
-    MAKE(LifeSupport);
-    MAKE(Summon);
+        // Standard Power
+        MAKE(Characteristics),
+        MAKE(Clinging),
+        MAKE(Dispel),
+        MAKE(LifeSupport),
+        MAKE(Summon),
 
-    // Frameworks
-    MAKE(Group);
-    MAKE(Multipower);
-    MAKE(VPP);
+        // Frameworks
+        MAKE(Group),
+        MAKE(Multipower),
+        MAKE(VPP),
 
-    // Equipment
-    MAKE(Weapon);
-    MAKE(Armor);
-    MAKE(Equip);
-}
+        // Equipment
+        MAKE(Weapon),
+        MAKE(Armor),
+        MAKE(Equip)
+    }
+};
 
-QMap<QString, Power::allBase*> Power::_adjustmentPower {
+const QMap<QString, QString> Power::_adjustmentPower {
     SPCS("Absorption▲", Absorption),
     SPCS("Aid",         Aid),
     SPCS("Drain",       Drain),
     SPCS("Healing",     Healing)
 };
 
-QMap<QString, Power::allBase*> Power::_attackPower {
+const QMap<QString, QString> Power::_attackPower {
     SPCS("Blast",               Blast),
     SPCS("Change Environment",  ChangeEnvironment),
     SPCS("Characteristics",     Characteristics),
@@ -158,14 +164,14 @@ QMap<QString, Power::allBase*> Power::_attackPower {
     SPCS("Transformϴ",          Transform)
 };
 
-QMap<QString, Power::allBase*> Power::_automatonPower {
+const QMap<QString, QString> Power::_automatonPower {
     SPCS("Cannot Be Stunnedϴ", CannotBeStunned),
     SPCS("Does Not Bleedϴ",    DoesNotBleed),
     SPCS("No Hit Locationsϴ",  NoHitLocations),
     SPCS("Takes No STUNϴ",     TakesNoSTUN)
 };
 
-QMap<QString, Power::allBase*> Power::_bodyAffectingPower {
+const QMap<QString, QString> Power::_bodyAffectingPower {
     SPCS("Density Increase",  DensityIncrease),
     SPCS("Desolidificationϴ", Desolidification),
     SPCS("Duplication▲",      Duplication),
@@ -177,7 +183,7 @@ QMap<QString, Power::allBase*> Power::_bodyAffectingPower {
     SPCS("Stretching",        Stretching)
 };
 
-QMap<QString, Power::allBase*> Power::_defensePower {
+const QMap<QString, QString> Power::_defensePower {
     SPCS("Barrier",              Barrier),
     SPCS("Characteristics",      Characteristics),
     SPCS("Damage Negation▲",     DamageNegation),
@@ -190,14 +196,14 @@ QMap<QString, Power::allBase*> Power::_defensePower {
     SPCS("Resistant Defense",    ResistantDefense)
 };
 
-QMap<QString, Power::allBase*> Power::_frameworkPower {
+const QMap<QString, QString> Power::_frameworkPower {
     SPCS("Group",               Group),
     SPCS("Multipower",          Multipower),
     SPCS("Variable Power Pool", VPP),
     SPCS("Blank Line",          Blank)
 };
 
-QMap<QString, Power::allBase*> Power::_mentalPower {
+const QMap<QString, QString> Power::_mentalPower {
     SPCS("Mental Blast",     MentalBlast),
     SPCS("Mental Illusions", MentalIllusions),
     SPCS("Mind Control",     MindControl),
@@ -206,7 +212,7 @@ QMap<QString, Power::allBase*> Power::_mentalPower {
     SPCS("Telepathy",        Telepathy)
 };
 
-QMap<QString, Power::allBase*> Power::_movementPower {
+const QMap<QString, QString> Power::_movementPower {
     SPCS("Extra-Dimensional Movementϴ", ExtraDimensionalMovement),
     SPCS("FTL Travel",                  FTLTravel),
     SPCS("Flight",                      Flight),
@@ -218,20 +224,20 @@ QMap<QString, Power::allBase*> Power::_movementPower {
     SPCS("Tunneling",                   Tunneling)
 };
 
-QMap<QString, Power::allBase*> Power::_senseAffectingPower {
+const QMap<QString, QString> Power::_senseAffectingPower {
     SPCS("Darkness",     Darkness),
     SPCS("Flash",        Flash),
     SPCS("Images",       Images),
     SPCS("Invisibility", Invisibility)
 };
 
-QMap<QString, Power::allBase*> Power::_sensoryPower {
+const QMap<QString, QString> Power::_sensoryPower {
     SPCS("Clairsentienceϴ", Clairsentience),
     SPCS("Enhanced Senses", EnhancedSenses),
     SPCS("Mind Scan",       MindScan)
 };
 
-QMap<QString, Power::allBase*> Power::_specialPower {
+const QMap<QString, QString> Power::_specialPower {
     SPCS("Duplication",           Duplication),
     SPCS("Endurance Reserve",     EnduranceReserve),
     SPCS("Enhanced Senses",       EnhancedSenses),
@@ -247,7 +253,7 @@ QMap<QString, Power::allBase*> Power::_specialPower {
     SPCS("Teleport Location",     TeleportLocation)
 };
 
-QMap<QString, Power::allBase*> Power::_standardPower {
+const QMap<QString, QString> Power::_standardPower {
     SPCS("Barrier",             Barrier),
     SPCS("Blast",               Blast),
     SPCS("Change Environment",  ChangeEnvironment),
@@ -277,7 +283,7 @@ QMap<QString, Power::allBase*> Power::_standardPower {
     SPCS("Transformϴ",          Transform)
 };
 
-QMap<QString, Power::allBase*> Power::_equipment {
+const QMap<QString, QString> Power::_equipment {
     SPCS("Weapon",    Weapon),
     SPCS("Armor",     Armor),
     SPCS("Equipment", Equip)
@@ -440,10 +446,10 @@ QLineEdit* Power::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString p
     QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);
-#ifdef unix
-    QString style = "color: #000; background: #fff;";
+
+    QString style = "color: #000; background: cyan;";
     lineEdit->setStyleSheet(style);
-#endif
+
     if (before == -1) layout->addWidget(lineEdit);
     else layout->insertWidget(before, lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
@@ -560,7 +566,7 @@ QWidget* Power::createLabeledEdit(QWidget* parent, QVBoxLayout* layout, QString 
 }
 
 void Power::ClearForm(QVBoxLayout* layout) {
-    QLayoutItem* item;
+    QLayoutItem* item {};
     while ((item = layout->takeAt(0)) != NULL) {
         delete item->widget();
         delete item;
@@ -656,8 +662,8 @@ bool Power::LoadEquipment() {
     if (json.isEmpty()) return false;
     QJsonObject top = json.object();
     QJsonArray arr = top["equipment"].toArray();
-    int count = arr.count();
-    for (int i = 0; i < count; ++i) {
+    auto count = arr.count();
+    for (auto i = 0; i < count; ++i) {
         QJsonArray equip = arr[i].toArray();
         QString type = equip[0].toString();
         QJsonObject obj = equip[1].toObject();
@@ -671,40 +677,39 @@ bool Power::LoadEquipment() {
 }
 
 shared_ptr<Power> Power::ByName(QString name) {
-    if (_adjustmentPower.find(name) != _adjustmentPower.end()) return _adjustmentPower[name]->create();
-    if (_attackPower.find(name) != _attackPower.end()) return _attackPower[name]->create();
-    if (_automatonPower.find(name) != _automatonPower.end()) return _automatonPower[name]->create();
-    if (_bodyAffectingPower.find(name) != _bodyAffectingPower.end()) return _bodyAffectingPower[name]->create();
-    if (_defensePower.find(name) != _defensePower.end()) return _defensePower[name]->create();
-    if (_mentalPower.find(name) != _mentalPower.end()) return _mentalPower[name]->create();
-    if (_movementPower.find(name) != _movementPower.end()) return _movementPower[name]->create();
-    if (_senseAffectingPower.find(name) != _senseAffectingPower.end()) return _senseAffectingPower[name]->create();
-    if (_sensoryPower.find(name) != _sensoryPower.end()) return _sensoryPower[name]->create();
-    if (_specialPower.find(name) != _specialPower.end()) return _specialPower[name]->create();
-    if (_standardPower.find(name) != _standardPower.end()) return _standardPower[name]->create();
-    if (_frameworkPower.find(name) != _frameworkPower.end()) return _frameworkPower[name]->create();
-    if (_equipment.find(name) != _equipment.end()) return _equipment[name]->create();
-    else return nullptr;
+    if (_adjustmentPower.contains(name))     return statics.powers[_adjustmentPower[name]]->create();
+    if (_attackPower.contains(name))         return statics.powers[_attackPower[name]]->create();
+    if (_automatonPower.contains(name))      return statics.powers[_automatonPower[name]]->create();
+    if (_bodyAffectingPower.contains(name))  return statics.powers[_bodyAffectingPower[name]]->create();
+    if (_defensePower.contains(name))        return statics.powers[_defensePower[name]]->create();
+    if (_mentalPower.contains(name))         return statics.powers[_mentalPower[name]]->create();
+    if (_movementPower.contains(name))       return statics.powers[_movementPower[name]]->create();
+    if (_senseAffectingPower.contains(name)) return statics.powers[_senseAffectingPower[name]]->create();
+    if (_sensoryPower.contains(name))        return statics.powers[_sensoryPower[name]]->create();
+    if (_specialPower.contains(name))        return statics.powers[_specialPower[name]]->create();
+    if (_standardPower.contains(name))       return statics.powers[_standardPower[name]]->create();
+    if (_frameworkPower.contains(name))      return statics.powers[_frameworkPower[name]]->create();
+    if (_equipment.contains(name))           return statics.powers[_equipment[name]]->create();
+    return nullptr;
 }
 
 shared_ptr<Power> Power::FromJson(QString name, const QJsonObject& json) {
     shared_ptr<Power> power;
-    if (_adjustmentPower.find(name) != _adjustmentPower.end()) power = _adjustmentPower[name]->create(json);
-    else if (_attackPower.find(name) != _attackPower.end()) power = _attackPower[name]->create(json);
-    else if (_automatonPower.find(name) != _automatonPower.end()) power = _automatonPower[name]->create(json);
-    else if (_bodyAffectingPower.find(name) != _bodyAffectingPower.end()) power = _bodyAffectingPower[name]->create(json);
-    else if (_defensePower.find(name) != _defensePower.end()) power = _defensePower[name]->create(json);
-    else if (_mentalPower.find(name) != _mentalPower.end()) power = _mentalPower[name]->create(json);
-    else if (_movementPower.find(name) != _movementPower.end()) power = _movementPower[name]->create(json);
-    else if (_senseAffectingPower.find(name) != _senseAffectingPower.end()) power = _senseAffectingPower[name]->create(json);
-    else if (_sensoryPower.find(name) != _sensoryPower.end()) power = _sensoryPower[name]->create(json);
-    else if (_specialPower.find(name) != _specialPower.end()) power = _specialPower[name]->create(json);
-    else if (_standardPower.find(name) != _standardPower.end()) power = _standardPower[name]->create(json);
-    else if (_frameworkPower.find(name) != _frameworkPower.end()) power = _frameworkPower[name]->create(json);
-    else {
-        if (_equipment.find(name) != _equipment.end()) power = _equipment[name]->create(json);
-        else return nullptr;
-    }
+    if (_adjustmentPower.contains(name))     power = statics.powers[_adjustmentPower[name]]->create(json);
+    if (_attackPower.contains(name))         power = statics.powers[_attackPower[name]]->create(json);
+    if (_automatonPower.contains(name))      power = statics.powers[_automatonPower[name]]->create(json);
+    if (_bodyAffectingPower.contains(name))  power = statics.powers[_bodyAffectingPower[name]]->create(json);
+    if (_defensePower.contains(name))        power = statics.powers[_defensePower[name]]->create(json);
+    if (_mentalPower.contains(name))         power = statics.powers[_mentalPower[name]]->create(json);
+    if (_movementPower.contains(name))       power = statics.powers[_movementPower[name]]->create(json);
+    if (_senseAffectingPower.contains(name)) power = statics.powers[_senseAffectingPower[name]]->create(json);
+    if (_sensoryPower.contains(name))        power = statics.powers[_sensoryPower[name]]->create(json);
+    if (_specialPower.contains(name))        power = statics.powers[_specialPower[name]]->create(json);
+    if (_standardPower.contains(name))       power = statics.powers[_standardPower[name]]->create(json);
+    if (_frameworkPower.contains(name))      power = statics.powers[_frameworkPower[name]]->create(json);
+    if (_equipment.contains(name))           power = statics.powers[_equipment[name]]->create(json);
+    if (power == nullptr) return nullptr;
+
     QJsonObject obj = json["modifiers"].toObject();
     QStringList keys = obj.keys();
     for (const auto& key: keys) {

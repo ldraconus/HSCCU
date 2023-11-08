@@ -560,7 +560,6 @@ void Sheet::addPower(shared_ptr<Power> power) {
     _changed = true;
 }
 
-#ifdef unix
 void Sheet::fixButtonBox(QDialogButtonBox *bb)
 {
     /*
@@ -576,16 +575,10 @@ void Sheet::fixButtonBox(QDialogButtonBox *bb)
     bb->setStyleSheet("QDialogButtonBox { border-color: #888; color: #888; background: #fff; } "
                       "QDialogButtonBox:default { border-color: #000; color: #000; } ");
     QList<QAbstractButton*> buttons = bb->buttons();
-    for (const auto& button: buttons) button->setStyleSheet("QPushButton { border-color: #888; color: #888; background: #fff; }"
-                                                            "QPushButton:default { border-color: #000; color: #000; } "
-                                                            "QPushButton[enabled=\"true\"] { border-color: #000; color: #000; }"
-                                                            "QAbstractButton { border-color: #888; color: #888; background: #fff; } "
-                                                            "QAbstractButton:default { border-color: #000; color: #000; } "
-                                                            "QAbstractButton[enabled=\"true\"] { border-color: #000; color: #000; }");
+    for (const auto& button: buttons) button->setStyleSheet("QPushButton:disabled { border-color: #000; color: #888; } "
+                                                            "QPushButton:enabled { border-color: #000; color: #000; } "
+                                                            );
 }
-#else
-void Sheet::fixButtonBox(QDialogButtonBox*) { }
-#endif
 
 Points Sheet::characteristicsCost() {
     Points total = 0_cp;

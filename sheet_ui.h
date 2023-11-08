@@ -1,5 +1,6 @@
 #pragma once
 
+#include "fraction.h"
 #include <QAction>
 #include <QLineEdit>
 #include <QGridLayout>
@@ -294,9 +295,8 @@ private:
         tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         int pnt = font.pointSize();
-        double dpiy = parent->screen()->physicalDotsPerInchY();
-        double pntY = (pnt * dpiy) / Points;
-        int sz = pntY + Half; // NOLINT
+        auto dpiy = parent->screen()->physicalDotsPerInchY();
+        int sz = (pnt * Fraction(static_cast<long>(dpiy), Points)).toInt();
 #ifdef __wasm__
         QFont temp = font;
         temp.setPointSize(pnt * 8 + 0.5); // NOLINT
@@ -306,15 +306,9 @@ private:
 #endif
         auto verticalHeader = tablewidget->verticalHeader();
         verticalHeader->setVisible(false);
-#ifdef __wasm__
         verticalHeader->setMinimumSectionSize(sz + 2);
         verticalHeader->setMaximumSectionSize(selectable ? s.l() : sz + 2);
         verticalHeader->setDefaultSectionSize(sz + 2);
-#else
-        verticalHeader->setMinimumSectionSize(1);
-        verticalHeader->setMaximumSectionSize(selectable ? s.l() : sz);
-        verticalHeader->setDefaultSectionSize(1);
-#endif
         verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
         auto horizontalHeader = tablewidget->horizontalHeader();
         horizontalHeader->setStretchLastSection(true);
@@ -324,7 +318,7 @@ private:
 #ifdef __wasm__
         horizontalHeader->setMaximumSize(s.l(), sz + 2);
 #else
-        horizontalHeader->setMaximumSize(s.l(), sz);
+        horizontalHeader->setMaximumSize(s.l(), sz * 2);
 #endif
         tablewidget->setSelectionMode(selectable ? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
         tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -335,13 +329,13 @@ private:
                                                    "   gridline-color: cyan;"
                                                    "   background-color: cyan;"
                                                    "   border-style: none;"
-                                         + QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) + // NOLINT
+                                         + QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
                                                    "   color: black;"
                                                    " } "
                                        "QHeaderView::section { background-color: white;"
                                                            "   border-style: none;"
                                                            "   color: black;" +
-                                                   QString("   font: bold %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) + // NOLINT
+                                                   QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
                                                            " }");
         else
             tablewidget->setStyleSheet("QTableWidget { selection-color: transparent;"
@@ -350,7 +344,7 @@ private:
                                                    "   border-style: none;"
                                                    "   background-color: transparent;"
                                                    "   color: black;" +
-                                           QString("   font: %2pt \"%1\";").arg(family).arg((pnt * 8 + 5) / 10) + // NOLINT
+                                           QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
                                                    " } "
                                        "QHeaderView::section { background-color: white;"
                                                            "   border-style: none;"
@@ -666,7 +660,7 @@ public:
         narrow.setStretch(QFont::Stretch::SemiCondensed);
 
         QFont narrowTableFont = narrow;
-        narrowTableFont.setPointSize(StandardFontSize);
+        narrowTableFont.setPointSize(TinyFontSize);
 
         smallfont = font;
         smallfont.setPointSize(SmallFontPointSize);
@@ -951,15 +945,15 @@ public:
         createLabel(widget, headerFont, "DEFENSES", { 467, 711 }, { 225, 20 }); // NOLINT
 #endif
 
-        defenses = createTableWidget(widget, font,
-                                     {   "Type", "Amount/Effect", "" },
-                                     { { "Normal PD ",      "2", "" },
-                                       { "Resistant PD ",   "0", "" },
-                                       { "Normal ED ",      "2", "" },
-                                       { "Resistant ED ",   "0", "" },
-                                       { "Mental Defense ", "0", "" },
-                                       { "Power Defense ",  "0", "" },
-                                       { "Flash Defense ",  "0", "" } }, { 392, 739 }, { 249, 270 }, NoSelectable, NoLabel); // NOLINT
+        defenses = createTableWidget(widget, narrowTableFont,
+                                     {   "Type", "Amount/Effect" },
+                                     { { "Normal PD ",      "2" },
+                                       { "Resistant PD ",   "0" },
+                                       { "Normal ED ",      "2" },
+                                       { "Resistant ED ",   "0" },
+                                       { "Mental Defense ", "0" },
+                                       { "Power Defense ",  "0" },
+                                       { "Flash Defense ",  "0" } }, { 392, 739 }, { 249, 270 }); // NOLINT
 
 #ifdef unix
         createLabel(widget, smallBoldWideFont, "SENSES", { 490, 1039 }, { 65, 17 }); // NOLINT
@@ -1077,13 +1071,9 @@ public:
 
         powersandequipment          = createTableWidget(widget, tableFont,
                                                         { "Cost", "Name              ",
-#ifdef __wasm__
                                                           "Power/Equipment                                           ",
-#else
-                                                          "Power/Equipment                                                 ",
-#endif
                                                           "END" },
-                                                        { }, { 367, 1521 }, { 570, 991 }, "Special powers and equipment for your character", Selectable); // NOLINT
+                                                        { }, { 367, 1522 }, { 570, 991 }, "Special powers and equipment for your character", Selectable); // NOLINT
         totalpowersandequipmentcost = createLabel(widget, font, "0", { 367, 2511 }, { 40, 20 }); // NOLINT
         powersandequipmentMenu      = createMenu(powersandequipment, font, { { "New",       &newPowerOrEquipment },
                                                                              { "Edit",      &editPowerOrEquipment },

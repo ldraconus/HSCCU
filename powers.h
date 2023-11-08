@@ -93,19 +93,24 @@ public:
         allBase(const allBase&) { }
         allBase(allBase*) { }
 
-        virtual shared_ptr<Power> create()                        = 0;
-        virtual shared_ptr<Power> create(const QJsonObject& json) = 0;
+        virtual shared_ptr<Power> create() const                        = 0;
+        virtual shared_ptr<Power> create(const QJsonObject& json) const = 0;
     };
 
     template <typename T>
     class allPower: public allBase {
     public:
-        allPower(): allBase()                          { }
+        allPower(): allBase()                   { }
         allPower(const allPower& b): allBase(b) { }
+        allPower(allPower&& b): allBase(b)      { }
         allPower(allPower* b): allBase(b)       { }
+        ~allPower();
 
-        shared_ptr<Power> create() override                        { return make_shared<T>(); }
-        shared_ptr<Power> create(const QJsonObject& json) override { return make_shared<T>(json); }
+        allPower& operator=(const allPower&) = delete;
+        allPower& operator=(allPower&&) = delete;
+
+        shared_ptr<Power> create() const override                        { return make_shared<T>(); }
+        shared_ptr<Power> create(const QJsonObject& json) const override { return make_shared<T>(json); }
     };
 
     Power();
@@ -127,7 +132,7 @@ public:
         , _modifiers(p._modifiers) { Power(); }
     virtual ~Power() { }
 
-    virtual Power& operator=(const Power& s) {
+    Power& operator=(const Power& s) {
         if (this != &s) {
             _advantagesList = s._advantagesList;
             _limitationsList = s._limitationsList;
@@ -139,7 +144,7 @@ public:
         }
         return *this;
     }
-    virtual Power& operator=(Power&& s) {
+    Power& operator=(Power&& s) {
         _advantagesList = s._advantagesList;
         _limitationsList = s._limitationsList;
         _inMultipower = s._inMultipower;
@@ -164,7 +169,7 @@ public:
     virtual void        store()                        { }
     virtual bool        varying()                      { return false; }
 
-    virtual QJsonObject toJson()                 { QJsonObject obj;
+    virtual QJsonObject toJson() const           { QJsonObject obj;
                                                    QJsonObject mods;
                                                    for (const auto& mod: _advantagesList)  mods[mod->name()] = mod->toJson();
                                                    for (const auto& mod: _limitationsList) mods[mod->name()] = mod->toJson();
@@ -190,18 +195,18 @@ public:
     int    row(int r)       { _row = r; return _row; }
 
     struct sizeMods {
-        int _STR;
-        int _CON;
-        int _PRE;
-        int _PD;
-        int _ED;
-        int _BODY;
-        int _STUN;
-        int _reach;
-        int _running;
-        int _KBRes;
-        int _aoeRad;
-        QString _comp;
+        int _STR = 0;
+        int _CON = 0;
+        int _PRE = 0;
+        int _PD = 0;
+        int _ED = 0;
+        int _BODY = 0;
+        int _STUN = 0;
+        int _reach = 0;
+        int _running = 0;
+        int _KBRes = 0;
+        int _aoeRad = 0;
+        QString _comp {};
     };
 
     virtual int characteristic(int) { return 0; }
@@ -274,6 +279,7 @@ public:
     static QList<QString>    SensoryPowers();
     static QList<QString>    SpecialPowers();
     static QList<QString>    StandardPowers();
+
     static shared_ptr<Power> ByName(QString);
     static shared_ptr<Power> FromJson(QString, const QJsonObject&);
 
@@ -282,19 +288,19 @@ public:
 private:
     QList<shared_ptr<Modifier>> _modifiers;
 
-    static QMap<QString, allBase*> _adjustmentPower;
-    static QMap<QString, allBase*> _attackPower;
-    static QMap<QString, allBase*> _automatonPower;
-    static QMap<QString, allBase*> _bodyAffectingPower;
-    static QMap<QString, allBase*> _defensePower;
-    static QMap<QString, allBase*> _frameworkPower;
-    static QMap<QString, allBase*> _mentalPower;
-    static QMap<QString, allBase*> _movementPower;
-    static QMap<QString, allBase*> _senseAffectingPower;
-    static QMap<QString, allBase*> _sensoryPower;
-    static QMap<QString, allBase*> _specialPower;
-    static QMap<QString, allBase*> _standardPower;
-    static QMap<QString, allBase*> _equipment;
+    static const QMap<QString, QString> _adjustmentPower;
+    static const QMap<QString, QString> _attackPower;
+    static const QMap<QString, QString> _automatonPower;
+    static const QMap<QString, QString> _bodyAffectingPower;
+    static const QMap<QString, QString> _defensePower;
+    static const QMap<QString, QString> _frameworkPower;
+    static const QMap<QString, QString> _mentalPower;
+    static const QMap<QString, QString> _movementPower;
+    static const QMap<QString, QString> _senseAffectingPower;
+    static const QMap<QString, QString> _sensoryPower;
+    static const QMap<QString, QString> _specialPower;
+    static const QMap<QString, QString> _standardPower;
+    static const QMap<QString, QString> _equipment;
 };
 
 class AllPowers: public Power {
@@ -302,22 +308,22 @@ protected:
     int countCommas(QString x) {
         if (x.isEmpty()) return 0;
         QStringList words = x.split(",");
-        return words.count();
+        return gsl::narrow<int>(words.count());
     }
 
-    QJsonArray toArray(QStringList list) {
+    QJsonArray toArray(const QStringList& list) const {
         QJsonArray array;
         for (const auto& str: list) array.append(str);
         return array;
     }
 
-    QStringList toStringList(QJsonArray array) {
+    QStringList toStringList(const QJsonArray& array) const {
         QStringList list;
         for (const auto& str: array) list.append(str.toString());
         return list;
     }
 
-    void setTreeWidget(QTreeWidget* tree, QStringList list) {
+    void setTreeWidget(QTreeWidget* tree, const QStringList& list) {
         int count = tree->topLevelItemCount();
         for (int i = 0; i < count; ++i) {
             auto item = tree->topLevelItem(i);
@@ -385,15 +391,16 @@ public:
         , v(s.v) { }
     AllPowers(const QJsonObject& json)
         : Power() { load(json); }
+    ~AllPowers() override { }
 
-    virtual AllPowers& operator=(const AllPowers& s) {
+    AllPowers& operator=(const AllPowers& s) {
         if (this != &s) {
             Power::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual AllPowers& operator=(AllPowers&& s) {
+    AllPowers& operator=(AllPowers&& s) {
         Power::operator=(s);
         v = s.v;
         return *this;
@@ -433,7 +440,7 @@ public:
     void        store() override                                    { v._powerName = powerName ? powerName->text() : "";
                                                                       if (varies != nullptr) v._varies = varies->isChecked();
                                                                     }
-    QJsonObject toJson() override                                   { QJsonObject obj = Power::toJson();
+    QJsonObject toJson() const override                             { QJsonObject obj = Power::toJson();
                                                                       obj["name"]      = v._name;
                                                                       obj["powerName"] = v._powerName;
                                                                       obj["varies"]    = v._varies;
@@ -448,8 +455,8 @@ private:
         bool    _varies    = false;
     } v;
 
-    QLineEdit* powerName;
-    QCheckBox* varies;
+    QLineEdit* powerName = nullptr;
+    QCheckBox* varies = nullptr;
 };
 
 #endif // POWERS_H

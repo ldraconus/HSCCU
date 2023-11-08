@@ -119,7 +119,7 @@ public:
                                                                    v._time   = time->isChecked();
                                                                    v._vague  = vague->isChecked();
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    obj["what"]   = toArray(v._what);
                                                                    obj["pre"]    = v._pre;
                                                                    obj["retro"]  = v._retro;
@@ -402,7 +402,7 @@ public:
                                                                    v._trans  = trans->isChecked();
                                                                    v._nodir  = nodir->isChecked();
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    obj["what"]   = toArray(v._what);
                                                                    obj["detect"] = v._detect;
                                                                    obj["thing"]  = v._thing;

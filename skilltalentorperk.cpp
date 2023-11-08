@@ -3,6 +3,7 @@
 #include "AgilitySkills.h"
 #include "BackgroundSkills.h"
 #include "CombatSkills.h"
+#include "CustomSkill.h"
 #include "SkillEnhancers.h"
 #include "IntellectSkills.h"
 #include "InteractionSkills.h"
@@ -39,6 +40,7 @@ namespace statics {
     MAKE(Cramming);
     MAKE(Criminology);
     MAKE(Cryptography);
+    MAKE(CustomSkill);
     MAKE(Deduction);
     MAKE(DefenseManeuver);
     MAKE(Demolitions);
@@ -157,6 +159,7 @@ QMap<QString, SkillTalentOrPerk::skillBase*> SkillTalentOrPerk::_skills {
     { LINK(Cramming) },
     { LINK(Criminology) },
     { LINK(Cryptography) },
+    { SPCS("Custom Skill", CustomSkill) },
     { LINK(Deduction) },
     { SPCS("Defense Maneuver", DefenseManeuver) },
     { LINK(Disguise) },

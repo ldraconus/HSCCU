@@ -174,6 +174,13 @@ private:
     QList<shared_ptr<SkillTalentOrPerk>> _skillsTalentsOrPerks;
     QList<shared_ptr<Power>>             _powers;
 
+    QList<std::tuple<QString, Characteristic*>> statPairs {
+        { "STR", &_STR }, { "DEX", &_DEX }, { "CON", &_CON }, { "INT", &_INT }, { "EGO", &_EGO },
+        { "PRE", &_PRE }, { "OCV", &_OCV }, { "OMCV", &_OMCV }, { "DCV", &_DCV }, { "DMCV", &_DMCV },
+        { "SPD", &_SPD }, { "PD", &_PD }, { "ED", &_ED }, { "REC", &_REC }, { "END", &_END },
+        { "BODY",&_BODY }, { "STUN", &_STUN }
+    };
+
     QString _alternateIds  = "";
     QString _campaignName  = "";
     QString _characterName = "";

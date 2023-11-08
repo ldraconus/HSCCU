@@ -59,7 +59,7 @@ public:
                                                                    v._rad  = rad->text().toInt();
                                                                    v._what = treeWidget(what);
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    obj["rad"]  = v._rad;
                                                                    obj["what"] = toArray(v._what);
                                                                    return obj;
@@ -213,7 +213,7 @@ public:
                                                                    v._set    = set->isChecked();
                                                                    v._effect = effect->text();
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    obj["what"]   = toArray(v._what);
                                                                    obj["per"]    = v._per;
                                                                    obj["diff"]   = v._diff;
@@ -391,7 +391,7 @@ public:
                                                                    v._cham   = cham->isChecked();
                                                                    v._not    = knot->isChecked();
                                                                  }
-    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    obj["what"]   = toArray(v._what);
                                                                    obj["no"]     = v._no;
                                                                    obj["bright"] = v._bright;

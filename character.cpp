@@ -7,47 +7,37 @@
 #include <QJsonObject>
 
 Character::Character()
-    : _STR(Characteristic(10, 1_cp, 20))
-    , _DEX(Characteristic(10, 2_cp, 20))
-    , _CON(Characteristic(10, 1_cp, 20))
-    , _INT(Characteristic(10, 1_cp, 20))
-    , _EGO(Characteristic(10, 1_cp, 20))
-    , _PRE(Characteristic(10, 1_cp, 20))
-    , _OCV(Characteristic(3, 5_cp, 8))
-    , _DCV(Characteristic(3, 5_cp, 8))
-    , _OMCV(Characteristic(3, 3_cp, 8))
-    , _DMCV(Characteristic(3, 3_cp, 8))
-    , _SPD(Characteristic(2, 10_cp, 4))
-    , _PD(Characteristic(2, 1_cp, 8))
-    , _ED(Characteristic(2, 1_cp, 8))
-    , _REC(Characteristic(4, 1_cp, 10))
-    , _END(Characteristic(20, 1_cp, 50, 5))
-    , _BODY(Characteristic(10, 1_cp, 20))
-    , _STUN(Characteristic(20, 1_cp, 50, 2))
+    : _STR(Characteristic(10, 1_cp, 20))      // NOLINT
+    , _DEX(Characteristic(10, 2_cp, 20))      // NOLINT
+    , _CON(Characteristic(10, 1_cp, 20))      // NOLINT
+    , _INT(Characteristic(10, 1_cp, 20))      // NOLINT
+    , _EGO(Characteristic(10, 1_cp, 20))      // NOLINT
+    , _PRE(Characteristic(10, 1_cp, 20))      // NOLINT
+    , _OCV(Characteristic(3, 5_cp, 8))        // NOLINT
+    , _DCV(Characteristic(3, 5_cp, 8))        // NOLINT
+    , _OMCV(Characteristic(3, 3_cp, 8))       // NOLINT
+    , _DMCV(Characteristic(3, 3_cp, 8))       // NOLINT
+    , _SPD(Characteristic(2, 10_cp, 4))       // NOLINT
+    , _PD(Characteristic(2, 1_cp, 8))         // NOLINT
+    , _ED(Characteristic(2, 1_cp, 8))         // NOLINT
+    , _REC(Characteristic(4, 1_cp, 10))       // NOLINT
+    , _END(Characteristic(20, 1_cp, 50, 5))   // NOLINT
+    , _BODY(Characteristic(10, 1_cp, 20))     // NOLINT
+    , _STUN(Characteristic(20, 1_cp, 50, 2))  // NOLINT
     , _height("2 m")
-    , _weight("100kg") { }
+    , _weight("100kg")
+    , _xp(0) { }
 
 Character::Character(const Character& c)
     : _STR(c._STR), _DEX(c._DEX), _CON(c._CON)
     , _INT(c._INT), _EGO(c._EGO), _PRE(c._PRE)
     , _OCV(c._OCV), _DCV(c._DCV), _OMCV(c._OMCV), _DMCV(c._DMCV), _SPD(c._SPD)
-    , _PD(c._PD), _ED(c._ED), _REC(c._REC), _END(c._END), _BODY(c._BODY), _STUN(c._STUN) {
-    _height               = c._height;
-    _weight               = c._weight;
-    _alternateIds         = c._alternateIds;
-    _campaignName         = c._campaignName;
-    _characterName        = c._characterName;
-    _eyeColor             = c._eyeColor;
-    _gamemaster           = c._gamemaster;
-    _genre                = c._genre;
-    _hairColor            = c._hairColor;
-    _playerName           = c._playerName;
-    _xp                   = c._xp;
-    _rPD                  = c._rPD;
-    _rED                  = c._rED;
-    _powers               = c._powers;
-    _skillsTalentsOrPerks = c._skillsTalentsOrPerks;
-    _complications        = c._complications;
+    , _PD(c._PD), _ED(c._ED), _REC(c._REC), _END(c._END), _BODY(c._BODY), _STUN(c._STUN)
+    , _height(c._height), _weight(c._weight), _rPD(c._rPD), _rED(c._rED)
+    , _complications(c._complications), _skillsTalentsOrPerks(c._skillsTalentsOrPerks), _powers(c._powers)
+    , _alternateIds(c._alternateIds), _campaignName(c._campaignName), _characterName(c._characterName)
+    , _eyeColor(c._eyeColor), _gamemaster(c._gamemaster), _genre(c._genre), _hairColor(c._hairColor)
+    , _playerName(c._playerName), _xp(c._xp) {
 }
 
 Character& Character::operator=(const Character& c) {
@@ -140,26 +130,13 @@ void Character::erase() {
     _playerName    = "";
     _xp            = 0_cp;
     _notes         = "";
-    _STR.base(_STR.init());
-    _DEX.base(_DEX.init());
-    _CON.base(_CON.init());
-    _INT.base(_INT.init());
-    _EGO.base(_EGO.init());
-    _PRE.base(_PRE.init());
-    _OCV.base(_OCV.init());
-    _OMCV.base(_OMCV.init());
-    _DCV.base(_DCV.init());
-    _DMCV.base(_DMCV.init());
-    _SPD.base(_SPD.init());
-    _PD.base(_PD.init());
-    _ED.base(_ED.init());
-    _REC.base(_REC.init());
-    _END.base(_END.init());
-    _BODY.base(_BODY.init());
-    _STUN.base(_STUN.init());
-    for (int i = 0; i < 17; ++i) {
-        characteristic(i).primary(0);
-        characteristic(i).secondary(0);
+    QList<Characteristic*> characteristics {
+        &_STR, &_DEX, &_CON, &_INT, &_EGO, &_PRE, &_OCV, &_OMCV, &_DCV, &_DMCV, &_SPD, &_PD, &_ED, &_REC, &_END, &_BODY, &_STUN
+    };
+    for (auto [i, characteristic]: enumerate(characteristics)) {
+        characteristic->base(characteristic->init());
+        characteristic->primary(0);
+        characteristic->secondary(0);
     }
     _height = "2m";
     _weight = "100kg";
@@ -174,10 +151,13 @@ QJsonDocument Character::copy(Option& opt) {
     return toJson(opt);
 }
 
+#ifndef ISHSC
 void Character::fromJson(Option& opt, QJsonDocument& doc) {
     const QJsonObject& top = doc.object();
-#ifndef ISHSC
     opt = Option(top);
+#else
+void Character::fromJson(Option&, QJsonDocument& doc) {
+    const QJsonObject& top = doc.object();
 #endif
     _alternateIds  = top["alternateIds"].toString("");
     _campaignName  = top["campaignName"].toString("");
@@ -192,24 +172,8 @@ void Character::fromJson(Option& opt, QJsonDocument& doc) {
     _height        = top["height"].toString("2m");
     _weight        = top["weight"].toString("100kg");
 
-    const QJsonObject& characteristics = top["characteristics"].toObject();
-    _STR  = Characteristic(characteristics["STR"].toObject());
-    _DEX  = Characteristic(characteristics["DEX"].toObject());
-    _CON  = Characteristic(characteristics["CON"].toObject());
-    _INT  = Characteristic(characteristics["INT"].toObject());
-    _EGO  = Characteristic(characteristics["EGO"].toObject());
-    _PRE  = Characteristic(characteristics["PRE"].toObject());
-    _OCV  = Characteristic(characteristics["OCV"].toObject());
-    _DCV  = Characteristic(characteristics["DCV"].toObject());
-    _OMCV = Characteristic(characteristics["OMCV"].toObject());
-    _DMCV = Characteristic(characteristics["DMCV"].toObject());
-    _SPD  = Characteristic(characteristics["SPD"].toObject());
-    _PD   = Characteristic(characteristics["PD"].toObject());
-    _ED   = Characteristic(characteristics["ED"].toObject());
-    _REC  = Characteristic(characteristics["REC"].toObject());
-    _END  = Characteristic(characteristics["END"].toObject());
-    _BODY = Characteristic(characteristics["BODY"].toObject());
-    _STUN = Characteristic(characteristics["STUN"].toObject());
+    const QJsonObject& objCharacteristics = top["characteristics"].toObject();
+    for (const auto& c: statPairs) *std::get<Characteristic*>(c) = Characteristic(objCharacteristics[std::get<QString>(c)].toObject());
 
     QJsonArray complications = top["complications"].toArray();
     for (const auto& complication: complications) {
@@ -298,25 +262,9 @@ QJsonDocument Character::toJson(Option& opt) {
     top.insert("height",        _height);
     top.insert("weight",        _weight);
 
-    QJsonObject characteristics;
-    characteristics.insert("STR",  _STR.toJson());
-    characteristics.insert("DEX",  _DEX.toJson());
-    characteristics.insert("CON",  _CON.toJson());
-    characteristics.insert("INT",  _INT.toJson());
-    characteristics.insert("EGO",  _EGO.toJson());
-    characteristics.insert("PRE",  _PRE.toJson());
-    characteristics.insert("OCV",  _OCV.toJson());
-    characteristics.insert("DCV",  _DCV.toJson());
-    characteristics.insert("OMCV", _OMCV.toJson());
-    characteristics.insert("DMCV", _DMCV.toJson());
-    characteristics.insert("SPD",  _SPD.toJson());
-    characteristics.insert("PD",   _PD.toJson());
-    characteristics.insert("ED",   _ED.toJson());
-    characteristics.insert("REC",  _REC.toJson());
-    characteristics.insert("END",  _END.toJson());
-    characteristics.insert("BODY", _BODY.toJson());
-    characteristics.insert("STUN", _STUN.toJson());
-    top.insert("characteristics", characteristics);
+    QJsonObject objCharacteristics;
+    for (const auto& c: statPairs) objCharacteristics.insert(std::get<QString>(c), std::get<Characteristic*>(c)->toJson());
+    top.insert("characteristics", objCharacteristics);
 
     QJsonArray complications;
     for (int i = 0; i < _complications.count(); ++i) {
