@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>TextSmith</Name>
+    <Version>1.0.0</Version>
+    <Title>TextSmith Installer</Title>
+    <Publisher>SoftwareOnHand</Publisher>
+    <StartMenuDir>TextSmith</StartMenuDir>
+    <TargetDir>@ApplicationsDirX64@/TextSmith</TargetDir>
+	<RunProgram>@TargetDir@/TextSmith</RunProgram>
+	<RunProgramDescription>The novel editing software</RunProgramDescription>
+</Installer>

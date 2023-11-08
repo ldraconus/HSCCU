@@ -1,0 +1,6 @@
+[X] Equipment put into group should be free
+[X] System doesn't remember equipment is free (maybe)
+[X] Menu selecion color and menu not enabled colors are white, need to be light grey (see complications)
+[X] Headers messed up for tables on sheets
+[X] Need to erase backgrounds for banners in page images
+[ ] Selection in QTableWidget  are not being highlighted
