@@ -4,3 +4,17 @@
 [X] Headers messed up for tables on sheets
 [X] Need to erase backgrounds for banners in page images
 [ ] Selection in QTableWidget  are not being highlighted
+
+$ git commit -am "Your message"
+
+Now merge your changes to dev without a fast-forward
+
+$ git checkout main
+$ git merge --no-ff working
+
+Now push the changes to the server
+
+$ git push origin main
+$ git push origin working
+
+And you'll see it how you want it.
