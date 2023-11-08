@@ -27,9 +27,9 @@ protected:
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (SkillTalentOrPerk::*)(QString)> callback);
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString);
 
-    QMap<QCheckBox*, std::_Mem_fn<void (SkillTalentOrPerk::*)(bool)>>     _callbacksCB;
-    QMap<QComboBox*, std::_Mem_fn<void (SkillTalentOrPerk::*)(int)>>      _callbacksCBox;
-    QMap<QLineEdit*, std::_Mem_fn<void (SkillTalentOrPerk::*)(QString)>>  _callbacksEdit;
+    QMap<QCheckBox*, std::_Mem_fn<void (SkillTalentOrPerk::*)(bool)>>     _callbacksCB;   // NOLINT
+    QMap<QComboBox*, std::_Mem_fn<void (SkillTalentOrPerk::*)(int)>>      _callbacksCBox; // NOLINT
+    QMap<QLineEdit*, std::_Mem_fn<void (SkillTalentOrPerk::*)(QString)>>  _callbacksEdit; // NOLINT
     void empty(bool)      { }
 
     QString add(QString n, int p) {
@@ -171,7 +171,12 @@ public:
     };
 
     SkillTalentOrPerk();
+    SkillTalentOrPerk(const SkillTalentOrPerk&) = delete;
+    SkillTalentOrPerk(SkillTalentOrPerk&&) = delete;
     virtual ~SkillTalentOrPerk() { }
+
+    SkillTalentOrPerk& operator=(const SkillTalentOrPerk&) = delete;
+    SkillTalentOrPerk& operator=(SkillTalentOrPerk&&) = delete;
 
     static const bool NoStore = true;
     static const bool ShowRoll = true;
