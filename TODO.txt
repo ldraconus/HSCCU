@@ -5,16 +5,25 @@
 [X] Need to erase backgrounds for banners in page images
 [ ] Selection in QTableWidget  are not being highlighted
 
-$ git commit -am "Your message"
+---8<------8<------8<------8<------8<------8<------8<------8<------8<------8<---
+GIT workflow
 
-Now merge your changes to dev without a fast-forward
+Add changes to git:                         <-- repeat until feature is working
+
+$ git add <changed files to update>
+
+$ git commit -am "Your message"
+$ git push
+
+NOw that it's working merge your changes to dev without a fast-forward
 
 $ git checkout main
 $ git merge --no-ff working
 
 Now push the changes to the server
 
-$ git push origin main
-$ git push origin working
+$ git checkout main
+$ git push                                  <-- May not be needed, pushed above
+$ git checkout working
 
 And you'll see it how you want it.
