@@ -22,8 +22,10 @@ $ git merge --no-ff working
 
 Now push the changes to the server
 
-$ git checkout main
-$ git push                                  <-- May not be needed, pushed above
+$ git push
+
+And get back to working
+
 $ git checkout working
 
 And you'll see it how you want it.
