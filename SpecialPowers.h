@@ -10,6 +10,104 @@
 #include "sheet.h"
 #endif
 
+class CustomPower: public AllPowers {
+public:
+    CustomPower(): AllPowers("Custom")                    { }
+    CustomPower(const CustomPower& s): AllPowers(s)       { }
+    CustomPower(CustomPower&& s): AllPowers(s)            { }
+    CustomPower(const QJsonObject& json): AllPowers(json) {
+        v._points = json["customCost"].toInt(0);
+        v._description = json["customDescription"].toString();
+        v._end = json["usesEND"].toBool(true);
+    }
+    ~CustomPower() override { }
+
+    CustomPower& operator=(const CustomPower& s) {
+        if (this != &s) {
+            AllPowers::operator=(s);
+            v = s.v;
+        }
+        return *this;
+    }
+    CustomPower& operator=(CustomPower&& s) {
+        AllPowers::operator=(s);
+        v = s.v;
+        return *this;
+    }
+
+    Fraction adv() override {
+        return Fraction(0);
+    }
+    QString description(bool showEND = false) override {
+        return optOut(showEND);
+    }
+    QString end() override {
+        return v._end ? end() : noEnd();
+    }
+    void form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
+        cost = createLineEdit(parent, layout, "Cost?", std::mem_fn(&Power::numeric));
+        powerDescription = createLineEdit(parent, layout, "Power description?");
+        usesEnd = createCheckBox(parent, layout, "Uses END?");
+    }
+    Fraction lim() override {
+        return Fraction(0);
+    }
+    Points points(bool noStore = false) override {
+        if (!noStore) store();
+        return 1_cp * v._points;
+    }
+    void restore() override {
+        vars s = v;
+        AllPowers::restore();
+        cost->setText(QString("%1").arg(s._points));
+        powerDescription->setText(QString("%1").arg(s._description));
+        usesEnd->setChecked(s._end);
+        v = s;
+    }
+    void store() override {
+        AllPowers::store();
+        v._points = cost->text().toInt();
+        v._description = powerDescription->text();
+        v._end = usesEnd->isChecked();
+    }
+    QJsonObject toJson() const override {
+        QJsonObject obj = AllPowers::toJson();
+        obj["customCost"] = v._points;
+        obj["customDescription"] = v._description;
+        obj["usesEND"] = v._end;
+        return obj;
+    }
+
+private:
+    struct vars {
+        int     _points = 0;
+        QString _description;
+        bool    _end = true;
+    } v;
+
+    QLineEdit* cost = nullptr;
+    QLineEdit* powerDescription = nullptr;
+    QCheckBox* usesEnd = nullptr;
+
+    QString optOut(bool showEND) {
+        if (v._points < 1 || v._description.isEmpty()) return "<incomplete>";
+        QString res;
+        if (showEND && !nickname().isEmpty()) res = nickname() + " " + (v._end ? end() : noEnd()) + " ";
+        res += QString("%1").arg(v._description);
+        return res;
+    }
+
+    void numeric(int) override {
+        QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
+        QString txt = edit->text();
+#ifndef ISHSC
+        PowerDialog::ref().updateForm();
+#endif
+        if (txt.isEmpty() || isNumber(txt)) return;
+        edit->undo();
+    }
+};
+
 class EnduranceReserve: public AllPowers {
 public:
     EnduranceReserve(): AllPowers("Endurance Reserve")         { }
@@ -22,14 +120,15 @@ public:
                                                                      v._restr = json["restr"].toString();
                                                                      v._slow  = json["slow"].toInt(0);
                                                                    }
-    virtual EnduranceReserve& operator=(const EnduranceReserve& s) {
+    ~EnduranceReserve() override { }
+    EnduranceReserve& operator=(const EnduranceReserve& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual EnduranceReserve& operator=(EnduranceReserve&& s) {
+    EnduranceReserve& operator=(EnduranceReserve&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -99,12 +198,12 @@ private:
         int     _slow  = -1;
     } v;
 
-    QLineEdit* END;
-    QLineEdit* REC;
-    QComboBox* limit;
-    QLineEdit* what;
-    QLineEdit* restr;
-    QComboBox* slow;
+    QLineEdit* END = nullptr;
+    QLineEdit* REC = nullptr;
+    QComboBox* limit = nullptr;
+    QLineEdit* what = nullptr;
+    QLineEdit* restr = nullptr;
+    QComboBox* slow = nullptr;
 
     QString optOut(bool showEND) {
         if (v._end < 1 || v._rec < 1 || (v._lim > 0 && v._what.isEmpty())) return "<incomplete>";
@@ -137,9 +236,10 @@ public:
     Blank(const Blank& s): AllPowers(s)             { }
     Blank(Blank&& s): AllPowers(s)                  { }
     Blank(const QJsonObject& json): AllPowers(json) { }
+    ~Blank() override { }
 
-    virtual Blank& operator=(const Blank& s) { if (this != &s) AllPowers::operator=(s); return *this; }
-    virtual Blank& operator=(Blank&& s)      {  AllPowers::operator=(s); return *this; }
+    Blank& operator=(const Blank& s) { if (this != &s) AllPowers::operator=(s); return *this; }
+    Blank& operator=(Blank&& s)      {  AllPowers::operator=(s); return *this; }
 
     Fraction adv() override                        { return Fraction(0); }
     QString  description(bool) override            { return "-"; }
@@ -203,14 +303,15 @@ public:
                                                                         name = power["name"].toString();
                                                                         v._pow = Power::FromJson(name, power);
                                                                       }
-    virtual IndependantAdvantage& operator=(const IndependantAdvantage& s) {
+    ~IndependantAdvantage() override { }
+    IndependantAdvantage& operator=(const IndependantAdvantage& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual IndependantAdvantage& operator=(IndependantAdvantage&& s) {
+    IndependantAdvantage& operator=(IndependantAdvantage&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -264,9 +365,9 @@ private:
     } v;
 
     int          powIdx = -1;
-    QPushButton* mod;
-    QLineEdit*   pts;
-    QComboBox*   pow;
+    QPushButton* mod = nullptr;
+    QLineEdit*   pts = nullptr;
+    QComboBox*   pow = nullptr;
 
     QString optOut(bool showEND) {
         if (v._mod == nullptr) return "<incomplete>";
@@ -308,15 +409,17 @@ public:
     Luck(const Luck& s): AllPowers(s)              { }
     Luck(Luck&& s): AllPowers(s)                   { }
     Luck(const QJsonObject& json): AllPowers(json) { v._dice = json["dice"].toInt(0);
-                                                       }
-    virtual Luck& operator=(const Luck& s) {
+    }
+    ~Luck() override { }
+
+    Luck& operator=(const Luck& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Luck& operator=(Luck&& s) {
+    Luck& operator=(Luck&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -326,31 +429,31 @@ public:
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   dice = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
-                                                                 }
+        dice = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
+    }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 5_cp * v._dice;
-                                                                 }
+        return 5_cp * v._dice; // NOLINT
+    }
     void     restore() override                                  { vars s = v;
-                                                                   AllPowers::restore();
-                                                                   dice->setText(QString("%1").arg(s._dice));
-                                                                   v = s;
-                                                                 }
+        AllPowers::restore();
+        dice->setText(QString("%1").arg(s._dice));
+        v = s;
+    }
     void     store() override                                    { AllPowers::store();
-                                                                   v._dice = dice->text().toInt();
-                                                                 }
+        v._dice = dice->text().toInt();
+    }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v._dice;
-                                                                   return obj;
-                                                                 }
+        obj["dice"] = v._dice;
+        return obj;
+    }
 
 private:
     struct vars {
         int _dice = 0;
     } v;
 
-    QLineEdit* dice;
+    QLineEdit* dice = nullptr;
 
     QString optOut(bool showEND) {
         if (v._dice < 1) return "<incomplete>";
@@ -379,14 +482,16 @@ public:
     Regeneration(const QJsonObject& json): AllPowers(json) { v._body = json["body"].toInt(0);
                                                                  v._time = json["time"].toInt(0);
                                                                }
-    virtual Regeneration& operator=(const Regeneration& s) {
+    ~Regeneration() override { }
+
+    Regeneration& operator=(const Regeneration& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Regeneration& operator=(Regeneration&& s) {
+    Regeneration& operator=(Regeneration&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -401,7 +506,7 @@ public:
                                                                                                                    "Hour", "Turn" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return v._body * v._time * 2_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -426,8 +531,8 @@ private:
         int _time = -1;
     } v;
 
-    QLineEdit* body;
-    QComboBox* time;
+    QLineEdit* body = nullptr;
+    QComboBox* time = nullptr;
 
     QString optOut(bool showEND) {
         if (v._body < 1 && v._time < 1) return "<incomplete>";
@@ -459,14 +564,16 @@ public:
                                                           QString name = skill["name"].toString();
                                                           v._skill = SkillTalentOrPerk::FromJson(name, skill);
                                                         }
-    virtual Skill& operator=(const Skill& s) {
+    ~Skill() override { }
+
+    Skill& operator=(const Skill& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual Skill& operator=(Skill&& s) {
+    Skill& operator=(Skill&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -479,7 +586,7 @@ public:
                                                                    skll = createPushButton(parent, layout, "Skill, Talent, or Perk?", std::mem_fn(&Power::clicked));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    if (v._skill) return v._skill->points(SkillTalentOrPerk::NoStore);
                                                                    else return 0_cp;
                                                                  }
@@ -503,7 +610,7 @@ private:
         shared_ptr<SkillTalentOrPerk> _skill = nullptr;
     } v;
 
-    QPushButton* skll;
+    QPushButton* skll = nullptr;
 
     QString optOut(bool showEND) {
         if (v._skill == nullptr) return "<incomplete>";
@@ -544,14 +651,16 @@ public:
     TeleportLocation(const QJsonObject& json): AllPowers(json) { v._fixed = json["fixed"].toInt(0);
                                                                  v._where = json["where"].toString();
                                                                }
-    virtual TeleportLocation& operator=(const TeleportLocation& s) {
+    ~TeleportLocation() override { }
+
+    TeleportLocation& operator=(const TeleportLocation& s) {
         if (this != &s) {
             AllPowers::operator=(s);
             v = s.v;
         }
         return *this;
     }
-    virtual TeleportLocation& operator=(TeleportLocation&& s) {
+    TeleportLocation& operator=(TeleportLocation&& s) {
         AllPowers::operator=(s);
         v = s.v;
         return *this;
@@ -565,8 +674,8 @@ public:
                                                                    where = createLineEdit(parent, layout, "Where?");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return (v._fixed ? 1_cp : 5_cp);
+    Points points(bool noStore = false) override                 { if (!noStore) store();
+                                                                   return (v._fixed ? 1_cp : 5_cp); // NOLINT
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -590,8 +699,8 @@ private:
         QString _where = "";
     } v;
 
-    QCheckBox* fixed;
-    QLineEdit* where;
+    QCheckBox* fixed = nullptr;
+    QLineEdit* where = nullptr;
 
     QString optOut(bool showEND) {
         if (v._fixed && v._where.isEmpty()) return "<incomplete>";

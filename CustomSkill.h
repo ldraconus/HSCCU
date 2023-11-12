@@ -103,6 +103,3 @@ private:
         plus->undo();
     }
 };
-
-#undef CLASS
-#undef CLASS_SPACE
