@@ -34,7 +34,7 @@
 // NOLINTNEXTLINE
 struct _statics {
     QMap<QString, Power::allBase*> powers;
-} const statics {
+} static const statics {
     .powers {
         // Adjustment Powers
         MAKE(Absorption),
@@ -111,6 +111,7 @@ struct _statics {
 
         // Special Power
         MAKE(Blank),
+        MAKE(CustomPower),
         MAKE(EnduranceReserve),
         MAKE(IndependantAdvantage),
         MAKE(Luck),
@@ -238,6 +239,7 @@ const QMap<QString, QString> Power::_sensoryPower {
 };
 
 const QMap<QString, QString> Power::_specialPower {
+    SPCS("Custom Power",          CustomPower),
     SPCS("Duplication",           Duplication),
     SPCS("Endurance Reserve",     EnduranceReserve),
     SPCS("Enhanced Senses",       EnhancedSenses),

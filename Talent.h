@@ -51,6 +51,7 @@ private:
     } v;
 };
 
+// NOLINTNEXTLINE
 #define CLASS(x,y)\
     class x: public Talent {\
     public:\
@@ -60,6 +61,7 @@ private:
         x(const QJsonObject& json): Talent(json) { }\
         Points points(bool noStore = false) { if (!noStore) store(); return y; }\
     };
+// NOLINTNEXTLINE
 #define CLASS_SPACE(x,y,z)\
     class x: public Talent {\
     public:\
@@ -230,6 +232,88 @@ private:
         QString txt = plus->text();
         if (txt.isEmpty() || isNumber(txt)) return;
         plus->undo();
+    }
+};
+
+class CustomTalent: public Talent {
+public:
+    CustomTalent(): Talent()
+        , v({ "Custom" }) { }
+    CustomTalent(const CustomTalent& s)
+        : Talent()
+        , v(s.v) { }
+    CustomTalent(CustomTalent&& s)
+        : Talent()
+        , v(s.v) { }
+    CustomTalent(const QJsonObject& json)
+        : Talent()
+        , v { json["name"].toString(""),
+             json["descr"].toString(""),
+             json["points"].toInt(0) } { }
+    ~CustomTalent() override { }
+
+    CustomTalent& operator=(const CustomTalent& s) {
+        if (this != &s) v = s.v;
+        return *this;
+    }
+    CustomTalent& operator=(CustomTalent&& s) {
+        v = s.v;
+        return *this;
+    }
+
+    bool isSkill() override { return true; }
+
+    QString description(bool) override {
+        return v._descr;
+    }
+    bool form(QWidget* parent, QVBoxLayout* layout) override {
+        descr = createLineEdit(parent, layout, "Talent name?");
+        pnts = createLineEdit(parent, layout, "Points?", std::mem_fn(&SkillTalentOrPerk::numeric));
+        return true;
+    }
+    QString name() override {
+        return v._name;
+    }
+    Points points(bool noStore = false) override {
+        if (!noStore) store();
+        return 1_cp * v._points;
+    }
+    void restore() override {
+        vars s = v;
+        descr->setText(s._descr);
+        pnts->setText(QString("%1").arg(s._points));
+        v = s;
+    }
+    QString roll() override {
+        return "";
+    }
+    void store() override {
+        v._points = pnts->text().toInt(0);
+        v._descr = descr->text();
+    }
+
+    QJsonObject toJson() override {
+        QJsonObject obj;
+        obj["name"]  = v._name;
+        obj["descr"] = v._descr;
+        obj["points"]  = v._points;
+        return obj;
+    }
+
+private:
+    struct vars {
+        QString _name = "";
+        QString _descr = "";
+        int     _points = 0;
+    } v;
+
+    QLineEdit* pnts = nullptr;
+    QLineEdit* descr = nullptr;
+
+    void numeric(QString) override {
+        QString txt = pnts->text();
+        if (txt.isEmpty() || isNumber(txt)) return;
+        pnts->undo();
     }
 };
 

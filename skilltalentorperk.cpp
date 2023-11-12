@@ -111,6 +111,7 @@ namespace statics {
     MAKE_TALENT(BumpOfDirection);
     MAKE_TALENT(CombatLuck);
     MAKE_TALENT(CombatSense);
+    MAKE_TALENT(CustomTalent);
     MAKE_TALENT(DangerSense);
     MAKE_TALENT(DeadlyBlow);
     MAKE_TALENT(DoubleJointed);
@@ -217,6 +218,7 @@ QMap<QString, SkillTalentOrPerk::talentBase*> SkillTalentOrPerk::_talents {
     { SPCS("Bump Of Direction", BumpOfDirection) },
     { SPCS("Combat Luck", CombatLuck) },
     { SPCS("Combat Sense", CombatSense) },
+    { SPCS("Custom Talent", CustomTalent) },
     { SPCS("Danger Senseϴ", DangerSense) },
     { SPCS("Deadly Blow▲", DeadlyBlow) },
     { SPCS("Double Jointed", DoubleJointed) },
