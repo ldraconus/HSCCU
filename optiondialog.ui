@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>optionDialog</class>
+ <widget class="QDialog" name="optionDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>569</width>
+    <height>410</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Options</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QDialog { color: #000; background: #fff; }</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <property name="labelAlignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="formAlignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+      </property>
+      <property name="horizontalSpacing">
+       <number>3</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>3</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item row="9" column="1">
+       <widget class="QCheckBox" name="normalHumanMaxima">
+        <property name="styleSheet">
+         <string notr="true">QCheckBox { color: #000; background: #fff; }</string>
+        </property>
+        <property name="text">
+         <string>Normal Human Maxima</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="1">
+       <widget class="QCheckBox" name="notePageShown">
+        <property name="styleSheet">
+         <string notr="true">QCheckBox { color: #000; background: #fff; }</string>
+        </property>
+        <property name="text">
+         <string>Note Page Shown</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLineEdit" name="complicationsLineEdit">
+        <property name="styleSheet">
+         <string notr="true">QLineEdit { color: #000; background: #fff; }</string>
+        </property>
+        <property name="text">
+         <string>75</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QCheckBox" name="showFrequencyRolls">
+        <property name="styleSheet">
+         <string notr="true">QCheckBox { color: #000; background: #fff; }</string>
+        </property>
+        <property name="text">
+         <string>Show Frequency Rolls</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="styleSheet">
+         <string notr="true">QLabel { color: #000; background: #fff; }</string>
+        </property>
+        <property name="text">
+         <string>Character Types: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="comboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>450</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>450</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QComboBox { color: #000; background: #fff; }
+QComboBox QAbstractItemView {
+    color: #000;
+    background-color: #fff;
+}</string>
+        </property>
+        <property name="currentIndex">
+         <number>7</number>
+        </property>
+        <property name="maxVisibleItems">
+         <number>20</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Standard Normal</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Skilled Normal</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Competent Normal</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Standard Hero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Powerful Hero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Very Powerful Hero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Low-Powered Superhero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Standard Superhero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>High-Powered Superhero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Very High-Powered Superhero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Cosmically Powerful Superhero</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Custom</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="styleSheet">
+         <string notr="true">QLabel { color: #000; background: #fff; }</string>
+        </property>
+        <property name="text">
+         <string>Complications: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="totalPointsLineEdit">
+        <property name="styleSheet">
+         <string notr="true">QLineEdit { color: #000; background: #fff; }</string>
+        </property>
+        <property name="text">
+         <string>400</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label">
+        <property name="styleSheet">
+         <string notr="true">QLabel { color: #000; background: #fff; }</string>
+        </property>
+        <property name="text">
+         <string>Total Points: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1">
+       <widget class="QCheckBox" name="equipmentFree">
+        <property name="styleSheet">
+         <string notr="true">QCheckBox { color: #000; background: #fff; }</string>
+        </property>
+        <property name="text">
+         <string>Normal Equipment Free</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLineEdit" name="activePointsPerEND">
+        <property name="styleSheet">
+         <string notr="true">QLineEdit { color: #000; background: #fff; }</string>
+        </property>
+        <property name="text">
+         <string>10</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="styleSheet">
+         <string notr="true">QLabel { color: #000; background: #fff; }</string>
+        </property>
+        <property name="text">
+         <string>Active Points per END:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="bannerLabel">
+        <property name="styleSheet">
+         <string notr="true">color: #000;</string>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Banner:&lt;br/&gt;(Click for next image)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="banner">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="res.qrc">:/gfx/HeroSystem-Banner.png</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="styleSheet">
+      <string notr="true">color: #000; background: #fff;</string>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>optionDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>optionDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
