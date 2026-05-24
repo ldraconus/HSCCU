@@ -34,13 +34,13 @@ public:
         static QList<QString> circ     { "Uncommon", "Common", "Very Common" };
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
         static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
-        if (v._frequency < 0 || v._circumstance  < 0 || v._what.isEmpty()) return "<incomplete>";
+        if (v.mFrequency < 0 || v.mCircumstance  < 0 || v.mWhat.isEmpty()) return "<incomplete>";
 #ifndef ISHSC
         if (Sheet::ref().getOption().showFrequencyRolls())
 #endif
-            return QString("Accidental Change: %1 (%2; %3)").arg(v._what, circ[v._circumstance], freq[v._frequency]);
+            return QString("Accidental Change: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freq[v.mFrequency]);
 #ifndef ISHSC
-        else return QString("Accidental Change: %1 (%2; %3)").arg(v._what, circ[v._circumstance], freqSans[v._frequency]);
+        else return QString("Accidental Change: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freqSans[v.mFrequency]);
 #endif
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
@@ -57,34 +57,34 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._circumstance > -1 && v._frequency > -1) ? (v._circumstance - 1) * 5_cp + v._frequency * 5_cp : 0_cp; // NOLINT
+        return (v.mCircumstance > -1 && v.mFrequency > -1) ? (v.mCircumstance - 1) * 5_cp + v.mFrequency * 5_cp : 0_cp; // NOLINT
     }
     void restore() override {
         vars s = v;
-        what->setText(s._what);
-        circumstance->setCurrentIndex(s._circumstance);
-        frequency->setCurrentIndex(s._frequency);
+        what->setText(s.mWhat);
+        circumstance->setCurrentIndex(s.mCircumstance);
+        frequency->setCurrentIndex(s.mFrequency);
         v = s;
     }
     void store() override {
-        v._what         = what->text();
-        v._circumstance = circumstance->currentIndex();
-        v._frequency    = frequency->currentIndex();
+        v.mWhat         = what->text();
+        v.mCircumstance = circumstance->currentIndex();
+        v.mFrequency    = frequency->currentIndex();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]         = "Accidental Change";
-        obj["circumstance"] = v._circumstance;
-        obj["frequency"]    = v._frequency;
-        obj["what"]         = v._what;
+        obj["circumstance"] = v.mCircumstance;
+        obj["frequency"]    = v.mFrequency;
+        obj["what"]         = v.mWhat;
         return obj;
     }
 
 private:
     struct vars {
-        int     _circumstance = -1;
-        int     _frequency = -1;
-        QString _what = "";
+        int     mCircumstance = -1;
+        int     mFrequency = -1;
+        QString mWhat = "";
     } v;
 
     gsl::owner<QComboBox*> circumstance = nullptr;
