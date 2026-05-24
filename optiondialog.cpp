@@ -77,7 +77,7 @@ void optionDialog::mouseReleaseEvent(QMouseEvent* evt) {
     QPoint pos = evt->position().toPoint();
     if (!rect.contains(pos)) return;
     QStringList banners = Sheet::ref().getBanners();
-    auto which = banners.indexOf(_banner) + 1;
+    auto which = banners.indexOf(mBanner) + 1;
     if (which == banners.length()) which = 0;
     setBanner(banners[which]);
 }

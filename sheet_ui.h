@@ -107,9 +107,73 @@ protected:
 #endif
 };
 
-class Sheet_UI
-{
-private:    
+class Sheet_UI {
+public:
+#ifdef __EMSCRIPTEN__
+    gsl::owner<ClickableTable*> createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
+                                                  bool selectable = false, bool label = true) {
+#else
+    gsl::owner<QTableWidget*> createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
+                                                bool selectable = false, bool label = true) {
+#endif
+        return createTableWidget(parent, font, headers, vals, p, s, "", selectable, label);
+    }
+
+    void rebuildTable(QTableWidget* tablewidget, QStringList headers, QList<QStringList> vals, bool selectable = false, bool label = false) {
+        font = QFont("Segoe UI", StandardFontSize);
+        QFont narrow = font;
+        narrow.setStretch(QFont::Stretch::SemiCondensed);
+        QFont narrowTableFont = narrow;
+        narrowTableFont.setPointSize(TinyFontSize);
+
+        tablewidget->setColumnCount(gsl::narrow<int>(headers.size()));
+        tablewidget->setRowCount(gsl::narrow<int>(vals.size()));
+        tablewidget->setHorizontalHeaderLabels(headers);
+        int pnt = narrowTableFont.pointSize();
+        auto dpiy = tablewidget->screen()->physicalDotsPerInchY();
+        int sz = (pnt * Fraction(static_cast<long>(dpiy), Points)).toInt();
+#ifdef __EMSCRIPTEN__
+        QFont temp = font;
+        temp.setPointSize(pnt * 8 + 0.5); // NOLINT
+        tablewidget->setFont(temp);
+#else
+        tablewidget->setFont(narrowTableFont);
+#endif
+        tablewidget->setHorizontalHeaderLabels(headers);
+        int i = 0;
+        for (i = 0; i < vals.size(); ++i) {
+            for (int j = 0; j < vals[i].size(); ++j) {
+                if (label) {
+                    gsl::owner<QLabel*> cell = new QLabel(vals[i][j]);
+                    cell->setFont(narrowTableFont);
+#ifdef unix
+                    cell->setStyleSheet("color: #000;");
+#endif
+                    tablewidget->setCellWidget(i, j, cell);
+                } else {
+                    gsl::owner<QTableWidgetItem*> lbl = new QTableWidgetItem(vals[i][j]);
+                    lbl->setFont(narrowTableFont);
+                    lbl->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
+                    if (selectable) lbl->setFlags(Qt::ItemIsSelectable);
+                    else lbl->setFlags(Qt::NoItemFlags);
+                    tablewidget->setItem(i, j, lbl);
+                }
+            }
+        }
+        for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
+#ifdef __EMSCRIPTEN__
+        for (i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
+#else
+        int total = 0;
+        for (i = 1; i < tablewidget->columnCount(); ++i) {
+            tablewidget->resizeColumnToContents(i - 1);
+            total += tablewidget->columnWidth(i - 1);
+        }
+        tablewidget->setColumnWidth(gsl::narrow<int>(headers.size()) - 1, tablewidget->geometry().size().width() - total);
+#endif
+    }
+
+private:
     void moveTo(QWidget* w, At p, Size s = { }) {
         QRect r = w->geometry();
         r.moveTo({ p.x(), p.y() });
@@ -133,12 +197,12 @@ private:
         return label;
     }
 
-#ifndef __wasm__
+#ifndef __EMSCRIPTEN__
     gsl::owner<QLabel*> createImage(QWidget* parent, At p, Size s, const QString& image, bool selectable = false) {
         gsl::owner<QLabel*> label = createImage(parent, p, s, selectable);
 #else
-    gsl::owner<ClickableLabel*> createImage(QWidget* parent, At p, Size s, bool) {
-        gsl::owner<ClickableLabel*> label = createImage((parent, p, s);
+    gsl::owner<ClickableLabel*> createImage(QWidget* parent, At p, Size s, const QString image, bool selectable = false) {
+        gsl::owner<ClickableLabel*> label = createImage(parent, p, s);
 #endif
         QPixmap pixmap(image);
         pixmap = pixmap.scaled(s.l(), s.h(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -147,17 +211,17 @@ private:
         return label;
     }
 
-#ifndef __wasm__
+#ifndef __EMSCRIPTEN__
     gsl::owner<QLabel*> createImage(QWidget* parent, At p, Size s, bool selectable = false) {
         gsl::owner<QLabel*> label = new QLabel(parent);
 #else
-    gsl::owner<ClickableLabel*> createImage(QWidget* parent, At p, Size s, bool) {
+    gsl::owner<ClickableLabel*> createImage(QWidget* parent, At p, Size s, bool selectable = false) {
         gsl::owner<ClickableLabel*> label = new ClickableLabel(parent);
 #endif
         QString style = "QLabel { background: cyan;"
                               "   border-style: none;"
                               " }";
-#ifndef __wasm__
+#ifndef __EMSCRIPTEN__
         if (selectable) label->setContextMenuPolicy(Qt::CustomContextMenu);
 #endif
         if (selectable) label->setStyleSheet(style);
@@ -271,17 +335,7 @@ private:
     static constexpr double Points = 72.0;
     static constexpr double Half   = 0.5;
 
-#ifdef __wasm__
-    gsl::owner<ClickableTable*> createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
-                                      bool selectable = false, bool label = true) {
-#else
-    gsl::owner<QTableWidget*> createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
-                                    bool selectable = false, bool label = true) {
-#endif
-        return createTableWidget(parent, font, headers, vals, p, s, "", selectable, label);
-    }
-
-#ifdef __wasm__
+#ifdef __EMSCRIPTEN__
     gsl::owner<ClickableTable*> createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
                                       QString w, bool selectable = false, bool label = true) {
         gsl::owner<ClickableTable*> tablewidget = new ClickableTable(parent);
@@ -297,7 +351,7 @@ private:
         int pnt = font.pointSize();
         auto dpiy = parent->screen()->physicalDotsPerInchY();
         int sz = (pnt * Fraction(static_cast<long>(dpiy), Points)).toInt();
-#ifdef __wasm__
+#ifdef __EMSCRIPTEN__
         QFont temp = font;
         temp.setPointSize(pnt * 8 + 0.5); // NOLINT
         tablewidget->setFont(temp);
@@ -315,7 +369,7 @@ private:
         horizontalHeader->setMaximumSectionSize(s.l());
         horizontalHeader->setDefaultSectionSize(10); // NOLINT
         horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
-#ifdef __wasm__
+#ifdef __EMSCRIPTEN__
         horizontalHeader->setMaximumSize(s.l(), sz + 2);
 #else
         horizontalHeader->setMaximumSize(s.l(), sz * 2);
@@ -377,7 +431,7 @@ private:
         tablewidget->setToolTip(w);
         moveTo(tablewidget, p, s);
         for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
-#ifdef __wasm__
+#ifdef __EMSCRIPTEN__
         for (i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
 #else
         int total = 0;
@@ -596,6 +650,7 @@ public:
     QFont largeBoldFont;
     QFont smallBoldWideFont;
     QFont headerFont;
+    QFont narrowTableFont;
 
     Sheet_UI() = default;
     Sheet_UI(const Sheet_UI&) = default;
@@ -621,9 +676,9 @@ public:
         layout = new QGridLayout();
         widget->setLayout(layout);
 
-#ifdef __wasm__
+#ifdef __EMSCRIPTEN__
         QFile fontResource(":/font/SegoeUIHS.ttf");
-        fontResource.open(QIODevice::ReadOnly);
+        (void) fontResource.open(QIODevice::ReadOnly);
         QByteArray data = fontResource.readAll();
         int id = QFontDatabase::addApplicationFontFromData(data);
         fontResource.close();
@@ -659,7 +714,7 @@ public:
         QFont narrow = font;
         narrow.setStretch(QFont::Stretch::SemiCondensed);
 
-        QFont narrowTableFont = narrow;
+        narrowTableFont = narrow;
         narrowTableFont.setPointSize(TinyFontSize);
 
         smallfont = font;
@@ -693,7 +748,7 @@ public:
         createLabel(widget, largeNarrowFont,     "Player Name",          { 61, 135 }, { 175, 27 }); // NOLINT
 
         charactername = createLineEdit(widget, largeBoldFont, { 190,  75 }, { 438, 27 }, "Characters superhero name"); // NOLINT
-#if defined(__wasm__) || defined(unix)
+#if defined(__EMSCRIPTEN__) || defined(unix)
         alternateids  = createLineEdit(widget, largeFont,     { 225, 104 }, { 403, 27 }, "Characters secret id, typically"); // NOLINT
         playername    = createLineEdit(widget, largeFont,     { 170, 134 }, { 458, 27 }, "The players name"); // NOLINT
 #else
@@ -808,7 +863,7 @@ public:
         createLabel(widget, headerFont, "VITAL INFORMATION", { 419, 346 }, { 200, 20 }); // NOLINT
 #endif
         createLabel(widget, smallBoldNarrowFont, "HTH Damage",      { 397, 375 }, { 100, 22 }); // NOLINT
-#ifdef __wasm__
+#ifdef __EMSCRIPTEN__
         createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 486, 375 }, { 65, 22 }); // NOLINT
 #else
         createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 496, 375 }, { 65, 22 }); // NOLINT
@@ -833,7 +888,7 @@ public:
         createLabel(widget, smallBoldNarrowFont, "Base OMCV",       { 395, 494 }, { 80, 22 }); // NOLINT
         createLabel(widget, smallBoldNarrowFont, "Base DMCV",       { 515, 494 }, { 80, 22 }); // NOLINT
         createLabel(widget, smallBoldNarrowFont, "Presence Attack", { 395, 661 }, { 150, 22 }); // NOLINT
-#ifdef __wasm__
+#ifdef __EMSCRIPTEN__
         createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 500, 661 }, { 65, 22 }); // NOLINT
 #else
         createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 510, 661 }, { 55, 22 }); // NOLINT
@@ -909,31 +964,30 @@ public:
         createLabel(widget, headerFont, "ATTACKS & MANEUVERS", { 104, 711 }, { 230, 20 }); // NOLINT
         createLabel(widget, headerFont, "ATTACKS & MANEUVERS", { 103, 711 }, { 230, 20 }); // NOLINT
 #endif
-
         attacksandmaneuvers = createTableWidget(widget, smallfont,
-#if defined(__wasm__) || defined(unix)
+#if defined(__EMSCRIPTEN__) || defined(unix)
                                                 {   "Manuvr",       "Phase", "OCV",   "DCV", "Effects" },
 #else
                                                 {   "Maneuver",     "Phase", "OCV",   "DCV", "Effects" },
 #endif
                                                 { { "Block",        "½",     "+0",    "+0",  "Block, abort"              },
                                                   { "Brace",        "0",     "+2",    "½",   "+2 OCV vs R Mod"           },
-                                                  { "Disarm",       "½",     "-2",    "+0",  "Disarm, STR v. STR"        },
+                                                  { "Disarm",       "½",     "-2",    "+0",  "Disarm, 10 v. STR"         },
                                                   { "Dodge",        "½",     "——",    "+3",  "Abort vs. all attacks"     },
                                                   { "Grab",         "½",     "-1",    "-2",  "Grab 2 limbs"              },
-                                                  { "Grab By",      "½†",    "-3",    "-4",  "Move&Grab;+(ͮvel⁄₁₀) STR"   },
+                                                  { "Grab By",      "½†",    "-3",    "-4",  "Move&Grab;+(ͮ⁄₁₀) STR"     },
                                                   { "Haymaker",     "½*",    "+0",    "-5",  "+4 DCs to attack"          },
-                                                  { "Move By",      "½†",    "-2",    "-2",  "(5+ͮvel⁄₁₀)d6; take ⅓"      },
-#if defined(__wasm__) || defined(unix)
-                                                  { "Move Thru",    "½†",    "-ͮ⁄₁₀", "-3",  "(10+ͮv⁄₆)d6; take ½ or full" },
+                                                  { "Move By",      "½†",    "-2",    "-2",  "(1+ͮ⁄₁₀)d6; take ⅓"        },
+#if defined(__EMSCRIPTEN__) || defined(unix)
+                                                  { "Move Thru",    "½†",    "-ͮ⁄₁₀", "-3",  "(2+ͮ⁄₆)d6; take ½ or all"  },
                                                   { "Mult.Attx",    "1",     "var",   "½",   "Attack multiple times"     },
 #else
-                                                  { "Move Through",     "½†", "-ͮ⁄₁₀", "-3", "(10+ͮvel)⁄₆; take ½ or full" },
+                                                  { "Move Through",     "½†", "-ͮ⁄₁₀", "-3", "(2+ͮ⁄₆)d6; take ½ or all"  },
                                                   { "Multiple Attacks", "1",  "var",   "½",  "Attack multiple times"     },
 #endif
                                                   { "Set",          "1",     "+1",    "+0",  "Ranged attacks only"       },
                                                   { "Shove",        "½",     "-1",    "-1",  "Push 2m"                   },
-                                                  { "Strike",       "½",     "+0",    "+0",  "2 or weapon"               },
+                                                  { "Strike",       "½",     "+0",    "+0",  "2d6 or weapon"             },
                                                   { "Throw",        "½",     "+0",    "+0",  "Throw w/2d6 dmg"           },
                                                   { "Trip",         "½",     "-1",    "-2",  "Knock target prone"        }
                                                 }, { 69, 739 }, { 295, 495 }); // NOLINT
@@ -962,7 +1016,7 @@ public:
         createLabel(widget, headerFont, "SENSES", { 479, 1037 }, { 225, 20 }); // NOLINT
 #endif
         createLabel(widget, smallBoldNarrowFont, "Perception Roll", { 395, 1065 }, { 105, 20 }); // NOLINT
-#ifdef __wasm__
+#ifdef __EMSCRIPTEN__
         createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 496, 1065 }, {  60, 20 }); // NOLINT
 #else
         createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 506, 1065 }, {  50, 20 }); // NOLINT

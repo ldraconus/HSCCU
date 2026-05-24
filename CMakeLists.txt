@@ -7,9 +7,15 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
 
 qt_standard_project_setup()
 
+# C++23
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(CMAKE_AUTOMOC ON)
-include(GNUInstallDirs)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+include(GNUInstallDirs)
 
 find_package(Qt6 REQUIRED COMPONENTS Gui PrintSupport)
 find_package(Qt6 OPTIONAL_COMPONENTS Widgets)
@@ -20,24 +26,18 @@ set(source_files
     characteristic.cpp
     complication.cpp
     complicationsdialog.cpp
-    complicationsmenudialog.cpp
-    editmenudialog.cpp
     Equipment.cpp
-    filemenudialog.cpp
     fraction.cpp
-    imgmenudialog.cpp
     main.cpp
     modifier.cpp
     modifiersdialog.cpp
     option.cpp
     optiondialog.cpp
     powerdialog.cpp
-    PowerMenuDialog.cpp
     powers.cpp
     printwindow.cpp
     sheet.cpp
     skilldialog.cpp
-    skillmenudialog.cpp
     skilltalentorperk.cpp
    )
 
@@ -54,21 +54,17 @@ set(header_files
     CombatSkills.h
     complication.h
     complicationsdialog.h
-    complicationsmenudialog.h
     CustomSkill.h
     Debug.h
     DefensePowers.h
     Dependence.h
     Dependent.h
     DistinctiveFeature.h
-    editmenudialog.h
     Equipment.h
     Enraged.h
-    filemenudialog.h
     fraction.h
     FrameworkPowers.h
     Hunted.h
-    imgmenudialog.h
     IntellectSkills.h
     InteractionSkills.h
     MentalPowers.h
@@ -83,7 +79,6 @@ set(header_files
     Perk.h
     PhysicalComplication.h
     powerdialog.h
-    PowerMenuDialog.h
     powers.h
     printwindow.h
     PsychologicalComplication.h
@@ -95,7 +90,6 @@ set(header_files
     sheet_ui.h
     skilldialog.h
     SkillEnhancers.h
-    skillmenudialog.h
     skilltalentorperk.h
     SocialComplication.h
     SpecialPowers.h
@@ -104,31 +98,22 @@ set(header_files
     Talent.h
     Unluck.h
     Vulnerability.h
-    wasm.h
    )
 
 set(form_files
     complicationsdialog.ui
-    complicationsmenudialog.ui
-    editmenudialog.ui
-    filemenudialog.ui
-    imgmenudialog.ui
     modifiersdialog.ui
     optiondialog.ui
     powerdialog.ui
-    PowerMenuDialog.ui
     printwindow.ui
     sheet.ui
     skilldialog.ui
-    skillmenudialog.ui
-    wasm.ui
    )
 
 qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
-    ${source_Files}
+    ${source_files}
     ${header_files}
     ${form_files}
-    res.qrc
 )
 
 # Resources:
@@ -188,33 +173,46 @@ if((QT_VERSION_MAJOR GREATER 4))
 endif()
 
 if(WIN32)
+    target_compile_options(HSCCU PRIVATE /bigobj)
     target_include_directories(HSCCU PRIVATE
-        C:/Users/chris/src/include
+        E:/QtSource/include
     )
 endif()
 
-if(WASM)
+if(EMSCRIPTEN)
+    target_compile_options(HSCCU PRIVATE -Wno-deprecated-literal-operator)
     target_sources(HSCCU PUBLIC
-        PowerMenuDialog.cpp PowerMenuDialog.h PowerMenuDialog.ui
-        complicationsmenudialog.cpp complicationsmenudialog.h complicationsmenudialog.ui
-        editmenudialog.cpp editmenudialog.h editmenudialog.ui
-        filemenudialog.cpp filemenudialog.h filemenudialog.ui
-        imgmenudialog.cpp imgmenudialog.h imgmenudialog.ui
-        skillmenudialog.cpp skillmenudialog.h skillmenudialog.ui
-        wasm.h wasm.ui
+        PowerMenuDialog.cpp
+        PowerMenuDialog.h
+        PowerMenuDialog.ui
+        complicationsmenudialog.cpp
+        complicationsmenudialog.h
+        complicationsmenudialog.ui
+        editmenudialog.cpp
+        editmenudialog.h
+        editmenudialog.ui
+        filemenudialog.cpp
+        filemenudialog.h
+        filemenudialog.ui
+        imgmenudialog.cpp
+        imgmenudialog.h
+        imgmenudialog.ui
+        skillmenudialog.cpp
+        skillmenudialog.h
+        skillmenudialog.ui
+        wasm.h
+        wasm.ui
     )
 
     target_include_directories(HSCCU PRIVATE
-        C:/users/chris/src/include
+        E:/QtSource/include
     )
-endif()
-
-if(UNIX)
+elseif()
+    target_compile_options(HSCCU PRIVATE -Wno-deprecated-literal-operator)
     target_include_directories(HSCCU PRIVATE
         /home/chris/src/include
     )
 endif()
-
 
 target_link_libraries(HSCCU
     PRIVATE

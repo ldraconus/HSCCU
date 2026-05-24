@@ -3,50 +3,50 @@
 #include <QSettings>
 
 Option::Option()
-    : _banner(":/gfx/HeroSystem-Banner.png")
-    , _complications(0_cp)
-    , _equipmentFree(false)
-    , _showFrequencyRolls(false)
-    , _showNotesPage(false)
-    , _normalHumanMaxima(false)
-    , _activePerEND(10_cp)
-    , _totalPoints(0_cp)
+    : mBanner(":/gfx/HeroSystem-Banner.png")
+    , mComplications(0_cp)
+    , mEquipmentFree(false)
+    , mShowFrequencyRolls(false)
+    , mShowNotesPage(false)
+    , mNormalHumanMaxima(false)
+    , mActivePerEND(10_cp)
+    , mTotalPoints(0_cp)
 { }
 
 Option::Option(const Option& opt)
-    : _banner(opt._banner)
-    , _complications(opt._complications)
-    , _equipmentFree(opt._equipmentFree)
-    , _showFrequencyRolls(opt._showFrequencyRolls)
-    , _showNotesPage(opt._showNotesPage)
-    , _normalHumanMaxima(opt._normalHumanMaxima)
-    , _activePerEND(opt._activePerEND)
-    , _totalPoints(opt._totalPoints)
+    : mBanner(opt.mBanner)
+    , mComplications(opt.mComplications)
+    , mEquipmentFree(opt.mEquipmentFree)
+    , mShowFrequencyRolls(opt.mShowFrequencyRolls)
+    , mShowNotesPage(opt.mShowNotesPage)
+    , mNormalHumanMaxima(opt.mNormalHumanMaxima)
+    , mActivePerEND(opt.mActivePerEND)
+    , mTotalPoints(opt.mTotalPoints)
 { }
 
 Option::Option(Option&& opt): Option(opt) { }
 
 Option::Option(const QJsonObject& obj)
-    : _banner(obj["banner"].toString())
-    , _complications(Points(obj["complications"].toInt(75)))
-    , _equipmentFree(obj["equipmentFree"].toBool(false))
-    , _showFrequencyRolls(obj["frequency"].toBool(true))
-    , _showNotesPage(obj["notes"].toBool(true))
-    , _normalHumanMaxima(obj["humanMaxima"].toBool(false))
-    , _activePerEND(Points(obj["activePerEND"].toInt(10)))
-    , _totalPoints(Points(obj["totalPoints"].toInt(400)))
+    : mBanner(obj["banner"].toString())
+    , mComplications(Points(obj["complications"].toInt(75)))
+    , mEquipmentFree(obj["equipmentFree"].toBool(false))
+    , mShowFrequencyRolls(obj["frequency"].toBool(true))
+    , mShowNotesPage(obj["notes"].toBool(true))
+    , mNormalHumanMaxima(obj["humanMaxima"].toBool(false))
+    , mActivePerEND(Points(obj["activePerEND"].toInt(10)))
+    , mTotalPoints(Points(obj["totalPoints"].toInt(400)))
 { }
 
 Option& Option::operator=(const Option& opt) {
     if (this != &opt) {
-                    _banner = opt._banner;
-             _complications = opt._complications;
-             _equipmentFree = opt._equipmentFree;
-        _showFrequencyRolls = opt._showFrequencyRolls;
-             _showNotesPage = opt._showNotesPage;
-         _normalHumanMaxima = opt._normalHumanMaxima;
-              _activePerEND = opt._activePerEND;
-               _totalPoints = opt._totalPoints;
+                    mBanner = opt.mBanner;
+             mComplications = opt.mComplications;
+             mEquipmentFree = opt.mEquipmentFree;
+        mShowFrequencyRolls = opt.mShowFrequencyRolls;
+             mShowNotesPage = opt.mShowNotesPage;
+         mNormalHumanMaxima = opt.mNormalHumanMaxima;
+              mActivePerEND = opt.mActivePerEND;
+               mTotalPoints = opt.mTotalPoints;
     }
     return *this;
 }
@@ -57,43 +57,43 @@ void Option::load() {
     QSettings settings("SoftwareOnHand", "HSCCU");
     bool ok;
 
-    _banner = settings.value("banner").toString();
-    if (_banner.isEmpty()) _banner = ":/gfx/HeroiSystem-Banner.png";
+    mBanner = settings.value("banner").toString();
+    if (mBanner.isEmpty()) mBanner = ":/gfx/HeroSystem-Banner.png";
 
-    _complications = Points(settings.value("complications").toInt(&ok));
-    if (!ok) _complications = 75_cp;
+    mComplications = Points(settings.value("complications").toInt(&ok));
+    if (!ok) mComplications = 75_cp;
 
-         _equipmentFree = settings.value("equipmentFree").toBool();
-    _showFrequencyRolls = settings.value("frequency").toBool();
-         _showNotesPage = settings.value("notes").toBool();
-     _normalHumanMaxima = settings.value("humanMaxima").toBool();
+         mEquipmentFree = settings.value("equipmentFree").toBool();
+    mShowFrequencyRolls = settings.value("frequency").toBool();
+         mShowNotesPage = settings.value("notes").toBool();
+     mNormalHumanMaxima = settings.value("humanMaxima").toBool();
 
-    _activePerEND = Points(settings.value("activePerEND").toInt(&ok));
-    if (!ok) _activePerEND = 10_cp;
+    mActivePerEND = Points(settings.value("activePerEND").toInt(&ok));
+    if (!ok) mActivePerEND = 10_cp;
 
-    _totalPoints = Points(settings.value("totalPoints").toInt(&ok));
-    if (!ok) _totalPoints = 400_cp;
+    mTotalPoints = Points(settings.value("totalPoints").toInt(&ok));
+    if (!ok) mTotalPoints = 400_cp;
 }
 
 void Option::store() {
     QSettings settings("SoftwareOnHand", "HSCCU");
-    settings.setValue("banner", _banner);
-    settings.setValue("complications", (int) _complications.points);
-    settings.setValue("equipmentFree", _equipmentFree);
-    settings.setValue("frequency", _showFrequencyRolls);
-    settings.setValue("notes", _showNotesPage);
-    settings.setValue("humanMaxima", _normalHumanMaxima);
-    settings.setValue("activePerEND", (int) _activePerEND.points);
-    settings.setValue("totalPoints",   (int) _totalPoints.points);
+    settings.setValue("banner", mBanner);
+    settings.setValue("complications", (int) mComplications.points);
+    settings.setValue("equipmentFree", mEquipmentFree);
+    settings.setValue("frequency", mShowFrequencyRolls);
+    settings.setValue("notes", mShowNotesPage);
+    settings.setValue("humanMaxima", mNormalHumanMaxima);
+    settings.setValue("activePerEND", (int) mActivePerEND.points);
+    settings.setValue("totalPoints",   (int) mTotalPoints.points);
 }
 
 void Option::toJson(QJsonObject& obj) {
-           obj["banner"] = _banner;
-    obj["complications"] = (int) _complications.points;
-     obj["equimentFree"] = _equipmentFree;
-        obj["frequency"] = _showFrequencyRolls;
-            obj["notes"] = _showNotesPage;
-      obj["humanMaxima"] = _normalHumanMaxima;
-     obj["activePerEND"] = (int) _activePerEND.points;
-      obj["totalPoints"] = (int) _totalPoints.points;
+           obj["banner"] = mBanner;
+    obj["complications"] = (int) mComplications.points;
+     obj["equimentFree"] = mEquipmentFree;
+        obj["frequency"] = mShowFrequencyRolls;
+            obj["notes"] = mShowNotesPage;
+      obj["humanMaxima"] = mNormalHumanMaxima;
+     obj["activePerEND"] = (int) mActivePerEND.points;
+      obj["totalPoints"] = (int) mTotalPoints.points;
 }

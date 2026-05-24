@@ -41,7 +41,7 @@ class Sheet: public QMainWindow {
 
     shared_ptr<class optionDialog> _optionDlg;
 
-    static Sheet* _sheet; // NOLINT
+    static Sheet* sSheet; // NOLINT
 
 public:
     Sheet(QWidget *parent = nullptr);
@@ -53,11 +53,11 @@ public:
 
     ~Sheet() override;
 
-    static Sheet& ref() { return* _sheet; }
+    static Sheet& ref() { return* sSheet; }
 
-    void       changed()   { _changed = true; }
-    Character& character() { return _character; }
-    Option     getOption() { return _option; }
+    void       changed()   { mChanged = true; }
+    Character& character() { return mCharacter; }
+    Option     getOption() { return mOption; }
 
     void        addPower(shared_ptr<Power>);
     void        fixButtonBox(QDialogButtonBox*);
@@ -73,24 +73,24 @@ public:
 
     void doNothing() { }
 
-    class _CharacteristicDef {
+    class cCharacteristicDef {
     public:
-        _CharacteristicDef(Characteristic* c = nullptr, QLineEdit* v = nullptr, QLabel* p = nullptr, QLabel* r = nullptr)
-            : _characteristic(c)
-            , _value(v)
-            , _points(p)
-            , _roll(r) { }
+        cCharacteristicDef(Characteristic* c = nullptr, QLineEdit* v = nullptr, QLabel* p = nullptr, QLabel* r = nullptr)
+            : mCharacteristic(c)
+            , mValue(v)
+            , mPoints(p)
+            , mRoll(r) { }
 
-        Characteristic* characteristic() { return _characteristic; }
-        QLineEdit*      value()          { return _value; }
-        QLabel*         points()         { return _points; }
-        QLabel*         roll()           { return _roll; }
+        Characteristic* characteristic() { return mCharacteristic; }
+        QLineEdit*      value()          { return mValue; }
+        QLabel*         points()         { return mPoints; }
+        QLabel*         roll()           { return mRoll; }
 
     private:
-        Characteristic* _characteristic = nullptr;
-        QLineEdit*      _value          = nullptr;
-        QLabel*         _points         = nullptr;
-        QLabel*         _roll           = nullptr;
+        Characteristic* mCharacteristic = nullptr;
+        QLineEdit*      mValue          = nullptr;
+        QLabel*         mPoints         = nullptr;
+        QLabel*         mRoll           = nullptr;
     };
 
     gsl::owner<Sheet_UI*> getUi() { return Ui; }
@@ -103,7 +103,7 @@ public:
     gsl::owner<Ui::Sheet*> UI() { return ui; }
 #endif
 
-    Option& option() { return _option; }
+    Option& option() { return mOption; }
 
 private:
 #ifndef __wasm__
@@ -119,6 +119,8 @@ private:
     gsl::owner<QWidget*> copyButton = nullptr;
     gsl::owner<QWidget*> pasteButton = nullptr;
     gsl::owner<QWidget*> optionButton = nullptr;
+
+public:
     gsl::owner<QAction*> action_File = nullptr;
     gsl::owner<QAction*> action_New = nullptr;
     gsl::owner<QAction*> action_Open = nullptr;
@@ -129,12 +131,13 @@ private:
     gsl::owner<QAction*> action_Paste = nullptr;
     gsl::owner<QAction*> actionOptions = nullptr;
 
-    shared_ptr<ComplicationsMenuDialog>  _complicationsMenuDialog = nullptr;
-    shared_ptr<FileMenuDialog>           _fileMenuDialog          = nullptr;
-    shared_ptr<EditMenuDialog>           _editMenuDialog          = nullptr;
-    shared_ptr<ImgMenuDialog>            _imgMenuDialog           = nullptr;
-    shared_ptr<PowerMenuDialog>          _powerMenuDialog         = nullptr;
-    shared_ptr<SkillMenuDialog>          _skillMenuDialog         = nullptr;
+private:
+    shared_ptr<ComplicationsMenuDialog>  mComplicationsMenuDialog = nullptr;
+    shared_ptr<FileMenuDialog>           mFileMenuDialog          = nullptr;
+    shared_ptr<EditMenuDialog>           mEditMenuDialog          = nullptr;
+    shared_ptr<ImgMenuDialog>            mImgMenuDialog           = nullptr;
+    shared_ptr<PowerMenuDialog>          mPowerMenuDialog         = nullptr;
+    shared_ptr<SkillMenuDialog>          mSkillMenuDialog         = nullptr;
 
 #endif
     gsl::owner<Sheet_UI*>  Ui = nullptr;
@@ -143,27 +146,27 @@ private:
     static const bool DontUpdateTotal = false;
     static const bool noD6            = false;
 
-    bool   _changed                    = false;
-    Points _complicationPoints         = 0_cp;
-    Points _powersOrEquipmentPoints    = 0_cp;
-    Points _skillsTalentsOrPerksPoints = 0_cp;
-    Points _charactersticPoints        = 0_cp;
-    Points _totalPoints                = 0_cp;
+    bool   mChanged                    = false;
+    Points mComplicationPoints         = 0_cp;
+    Points mPowersOrEquipmentPoints    = 0_cp;
+    Points mSkillsTalentsOrPerksPoints = 0_cp;
+    Points mCharactersticPoints        = 0_cp;
+    Points mTotalPoints                = 0_cp;
 
-    shared_ptr<ComplicationsDialog> _compDlg  = nullptr;
-    shared_ptr<PowerDialog>         _powerDlg = nullptr;
-    shared_ptr<SkillDialog>         _skillDlg = nullptr;
+    shared_ptr<ComplicationsDialog> mCompDlg  = nullptr;
+    shared_ptr<PowerDialog>         mPowerDlg = nullptr;
+    shared_ptr<SkillDialog>         mSkillDlg = nullptr;
 
-    Character _character;
-    QString   _dir;
-    QString   _filename;
-    QFont     _font;
-    Option    _option;
-    bool      _saveChanged = false;
+    Character mCharacter;
+    QString   mDir;
+    QString   mFilename;
+    QFont     mFont;
+    Option    mOption;
+    bool      mSaveChanged = false;
 
-    std::array<int, 19> _hitLocations { }; // NOLINT
+    std::array<int, 19> mHitLocations { }; // NOLINT
 
-    QMap<QObject*, _CharacteristicDef> _widget2Def;
+    QMap<QObject*, cCharacteristicDef> mWidget2Def;
 
     Points             characteristicsCost();
     void               characteristicChanged(QLineEdit*, QString, bool update = true);
@@ -171,7 +174,7 @@ private:
     bool               checkClose();
     void               clearHitLocations();
     void               closeDialogs(QMouseEvent*);
-#ifdef __wasm__
+#ifdef __EMSCRIPTEN__
     QWidget*           createToolBarItem(QToolBar*, QAction*, const QString, const QString, QAction*);
     QWidget*           createToolBarItem(QToolBar*, const QString, const QString, QAction*);
     QWidget*           createToolBarItem(QToolBar*, QAction*, const QString);
@@ -185,7 +188,7 @@ private:
     void               doOpen();
     void               erase();
     bool               eventFilter(QObject*, QEvent*) override;
-#ifndef __wasm__
+#ifndef __EMSCRIPTEN__
     void               fileOpen();
 #else
     void               fileOpen(const QByteArray&, QString);
@@ -235,11 +238,12 @@ private:
     void               saveThenPaste();
     int                searchImprovedNoncombatMovement(QString);
     void               setupIcons();
-    void               setCVs(_CharacteristicDef&, QLabel*);
-    void               setDamage(_CharacteristicDef&, QLabel*);
-    void               setDefense(_CharacteristicDef&, int, int, QLineEdit*);
+    void               setCVs(cCharacteristicDef&, QLabel*);
+    void               setDamage(cCharacteristicDef&, QLabel*);
+    QString            setDefense(int, int);
+    void               setDefense(cCharacteristicDef&, int, int, QLineEdit*);
     void               setDefense(int, int, int, int);
-    void               setMaximum(_CharacteristicDef&, QLabel*, QLineEdit*);
+    void               setMaximum(cCharacteristicDef&, QLabel*, QLineEdit*);
 #ifndef __wasm
     void               doLoadImage();
     void               skipLoadImage();
@@ -263,8 +267,8 @@ public slots:
     void exitClicked()                                         { close(); }
     void powersandequipmentDoubleClicked(QTableWidgetItem*)    { editPowerOrEquipment(); }
     void skillstalentsandperksDoubleClicked(QTableWidgetItem*) { editSkillstalentsandperks(); }
-    void heightChanged(QString txt)                            { _character.height(txt); }
-    void weightChanged(QString txt)                            { _character.weight(txt); }
+    void heightChanged(QString txt)                            { mCharacter.height(txt); }
+    void weightChanged(QString txt)                            { mCharacter.weight(txt); }
     void valChanged(QString txt)                               { characteristicChanged(dynamic_cast<QLineEdit*>(sender()), txt); }
     void valEditingFinished()                                  { characteristicEditingFinished(dynamic_cast<QLineEdit*>(sender())); }
 
@@ -356,10 +360,10 @@ class Msg: public QObject {
 public:
     static shared_ptr<class QMessageBox> Box; // NOLINT
 
-    static std::function<void ()> _Cancel; // NOLINT
-    static std::function<void ()> _No; // NOLINT
-    static std::function<void ()> _Ok; // NOLINT
-    static std::function<void ()> _Yes; // NOLINT
+    static std::function<void ()> mCancel; // NOLINT
+    static std::function<void ()> mNo; // NOLINT
+    static std::function<void ()> mOk; // NOLINT
+    static std::function<void ()> mYes; // NOLINT
 
 public slots:
     void button(QAbstractButton*);

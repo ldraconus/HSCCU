@@ -8,8 +8,7 @@ namespace Ui {
 class optionDialog;
 }
 
-class optionDialog : public QDialog
-{
+class optionDialog : public QDialog {
     Q_OBJECT
 
 public:
@@ -21,7 +20,7 @@ public:
     optionDialog& operator=(const optionDialog&) = delete;
     optionDialog& operator=(optionDialog&&) = delete;
 
-    QString banner()             { return _banner; }
+    QString banner()             { return mBanner; }
     int     complications()      { return ui->complicationsLineEdit->text().toInt(); }
     bool    equipmentFree()      { return ui->equipmentFree->isChecked(); }
     bool    showFrequencyRolls() { return ui->showFrequencyRolls->isChecked(); }
@@ -30,7 +29,7 @@ public:
     int     activePointsPerEND() { return ui->activePointsPerEND->text().toInt(); }
     int     totalPoints()        { return ui->totalPointsLineEdit->text().toInt(); }
 
-    void setBanner(const QString& nm)  { _banner = nm;  ui->banner->setPixmap(loadPixmap(nm)); }
+    void setBanner(const QString& nm)  { mBanner = nm;  ui->banner->setPixmap(loadPixmap(nm)); }
     void setComplications(int x)       { ui->complicationsLineEdit->setText(QString("%1").arg(x)); }
     void setEquipmentFree(bool f)      { ui->equipmentFree->setChecked(f); }
     void setShowFrequencyRolls(bool f) { ui->showFrequencyRolls->setChecked(f); }
@@ -41,7 +40,7 @@ public:
 
 private:
     Ui::optionDialog *ui;
-    QString _banner = ":/gfx/HeroSystem-Banner.png";
+    QString mBanner = ":/gfx/HeroSystem-Banner.png";
 
     bool isNumber(QString& txt) {
         bool ok {};
