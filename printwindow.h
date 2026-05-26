@@ -7,8 +7,7 @@ namespace Ui {
 class PrintWindow;
 }
 
-class PrintWindow : public QMainWindow
-{
+class PrintWindow : public QMainWindow {
     Q_OBJECT
 
 public:
