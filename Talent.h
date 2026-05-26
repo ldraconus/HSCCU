@@ -75,7 +75,7 @@ public:
     Ambidexterity(): Talent("Ambidexterity")             { }
     Ambidexterity(const Ambidexterity& s): Talent(s)     { }
     Ambidexterity(Ambidexterity&& s): Talent(s)          { }
-    Ambidexterity(const QJsonObject& json): Talent(json) { v._offhand = json["offhand"].toInt(0);
+    Ambidexterity(const QJsonObject& json): Talent(json) { v.mOffhand = json["offhand"].toInt(0);
                                                          }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -83,29 +83,29 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return Points(v._offhand); }
+                                                                  return Points(v.mOffhand); }
     void    restore() override                                  { vars s = v;
-                                                                  QString msg = QString("%1").arg(s._offhand);
+                                                                  QString msg = QString("%1").arg(s.mOffhand);
                                                                   offhand->setText(msg);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._offhand = offhand->text().toInt(0);
+    void    store() override                                    { v.mOffhand = offhand->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["offhand"] = v._offhand;
+                                                                  obj["offhand"] = v.mOffhand;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int _offhand = 0;
+        int mOffhand = 0;
     } v;
 
     QLineEdit* offhand;
 
     QString optOut() {
-        return "Ambidexterity: " + QString("+%1").arg(v._offhand) + " vs. Offhand Penalties";
+        return "Ambidexterity: " + QString("+%1").arg(v.mOffhand) + " vs. Offhand Penalties";
     }
 
     void numeric(QString) override {
@@ -120,8 +120,8 @@ public:
     CombatLuck(): Talent("Combat Luck")               { }
     CombatLuck(const CombatLuck& s): Talent(s)        { }
     CombatLuck(CombatLuck&& s): Talent(s)             { }
-    CombatLuck(const QJsonObject& json): Talent(json) { v._levels = json["levels"].toInt(0);
-                                                        v._put = json["put"].toInt(1);
+    CombatLuck(const QJsonObject& json): Talent(json) { v.mLevels = json["levels"].toInt(0);
+                                                        v.mPut = json["put"].toInt(1);
                                                       }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -130,38 +130,38 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return 6_cp * v._levels; }
+                                                                  return 6_cp * v.mLevels; }
     void    restore() override                                  { vars s = v;
-                                                                  QString msg = QString("%1").arg(s._levels);
+                                                                  QString msg = QString("%1").arg(s.mLevels);
                                                                   levels->setText(msg);
-                                                                  put->setCurrentIndex(s._put);
+                                                                  put->setCurrentIndex(s.mPut);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._levels = levels->text().toInt(0);
-                                                                  v._put    = put->currentIndex();
+    void    store() override                                    { v.mLevels = levels->text().toInt(0);
+                                                                  v.mPut    = put->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["levels"] = v._levels;
-                                                                  obj["put"]    = v._put;
+                                                                  obj["levels"] = v.mLevels;
+                                                                  obj["put"]    = v.mPut;
                                                                   return obj;
                                                                 }
 
-    int rED() override   { return v._levels * 3; }
+    int rED() override   { return v.mLevels * 3; }
     int rPD() override   { return rED(); }
-    int place() override { return v._put; }
+    int place() override { return v.mPut; }
 
 private:
     struct vars {
-        int _levels = 0;
-        int _put    = -1;
+        int mLevels = 0;
+        int mPut    = -1;
     } v;
 
     QLineEdit* levels;
     QComboBox* put;
 
     QString optOut() {
-        return "Combat Luck: " + QString("+%1 rPD/+%1 rED").arg(v._levels * 3);
+        return "Combat Luck: " + QString("+%1 rPD/+%1 rED").arg(v.mLevels * 3);
     }
 
     void numeric(QString) override {
@@ -176,7 +176,7 @@ public:
     CombatSense(): Talent("Combat Sense")              { }
     CombatSense(const CombatSense& s): Talent(s)       { }
     CombatSense(CombatSense&& s): Talent(s)            { }
-    CombatSense(const QJsonObject& json): Talent(json) { v._plus  = json["plus"].toInt(0);
+    CombatSense(const QJsonObject& json): Talent(json) { v.mPlus  = json["plus"].toInt(0);
                                                          v._sense = json["sense"].toBool(false);
                                                        }
 
@@ -186,9 +186,9 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return 15_cp + v._plus + (v._sense ? 2_cp : 0_cp); }
+                                                                  return 15_cp + v.mPlus + (v._sense ? 2_cp : 0_cp); }
     void    restore() override                                  { vars s = v;
-                                                                  QString msg = QString("%1").arg(v._plus);
+                                                                  QString msg = QString("%1").arg(v.mPlus);
                                                                   int sns = v._sense;
                                                                   plus->setText(msg);
                                                                   sense->setChecked(sns);
@@ -196,23 +196,23 @@ public:
                                                                 }
     QString roll() override                                     {
 #ifndef ISHSC
-                                                                  return add(Sheet::ref().character().INT().roll(), v._plus);
+                                                                  return add(Sheet::ref().character().INT().roll(), v.mPlus);
 #else
                                                                   return QString("+%1").arg(v._plus);
 #endif
                                                                 }
-    void    store() override                                    { v._plus = plus->text().toInt(0);
+    void    store() override                                    { v.mPlus = plus->text().toInt(0);
                                                                   v._sense = sense->isChecked();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"]  = v._plus;
+                                                                  obj["plus"]  = v.mPlus;
                                                                   obj["sense"] = v._sense;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int  _plus  = 0;
+        int  mPlus  = 0;
         bool _sense = false;
     } v;
 
@@ -221,7 +221,7 @@ private:
 
     QString optOut() {
         QString res = "Combat Sense";
-        if (v._plus > 0) res += ": +" + QString("%1").arg(v._plus);
+        if (v.mPlus > 0) res += ": +" + QString("%1").arg(v.mPlus);
         if (v._sense) res += " (Sense)";
         return res;
     }
@@ -238,15 +238,15 @@ public:
     DangerSense(): Talent("Danger Sense")              { }
     DangerSense(const DangerSense& s): Talent(s)       { }
     DangerSense(DangerSense&& s): Talent(s)            { }
-    DangerSense(const QJsonObject& json): Talent(json) { _plus   = json["plus"].toInt(0);
-                                                         _sense  = json["sense"].toBool(false);
-                                                         _intuit = json["intuit"].toBool(false);
-                                                         _anlze  = json["anlze"].toBool(false);
-                                                         _descr  = json["descr"].toBool(false);
-                                                         _pen    = json["pen"].toBool(false);
-                                                         _thrgh  = json["thrgh"].toString("");
-                                                         _dtct   = json["dtct"].toInt(0);
-                                                         _area   = json["area"].toInt(0);
+    DangerSense(const QJsonObject& json): Talent(json) { mPlus   = json["plus"].toInt(0);
+                                                         mSense  = json["sense"].toBool(false);
+                                                         mIntuit = json["intuit"].toBool(false);
+                                                         mAnlze  = json["anlze"].toBool(false);
+                                                         mDescr  = json["descr"].toBool(false);
+                                                         mPen    = json["pen"].toBool(false);
+                                                         mThrgh  = json["thrgh"].toString("");
+                                                         mDtct   = json["dtct"].toInt(0);
+                                                         mArea   = json["area"].toInt(0);
                                                        }
 
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
@@ -268,23 +268,23 @@ public:
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return 15_cp +
-                                                                         _plus +
-                                                                         (_sense ? 2_cp : 0_cp) -
-                                                                         (_intuit ? 5_cp : 0_cp) +
-                                                                         (_anlze ? 5_cp : 0_cp) +
-                                                                         (_descr ? 5_cp : 0_cp) +
-                                                                         (_pen ? 5_cp : 0_cp) +
-                                                                         (_dtct - 1) * 5_cp +
-                                                                         (_area - 1) * 5_cp;
+                                                                         mPlus +
+                                                                         (mSense ? 2_cp : 0_cp) -
+                                                                         (mIntuit ? 5_cp : 0_cp) +
+                                                                         (mAnlze ? 5_cp : 0_cp) +
+                                                                         (mDescr ? 5_cp : 0_cp) +
+                                                                         (mPen ? 5_cp : 0_cp) +
+                                                                         (mDtct - 1) * 5_cp +
+                                                                         (mArea - 1) * 5_cp;
                                                                 }
-    void    restore() override                                  { bool    sns = _sense;
-                                                                  bool    ntt = _intuit;
-                                                                  bool    nlz = _anlze;
-                                                                  bool    dsc = _descr;
-                                                                  bool    pn  = _pen;
-                                                                  QString thr = _thrgh;
-                                                                  int     dtc = _dtct;
-                                                                  int     are = _area;
+    void    restore() override                                  { bool    sns = mSense;
+                                                                  bool    ntt = mIntuit;
+                                                                  bool    nlz = mAnlze;
+                                                                  bool    dsc = mDescr;
+                                                                  bool    pn  = mPen;
+                                                                  QString thr = mThrgh;
+                                                                  int     dtc = mDtct;
+                                                                  int     are = mArea;
                                                                   sense->setChecked(sns);
                                                                   intuit->setChecked(ntt);
                                                                   anlze->setChecked(nlz);
@@ -292,58 +292,58 @@ public:
                                                                   pen->setChecked(pn);
                                                                   dtct->setCurrentIndex(dtc);
                                                                   area->setCurrentIndex(are);
-                                                                  QString msg = QString("%1").arg(_plus);
+                                                                  QString msg = QString("%1").arg(mPlus);
                                                                   thrgh->setText(thr);
                                                                   plus->setText(msg);
-                                                                  _sense  = sns;
-                                                                  _intuit = ntt;
-                                                                  _anlze  = nlz;
-                                                                  _descr  = dsc;
-                                                                  _pen    = pn;
-                                                                  _thrgh  = thr;
-                                                                  _dtct   = dtc;
-                                                                  _area   = are;
+                                                                  mSense  = sns;
+                                                                  mIntuit = ntt;
+                                                                  mAnlze  = nlz;
+                                                                  mDescr  = dsc;
+                                                                  mPen    = pn;
+                                                                  mThrgh  = thr;
+                                                                  mDtct   = dtc;
+                                                                  mArea   = are;
                                                                 }
     QString roll() override                                     {
 #ifndef ISHSC
-                                                                  return add(Sheet::ref().character().INT().roll(), _plus);
+                                                                  return add(Sheet::ref().character().INT().roll(), mPlus);
 #else
                                                                   return QString("+%1").arg(_plus);
 #endif
                                                                 }
-    void    store() override                                    { _plus   = plus->text().toInt(0);
-                                                                  _sense  = sense->isChecked();
-                                                                  _intuit = intuit->isChecked();
-                                                                  _anlze  = anlze->isChecked();
-                                                                  _descr  = descr->isChecked();
-                                                                  _pen    = pen->isChecked();
-                                                                  _thrgh  = thrgh->text();
-                                                                  _dtct   = dtct->currentIndex();
-                                                                  _area   = area->currentIndex();
+    void    store() override                                    { mPlus   = plus->text().toInt(0);
+                                                                  mSense  = sense->isChecked();
+                                                                  mIntuit = intuit->isChecked();
+                                                                  mAnlze  = anlze->isChecked();
+                                                                  mDescr  = descr->isChecked();
+                                                                  mPen    = pen->isChecked();
+                                                                  mThrgh  = thrgh->text();
+                                                                  mDtct   = dtct->currentIndex();
+                                                                  mArea   = area->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"]   = _plus;
-                                                                  obj["semse"]  = _sense;
-                                                                  obj["intuit"] = _intuit;
-                                                                  obj["anlze"]  = _anlze;
-                                                                  obj["descr"]  = _descr;
-                                                                  obj["pen"]    = _pen;
-                                                                  obj["thrgh"]  = _thrgh;
-                                                                  obj["dtct"]   = _dtct;
-                                                                  obj["area"]   = _area;
+                                                                  obj["plus"]   = mPlus;
+                                                                  obj["semse"]  = mSense;
+                                                                  obj["intuit"] = mIntuit;
+                                                                  obj["anlze"]  = mAnlze;
+                                                                  obj["descr"]  = mDescr;
+                                                                  obj["pen"]    = mPen;
+                                                                  obj["thrgh"]  = mThrgh;
+                                                                  obj["dtct"]   = mDtct;
+                                                                  obj["area"]   = mArea;
                                                                   return obj;
                                                                 }
 
 private:
-    int     _plus   = 0;
-    bool    _sense  = false;
-    bool    _intuit = false;
-    bool    _anlze  = false;
-    bool    _descr  = false;
-    bool    _pen    = false;
-    QString _thrgh  = "";
-    int     _dtct   = -1;
-    int     _area   = -1;
+    int     mPlus   = 0;
+    bool    mSense  = false;
+    bool    mIntuit = false;
+    bool    mAnlze  = false;
+    bool    mDescr  = false;
+    bool    mPen    = false;
+    QString mThrgh  = "";
+    int     mDtct   = -1;
+    int     mArea   = -1;
 \
     QLineEdit* plus;
     QCheckBox* sense;
@@ -356,17 +356,17 @@ private:
     QComboBox* area;
 
     QString optOut() {
-        if (_dtct < 0 || _area < 0 || (_pen && _thrgh.isEmpty()) || (_intuit && (_dtct > 1 || _area > 1))) return "<incomplete>";
+        if (mDtct < 0 || mArea < 0 || (mPen && mThrgh.isEmpty()) || (mIntuit && (mDtct > 1 || mArea > 1))) return "<incomplete>";
         QString res = "Danger Senseϴ";
-        if (_plus > 0) res += ": +" + QString("%1").arg(_plus);
+        if (mPlus > 0) res += ": +" + QString("%1").arg(mPlus);
         QString sep = " (";
-        if (_sense) { res += sep + "Sense"; sep = "; "; }
-        if (_intuit) { res += sep + "Intuition"; sep = "; "; }
-        if (_anlze) { res += sep + "Analyze"; sep = "; "; }
-        if (_descr) { res += sep + "Discriminate"; sep = "; "; }
-        if (_pen) { res += sep + "Pentrates " + _thrgh; sep = "; "; }
-        res += sep += QStringList{ "In Combat, perceivable", "In or out of combat, perceivable", "Any" }[_dtct];
-        res += "; " + QStringList{ "Personal", "Anyone in immediate area", "Anyone in general area", "Anyone in any area" }[_area];
+        if (mSense) { res += sep + "Sense"; sep = "; "; }
+        if (mIntuit) { res += sep + "Intuition"; sep = "; "; }
+        if (mAnlze) { res += sep + "Analyze"; sep = "; "; }
+        if (mDescr) { res += sep + "Discriminate"; sep = "; "; }
+        if (mPen) { res += sep + "Pentrates " + mThrgh; sep = "; "; }
+        res += sep += QStringList{ "In Combat, perceivable", "In or out of combat, perceivable", "Any" }[mDtct];
+        res += "; " + QStringList{ "Personal", "Anyone in immediate area", "Anyone in general area", "Anyone in any area" }[mArea];
         return res + ")";
     }
 
@@ -395,10 +395,10 @@ public:
     DeadlyBlow(): Talent("Deadly Blow")               { }
     DeadlyBlow(const DeadlyBlow& s): Talent(s)        { }
     DeadlyBlow(DeadlyBlow&& s): Talent(s)             { }
-    DeadlyBlow(const QJsonObject& json): Talent(json) { v._mult  =  json["mult"].toInt(0);
-                                                        v._circ  =  json["circ"].toInt(0);
-                                                        v._ranged = json["ranged"].toBool(false);
-                                                        v._versus = json["versus"].toString("");
+    DeadlyBlow(const QJsonObject& json): Talent(json) { v.mMult  =  json["mult"].toInt(0);
+                                                        v.mCirc  =  json["circ"].toInt(0);
+                                                        v.mRanged = json["ranged"].toBool(false);
+                                                        v.mVersus = json["versus"].toString("");
                                                       }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -412,34 +412,34 @@ public:
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   QList<Points> circ { 0_cp, 12_cp, 16_cp, 19_cp };
-                                                                  return circ[v._circ + 1] * v._mult; }
+                                                                  return circ[v.mCirc + 1] * v.mMult; }
     void    restore() override                                  { vars s = v;
-                                                                  mult->setText(QString("%1").arg(s._mult));
-                                                                  circ->setCurrentIndex(s._circ);
-                                                                  ranged->setChecked(s._ranged);
-                                                                  versus->setText(s._versus);
+                                                                  mult->setText(QString("%1").arg(s.mMult));
+                                                                  circ->setCurrentIndex(s.mCirc);
+                                                                  ranged->setChecked(s.mRanged);
+                                                                  versus->setText(s.mVersus);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._mult   = mult->text().toInt(0);
-                                                                  v._circ   = circ->currentIndex();
-                                                                  v._ranged = ranged->isChecked();
-                                                                  v._versus = versus->text();
+    void    store() override                                    { v.mMult   = mult->text().toInt(0);
+                                                                  v.mCirc   = circ->currentIndex();
+                                                                  v.mRanged = ranged->isChecked();
+                                                                  v.mVersus = versus->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["mult"]   = v._mult;
-                                                                  obj["circ"]   = v._circ;
-                                                                  obj["ranged"] = v._ranged;
-                                                                  obj["versus"] = v._versus;
+                                                                  obj["mult"]   = v.mMult;
+                                                                  obj["circ"]   = v.mCirc;
+                                                                  obj["ranged"] = v.mRanged;
+                                                                  obj["versus"] = v.mVersus;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int     _mult   = 0;
-        int     _circ = -1;
-        bool    _ranged = false;
-        QString _versus = "";
+        int     mMult   = 0;
+        int     mCirc = -1;
+        bool    mRanged = false;
+        QString mVersus = "";
     } v;
 
     QLineEdit* mult;
@@ -448,13 +448,13 @@ private:
     QLineEdit* versus;
 
     QString optOut() {
-        if (v._mult < 1 || v._circ < 0 || v._versus.isEmpty()) return "<incomplete>";
+        if (v.mMult < 1 || v.mCirc < 0 || v.mVersus.isEmpty()) return "<incomplete>";
         QString res = "Deadly Blow▲";
-        res += ": +" + QString("%1 DCs").arg(v._mult * 3) + " against " + v._versus + " (" +
+        res += ": +" + QString("%1 DCs").arg(v.mMult * 3) + " against " + v.mVersus + " (" +
                QStringList { "Very limited circumstances or group",
                              "Limited circumstances or group",
-                             "Broad circumstances or group" }[v._circ];
-        res += QString("; ") + (v._ranged ? "Ranged" : "HTH");
+                             "Broad circumstances or group" }[v.mCirc];
+        res += QString("; ") + (v.mRanged ? "Ranged" : "HTH");
         return res + ")";
     }
 
@@ -470,8 +470,8 @@ public:
     EideticMemory(): Talent("Eidetic Memory")            { }
     EideticMemory(const EideticMemory& s): Talent(s)     { }
     EideticMemory(EideticMemory&& s): Talent(s)          { }
-    EideticMemory(const QJsonObject& json): Talent(json) { v._size  = json["size"].toInt(-1);
-                                                           v._sense = json["sense"].toString("");
+    EideticMemory(const QJsonObject& json): Talent(json) { v.mSize  = json["size"].toInt(-1);
+                                                           v.mSense = json["sense"].toString("");
                                                          }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -481,35 +481,35 @@ public:
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   QList<Points> size { 0_cp, 5_cp, 3_cp, 2_cp };
-                                                                  return size[v._size + 1]; }
+                                                                  return size[v.mSize + 1]; }
     void    restore() override                                  { vars s = v;
-                                                                  sense->setText(s._sense);
-                                                                  size->setCurrentIndex(s._size);
+                                                                  sense->setText(s.mSense);
+                                                                  size->setCurrentIndex(s.mSize);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._size  = size->currentIndex();
-                                                                  v._sense = sense->text();
+    void    store() override                                    { v.mSize  = size->currentIndex();
+                                                                  v.mSense = sense->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["size"]   = v._size;
-                                                                  obj["sense"]  = v._sense;
+                                                                  obj["size"]   = v.mSize;
+                                                                  obj["sense"]  = v.mSense;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int     _size  = -1;
-        QString _sense = "";
+        int     mSize  = -1;
+        QString mSense = "";
     } v;
 
     QLineEdit* sense;
     QComboBox* size;
 
     QString optOut() {
-        if (v._size >= 2 && v._sense.isEmpty()) return "<incomplete>";
+        if (v.mSize >= 2 && v.mSense.isEmpty()) return "<incomplete>";
         QString res = "Eidetic Memory";
-        if (v._size > 0) res += " with " + v._sense;
+        if (v.mSize > 0) res += " with " + v.mSense;
         return res;
     }
 };
@@ -519,8 +519,8 @@ public:
     EnvironmentalMovement(): Talent("Environmental Movement")        { }
     EnvironmentalMovement(const EnvironmentalMovement& s): Talent(s) { }
     EnvironmentalMovement(EnvironmentalMovement&& s): Talent(s)      { }
-    EnvironmentalMovement(const QJsonObject& json): Talent(json)     { v._plus  =  json["plus"].toInt(0);
-                                                                       v._versus = json["versus"].toString("");
+    EnvironmentalMovement(const QJsonObject& json): Talent(json)     { v.mPlus  =  json["plus"].toInt(0);
+                                                                       v.mVersus = json["versus"].toString("");
                                                                      }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -529,35 +529,35 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return v._plus * 2_cp; }
+                                                                  return v.mPlus * 2_cp; }
     void    restore() override                                  { vars s = v;
-                                                                  plus->setText(QString("%1").arg(s._plus));
-                                                                  versus->setText(s._versus);
+                                                                  plus->setText(QString("%1").arg(s.mPlus));
+                                                                  versus->setText(s.mVersus);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._plus   = plus->text().toInt(0);
-                                                                  v._versus = versus->text();
+    void    store() override                                    { v.mPlus   = plus->text().toInt(0);
+                                                                  v.mVersus = versus->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"]   = v._plus;
-                                                                  obj["versus"] = v._versus;
+                                                                  obj["plus"]   = v.mPlus;
+                                                                  obj["versus"] = v.mVersus;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int     _plus   = 0;
-        QString _versus = "";
+        int     mPlus   = 0;
+        QString mVersus = "";
     } v;
 
     QLineEdit* plus;
     QLineEdit* versus;
 
     QString optOut() {
-        if (v._plus < 1 || v._versus.isEmpty()) return "<incomplete>";
+        if (v.mPlus < 1 || v.mVersus.isEmpty()) return "<incomplete>";
         QString res = "Environmental Movement: ";
-        res += "-" + QString("%1 CV%2/DC%2").arg(v._plus).arg(v._plus > 1 ? "s" : "")  + " penalties in " + v._versus;
+        res += "-" + QString("%1 CV%2/DC%2").arg(v.mPlus).arg(v.mPlus > 1 ? "s" : "")  + " penalties in " + v.mVersus;
         return res;
     }
 
@@ -573,9 +573,9 @@ public:
     LightningReflexes(): Talent("Lightning Reflexes")         { }
     LightningReflexes(const LightningReflexes& s): Talent(s)  { }
     LightningReflexes(LightningReflexes&& s): Talent(s)       { }
-    LightningReflexes(const QJsonObject& json): Talent(json) { v._plus  = json["plus"].toInt(0);
-                                                               v._level = json["level"].toInt(0);
-                                                               v._with  = json["with"].toString("");
+    LightningReflexes(const QJsonObject& json): Talent(json) { v.mPlus  = json["plus"].toInt(0);
+                                                               v.mLevel = json["level"].toInt(0);
+                                                               v.mWith  = json["with"].toString("");
                                                             }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -590,30 +590,30 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return v._plus * 2_cp; }
+                                                                  return v.mPlus * 2_cp; }
     void    restore() override                                  { vars s = v;
-                                                                  plus->setText(QString("%1").arg(s._plus));
-                                                                  level->setCurrentIndex(s._level);
-                                                                  with->setText(s._with);
+                                                                  plus->setText(QString("%1").arg(s.mPlus));
+                                                                  level->setCurrentIndex(s.mLevel);
+                                                                  with->setText(s.mWith);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._plus  = plus->text().toInt(0);
-                                                                  v._level = level->currentIndex();
-                                                                  v._with  = with->text();
+    void    store() override                                    { v.mPlus  = plus->text().toInt(0);
+                                                                  v.mLevel = level->currentIndex();
+                                                                  v.mWith  = with->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"]  = v._plus;
-                                                                  obj["with"]  = v._with;
-                                                                  obj["level"] = v._level;
+                                                                  obj["plus"]  = v.mPlus;
+                                                                  obj["with"]  = v.mWith;
+                                                                  obj["level"] = v.mLevel;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int     _plus  = 0;
-        int     _level = -1;
-        QString _with  = "";
+        int     mPlus  = 0;
+        int     mLevel = -1;
+        QString mWith  = "";
     } v;
 
     QLineEdit* plus;
@@ -621,15 +621,15 @@ private:
     QLineEdit* with;
 
     QString optOut() {
-        if (v._plus < 1 || v._level < 0 || (v._level > 3 && v._with.isEmpty())) return "<incomplete>";
+        if (v.mPlus < 1 || v.mLevel < 0 || (v.mLevel > 3 && v.mWith.isEmpty())) return "<incomplete>";
         QString res = "Lightning Reflexes▲: ";
-        res += QString("%1 DEX").arg(v._plus)  + " to " + QStringList{ "Act first with All Actions",
+        res += QString("%1 DEX").arg(v.mPlus)  + " to " + QStringList{ "Act first with All Actions",
                 "Act first with All HTH Attacks",
                 "Act first with All Ranged Attacks",
                 "Act first with a Large Group of Actions",
                 "Act first with a Small Group of Actions",
-                "Act first with a Single Action"}[v._level];
-        if (v._level > 3) res += " with " + v._with;
+                "Act first with a Single Action"}[v.mLevel];
+        if (v.mLevel > 3) res += " with " + v.mWith;
         return res;
     }
 
@@ -645,12 +645,12 @@ public:
     Resistance(): Talent("Resistance"       )         { }
     Resistance(const Resistance& s): Talent(s)        { }
     Resistance(Resistance&& s): Talent(s)             { }
-    Resistance(const QJsonObject& json): Talent(json) { v._plus  = json["plus"].toInt(0);
+    Resistance(const QJsonObject& json): Talent(json) { v.mPlus  = json["plus"].toInt(0);
                                                       }
 
     QString description(bool showRoll = false) override         { return (showRoll ?
 #ifndef ISHSC
-                                                                          add(Sheet::ref().character().EGO().roll(), v._plus)
+                                                                          add(Sheet::ref().character().EGO().roll(), v.mPlus)
 #else
                                                                           QString("+%1").arg(v._plus)
 #endif
@@ -659,28 +659,28 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return Points(v._plus); }
-    void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
+                                                                  return Points(v.mPlus); }
+    void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s.mPlus)); v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._plus = plus->text().toInt(0);
+    void    store() override                                    { v.mPlus = plus->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"] = v._plus;
+                                                                  obj["plus"] = v.mPlus;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int _plus  = 0;
+        int mPlus  = 0;
     } v;
 
     QLineEdit* plus;
 
     QString optOut() {
-        if (v._plus < 1) return "<incomplete>";
+        if (v.mPlus < 1) return "<incomplete>";
         QString res = "Resistance: ";
-        res += QString("%1 to EGO roll for resisting wounding or interrogation").arg(v._plus);
+        res += QString("%1 to EGO roll for resisting wounding or interrogation").arg(v.mPlus);
         return res;
     }
 
@@ -696,12 +696,12 @@ public:
     SimulateDeath(): Talent("Simulate Death")            { }
     SimulateDeath(const SimulateDeath& s): Talent(s)     { }
     SimulateDeath(SimulateDeath&& s): Talent(s)          { }
-    SimulateDeath(const QJsonObject& json): Talent(json) { v._plus  = json["plus"].toInt(0);
+    SimulateDeath(const QJsonObject& json): Talent(json) { v.mPlus  = json["plus"].toInt(0);
                                                          }
 
     QString description(bool showRoll = false) override         { return (showRoll ?
 #ifndef ISHSC
-                                                                  add(Sheet::ref().character().EGO().roll(), v._plus) +
+                                                                  add(Sheet::ref().character().EGO().roll(), v.mPlus) +
 #else
                                                                   QString("+%1").arg(v._plus) +
 #endif
@@ -710,34 +710,34 @@ public:
                                                                  return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return (v._plus + 1) * 3_cp; }
-    void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
+                                                                  return (v.mPlus + 1) * 3_cp; }
+    void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s.mPlus)); v = s;
                                                                 }
     QString roll() override                                     { return
 #ifndef ISHSC
-                                                                      add(Sheet::ref().character().EGO().roll(), v._plus);
+                                                                      add(Sheet::ref().character().EGO().roll(), v.mPlus);
 #else
                                                                       QString("+%1").arg(v._plus);
 #endif
                                                                 }
-    void    store() override                                    { v._plus = plus->text().toInt(0);
+    void    store() override                                    { v.mPlus = plus->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"] = v._plus;
+                                                                  obj["plus"] = v.mPlus;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int _plus  = 0;
+        int mPlus  = 0;
     } v;
 
     QLineEdit* plus;
 
     QString optOut() {
-        if (v._plus < 0) return "<incomplete>";
+        if (v.mPlus < 0) return "<incomplete>";
         QString res = "Simulate Death";
-        if (v._plus > 0) res += QString(": +%1 to EGO").arg(v._plus);
+        if (v.mPlus > 0) res += QString(": +%1 to EGO").arg(v.mPlus);
         return res;
     }
 
@@ -753,7 +753,7 @@ public:
     SpeedReading(): Talent("Speed Reading")             { }
     SpeedReading(const SpeedReading& s): Talent(s)      { }
     SpeedReading(SpeedReading&& s): Talent(s)           { }
-    SpeedReading(const QJsonObject& json): Talent(json) { v._mult = json["mult"].toInt(1);
+    SpeedReading(const QJsonObject& json): Talent(json) { v.mMult = json["mult"].toInt(1);
                                                         }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -761,28 +761,28 @@ public:
                                                                  return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return 4_cp + (v._mult - 1) * 2_cp; }
-    void    restore() override                                  { vars s = v; mult->setText(QString("%1").arg(s._mult)); v = s;
+                                                                  return 4_cp + (v.mMult - 1) * 2_cp; }
+    void    restore() override                                  { vars s = v; mult->setText(QString("%1").arg(s.mMult)); v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._mult = mult->text().toInt(0);
+    void    store() override                                    { v.mMult = mult->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["mult"] = v._mult;
+                                                                  obj["mult"] = v.mMult;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int _mult = 0;
+        int mMult = 0;
     } v;
 
     QLineEdit* mult;
 
     QString optOut() {
-        if (v._mult < 1) return "<incomplete>";
+        if (v.mMult < 1) return "<incomplete>";
         QString res = "Speed Reading: ";
-        res += QString("x%1 normal").arg((int) pow(10.0, v._mult));
+        res += QString("x%1 normal").arg((int) pow(10.0, v.mMult));
         return res;
     }
 
@@ -798,8 +798,8 @@ public:
     StrikingAppearence(): Talent("Striking Appearences")       { }
     StrikingAppearence(const StrikingAppearence& s): Talent(s) { }
     StrikingAppearence(StrikingAppearence&& s): Talent(s)      { }
-    StrikingAppearence(const QJsonObject& json): Talent(json)  { v._limit = json["limit"].toBool(false);
-                                                                 v._who   = json["who"].toString("");
+    StrikingAppearence(const QJsonObject& json): Talent(json)  { v.mLimit = json["limit"].toBool(false);
+                                                                 v.mWho   = json["who"].toString("");
                                                                }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -808,35 +808,35 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return v._limit ? 2_cp : 3_cp; }
+                                                                  return v.mLimit ? 2_cp : 3_cp; }
     void    restore() override                                  { vars s = v;
-                                                                  limit->setChecked(s._limit);
-                                                                  who->setText(s._who);
+                                                                  limit->setChecked(s.mLimit);
+                                                                  who->setText(s.mWho);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._limit = limit->isChecked();
-                                                                  v._who   = who->text();
+    void    store() override                                    { v.mLimit = limit->isChecked();
+                                                                  v.mWho   = who->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["limit"] = v._limit;
-                                                                  obj["who"]   = v._who;
+                                                                  obj["limit"] = v.mLimit;
+                                                                  obj["who"]   = v.mWho;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int     _limit = 0;
-        QString _who  = "";
+        int     mLimit = 0;
+        QString mWho  = "";
     } v;
 
     QCheckBox* limit;
     QLineEdit* who;
 
     QString optOut() {
-        if (v._limit && v._who.isEmpty()) return "<incomplete>";
+        if (v.mLimit && v.mWho.isEmpty()) return "<incomplete>";
         QString res = "Striking Appearence";
-        if (v._limit) res += "versus " + v._who;
+        if (v.mLimit) res += "versus " + v.mWho;
         return res;
     }
 };
@@ -846,12 +846,12 @@ public:
     UniversalTranslator(): Talent("Universal Translatorϴ")       { }
     UniversalTranslator(const UniversalTranslator& s): Talent(s) { }
     UniversalTranslator(UniversalTranslator&& s): Talent(s)      { }
-    UniversalTranslator(const QJsonObject& json): Talent(json)   { v._plus = json["plus"].toInt(0);
+    UniversalTranslator(const QJsonObject& json): Talent(json)   { v.mPlus = json["plus"].toInt(0);
                                                                  }
 
     QString description(bool showRoll = false) override         { return (showRoll ?
 #ifndef ISHSC
-                                                                          add(Sheet::ref().character().INT().roll(), v._plus) +
+                                                                          add(Sheet::ref().character().INT().roll(), v.mPlus) +
 #else
                                                                           QString("+%1").arg(v._plus) +
 #endif
@@ -860,32 +860,32 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return 20_cp + v._plus; }
-    void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s;
+                                                                  return 20_cp + v.mPlus; }
+    void    restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s.mPlus)); v = s;
                                                                 }
     QString roll() override                                     { return
 #ifndef ISHSC
-                                                                      add(Sheet::ref().character().INT().roll(), v._plus); }
+                                                                      add(Sheet::ref().character().INT().roll(), v.mPlus); }
 #else
                                                                       QString("+%1").arg(v._plus); }
 #endif
-    void    store() override                                    { v._plus = plus->text().toInt(0);
+    void    store() override                                    { v.mPlus = plus->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"] = v._plus;
+                                                                  obj["plus"] = v.mPlus;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int _plus  = 0;
+        int mPlus  = 0;
     } v;
 
     QLineEdit* plus;
 
     QString optOut() {
         QString res = "Universal Translatorϴ";
-        if (v._plus > 0) res += QString(": +%1 to INT roll").arg(v._plus);
+        if (v.mPlus > 0) res += QString(": +%1 to INT roll").arg(v.mPlus);
         return res;
     }
 
@@ -901,11 +901,11 @@ public:
     Weaponmaster(): Talent("Weaponmaster")              { }
     Weaponmaster(const Weaponmaster& s): Talent(s)      { }
     Weaponmaster(Weaponmaster&& s): Talent(s)           { }
-    Weaponmaster(const QJsonObject& json): Talent(json) { v._mult    = json["mult"].toInt(0);
-                                                          v._wpns    = json["wpns"].toInt(0);
-                                                          v._ranged  = json["ranged"].toBool(false);
-                                                          v._killing = json["killing"].toBool(false);
-                                                          v._with    = json["with"].toString("");
+    Weaponmaster(const QJsonObject& json): Talent(json) { v.mMult    = json["mult"].toInt(0);
+                                                          v.mWpns    = json["wpns"].toInt(0);
+                                                          v.mRanged  = json["ranged"].toBool(false);
+                                                          v.mKilling = json["killing"].toBool(false);
+                                                          v.mWith    = json["with"].toString("");
                                                         }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -920,38 +920,38 @@ public:
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
                                                                   QList<Points> wpns { 0_cp, 12_cp, 16_cp, 19_cp };
-                                                                  return wpns[v._wpns + 1] * v._mult; }
+                                                                  return wpns[v.mWpns + 1] * v.mMult; }
     void    restore() override                                  { vars s = v;
-                                                                  mult->setText(QString("%1").arg(s._mult));
-                                                                  wpns->setCurrentIndex(s._wpns);
-                                                                  ranged->setChecked(s._ranged);
-                                                                  killing->setChecked(s._killing);
-                                                                  with->setText(s._with);
+                                                                  mult->setText(QString("%1").arg(s.mMult));
+                                                                  wpns->setCurrentIndex(s.mWpns);
+                                                                  ranged->setChecked(s.mRanged);
+                                                                  killing->setChecked(s.mKilling);
+                                                                  with->setText(s.mWith);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._mult    = mult->text().toInt(0);
-                                                                  v._wpns    = wpns->currentIndex();
-                                                                  v._ranged  = ranged->isChecked();
-                                                                  v._killing = killing->isChecked();
-                                                                  v._with    = with->text();
+    void    store() override                                    { v.mMult    = mult->text().toInt(0);
+                                                                  v.mWpns    = wpns->currentIndex();
+                                                                  v.mRanged  = ranged->isChecked();
+                                                                  v.mKilling = killing->isChecked();
+                                                                  v.mWith    = with->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["mult"]    = v._mult;
-                                                                  obj["wpns"]    = v._wpns;
-                                                                  obj["ranged"]  = v._ranged;
-                                                                  obj["killing"] = v._killing;
-                                                                  obj["with"]    = v._with;
+                                                                  obj["mult"]    = v.mMult;
+                                                                  obj["wpns"]    = v.mWpns;
+                                                                  obj["ranged"]  = v.mRanged;
+                                                                  obj["killing"] = v.mKilling;
+                                                                  obj["with"]    = v.mWith;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int     _mult    = 0;
-        int     _wpns    = -1;
-        bool    _ranged  = false;
-        bool    _killing = false;
-        QString _with    = "";
+        int     mMult    = 0;
+        int     mWpns    = -1;
+        bool    mRanged  = false;
+        bool    mKilling = false;
+        QString mWith    = "";
     } v;
 
     QLineEdit* mult;
@@ -961,14 +961,14 @@ private:
     QLineEdit* with;
 
     QString optOut() {
-        if (v._mult < 1 || v._wpns < 0 || v._with.isEmpty()) return "<incomplete>";
+        if (v.mMult < 1 || v.mWpns < 0 || v.mWith.isEmpty()) return "<incomplete>";
         QString res = "Weaponmaster▲";
-        res += ": +" + QString("%1 DCs").arg(v._mult * 3) + " with " + v._with + " (" +
+        res += ": +" + QString("%1 DCs").arg(v.mMult * 3) + " with " + v.mWith + " (" +
                QStringList { "Very limited group of weapons",
                              "Limited group of weapons",
-                             "Broad group of weapons" }[v._wpns];
-        res += QString("; ") + (v._ranged ? "Ranged" : "HTH");
-        res += QString("; ") + (v._killing ? "KIlling" : "Normal");
+                             "Broad group of weapons" }[v.mWpns];
+        res += QString("; ") + (v.mRanged ? "Ranged" : "HTH");
+        res += QString("; ") + (v.mKilling ? "KIlling" : "Normal");
         return res + ")";
     }
 

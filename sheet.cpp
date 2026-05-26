@@ -241,7 +241,7 @@ static QString formatNumber(double num) {
 
 // --- [creation/destruction] -----------------------------------------------------------------------------
 
-Sheet_UI Sheet::_Sheet_UI; // NOLINT
+Sheet_UI Sheet::sSheet_UI; // NOLINT
 
 Sheet::Sheet(QWidget *parent)
     : QMainWindow(parent)
@@ -250,7 +250,7 @@ Sheet::Sheet(QWidget *parent)
 #else
     , ui(new Ui::wasm)
 #endif
-    , Ui(&_Sheet_UI)
+    , Ui(&sSheet_UI)
     , printer(nullptr)
     , mSaveChanged(false)
 {

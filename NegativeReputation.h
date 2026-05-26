@@ -4,8 +4,7 @@
 #include "complication.h"
 #include "sheet.h"
 
-class NegativeReputation: public Complication
-{
+class NegativeReputation: public Complication {
 public:
     NegativeReputation(): Complication() { }
     NegativeReputation(const NegativeReputation& ac)

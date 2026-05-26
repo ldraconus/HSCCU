@@ -23,8 +23,8 @@ SkillDialog::SkillDialog(QWidget *parent) :
 
     Sheet::ref().fixButtonBox(ui->buttonBox);
 
-    _ok = ui->buttonBox->button(QDialogButtonBox::Ok);
-    _ok->setEnabled(false);
+    mOk = ui->buttonBox->button(QDialogButtonBox::Ok);
+    mOk->setEnabled(false);
 }
 
 SkillDialog::~SkillDialog()
@@ -44,8 +44,8 @@ QLabel* SkillDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWra
 }
 
 void SkillDialog::pickOne(int) {
-    if (_skipUpdate) {
-        _skipUpdate = false;
+    if (mSkipUpdate) {
+        mSkipUpdate = false;
         return;
     }
 
@@ -55,12 +55,12 @@ void SkillDialog::pickOne(int) {
         ui->form->setLayout(layout);
     }
 
-    _skilltalentorperk = SkillTalentOrPerk::ByName(ui->availableComboBox->currentText());
-    if (!_skilltalentorperk->createForm(this, layout)) accept();
+    mSkillTalentOrPerk = SkillTalentOrPerk::ByName(ui->availableComboBox->currentText());
+    if (!mSkillTalentOrPerk->createForm(this, layout)) accept();
 
     createLabel(layout, "");
-    _points      = createLabel(layout, "-1 Points");
-    _description = createLabel(layout, "<incomplete>", WordWrap);
+    mPoints      = createLabel(layout, "-1 Points");
+    mDescription = createLabel(layout, "<incomplete>", WordWrap);
 
     layout->addStretch(1);
     updateForm();
@@ -86,8 +86,8 @@ void SkillDialog::pickType(int type) {
     for (const auto& skilltalentorperk: available) ui->availableComboBox->addItem(skilltalentorperk);
     ui->availableComboBox->setEnabled(true);
 
-    if (_skipUpdate) {
-        _skipUpdate = false;
+    if (mSkipUpdate) {
+        mSkipUpdate = false;
         return;
     }
 
@@ -97,7 +97,7 @@ void SkillDialog::pickType(int type) {
         ui->form->setLayout(layout);
     }
 
-    _skilltalentorperk = nullptr;
+    mSkillTalentOrPerk = nullptr;
 
     SkillTalentOrPerk::ClearForm(layout);
 }
@@ -116,10 +116,10 @@ SkillDialog& SkillDialog::skilltalentorperk(shared_ptr<SkillTalentOrPerk> s) {
     else if ((idx = QStringList({ "Blank Line", "Jack of All Trades", "Linguist", "Scholar", "Scientist", "Traveller", "Well-Connected" }).indexOf(name)) == -1) type = 3;
     else return *this;
 
-    _skipUpdate = true;
+    mSkipUpdate = true;
     ui->skillTalentOrPerkComboBox->setCurrentIndex(type);
     ui->skillTalentOrPerkComboBox->setEnabled(false);
-    _skipUpdate = true;
+    mSkipUpdate = true;
     ui->availableComboBox->setCurrentIndex(idx);
     ui->availableComboBox->setEnabled(false);
 
@@ -129,34 +129,34 @@ SkillDialog& SkillDialog::skilltalentorperk(shared_ptr<SkillTalentOrPerk> s) {
         ui->form->setLayout(layout);
     }
 
-    _skilltalentorperk = s;
-    try { _skilltalentorperk->createForm(this, layout); } catch (...) { accept(); return *this; }
+    mSkillTalentOrPerk = s;
+    try { mSkillTalentOrPerk->createForm(this, layout); } catch (...) { accept(); return *this; }
 
     createLabel(layout, "");
-    _points      = createLabel(layout, "-1 Points");
-    _description = createLabel(layout, "<incomplete>", WordWrap);
+    mPoints      = createLabel(layout, "-1 Points");
+    mDescription = createLabel(layout, "<incomplete>", WordWrap);
 
     layout->addStretch(1);
-    _skilltalentorperk = s;
-    _skilltalentorperk->restore();
+    mSkillTalentOrPerk = s;
+    mSkillTalentOrPerk->restore();
     updateForm();
     return *this;
 }
 
 void SkillDialog::stateChanged(int) {
     QCheckBox* checkBox = static_cast<QCheckBox*>(sender());
-    _skilltalentorperk->callback(checkBox);
+    mSkillTalentOrPerk->callback(checkBox);
     updateForm();
 }
 
 void SkillDialog::textChanged(QString) {
     QLineEdit* text = static_cast<QLineEdit*>(sender());
-    _skilltalentorperk->callback(text);
+    mSkillTalentOrPerk->callback(text);
     updateForm();
 }
 
 void SkillDialog::updateForm() {
-    _points->setText(QString("%1 points").arg(_skilltalentorperk->points().points));
-    _description->setText(_skilltalentorperk->description(SkillTalentOrPerk::ShowRoll));
-    _ok->setEnabled(_skilltalentorperk->description() != "<incomplete>");
+    mPoints->setText(QString("%1 points").arg(mSkillTalentOrPerk->points().points));
+    mDescription->setText(mSkillTalentOrPerk->description(SkillTalentOrPerk::ShowRoll));
+    mOk->setEnabled(mSkillTalentOrPerk->description() != "<incomplete>");
 }

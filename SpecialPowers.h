@@ -15,12 +15,12 @@ public:
     EnduranceReserve(): AllPowers("Endurance Reserve")         { }
     EnduranceReserve(const EnduranceReserve& s): AllPowers(s)  { }
     EnduranceReserve(EnduranceReserve&& s): AllPowers(s)       { }
-    EnduranceReserve(const QJsonObject& json): AllPowers(json) { v._end   = json["end"].toInt(0);
-                                                                     v._rec   = json["rec"].toInt(0);
-                                                                     v._lim   = json["lim"].toInt(0);
-                                                                     v._what  = json["what"].toString();
-                                                                     v._restr = json["restr"].toString();
-                                                                     v._slow  = json["slow"].toInt(0);
+    EnduranceReserve(const QJsonObject& json): AllPowers(json) { v.mEnd   = json["end"].toInt(0);
+                                                                     v.mRec   = json["rec"].toInt(0);
+                                                                     v.mLim   = json["lim"].toInt(0);
+                                                                     v.mWhat  = json["what"].toString();
+                                                                     v.mRestr = json["restr"].toString();
+                                                                     v.mSlow  = json["slow"].toInt(0);
                                                                    }
     virtual EnduranceReserve& operator=(const EnduranceReserve& s) {
         if (this != &s) {
@@ -52,51 +52,51 @@ public:
                                                                                             "1 Day", "1 Week", "1 Month", "1 Season", "1 Year", "5 Years", "25 Years",
                                                                                             "1 Century" });
                                                                  }
-    Fraction lim() override                                      { return (v._restr.isEmpty() ? Fraction(0) : Fraction(1, 4)); }
+    Fraction lim() override                                      { return (v.mRestr.isEmpty() ? Fraction(0) : Fraction(1, 4)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    QList<Fraction> limit { { 0, 1 }, { 0, 1 },
                                                                        { 2, { 0, 1 } }, { 1, { 3, 4 } }, { 1, { 1, 2 } }, { 1, { 1, 4 } },
                                                                        { 1, { 0, 1 } },      { 3, 4 },        { 1, 2 },        { 1, 4 }
                                                                    };
-                                                                   Fraction flim = (Fraction(1) + limit[v._lim + 1] + ((v._slow > 0) ? Fraction(1) * Fraction(v._slow) : Fraction(0)));
-                                                                   return (v._end + 2) / 4_cp + (Fraction((2_cp * (v._rec + 1) / 3).points) / flim).toInt();
+                                                                   Fraction flim = (Fraction(1) + limit[v.mLim + 1] + ((v.mSlow > 0) ? Fraction(1) * Fraction(v.mSlow) : Fraction(0)));
+                                                                   return (v.mEnd + 2) / 4_cp + (Fraction((2_cp * (v.mRec + 1) / 3).points) / flim).toInt();
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   END->setText(QString("%1").arg(s._end));
-                                                                   REC->setText(QString("%1").arg(s._rec));
-                                                                   limit->setCurrentIndex(v._lim);
-                                                                   what->setText(v._what);
-                                                                   restr->setText(v._restr);
-                                                                   slow->setCurrentIndex(v._slow);
+                                                                   END->setText(QString("%1").arg(s.mEnd));
+                                                                   REC->setText(QString("%1").arg(s.mRec));
+                                                                   limit->setCurrentIndex(v.mLim);
+                                                                   what->setText(v.mWhat);
+                                                                   restr->setText(v.mRestr);
+                                                                   slow->setCurrentIndex(v.mSlow);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._end   = END->text().toInt();
-                                                                   v._rec   = REC->text().toInt();
-                                                                   v._lim   = limit->currentIndex();
-                                                                   v._what  = what->text();
-                                                                   v._restr = restr->text();
-                                                                   v._slow  = slow->currentIndex();
+                                                                   v.mEnd   = END->text().toInt();
+                                                                   v.mRec   = REC->text().toInt();
+                                                                   v.mLim   = limit->currentIndex();
+                                                                   v.mWhat  = what->text();
+                                                                   v.mRestr = restr->text();
+                                                                   v.mSlow  = slow->currentIndex();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["end"]   = v._end;
-                                                                   obj["rec"]   = v._rec;
-                                                                   obj["lim"]   = v._lim;
-                                                                   obj["what"]  = v._what;
-                                                                   obj["restr"] = v._restr;
-                                                                   obj["slow"]  = v._slow;
+                                                                   obj["end"]   = v.mEnd;
+                                                                   obj["rec"]   = v.mRec;
+                                                                   obj["lim"]   = v.mLim;
+                                                                   obj["what"]  = v.mWhat;
+                                                                   obj["restr"] = v.mRestr;
+                                                                   obj["slow"]  = v.mSlow;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _end   = 0;
-        int     _rec   = 0;
-        int     _lim   = -1;
-        QString _what  = "";
-        QString _restr = "";
-        int     _slow  = -1;
+        int     mEnd   = 0;
+        int     mRec   = 0;
+        int     mLim   = -1;
+        QString mWhat  = "";
+        QString mRestr = "";
+        int     mSlow  = -1;
     } v;
 
     QLineEdit* END;
@@ -107,16 +107,16 @@ private:
     QComboBox* slow;
 
     QString optOut(bool showEND) {
-        if (v._end < 1 || v._rec < 1 || (v._lim > 0 && v._what.isEmpty())) return "<incomplete>";
+        if (v.mEnd < 1 || v.mRec < 1 || (v.mLim > 0 && v.mWhat.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1 END/%2 REC").arg(v._end).arg(v._rec) + "Endurance Reserve";
-        if (v._lim > 0) res += "; Limited Recovery (" + v._what + ")";
-        if (!v._restr.isEmpty()) res += "; Restricted Use (" + v._restr + ")";
+        res += QString("%1 END/%2 REC").arg(v.mEnd).arg(v.mRec) + "Endurance Reserve";
+        if (v.mLim > 0) res += "; Limited Recovery (" + v.mWhat + ")";
+        if (!v.mRestr.isEmpty()) res += "; Restricted Use (" + v.mRestr + ")";
         QStringList restr { "", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes", "1 Hour", "6 Hours",
                             "1 Day", "1 Week", "1 Month", "1 Season", "1 Year", "5 Years", "25 Years",
                             "1 Century" };
-        if (v._slow > 0) res += "; Slow Recovery (" + restr[v._slow] + ")";
+        if (v.mSlow > 0) res += "; Slow Recovery (" + restr[v.mSlow] + ")";
         return res;
     }
 
@@ -197,11 +197,11 @@ public:
     IndependantAdvantage(IndependantAdvantage&& s): AllPowers(s)      { }
     IndependantAdvantage(const QJsonObject& json): AllPowers(json)    { auto mod = json["mod"].toObject();
                                                                         QString name = mod["name"].toString();
-                                                                        v._mod = Modifiers::ByName(name)->create(json["mod"].toObject());
-                                                                        v._pts = json["pts"].toInt(0);
+                                                                        v.mMod = Modifiers::ByName(name)->create(json["mod"].toObject());
+                                                                        v.mPts = json["pts"].toInt(0);
                                                                         auto power = json["power"].toObject();
                                                                         name = power["name"].toString();
-                                                                        v._pow = Power::FromJson(name, power);
+                                                                        v.mPow = Power::FromJson(name, power);
                                                                       }
     virtual IndependantAdvantage& operator=(const IndependantAdvantage& s) {
         if (this != &s) {
@@ -226,41 +226,41 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   if (v._mod == nullptr) return 0_cp;
-                                                                   if (v._mod->isAdder()) return v._mod->points(Modifier::NoStore);
-                                                                   else if (v._pow != nullptr) {
-                                                                       Points active = v._pow->acting();
-                                                                       Points newActive = active * (Fraction(1) + v._mod->fraction(Modifier::NoStore)).toInt();
+                                                                   if (v.mMod == nullptr) return 0_cp;
+                                                                   if (v.mMod->isAdder()) return v.mMod->points(Modifier::NoStore);
+                                                                   else if (v.mPow != nullptr) {
+                                                                       Points active = v.mPow->acting();
+                                                                       Points newActive = active * (Fraction(1) + v.mMod->fraction(Modifier::NoStore)).toInt();
                                                                        return newActive - active;
                                                                    }
                                                                    return 0_cp; // get value of power before adv, then after, then return difference
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   mod->setText(s._mod->description(Power::NoStore));
-                                                                   powIdx = powerLookup(s._pow);
+                                                                   mod->setText(s.mMod->description(Power::NoStore));
+                                                                   powIdx = powerLookup(s.mPow);
                                                                    pow->setCurrentIndex(powIdx);
-                                                                   pts->setText(QString("%1").arg(s._pts));
+                                                                   pts->setText(QString("%1").arg(s.mPts));
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
                                                                    // mod is stored in the button
                                                                    powIdx = pow->currentIndex();
-                                                                   v._pow = getPower(powIdx);
-                                                                   v._pts = pts->text().toInt();
+                                                                   v.mPow = getPower(powIdx);
+                                                                   v.mPts = pts->text().toInt();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["mod"]   = v._mod->toJson();
-                                                                   obj["pts"]   = v._pts;
-                                                                   obj["power"] = v._pow->toJson();
+                                                                   obj["mod"]   = v.mMod->toJson();
+                                                                   obj["pts"]   = v.mPts;
+                                                                   obj["power"] = v.mPow->toJson();
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        shared_ptr<Modifier> _mod    = nullptr;
-        int                  _pts    = 0;
-        shared_ptr<Power>    _pow    = nullptr;
+        shared_ptr<Modifier> mMod    = nullptr;
+        int                  mPts    = 0;
+        shared_ptr<Power>    mPow    = nullptr;
     } v;
 
     int          powIdx = -1;
@@ -269,10 +269,10 @@ private:
     QComboBox*   pow;
 
     QString optOut(bool showEND) {
-        if (v._mod == nullptr) return "<incomplete>";
+        if (v.mMod == nullptr) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += v._mod->description() + " on ";
+        res += v.mMod->description() + " on ";
         return res;
     }
 
@@ -286,7 +286,7 @@ private:
             if (!(mod->type() == ModifierBase::ModifierType::isAdvantage ||
                   (mod->type() == ModifierBase::ModifierType::isBoth && mod->fraction(Modifier::NoStore) >= 0L))) return;
             btn->setText(mod->description());
-            v._mod = mod;
+            v.mMod = mod;
 #endif
         }
     }
@@ -307,7 +307,7 @@ public:
     Luck(): AllPowers("Luck")                      { }
     Luck(const Luck& s): AllPowers(s)              { }
     Luck(Luck&& s): AllPowers(s)                   { }
-    Luck(const QJsonObject& json): AllPowers(json) { v._dice = json["dice"].toInt(0);
+    Luck(const QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
                                                        }
     virtual Luck& operator=(const Luck& s) {
         if (this != &s) {
@@ -330,33 +330,33 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 5_cp * v._dice;
+                                                                   return 5_cp * v.mDice;
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   dice->setText(QString("%1").arg(s._dice));
+                                                                   dice->setText(QString("%1").arg(s.mDice));
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._dice = dice->text().toInt();
+                                                                   v.mDice = dice->text().toInt();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v._dice;
+                                                                   obj["dice"] = v.mDice;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int _dice = 0;
+        int mDice = 0;
     } v;
 
     QLineEdit* dice;
 
     QString optOut(bool showEND) {
-        if (v._dice < 1) return "<incomplete>";
+        if (v.mDice < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1d6 Luck").arg(v._dice);
+        res += QString("%1d6 Luck").arg(v.mDice);
         return res;
     }
 
@@ -376,8 +376,8 @@ public:
     Regeneration(): AllPowers("Regeneration")              { }
     Regeneration(const Regeneration& s): AllPowers(s)      { }
     Regeneration(Regeneration&& s): AllPowers(s)           { }
-    Regeneration(const QJsonObject& json): AllPowers(json) { v._body = json["body"].toInt(0);
-                                                                 v._time = json["time"].toInt(0);
+    Regeneration(const QJsonObject& json): AllPowers(json) { v.mBody = json["body"].toInt(0);
+                                                                 v.mTime = json["time"].toInt(0);
                                                                }
     virtual Regeneration& operator=(const Regeneration& s) {
         if (this != &s) {
@@ -402,40 +402,40 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._body * v._time * 2_cp;
+                                                                   return v.mBody * v.mTime * 2_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   body->setText(QString("%1").arg(s._body));
-                                                                   time->setCurrentIndex(s._time);
+                                                                   body->setText(QString("%1").arg(s.mBody));
+                                                                   time->setCurrentIndex(s.mTime);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._body = body->text().toInt();
-                                                                   v._time = time->currentIndex();
+                                                                   v.mBody = body->text().toInt();
+                                                                   v.mTime = time->currentIndex();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["body"] = v._body;
-                                                                   obj["time"] = v._time;
+                                                                   obj["body"] = v.mBody;
+                                                                   obj["time"] = v.mTime;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int _body = 0;
-        int _time = -1;
+        int mBody = 0;
+        int mTime = -1;
     } v;
 
     QLineEdit* body;
     QComboBox* time;
 
     QString optOut(bool showEND) {
-        if (v._body < 1 && v._time < 1) return "<incomplete>";
+        if (v.mBody < 1 && v.mTime < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         QStringList time { "", "Week", "Day", "6 Hours", "Hour", "20 Minutes", "Minute",
                            "Hour", "Turn" };
-        res += QString("%1 BODY per %2 Regeneration").arg(v._body).arg(time[v._time]);
+        res += QString("%1 BODY per %2 Regeneration").arg(v.mBody).arg(time[v.mTime]);
         return res;
     }
 
@@ -457,7 +457,7 @@ public:
     Skill(Skill&& s): AllPowers(s)                  { }
     Skill(const QJsonObject& json): AllPowers(json) { auto skill = json["skill"].toObject();
                                                           QString name = skill["name"].toString();
-                                                          v._skill = SkillTalentOrPerk::FromJson(name, skill);
+                                                          v.mSkill = SkillTalentOrPerk::FromJson(name, skill);
                                                         }
     virtual Skill& operator=(const Skill& s) {
         if (this != &s) {
@@ -480,36 +480,36 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   if (v._skill) return v._skill->points(SkillTalentOrPerk::NoStore);
+                                                                   if (v.mSkill) return v.mSkill->points(SkillTalentOrPerk::NoStore);
                                                                    else return 0_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   skll->setText(s._skill->description());
+                                                                   skll->setText(s.mSkill->description());
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
                                                                    // clicked stores the skill
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["skill"] = v._skill->toJson();
+                                                                   obj["skill"] = v.mSkill->toJson();
                                                                    return obj;
                                                                  }
 
-    shared_ptr<SkillTalentOrPerk> skill() override { return v._skill; }
+    shared_ptr<SkillTalentOrPerk> skill() override { return v.mSkill; }
 
 private:
     struct vars {
-        shared_ptr<SkillTalentOrPerk> _skill = nullptr;
+        shared_ptr<SkillTalentOrPerk> mSkill = nullptr;
     } v;
 
     QPushButton* skll;
 
     QString optOut(bool showEND) {
-        if (v._skill == nullptr) return "<incomplete>";
+        if (v.mSkill == nullptr) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += v._skill->description();
+        res += v.mSkill->description();
         return res;
     }
 
@@ -521,7 +521,7 @@ private:
         shared_ptr<SkillTalentOrPerk> skl = dlg.skilltalentorperk();
         if (!skl->isSkill()) return;
         btn->setText(skl->description());
-        v._skill = skl;
+        v.mSkill = skl;
 #endif
     }
 
@@ -541,8 +541,8 @@ public:
     TeleportLocation(): AllPowers("Teleport Location")         { }
     TeleportLocation(const TeleportLocation& s): AllPowers(s)  { }
     TeleportLocation(TeleportLocation&& s): AllPowers(s)       { }
-    TeleportLocation(const QJsonObject& json): AllPowers(json) { v._fixed = json["fixed"].toInt(0);
-                                                                 v._where = json["where"].toString();
+    TeleportLocation(const QJsonObject& json): AllPowers(json) { v.mFixed = json["fixed"].toInt(0);
+                                                                 v.mWhere = json["where"].toString();
                                                                }
     virtual TeleportLocation& operator=(const TeleportLocation& s) {
         if (this != &s) {
@@ -566,38 +566,38 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return (v._fixed ? 1_cp : 5_cp);
+                                                                   return (v.mFixed ? 1_cp : 5_cp);
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   fixed->setChecked(s._fixed);
-                                                                   where->setText(s._where);
+                                                                   fixed->setChecked(s.mFixed);
+                                                                   where->setText(s.mWhere);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._fixed = fixed->isChecked();
-                                                                   v._where = where->text();
+                                                                   v.mFixed = fixed->isChecked();
+                                                                   v.mWhere = where->text();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["fixed"] = v._fixed;
-                                                                   obj["where"] = v._where;
+                                                                   obj["fixed"] = v.mFixed;
+                                                                   obj["where"] = v.mWhere;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        bool    _fixed = 0;
-        QString _where = "";
+        bool    mFixed = 0;
+        QString mWhere = "";
     } v;
 
     QCheckBox* fixed;
     QLineEdit* where;
 
     QString optOut(bool showEND) {
-        if (v._fixed && v._where.isEmpty()) return "<incomplete>";
+        if (v.mFixed && v.mWhere.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Teleport Location " + (v._fixed ? "(" + v._where + ")" : "(Floating)");
+        res += "Teleport Location " + (v.mFixed ? "(" + v.mWhere + ")" : "(Floating)");
         return res;
     }
 

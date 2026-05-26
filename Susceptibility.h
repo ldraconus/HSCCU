@@ -3,8 +3,7 @@
 
 #include "complication.h"
 
-class Susceptibility: public Complication
-{
+class Susceptibility: public Complication {
 public:
     Susceptibility(): Complication() { }
     Susceptibility(const Susceptibility& ac)
@@ -32,8 +31,8 @@ public:
         static QList<QString> evry { " Instantly", "/Segment", "/Phase", "/Turn", "/Minute", "/5 Minutes",
                                      "/20 Minutes", "/Hour", "/6 Hours", "/Day" };
         static QList<QString> prxm { "within 8m", "contact", "internal" };
-        if (v._frequency < 0 || v._every < 0 || v._dice < 0 || v._proximity < 0 || v._what.isEmpty()) return "<incomplete>";
-        return QString("Susceptibility: %1 (%2; %3%4; %5)").arg(v._what, freq[v._frequency], dice[v._dice], evry[v._every], prxm[v._proximity]);
+        if (v.mFrequency < 0 || v.mEvery < 0 || v.mDice < 0 || v.mProximity < 0 || v.mWhat.isEmpty()) return "<incomplete>";
+        return QString("Susceptibility: %1 (%2; %3%4; %5)").arg(v.mWhat, freq[v.mFrequency], dice[v.mDice], evry[v.mEvery], prxm[v.mProximity]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what      = createLineEdit(parent, layout, "What are you susceptible to?");
@@ -45,42 +44,42 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return v._every == 0 ? 0_cp : (20_cp - v._every * 5) + (v._frequency + 1) * 5_cp + (v._dice - 1) * 5_cp - v._proximity * 5_cp;
+        return v.mEvery == 0 ? 0_cp : (20_cp - v.mEvery * 5) + (v.mFrequency + 1) * 5_cp + (v.mDice - 1) * 5_cp - v.mProximity * 5_cp;
     }
     void restore() override {
         vars s = v;
-        what->setText(v._what);
-        dice->setCurrentIndex(v._dice);
-        every->setCurrentIndex(v._every);
-        frequency->setCurrentIndex(v._frequency);
-        proximity->setCurrentIndex(v._proximity);
+        what->setText(v.mWhat);
+        dice->setCurrentIndex(v.mDice);
+        every->setCurrentIndex(v.mEvery);
+        frequency->setCurrentIndex(v.mFrequency);
+        proximity->setCurrentIndex(v.mProximity);
         v = s;
     }
     void store() override {
-        v._what      = what->text();
-        v._dice      = dice->currentIndex();
-        v._every     = every->currentIndex();
-        v._frequency = frequency->currentIndex();
-        v._proximity = proximity->currentIndex();
+        v.mWhat      = what->text();
+        v.mDice      = dice->currentIndex();
+        v.mEvery     = every->currentIndex();
+        v.mFrequency = frequency->currentIndex();
+        v.mProximity = proximity->currentIndex();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]      = "Susceptibility";
-        obj["dice"]      = v._dice;
-        obj["every"]     = v._every;
-        obj["frequency"] = v._frequency;
-        obj["proximity"] = v._proximity;
-        obj["what"]      = v._what;
+        obj["dice"]      = v.mDice;
+        obj["every"]     = v.mEvery;
+        obj["frequency"] = v.mFrequency;
+        obj["proximity"] = v.mProximity;
+        obj["what"]      = v.mWhat;
         return obj;
     }
 
 private:
     struct vars {
-        int     _dice = -1;
-        int     _every = -1;
-        int     _frequency = -1;
-        int     _proximity = -1;
-        QString _what = "";
+        int     mDice = -1;
+        int     mEvery = -1;
+        int     mFrequency = -1;
+        int     mProximity = -1;
+        QString mWhat = "";
     } v;
 
     QComboBox* dice;

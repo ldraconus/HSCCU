@@ -260,7 +260,7 @@ private:
     void               updateTotals();
     QString            valueToDice(int, bool showD6 = !noD6);
 
-    static Sheet_UI _Sheet_UI; // NOLINT
+    static Sheet_UI sSheet_UI; // NOLINT
 
 public slots:
     void complicationDoubleClicked(QTableWidgetItem*)          { editComplication(); }

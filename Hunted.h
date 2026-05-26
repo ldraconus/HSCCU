@@ -6,8 +6,7 @@
 #include "sheet.h"
 #endif
 
-class Hunted: public Complication
-{
+class Hunted: public Complication {
 public:
     Hunted(): Complication() { }
     Hunted(const Hunted& ac)

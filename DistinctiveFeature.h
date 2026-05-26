@@ -3,8 +3,7 @@
 
 #include "complication.h"
 
-class DistinctiveFeature: public Complication
-{
+class DistinctiveFeature: public Complication {
 public:
     DistinctiveFeature(): Complication() { }
     DistinctiveFeature(const DistinctiveFeature& ac)

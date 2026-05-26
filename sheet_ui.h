@@ -671,8 +671,7 @@ public:
     static constexpr int HeaderFontSize    = 14;
 #endif
 
-    void setupUi(gsl::owner<QWidget*> widget, gsl::owner<QWidget*> hidden)
-    {
+    void setupUi(gsl::owner<QWidget*> widget, gsl::owner<QWidget*> hidden) {
         layout = new QGridLayout();
         widget->setLayout(layout);
 

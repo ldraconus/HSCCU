@@ -6,8 +6,7 @@
 
 #include <gsl/gsl>
 
-class Fraction
-{
+class Fraction {
 public:
     Fraction()
         : mNumerator(0)

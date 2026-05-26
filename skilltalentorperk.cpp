@@ -138,7 +138,7 @@ namespace statics {
     MAKE_ENHANCER(WellConnected);
 }
 
-QMap<QString, SkillTalentOrPerk::skillBase*> SkillTalentOrPerk::_skills {
+QMap<QString, SkillTalentOrPerk::skillBase*> SkillTalentOrPerk::sSkills {
     { LINK(Acrobatics) },
     { LINK(Acting) },
     { LINK(Analyze) },
@@ -209,7 +209,7 @@ QMap<QString, SkillTalentOrPerk::skillBase*> SkillTalentOrPerk::_skills {
     { LINK(Weaponsmith) }
 };
 
-QMap<QString, SkillTalentOrPerk::talentBase*> SkillTalentOrPerk::_talents {
+QMap<QString, SkillTalentOrPerk::talentBase*> SkillTalentOrPerk::sTalents {
     { SPCS("Absolute Range Sense", AbsoluteRangeSense) },
     { SPCS("Absolute Time Sense", AbsoluteTimeSense) },
     { LINK(Ambidexterity) },
@@ -235,7 +235,7 @@ QMap<QString, SkillTalentOrPerk::talentBase*> SkillTalentOrPerk::_talents {
     { SPCS("Weaponmaster▲", Weaponmaster) }
 };
 
-QMap<QString, SkillTalentOrPerk::perkBase*> SkillTalentOrPerk::_perks {
+QMap<QString, SkillTalentOrPerk::perkBase*> SkillTalentOrPerk::sPerks {
     { LINK(Access) },
     { LINK(Anonymity) },
     { SPCS("Computer Link", ComputerLink) },
@@ -249,7 +249,7 @@ QMap<QString, SkillTalentOrPerk::perkBase*> SkillTalentOrPerk::_perks {
     { SPCS("Vehicles And Bases", VehiclesAndBases) }
 };
 
-QMap<QString, SkillTalentOrPerk::enhancerBase*> SkillTalentOrPerk::_enhancers {
+QMap<QString, SkillTalentOrPerk::enhancerBase*> SkillTalentOrPerk::sEnhancers {
     { SPCS("Blank Line", BlankSkill) },
     { SPCS("Jack Of All Trades", JackOfAllTrades) },
     { LINK(Linguist) },
@@ -377,30 +377,30 @@ QList<QString> SkillTalentOrPerk::Available() {
 }
 
 QList<QString> SkillTalentOrPerk::SkillsAvailable() {
-    return _skills.keys();
+    return sSkills.keys();
 }
 
 QList<QString> SkillTalentOrPerk::TalentsAvailable() {
-    return _talents.keys();
+    return sTalents.keys();
 }
 
 QList<QString> SkillTalentOrPerk::PerksAvailable() {
-    return _perks.keys();
+    return sPerks.keys();
 }
 
 
 shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::ByName(QString name) {
-    if (_skills.find(name) != _skills.end()) return _skills[name]->create();
-    else if (_talents.find(name) != _talents.end()) return _talents[name]->create();
-    else if (_perks.find(name) != _perks.end()) return _perks[name]->create();
-    else if (_enhancers.find(name) != _enhancers.end()) return _enhancers[name]->create();
+    if (sSkills.find(name) != sSkills.end()) return sSkills[name]->create();
+    else if (sTalents.find(name) != sTalents.end()) return sTalents[name]->create();
+    else if (sPerks.find(name) != sPerks.end()) return sPerks[name]->create();
+    else if (sEnhancers.find(name) != sEnhancers.end()) return sEnhancers[name]->create();
     else return nullptr;
 }
 
 shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::FromJson(QString name, const QJsonObject& json) {
-    if (_skills.find(name) != _skills.end()) return _skills[name]->create(json);
-    else if (_talents.find(name) != _talents.end()) return _talents[name]->create(json);
-    else if (_perks.find(name) != _perks.end()) return _perks[name]->create(json);
-    else if (_enhancers.find(name) != _enhancers.end()) return _enhancers[name]->create(json);
+    if (sSkills.find(name) != sSkills.end()) return sSkills[name]->create(json);
+    else if (sTalents.find(name) != sTalents.end()) return sTalents[name]->create(json);
+    else if (sPerks.find(name) != sPerks.end()) return sPerks[name]->create(json);
+    else if (sEnhancers.find(name) != sEnhancers.end()) return sEnhancers[name]->create(json);
     else return nullptr;
 }

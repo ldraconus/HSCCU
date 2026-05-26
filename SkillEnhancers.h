@@ -29,9 +29,9 @@ public:
 
     bool isSkill() override { return true; }
 
-    QString  description(bool) override            { return v._name; }
+    QString  description(bool) override            { return v.mName; }
     bool     form(QWidget*, QVBoxLayout*) override { return false; }
-    QString  name() override                       { return v._name; }
+    QString  name() override                       { return v.mName; }
     Points   points(bool noStore = false) override { if (!noStore) store(); return 3_cp; }
     void     restore() override                    { }
     QString  roll() override                       { return ""; }
@@ -39,13 +39,13 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["name"] = v._name;
+        obj["name"] = v.mName;
         return obj;
     }
 
 private:
     struct vars {
-        QString _name;
+        QString mName;
     } v;
 };
 

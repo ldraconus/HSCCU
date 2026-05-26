@@ -8,8 +8,7 @@
 #include "sheet.h"
 #endif
 
-class Dependent: public Complication
-{
+class Dependent: public Complication {
 public:
     Dependent(): Complication() { }
     Dependent(const Dependent& ac)

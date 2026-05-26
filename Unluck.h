@@ -3,8 +3,7 @@
 
 #include "complication.h"
 
-class Unluck: public Complication
-{
+class Unluck: public Complication {
 public:
     Unluck(): Complication() { }
     Unluck(const Unluck& ac)
@@ -27,34 +26,34 @@ public:
     }
 
     QString description() override {
-        if (v._dice < 1) return "<incomplete>";
-        return QString("Unluck: %1d6").arg(v._dice);
+        if (v.mDice < 1) return "<incomplete>";
+        return QString("Unluck: %1d6").arg(v.mDice);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         dice = createLineEdit(parent, layout, "How many dice of unluck?", std::mem_fn(&Complication::numeric));
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return v._dice * 5_cp;
+        return v.mDice * 5_cp;
     }
     void restore() override {
         vars s = v;
-        dice->setText(QString("%1").arg(s._dice));
+        dice->setText(QString("%1").arg(s.mDice));
         v = s;
     }
     void store() override {
-        v._dice = dice->text().toInt(0);
+        v.mDice = dice->text().toInt(0);
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"] = "Unluck";
-        obj["dice"] = v._dice;
+        obj["dice"] = v.mDice;
         return obj;
     }
 
 private:
     struct vars {
-        int _dice = 0;
+        int mDice = 0;
     } v;
 
     QLineEdit* dice;

@@ -3,8 +3,7 @@
 
 #include "complication.h"
 
-class PsychologicalComplication: public Complication
-{
+class PsychologicalComplication: public Complication {
 public:
     PsychologicalComplication(): Complication() { }
     PsychologicalComplication(const PsychologicalComplication& ac)

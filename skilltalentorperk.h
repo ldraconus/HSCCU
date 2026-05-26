@@ -13,8 +13,7 @@
 #include <QObject>
 #include <QVBoxLayout>
 
-class SkillTalentOrPerk
-{
+class SkillTalentOrPerk {
 private:
     QWidget* _sender {};
 
@@ -36,7 +35,8 @@ protected:
         QList<QString> vals = n.split("/");
         QString res;
         bool first = true;
-        for (const auto& val: vals) {
+        for (int i = 0; i < vals.count(); ++i) {
+            auto& val = vals[i];
             if (first) first = false;
             else res += "/";
             QList<QString> num = val.split("-");
@@ -214,10 +214,10 @@ public:
     static constexpr int BaseRoll = 11;
 
 private:
-    static QMap<QString, skillBase*>    _skills;    // NOLINT
-    static QMap<QString, talentBase*>   _talents;   // NOLINT
-    static QMap<QString, perkBase*>     _perks;     // NOLINT
-    static QMap<QString, enhancerBase*> _enhancers; // NOLINT
+    static QMap<QString, skillBase*>    sSkills;    // NOLINT
+    static QMap<QString, talentBase*>   sTalents;   // NOLINT
+    static QMap<QString, perkBase*>     sPerks;     // NOLINT
+    static QMap<QString, enhancerBase*> sEnhancers; // NOLINT
 };
 
 #endif // SKILLTALENTORPERK_H

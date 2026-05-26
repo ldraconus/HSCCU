@@ -360,26 +360,33 @@ public:
 
     void add(Coins x, const QString& d) {
         QStringList keys = mDenominations.keys();
-        for (auto [idx, key]: enumerate(keys))
+        for (int idx = 0; idx < keys.count(); ++idx) {
+            auto& key = keys[idx];
             if (key == d) {
                 mCoins[idx] += x;
                 return;
             }
+        }
     }
 
     void spend(Coins x, const QString& d) {
         QStringList keys = mDenominations.keys();
-        for (auto [idx, key]: enumerate(keys))
+        for (int idx = 0; idx < keys.count(); ++idx) {
+            auto& key = keys[idx];
             if (key == d) {
                 mCoins[idx] -= x;
                 return;
             }
+        }
     }
 
     void minimize() {
         Coins p = Coins(0);
         QStringList keys = mDenominations.keys();
-        for (auto [idx, key]: enumerate(keys)) p += mCoins[idx] * mDenominations[key];
+        for (int idx = 0; idx < keys.count(); ++idx) {
+            auto& key = keys[idx];
+            p += mCoins[idx] * mDenominations[key];
+        }
         for (auto i = keys.size() - 1; i >= 0; --i) {
             mCoins[i] = p / mDenominations[keys[i]];
             p %= mDenominations[keys[i]];

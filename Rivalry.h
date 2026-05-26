@@ -3,8 +3,7 @@
 
 #include "complication.h"
 
-class Rivalry: public Complication
-{
+class Rivalry: public Complication {
 public:
     Rivalry(): Complication() { }
     Rivalry(const Rivalry& ac)

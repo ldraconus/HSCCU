@@ -6,8 +6,7 @@
 #include "sheet.h"
 #endif
 
-class SocialComplication: public Complication
-{
+class SocialComplication: public Complication {
 public:
     SocialComplication(): Complication() { }
     SocialComplication(const SocialComplication& ac)
@@ -33,15 +32,15 @@ public:
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)",  "Very Frequently (14-)" };
         static QList<QString> freqSans { "Infrequently", "Frequently",  "Very Frequently" };
         static QList<QString> effc     { "Minor", "Major", "Severe" };
-        if (v._what.isEmpty() || v._frequency < 0 || v._effects < 0) return "<incomplete>";
-        return "Social Complication: " + v._what + " (" + (
+        if (v.mWhat.isEmpty() || v.mFrequency < 0 || v.mEffects < 0) return "<incomplete>";
+        return "Social Complication: " + v.mWhat + " (" + (
 #ifndef ISHSC
                    Sheet::ref().getOption().showFrequencyRolls()
 #else
                    true
 #endif
-                       ? freq[v._frequency] : freqSans[v._frequency]) + "); " + effc[v._effects] +
-                (v._notRestrictive ? "; Not Resrtictive in Some Cultures" : "") + ")";
+                       ? freq[v.mFrequency] : freqSans[v.mFrequency]) + "); " + effc[v.mEffects] +
+                (v.mNotRestrictive ? "; Not Resrtictive in Some Cultures" : "") + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what           = createLineEdit(parent, layout, "What is the complication?");
@@ -58,39 +57,39 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        auto pnts = 5_cp * (v._frequency + 1) + (v._effects < 0 ? 0 : v._effects) * 5_cp - (v._notRestrictive ? 5_cp : 0_cp);
+        auto pnts = 5_cp * (v.mFrequency + 1) + (v.mEffects < 0 ? 0 : v.mEffects) * 5_cp - (v.mNotRestrictive ? 5_cp : 0_cp);
         return pnts;
     }
     void restore() override {
         vars s = v;
-        effects->setCurrentIndex(s._effects);
-        frequency->setCurrentIndex(s._frequency);
-        notRestrictive->setChecked(s._notRestrictive);
-        what->setText(s._what);
+        effects->setCurrentIndex(s.mEffects);
+        frequency->setCurrentIndex(s.mFrequency);
+        notRestrictive->setChecked(s.mNotRestrictive);
+        what->setText(s.mWhat);
         v = s;
     }
     void store() override {
-        v._effects        = effects->currentIndex();
-        v._frequency      = frequency->currentIndex();
-        v._notRestrictive = notRestrictive->isChecked();
-        v._what           = what->text();
+        v.mEffects        = effects->currentIndex();
+        v.mFrequency      = frequency->currentIndex();
+        v.mNotRestrictive = notRestrictive->isChecked();
+        v.mWhat           = what->text();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]           = "Social Complication";
-        obj["effects"]        = v._effects;
-        obj["frequency"]      = v._frequency;
-        obj["notRestrictive"] = v._notRestrictive;
-        obj["what"]           = v._what;
+        obj["effects"]        = v.mEffects;
+        obj["frequency"]      = v.mFrequency;
+        obj["notRestrictive"] = v.mNotRestrictive;
+        obj["what"]           = v.mWhat;
         return obj;
     }
 
 private:
     struct vars {
-        int     _effects        = -1;
-        int     _frequency      = -1;
-        bool    _notRestrictive = false;
-        QString _what           = "";
+        int     mEffects        = -1;
+        int     mFrequency      = -1;
+        bool    mNotRestrictive = false;
+        QString mWhat           = "";
     } v;
 
     QComboBox* effects;

@@ -11,15 +11,14 @@ namespace Ui {
 class SkillDialog;
 }
 
-class SkillDialog : public QDialog
-{
+class SkillDialog : public QDialog {
     Q_OBJECT
 
 public:
     explicit SkillDialog(QWidget *parent = nullptr);
     ~SkillDialog();
 
-    shared_ptr<SkillTalentOrPerk> skilltalentorperk() { return _skilltalentorperk; }
+    shared_ptr<SkillTalentOrPerk> skilltalentorperk() { return mSkillTalentOrPerk; }
 
     SkillDialog& skilltalentorperk(shared_ptr<SkillTalentOrPerk> s);
 
@@ -28,12 +27,12 @@ private:
 
     static const bool WordWrap = true;
 
-    QLabel*            _description;
-    QLabel*            _points;
-    QPushButton*       _ok;
-    bool               _skipUpdate = false;
+    QLabel*            mDescription;
+    QLabel*            mPoints;
+    QPushButton*       mOk;
+    bool               mSkipUpdate = false;
 
-    shared_ptr<SkillTalentOrPerk> _skilltalentorperk = nullptr;
+    shared_ptr<SkillTalentOrPerk> mSkillTalentOrPerk = nullptr;
 
     QLabel* createLabel(QVBoxLayout* parent, QString text, bool wordWrap);
     void    updateForm();
