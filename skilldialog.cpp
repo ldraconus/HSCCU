@@ -7,8 +7,7 @@
 
 SkillDialog::SkillDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SkillDialog)
-{
+    ui(new Ui::SkillDialog) {
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
 
@@ -27,8 +26,7 @@ SkillDialog::SkillDialog(QWidget *parent) :
     mOk->setEnabled(false);
 }
 
-SkillDialog::~SkillDialog()
-{
+SkillDialog::~SkillDialog() {
     delete ui;
 }
 

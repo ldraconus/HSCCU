@@ -9,8 +9,7 @@
 
 optionDialog::optionDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::optionDialog)
-{
+    ui(new Ui::optionDialog) {
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
 
@@ -37,8 +36,7 @@ optionDialog::optionDialog(QWidget *parent) :
     Sheet::ref().fixButtonBox(ui->buttonBox);
 }
 
-optionDialog::~optionDialog()
-{
+optionDialog::~optionDialog() {
     delete ui;
 }
 

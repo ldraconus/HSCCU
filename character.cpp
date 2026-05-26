@@ -173,22 +173,28 @@ void Character::fromJson(Option&, QJsonDocument& doc) {
     mWeight        = top["weight"].toString("100kg");
 
     const QJsonObject& objCharacteristics = top["characteristics"].toObject();
-    for (const auto& c: statPairs) *std::get<Characteristic*>(c) = Characteristic(objCharacteristics[std::get<QString>(c)].toObject());
+    for (int i = 0; i < statPairs.count(); ++i) {
+        auto c = statPairs[i];
+        *std::get<Characteristic*>(c) = Characteristic(objCharacteristics[std::get<QString>(c)].toObject());
+    }
 
     QJsonArray complications = top["complications"].toArray();
-    for (const auto& complication: complications) {
+    for (int i = 0; i < complications.count(); ++i) {
+        auto complication = complications[i];
         QJsonObject obj = complication.toObject();
         mComplications.append(Complication::FromJson(obj["name"].toString(), obj));
     }
 
     QJsonArray powers = top["powers"].toArray();
-    for (const auto& power: powers) {
+    for (int i = 0; i < powers.count(); ++i) {
+        auto power = powers[i];
         QJsonObject obj = power.toObject();
         mPowers.append(Power::FromJson(obj["name"].toString(), obj));
     }
 
     QJsonArray skillsTalentsOrPerks = top["skillsTalentsOrPerks"].toArray();
-    for (const auto& skillsTalentsOrPerk: skillsTalentsOrPerks) {
+    for (int i = 0; i < skillsTalentsOrPerks.count(); ++i) {
+        auto skillsTalentsOrPerk = skillsTalentsOrPerks[i];
         QJsonObject obj = skillsTalentsOrPerk.toObject();
         mSkillsTalentsOrPerks.append(SkillTalentOrPerk::FromJson(obj["name"].toString(), obj));
     }
@@ -263,7 +269,10 @@ QJsonDocument Character::toJson(Option& opt) {
     top.insert("weight",        mWeight);
 
     QJsonObject objCharacteristics;
-    for (const auto& c: statPairs) objCharacteristics.insert(std::get<QString>(c), std::get<Characteristic*>(c)->toJson());
+    for (int i = 0; i < statPairs.count(); ++i) {
+        auto c = statPairs[i];
+        objCharacteristics.insert(std::get<QString>(c), std::get<Characteristic*>(c)->toJson());
+    }
     top.insert("characteristics", objCharacteristics);
 
     QJsonArray complications;

@@ -4,8 +4,7 @@
 #endif
 
 Characteristic::Characteristic(const QJsonObject& c)
-    : mCost(this->cost())
-{
+    : mCost(this->cost()) {
     if (c.find("base") == c.end()) throw("");
 
     mBase = c["base"].toInt(0);

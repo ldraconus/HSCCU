@@ -252,8 +252,7 @@ Sheet::Sheet(QWidget *parent)
 #endif
     , Ui(&sSheet_UI)
     , printer(nullptr)
-    , mSaveChanged(false)
-{
+    , mSaveChanged(false) {
     sSheet = this;
 
     ui->setupUi(this);
@@ -476,8 +475,7 @@ Sheet::Sheet(QWidget *parent)
 #endif
 }
 
-Sheet::~Sheet()
-{
+Sheet::~Sheet() {
     delete printer;
     delete ui;
     // Ui's contents are pointed to by ui->label, don't delete it (double deletes)!  Don't worry, it is not allocated either, static global storage with a pointer to it.

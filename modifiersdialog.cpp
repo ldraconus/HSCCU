@@ -9,8 +9,7 @@ ModifiersDialog* ModifiersDialog::mModifiersDialog = nullptr; // NOLINT
 
 ModifiersDialog::ModifiersDialog(bool advantage, QWidget *parent)
     : QDialog(parent)
-    , ui(new Ui::ModifiersDialog)
-{
+    , ui(new Ui::ModifiersDialog) {
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
 
@@ -37,8 +36,7 @@ ModifiersDialog::ModifiersDialog(bool advantage, QWidget *parent)
 
 }
 
-ModifiersDialog::~ModifiersDialog()
-{
+ModifiersDialog::~ModifiersDialog() {
     delete ui;
 }
 

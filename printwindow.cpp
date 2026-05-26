@@ -3,12 +3,10 @@
 
 PrintWindow::PrintWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::PrintWindow)
-{
+    ui(new Ui::PrintWindow) {
     ui->setupUi(this);
 }
 
-PrintWindow::~PrintWindow()
-{
+PrintWindow::~PrintWindow() {
     delete ui;
 }

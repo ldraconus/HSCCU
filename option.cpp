@@ -10,8 +10,7 @@ Option::Option()
     , mShowNotesPage(false)
     , mNormalHumanMaxima(false)
     , mActivePerEND(10_cp)
-    , mTotalPoints(0_cp)
-{ }
+    , mTotalPoints(0_cp) { }
 
 Option::Option(const Option& opt)
     : mBanner(opt.mBanner)
@@ -21,8 +20,7 @@ Option::Option(const Option& opt)
     , mShowNotesPage(opt.mShowNotesPage)
     , mNormalHumanMaxima(opt.mNormalHumanMaxima)
     , mActivePerEND(opt.mActivePerEND)
-    , mTotalPoints(opt.mTotalPoints)
-{ }
+    , mTotalPoints(opt.mTotalPoints) { }
 
 Option::Option(Option&& opt): Option(opt) { }
 
@@ -34,8 +32,7 @@ Option::Option(const QJsonObject& obj)
     , mShowNotesPage(obj["notes"].toBool(true))
     , mNormalHumanMaxima(obj["humanMaxima"].toBool(false))
     , mActivePerEND(Points(obj["activePerEND"].toInt(10)))
-    , mTotalPoints(Points(obj["totalPoints"].toInt(400)))
-{ }
+    , mTotalPoints(Points(obj["totalPoints"].toInt(400))) { }
 
 Option& Option::operator=(const Option& opt) {
     if (this != &opt) {
@@ -51,7 +48,9 @@ Option& Option::operator=(const Option& opt) {
     return *this;
 }
 
-Option& Option::operator=(Option&& opt) { return operator=(opt); }
+Option& Option::operator=(Option&& opt) {
+    return operator=(opt);
+}
 
 void Option::load() {
     QSettings settings("SoftwareOnHand", "HSCCU");

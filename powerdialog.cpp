@@ -21,8 +21,7 @@ shared_ptr<Power> PowerDialog::_dummy = nullptr; // NOLINT
 PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
     : QDialog(parent)
     , ui(new Ui::PowerDialog)
-    , mSaved(save)
-{
+    , mSaved(save) {
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
 
@@ -66,8 +65,7 @@ PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
     QTimer::singleShot(100, this, &PowerDialog::doUpdate);
 }
 
-PowerDialog::~PowerDialog()
-{
+PowerDialog::~PowerDialog() {
     delete ui;
 }
 
