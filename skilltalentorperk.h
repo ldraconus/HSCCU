@@ -27,9 +27,9 @@ protected:
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (SkillTalentOrPerk::*)(QString)> callback);
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString);
 
-    QMap<QCheckBox*, std::_Mem_fn<void (SkillTalentOrPerk::*)(bool)>>     _callbacksCB;
-    QMap<QComboBox*, std::_Mem_fn<void (SkillTalentOrPerk::*)(int)>>      _callbacksCBox;
-    QMap<QLineEdit*, std::_Mem_fn<void (SkillTalentOrPerk::*)(QString)>>  _callbacksEdit;
+    QMap<QCheckBox*, std::_Mem_fn<void (SkillTalentOrPerk::*)(bool)>>     mCallbacksCB;
+    QMap<QComboBox*, std::_Mem_fn<void (SkillTalentOrPerk::*)(int)>>      mCallbacksCBox;
+    QMap<QLineEdit*, std::_Mem_fn<void (SkillTalentOrPerk::*)(QString)>>  mCallbacksEdit;
     void empty(bool)      { }
 
     QString add(QString n, int p) {

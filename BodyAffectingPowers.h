@@ -9,9 +9,9 @@ public:
     DensityIncrease(): AllPowers("Density Increase")          { }
     DensityIncrease(const DensityIncrease& s): AllPowers(s)   { }
     DensityIncrease(DensityIncrease&& s): AllPowers(s)        { }
-    DensityIncrease(const QJsonObject& json): AllPowers(json) { v._levels = json["levels"].toInt(0);
-                                                                v._nopded = json["nopded"].toBool(false);
-                                                                v._nostr  = json["nostr"].toBool(false);
+    DensityIncrease(const QJsonObject& json): AllPowers(json) { v.mLevels = json["levels"].toInt(0);
+                                                                v.mNoPdEd = json["nopded"].toBool(false);
+                                                                v.mNoStr  = json["nostr"].toBool(false);
                                                               }
     ~DensityIncrease() override { }
 
@@ -35,38 +35,38 @@ public:
                                                                    nopded = createCheckBox(parent, layout, "No Increased PD/ED");
                                                                    nostr  = createCheckBox(parent, layout, "No Increased STR");
                                                                  }
-    Fraction lim() override                                      { return (v._nopded ? Fraction(1, 4) : Fraction(0)) +
-                                                                          (v._nostr  ? Fraction(1)    : Fraction(0)); }
+    Fraction lim() override                                      { return (v.mNoPdEd ? Fraction(1, 4) : Fraction(0)) +
+                                                                          (v.mNoStr  ? Fraction(1)    : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._levels * 4_cp; }
+                                                                   return v.mLevels * 4_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   levels->setText(QString("%1").arg(s._levels));
-                                                                   nopded->setChecked(s._nopded);
-                                                                   nostr->setChecked(s._nostr);
+                                                                   levels->setText(QString("%1").arg(s.mLevels));
+                                                                   nopded->setChecked(s.mNoPdEd);
+                                                                   nostr->setChecked(s.mNoStr);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._levels = levels->text().toInt();
-                                                                   v._nopded = nopded->isChecked();
-                                                                   v._nostr  = nostr->isChecked();
+                                                                   v.mLevels = levels->text().toInt();
+                                                                   v.mNoPdEd = nopded->isChecked();
+                                                                   v.mNoStr  = nostr->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["levels"] = v._levels;
-                                                                   obj["nopded"] = v._nopded;
-                                                                   obj["nostr"]  = v._nostr;
+                                                                   obj["levels"] = v.mLevels;
+                                                                   obj["nopded"] = v.mNoPdEd;
+                                                                   obj["nostr"]  = v.mNoStr;
                                                                    return obj;
                                                                  }
 
-    int str() override { return v._nostr  ? 0 : 5 * v._levels; } // NOLINT
-    int rPD() override { return v._nopded ? 0 : v._levels; }
-    int rED() override { return v._nopded ? 0 : v._levels; }
+    int str() override { return v.mNoStr  ? 0 : 5 * v.mLevels; } // NOLINT
+    int rPD() override { return v.mNoPdEd ? 0 : v.mLevels; }
+    int rED() override { return v.mNoPdEd ? 0 : v.mLevels; }
 
 private:
     struct vars {
-        int  _levels = 0;
-        bool _nopded = false;
-        bool _nostr = false;
+        int  mLevels = 0;
+        bool mNoPdEd = false;
+        bool mNoStr = false;
     } v;
 
     QLineEdit* levels = nullptr;
@@ -74,17 +74,17 @@ private:
     QCheckBox* nostr = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._levels < 1) return "<incomplete>";
+        if (v.mLevels < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v._levels) + " Levels Density Increase (";
-        res += QString("Mass: %L1 kg").arg((int) pow(2, v._levels) * 100); // NOLINT
-        if (!v._nostr) res += QString("; +%1 STR").arg(5 * v._levels);     // NOLINT
-        res += QString("; -%1 KB").arg(2 * v._levels);
-        if (!v._nopded) res += QString("; +%1 PD/+%1 ED").arg(v._levels);
+        res += QString("+%1").arg(v.mLevels) + " Levels Density Increase (";
+        res += QString("Mass: %L1 kg").arg((int) pow(2, v.mLevels) * 100); // NOLINT
+        if (!v.mNoStr) res += QString("; +%1 STR").arg(5 * v.mLevels);     // NOLINT
+        res += QString("; -%1 KB").arg(2 * v.mLevels);
+        if (!v.mNoPdEd) res += QString("; +%1 PD/+%1 ED").arg(v.mLevels);
         res += ")";
-        if (v._nopded) res += "; No Increased PD/ED";
-        if (v._nostr) res += "; No Increased STR";
+        if (v.mNoPdEd) res += "; No Increased PD/ED";
+        if (v.mNoStr) res += "; No Increased STR";
         return res;
     }
 
@@ -103,9 +103,9 @@ public:
     Desolidification(): AllPowers("Desolidificationϴ")         { }
     Desolidification(const Desolidification& s): AllPowers(s)  { }
     Desolidification(Desolidification&& s): AllPowers(s)       { }
-    Desolidification(const QJsonObject& json): AllPowers(json) { v._solid   = json["solid"].toBool(false);
-                                                                 v._protect = json["protect"].toBool(false);
-                                                                 v._affect  = json["affect"].toString();
+    Desolidification(const QJsonObject& json): AllPowers(json) { v.mSolid   = json["solid"].toBool(false);
+                                                                 v.mProtect = json["protect"].toBool(false);
+                                                                 v.mAffect  = json["affect"].toString();
                                                                }
     ~Desolidification() override { }
 
@@ -129,34 +129,34 @@ public:
                                                                    protect = createCheckBox(parent, layout, "Doesn't Protect Against Damage");
                                                                    affect  = createLineEdit(parent, layout, "Affected By?");
                                                                  }
-    Fraction lim() override                                      { return (v._solid ? Fraction(1, 2) : Fraction(0)) +
-                                                                          (v._protect  ? Fraction(1)    : Fraction(0)); }
+    Fraction lim() override                                      { return (v.mSolid ? Fraction(1, 2) : Fraction(0)) +
+                                                                          (v.mProtect  ? Fraction(1)    : Fraction(0)); }
     Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 40_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   solid->setChecked(s._solid);
-                                                                   protect->setChecked(s._protect);
-                                                                   affect->setText(s._affect);
+                                                                   solid->setChecked(s.mSolid);
+                                                                   protect->setChecked(s.mProtect);
+                                                                   affect->setText(s.mAffect);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._solid   = solid->isChecked();
-                                                                   v._protect = protect->isChecked();
-                                                                   v._affect  = affect->text();
+                                                                   v.mSolid   = solid->isChecked();
+                                                                   v.mProtect = protect->isChecked();
+                                                                   v.mAffect  = affect->text();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["solid"]   = v._solid;
-                                                                   obj["protect"] = v._protect;
-                                                                   obj["affect"]  = v._affect;
+                                                                   obj["solid"]   = v.mSolid;
+                                                                   obj["protect"] = v.mProtect;
+                                                                   obj["affect"]  = v.mAffect;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        bool    _solid = false;
-        bool    _protect = false;
-        QString _affect = "";
+        bool    mSolid = false;
+        bool    mProtect = false;
+        QString mAffect = "";
     } v;
 
     QCheckBox* solid = nullptr;
@@ -165,12 +165,12 @@ private:
 
     QString optOut(bool showEND) {
         QString res;
-        if (v._affect.isEmpty()) return "<incomplete>";
+        if (v.mAffect.isEmpty()) return "<incomplete>";
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Desolidificationϴ";
-        if (v._solid) res += "; Cannot Pass Thought Solid Objects";
-        if (v._protect) res += "; Doesn't Protect Against Damage";
-        res += "; Affected By " + v._affect;
+        if (v.mSolid) res += "; Cannot Pass Thought Solid Objects";
+        if (v.mProtect) res += "; Doesn't Protect Against Damage";
+        res += "; Affected By " + v.mAffect;
         return res;
     }
 };
@@ -180,14 +180,14 @@ public:
     Duplication(): AllPowers("Duplication▲")              { }
     Duplication(const Duplication& s): AllPowers(s)       { }
     Duplication(Duplication&& s): AllPowers(s)            { }
-    Duplication(const QJsonObject& json): AllPowers(json) { v._levels   = json["levels"].toInt(0);
-                                                            v._altered  = json["altered"].toInt(0);
-                                                            v._easy     = json["easy"].toInt(0);
-                                                            v._ranged   = json["ranged"].toBool(false);
-                                                            v._rapid    = json["rapid"].toInt(0);
-                                                            v._recom    = json["recom"].toBool(false);
-                                                            v._feedback = json["feedback"].toInt(0);
-                                                            v._average  = json["average"].toBool(false);
+    Duplication(const QJsonObject& json): AllPowers(json) { v.mLevels   = json["levels"].toInt(0);
+                                                            v.mAltered  = json["altered"].toInt(0);
+                                                            v.mEasy     = json["easy"].toInt(0);
+                                                            v.mRanged   = json["ranged"].toBool(false);
+                                                            v.mRapid    = json["rapid"].toInt(0);
+                                                            v.mRecom    = json["recom"].toBool(false);
+                                                            v.mFeedback = json["feedback"].toInt(0);
+                                                            v.mAverage  = json["average"].toBool(false);
                                                           }
     ~Duplication() override { }
 
@@ -204,11 +204,11 @@ public:
         return *this;
     }
 
-    Fraction adv() override                                      { return ((v._altered == 1) ? Fraction(1, 4) : Fraction(0)) +
-                                                                          ((v._altered == 2) ? Fraction(1, 2) : Fraction(0)) +
-                                                                          ((v._altered == 3) ? Fraction(1)    : Fraction(0)) +
-                                                                          (v._ranged         ? Fraction(1, 2) : Fraction(0)) +
-                                                                          ((v._rapid - 1) * Fraction(1, 4)); }
+    Fraction adv() override                                      { return ((v.mAltered == 1) ? Fraction(1, 4) : Fraction(0)) +
+                                                                          ((v.mAltered == 2) ? Fraction(1, 2) : Fraction(0)) +
+                                                                          ((v.mAltered == 3) ? Fraction(1)    : Fraction(0)) +
+                                                                          (v.mRanged         ? Fraction(1, 2) : Fraction(0)) +
+                                                                          ((v.mRapid - 1) * Fraction(1, 4)); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -229,55 +229,55 @@ public:
                                                                                                                             "BODY and STUN to any affects all" });
                                                                    average  = createCheckBox(parent, layout, "No Averaging");
                                                                  }
-    Fraction lim() override                                      { return ((v._feedback == 1) ? Fraction(1, 4) : Fraction(0)) +
-                                                                          ((v._feedback == 2) ? Fraction(1, 2) : Fraction(0)) +
-                                                                          ((v._feedback == 3) ? Fraction(1)    : Fraction(0)); }
+    Fraction lim() override                                      { return ((v.mFeedback == 1) ? Fraction(1, 4) : Fraction(0)) +
+                                                                          ((v.mFeedback == 2) ? Fraction(1, 2) : Fraction(0)) +
+                                                                          ((v.mFeedback == 3) ? Fraction(1)    : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._levels + v._easy * 5_cp; } // NOLINT
+                                                                   return v.mLevels + v.mEasy * 5_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   levels->setText(QString("%1").arg(s._levels));
-                                                                   altered->setCurrentIndex(s._altered);
-                                                                   easy->setCurrentIndex(s._easy);
-                                                                   ranged->setChecked(s._ranged);
-                                                                   rapid->setText(QString("%1").arg(s._rapid));
-                                                                   feedback->setCurrentIndex(s._feedback);
-                                                                   recom->setChecked(s._recom);
-                                                                   average->setChecked(s._average);
+                                                                   levels->setText(QString("%1").arg(s.mLevels));
+                                                                   altered->setCurrentIndex(s.mAltered);
+                                                                   easy->setCurrentIndex(s.mEasy);
+                                                                   ranged->setChecked(s.mRanged);
+                                                                   rapid->setText(QString("%1").arg(s.mRapid));
+                                                                   feedback->setCurrentIndex(s.mFeedback);
+                                                                   recom->setChecked(s.mRecom);
+                                                                   average->setChecked(s.mAverage);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._levels   = levels->text().toInt();
-                                                                   v._altered  = altered->currentIndex();
-                                                                   v._easy     = easy->currentIndex();
-                                                                   v._ranged   = ranged->isChecked();
-                                                                   v._rapid    = rapid->text().toInt();
-                                                                   v._feedback = feedback->currentIndex();
-                                                                   v._recom    = recom->isChecked();
-                                                                   v._average  = average->isChecked();
+                                                                   v.mLevels   = levels->text().toInt();
+                                                                   v.mAltered  = altered->currentIndex();
+                                                                   v.mEasy     = easy->currentIndex();
+                                                                   v.mRanged   = ranged->isChecked();
+                                                                   v.mRapid    = rapid->text().toInt();
+                                                                   v.mFeedback = feedback->currentIndex();
+                                                                   v.mRecom    = recom->isChecked();
+                                                                   v.mAverage  = average->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["levels"]   = v._levels;
-                                                                   obj["altered"]  = v._altered;
-                                                                   obj["easy"]     = v._easy;
-                                                                   obj["ranged"]   = v._ranged;
-                                                                   obj["rapid"]    = v._rapid;
-                                                                   obj["feedback"] = v._feedback;
-                                                                   obj["recom"]    = v._recom;
-                                                                   obj["average"]  = v._average;
+                                                                   obj["levels"]   = v.mLevels;
+                                                                   obj["altered"]  = v.mAltered;
+                                                                   obj["easy"]     = v.mEasy;
+                                                                   obj["ranged"]   = v.mRanged;
+                                                                   obj["rapid"]    = v.mRapid;
+                                                                   obj["feedback"] = v.mFeedback;
+                                                                   obj["recom"]    = v.mRecom;
+                                                                   obj["average"]  = v.mAverage;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int  _levels   = 0;
-        int  _altered  = -1;
-        int  _easy     = -1;
-        bool _ranged   = false;
-        int  _rapid    = 0;
-        bool _recom    = false;
-        int  _feedback = -1;
-        bool _average  = false;
+        int  mLevels   = 0;
+        int  mAltered  = -1;
+        int  mEasy     = -1;
+        bool mRanged   = false;
+        int  mRapid    = 0;
+        bool mRecom    = false;
+        int  mFeedback = -1;
+        bool mAverage  = false;
     } v;
 
     QLineEdit* levels = nullptr;
@@ -290,25 +290,25 @@ private:
     QCheckBox* average = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._levels < 1) return "<incomplete>";
+        if (v.mLevels < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v._levels) + " cp in Duplication▲ (" + QString("%1").arg(v._levels * 5) + " cp duplicates)"; // NOLINT
+        res += QString("+%1").arg(v.mLevels) + " cp in Duplication▲ (" + QString("%1").arg(v.mLevels * 5) + " cp duplicates)"; // NOLINT
         QStringList altered { "",
                               Fraction(1, 4).toString() + " points different",
                               Fraction(1, 2).toString() + " points different",
                               "All points can be different" };
-        if (v._altered > 0) res += "; Altered Duplicates (" + altered[v._altered] + ")";
-        if (v._easy > 0) res += QString("; Easy Recombination ") + ((v._easy == 1) ? "(Half Phase)" : "(Zero Phase)");
-        if (v._ranged) res += "; Ranged Recombination";
-        if (v._rapid != 0) res += "; Rapid Duplication (" + QString("%1 per Phase)").arg((int) pow(2, v._rapid));
-        if (v._recom) res += "; Cannot Recombine";
+        if (v.mAltered > 0) res += "; Altered Duplicates (" + altered[v.mAltered] + ")";
+        if (v.mEasy > 0) res += QString("; Easy Recombination ") + ((v.mEasy == 1) ? "(Half Phase)" : "(Zero Phase)");
+        if (v.mRanged) res += "; Ranged Recombination";
+        if (v.mRapid != 0) res += "; Rapid Duplication (" + QString("%1 per Phase)").arg((int) pow(2, v.mRapid));
+        if (v.mRecom) res += "; Cannot Recombine";
         QStringList feedback { "",
                                "Damage to Base feeds back to duplicates",
                                "STUN to any affects all",
                                "BODY and STUN to any affects all" };
-        if (v._feedback > 0) res += "; Feedback (" + feedback[v._feedback] + ")";
-        if (v._average) res += "; No Averaging";
+        if (v.mFeedback > 0) res += "; Feedback (" + feedback[v.mFeedback] + ")";
+        if (v.mAverage) res += "; No Averaging";
         return res;
     }
 
@@ -327,8 +327,8 @@ public:
     ExtraLimbs(): AllPowers("Extra Limbs")               { }
     ExtraLimbs(const ExtraLimbs& s): AllPowers(s)        { }
     ExtraLimbs(ExtraLimbs&& s): AllPowers(s)             { }
-    ExtraLimbs(const QJsonObject& json): AllPowers(json) { v._limbs   = json["limbs"].toInt(0);
-                                                           v._limited = json["limited"].toBool(false);
+    ExtraLimbs(const QJsonObject& json): AllPowers(json) { v.mLimbs   = json["limbs"].toInt(0);
+                                                           v.mLimited = json["limited"].toBool(false);
                                                          }
     ~ExtraLimbs() override { }
     ExtraLimbs& operator=(const ExtraLimbs& s) {
@@ -351,40 +351,40 @@ public:
                                                                    limbs   = createLineEdit(parent, layout, "Number of Extra Limbs?", std::mem_fn(&Power::numeric));
                                                                    limited = createCheckBox(parent, layout, "No Increased PD/ED");
                                                                  }
-    Fraction lim() override                                      { return (v._limited ? Fraction(1, 4) : Fraction(0)); }
+    Fraction lim() override                                      { return (v.mLimited ? Fraction(1, 4) : Fraction(0)); }
     Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return 5_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   limbs->setText(QString("%1").arg(s._limbs));
-                                                                   limited->setChecked(s._limited);
+                                                                   limbs->setText(QString("%1").arg(s.mLimbs));
+                                                                   limited->setChecked(s.mLimited);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._limbs   = limbs->text().toInt();
-                                                                   v._limited = limited->isChecked();
+                                                                   v.mLimbs   = limbs->text().toInt();
+                                                                   v.mLimited = limited->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["limbs"]   = v._limbs;
-                                                                   obj["limited"] = v._limited;
+                                                                   obj["limbs"]   = v.mLimbs;
+                                                                   obj["limited"] = v.mLimited;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int  _limbs   = 0;
-        bool _limited = false;
+        int  mLimbs   = 0;
+        bool mLimited = false;
     } v;
 
     QLineEdit* limbs = nullptr;
     QCheckBox* limited = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._limbs < 1) return "<incomplete>";
+        if (v.mLimbs < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v._limbs) + " Extra Limbs";
-        if (v._limited) res += QString("; Limited Manipulation");
+        res += QString("+%1").arg(v.mLimbs) + " Extra Limbs";
+        if (v.mLimited) res += QString("; Limited Manipulation");
         return res;
     }
 
@@ -403,7 +403,7 @@ public:
     Growth(): AllPowers("Growth")                    { }
     Growth(const Growth& s): AllPowers(s)            { }
     Growth(Growth&& s): AllPowers(s)                 { }
-    Growth(const QJsonObject& json): AllPowers(json) { v._size = json["size"].toInt(0);
+    Growth(const QJsonObject& json): AllPowers(json) { v.mSize = json["size"].toInt(0);
                                                      }
     ~Growth() override { }
     Growth& operator=(const Growth& s) {
@@ -428,25 +428,25 @@ public:
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    QList<Points> points { 0_cp, 25_cp, 50_cp, 90_cp, 120_cp, 150_cp, 215_cp }; // NOLINT
-                                                                   return points[v._size + 1]; }
+                                                                   return points[v.mSize + 1]; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   size->setCurrentIndex(s._size);
+                                                                   size->setCurrentIndex(s.mSize);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._size = size->currentIndex();
+                                                                   v.mSize = size->currentIndex();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["size"] = v._size;
+                                                                   obj["size"] = v.mSize;
                                                                    return obj;
                                                                  }
 
-    sizeMods& growthStats() override { return SizeMods[v._size]; }
+    sizeMods& growthStats() override { return SizeMods[v.mSize]; }
 
 private:
     struct vars {
-        int _size = -1;
+        int mSize = -1;
     } v;
 
     QComboBox* size = nullptr;
@@ -461,24 +461,24 @@ private:
     };
 
     QString optOut(bool showEND) {
-        if (v._size < 0) return "<incomplete>";
+        if (v.mSize < 0) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         QStringList size { "Large", "Enormous", "Huge", "Gigantic",
                            "Gargantuan", "Colossal" };
-        res += size[v._size] + " Growth (";
-        res += QString("+%1 STR").arg(SizeMods[v._size]._STR);
-        res += QString("; +%1 CON").arg(SizeMods[v._size]._CON);
-        res += QString("; +%1 PRE").arg(SizeMods[v._size]._PRE);
-        res += QString("; +%1 PD").arg(SizeMods[v._size]._PD);
-        res += QString("; +%1 ED").arg(SizeMods[v._size]._ED);
-        res += QString("; +%1 BODY").arg(SizeMods[v._size]._BODY);
-        res += QString("; +%1 STUN").arg(SizeMods[v._size]._STUN);
-        res += QString("; +%1m Reach").arg(SizeMods[v._size]._reach);
-        res += QString("; +%1m Running").arg(SizeMods[v._size]._running);
-        res += QString("; %1 KB Res").arg(SizeMods[v._size]._KBRes);
-        if (SizeMods[v._size]._aoeRad != 0) res += QString("; +%1m AOE Radius HA").arg(SizeMods[v._size]._aoeRad);
-        res += "; " + SizeMods[v._size]._comp;
+        res += size[v.mSize] + " Growth (";
+        res += QString("+%1 STR").arg(SizeMods[v.mSize].mSTR);
+        res += QString("; +%1 CON").arg(SizeMods[v.mSize].mCON);
+        res += QString("; +%1 PRE").arg(SizeMods[v.mSize].mPRE);
+        res += QString("; +%1 PD").arg(SizeMods[v.mSize].mPD);
+        res += QString("; +%1 ED").arg(SizeMods[v.mSize].mED);
+        res += QString("; +%1 BODY").arg(SizeMods[v.mSize].mBODY);
+        res += QString("; +%1 STUN").arg(SizeMods[v.mSize].mSTUN);
+        res += QString("; +%1m Reach").arg(SizeMods[v.mSize].mReach);
+        res += QString("; +%1m Running").arg(SizeMods[v.mSize].mRunning);
+        res += QString("; %1 KB Res").arg(SizeMods[v.mSize].mKBRes);
+        if (SizeMods[v.mSize].mAOERad != 0) res += QString("; +%1m AOE Radius HA").arg(SizeMods[v.mSize].mAOERad);
+        res += "; " + SizeMods[v.mSize].mComp;
         return res + ")";
     }
 };
@@ -488,12 +488,12 @@ public:
     Multiform(): AllPowers("Multiform")                 { }
     Multiform(const Multiform& s): AllPowers(s)         { }
     Multiform(Multiform&& s): AllPowers(s)              { }
-    Multiform(const QJsonObject& json): AllPowers(json) { v._points  = json["points"].toInt(0);
-                                                          v._form    = json["form"].toString();
-                                                          v._mult    = json["mult"].toInt(0);
-                                                          v._instant = json["instant"].toBool(false);
-                                                          v._loss    = json["loss"].toInt(0);
-                                                          v._revert  = json["revert"].toInt(0);
+    Multiform(const QJsonObject& json): AllPowers(json) { v.mPoints  = json["points"].toInt(0);
+                                                          v.mForm    = json["form"].toString();
+                                                          v.mMult    = json["mult"].toInt(0);
+                                                          v.mInstant = json["instant"].toBool(false);
+                                                          v.mLoss    = json["loss"].toInt(0);
+                                                          v.mRevert  = json["revert"].toInt(0);
                                                         }
     ~Multiform() override { }
     Multiform& operator=(const Multiform& s) {
@@ -509,9 +509,9 @@ public:
         return *this;
     }
 
-    Fraction adv() override                                      { return ((v._revert == 5) ? Fraction(1)                        : Fraction(0)) +   // NOLINT
-                                                                          ((v._revert == 4) ? Fraction(1, 2)                     : Fraction(0)) +
-                                                                          ((v._loss >= 1) ? (2 - (v._loss - 1) * Fraction(1, 4)) : Fraction(0)); }
+    Fraction adv() override                                      { return ((v.mRevert == 5) ? Fraction(1)                        : Fraction(0)) +   // NOLINT
+                                                                          ((v.mRevert == 4) ? Fraction(1, 2)                     : Fraction(0)) +
+                                                                          ((v.mLoss >= 1) ? (2 - (v.mLoss - 1) * Fraction(1, 4)) : Fraction(0)); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -529,46 +529,46 @@ public:
                                                                                                                                           "Slightly More Powerful",
                                                                                                                                           "More Powerful" });
                                                                  }
-    Fraction lim() override                                      { return ((v._revert == 1) ? Fraction(1)    : Fraction(0)) +
-                                                                          ((v._revert == 2) ? Fraction(1, 2) : Fraction(0)); }
+    Fraction lim() override                                      { return ((v.mRevert == 1) ? Fraction(1)    : Fraction(0)) +
+                                                                          ((v.mRevert == 2) ? Fraction(1, 2) : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return (v._points + 2_cp) / 5 + (v._instant ? 5_cp : 0_cp) + v._mult * 5_cp; } // NOLINT
+                                                                   return (v.mPoints + 2_cp) / 5 + (v.mInstant ? 5_cp : 0_cp) + v.mMult * 5_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   point->setText(QString("%1").arg(s._points));
-                                                                   frm->setText(s._form);
-                                                                   mult->setText(QString("%1").arg(s._mult));
-                                                                   loss->setCurrentIndex(s._loss);
-                                                                   instant->setChecked(s._instant);
-                                                                   revert->setCurrentIndex(s._revert);
+                                                                   point->setText(QString("%1").arg(s.mPoints));
+                                                                   frm->setText(s.mForm);
+                                                                   mult->setText(QString("%1").arg(s.mMult));
+                                                                   loss->setCurrentIndex(s.mLoss);
+                                                                   instant->setChecked(s.mInstant);
+                                                                   revert->setCurrentIndex(s.mRevert);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._points  = point->text().toInt();
-                                                                   v._form    = frm->text();
-                                                                   v._mult    = mult->text().toInt();
-                                                                   v._loss    = loss->currentIndex();
-                                                                   v._instant = instant->isChecked();
-                                                                   v._revert  = revert->currentIndex();
+                                                                   v.mPoints  = point->text().toInt();
+                                                                   v.mForm    = frm->text();
+                                                                   v.mMult    = mult->text().toInt();
+                                                                   v.mLoss    = loss->currentIndex();
+                                                                   v.mInstant = instant->isChecked();
+                                                                   v.mRevert  = revert->currentIndex();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["points"]  = v._points;
-                                                                   obj["form"]    = v._form;
-                                                                   obj["mult"]    = v._mult;
-                                                                   obj["loss"]    = v._loss;
-                                                                   obj["instant"] = v._instant;
-                                                                   obj["revert"]  = v._revert;
+                                                                   obj["points"]  = v.mPoints;
+                                                                   obj["form"]    = v.mForm;
+                                                                   obj["mult"]    = v.mMult;
+                                                                   obj["loss"]    = v.mLoss;
+                                                                   obj["instant"] = v.mInstant;
+                                                                   obj["revert"]  = v.mRevert;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _points  = 0;
-        QString _form    = "";
-        int     _mult    = 0;
-        int     _loss    = -1;
-        bool    _instant = false;
-        int     _revert  = -1;
+        int     mPoints  = 0;
+        QString mForm    = "";
+        int     mMult    = 0;
+        int     mLoss    = -1;
+        bool    mInstant = false;
+        int     mRevert  = -1;
     } v;
 
     QLineEdit* point = nullptr;
@@ -579,15 +579,15 @@ private:
     QComboBox* revert = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._points < 1) return "<incomplete>";
+        if (v.mPoints < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v._points) + " CP Multiform Into " + v._form;
-        if (v._mult > 0) res += QString("; x%1 Forms").arg((int) pow(2, v._mult));
+        res += QString("+%1").arg(v.mPoints) + " CP Multiform Into " + v.mForm;
+        if (v.mMult > 0) res += QString("; x%1 Forms").arg((int) pow(2, v.mMult));
         QStringList loss {"",  "1 Turn", "1 Minute", "5 Minutes", "20 Minutes", "1 Hour", "6 Hours", "1 Day", "1 Week" };
-        if (v._loss >= 1) res += "; Personality Loss Rolls Start Ater " + loss[v._loss];
-        if (v._instant) res += "; Instant Change";
-        if (v._revert >= 1) res += "; Revert To True Form If Stunned Or KO";
+        if (v.mLoss >= 1) res += "; Personality Loss Rolls Start Ater " + loss[v.mLoss];
+        if (v.mInstant) res += "; Instant Change";
+        if (v.mRevert >= 1) res += "; Revert To True Form If Stunned Or KO";
         return res;
     }
 
@@ -607,21 +607,21 @@ public:
     ShapeShift(): AllPowers("Shape Shift")               { }
     ShapeShift(const ShapeShift& s): AllPowers(s)        { }
     ShapeShift(ShapeShift&& s): AllPowers(s)             { }
-    ShapeShift(const QJsonObject& json): AllPowers(json) { v._change   = json["change"].toInt(0);
-                                                           v._forms    = json["forms"].toString();
-                                                           v._sight    = json["sight"].toBool(false);
-                                                           v._hearing  = json["hearing"].toBool(false);
-                                                           v._touch    = json["touch"].toBool(false);
-                                                           v._mental   = json["mental"].toBool(false);
-                                                           v._radio    = json["radio"].toBool(false);
-                                                           v._smell    = json["smell"].toBool(false);
-                                                           v._clair    = json["clair"].toBool(false);
-                                                           v._spatial  = json["spatial"].toBool(false);
-                                                           v._cellular = json["cellular"].toBool(false);
-                                                           v._imitate  = json["imitate"].toBool(false);
-                                                           v._instant  = json["instant"].toBool(false);
-                                                           v._makeover = json["makeover"].toBool(false);
-                                                           v._body     = json["body"].toBool(false);}
+    ShapeShift(const QJsonObject& json): AllPowers(json) { v.mChange   = json["change"].toInt(0);
+                                                           v.mForms    = json["forms"].toString();
+                                                           v.mSight    = json["sight"].toBool(false);
+                                                           v.mHearing  = json["hearing"].toBool(false);
+                                                           v.mTouch    = json["touch"].toBool(false);
+                                                           v.mMental   = json["mental"].toBool(false);
+                                                           v.mRadio    = json["radio"].toBool(false);
+                                                           v.mSmell    = json["smell"].toBool(false);
+                                                           v.mClair    = json["clair"].toBool(false);
+                                                           v.mSpatial  = json["spatial"].toBool(false);
+                                                           v.mCellular = json["cellular"].toBool(false);
+                                                           v.mImitate  = json["imitate"].toBool(false);
+                                                           v.mInstant  = json["instant"].toBool(false);
+                                                           v.mMakeover = json["makeover"].toBool(false);
+                                                           v.mBody     = json["body"].toBool(false);}
     ~ShapeShift() override { }
     ShapeShift& operator=(const ShapeShift& s) {
         if (this != &s) {
@@ -659,94 +659,94 @@ public:
                                                                    makeover = createCheckBox(parent, layout, "Makeover");
                                                                    body     = createCheckBox(parent, layout, "Affects Body Only");
                                                                  }
-    Fraction lim() override                                      { return v._body ? Fraction(1, 4) : Fraction(0);
+    Fraction lim() override                                      { return v.mBody ? Fraction(1, 4) : Fraction(0);
                                                                  }
     Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    QList<Points> change { 0_cp, 0_cp, 3_cp, 5_cp, 10_cp }; // NOLINT
-                                                                   Points pts = change[v._change + 1];
-                                                                   pts += v._sight    ?  8_cp : 0_cp; // NOLINT
-                                                                   pts += v._hearing  ?  5_cp : 0_cp; // NOLINT
-                                                                   pts += v._touch    ?  5_cp : 0_cp; // NOLINT
-                                                                   pts += v._mental   ?  2_cp : 0_cp;
-                                                                   pts += v._radio    ?  2_cp : 0_cp;
-                                                                   pts += v._smell    ?  2_cp : 0_cp;
-                                                                   pts += v._clair    ?  3_cp : 0_cp;
-                                                                   pts += v._spatial  ?  3_cp : 0_cp;
-                                                                   pts += v._cellular ? 10_cp : 0_cp; // NOLINT
-                                                                   pts += v._instant  ?  5_cp : 0_cp; // NOLINT
-                                                                   pts += v._makeover ?  5_cp : 0_cp; // NOLINT
+                                                                   Points pts = change[v.mChange + 1];
+                                                                   pts += v.mSight    ?  8_cp : 0_cp; // NOLINT
+                                                                   pts += v.mHearing  ?  5_cp : 0_cp; // NOLINT
+                                                                   pts += v.mTouch    ?  5_cp : 0_cp; // NOLINT
+                                                                   pts += v.mMental   ?  2_cp : 0_cp;
+                                                                   pts += v.mRadio    ?  2_cp : 0_cp;
+                                                                   pts += v.mSmell    ?  2_cp : 0_cp;
+                                                                   pts += v.mClair    ?  3_cp : 0_cp;
+                                                                   pts += v.mSpatial  ?  3_cp : 0_cp;
+                                                                   pts += v.mCellular ? 10_cp : 0_cp; // NOLINT
+                                                                   pts += v.mInstant  ?  5_cp : 0_cp; // NOLINT
+                                                                   pts += v.mMakeover ?  5_cp : 0_cp; // NOLINT
                                                                    return pts;
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   change->setCurrentIndex(s._change);
-                                                                   forms->setText(s._forms);
-                                                                   sight->setChecked(s._sight);
-                                                                   hearing->setChecked(s._hearing);
-                                                                   touch->setChecked(s._touch);
-                                                                   mental->setChecked(s._mental);
-                                                                   radio->setChecked(s._radio);
-                                                                   smell->setChecked(s._smell);
-                                                                   clair->setChecked(s._clair);
-                                                                   spatial->setChecked(s._spatial);
-                                                                   cellular->setChecked(s._cellular);
-                                                                   instant->setChecked(s._instant);
-                                                                   makeover->setChecked(s._makeover);
-                                                                   body->setChecked(s._body);
+                                                                   change->setCurrentIndex(s.mChange);
+                                                                   forms->setText(s.mForms);
+                                                                   sight->setChecked(s.mSight);
+                                                                   hearing->setChecked(s.mHearing);
+                                                                   touch->setChecked(s.mTouch);
+                                                                   mental->setChecked(s.mMental);
+                                                                   radio->setChecked(s.mRadio);
+                                                                   smell->setChecked(s.mSmell);
+                                                                   clair->setChecked(s.mClair);
+                                                                   spatial->setChecked(s.mSpatial);
+                                                                   cellular->setChecked(s.mCellular);
+                                                                   instant->setChecked(s.mInstant);
+                                                                   makeover->setChecked(s.mMakeover);
+                                                                   body->setChecked(s.mBody);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._change   = change->currentIndex();
-                                                                   v._forms    = forms->text();
-                                                                   v._sight    = sight->isChecked();
-                                                                   v._hearing  = hearing->isChecked();
-                                                                   v._touch    = touch->isChecked();
-                                                                   v._mental   = mental->isChecked();
-                                                                   v._radio    = radio->isChecked();
-                                                                   v._smell    = smell->isChecked();
-                                                                   v._clair    = clair->isChecked();
-                                                                   v._spatial  = spatial->isChecked();
-                                                                   v._cellular = cellular->isChecked();
-                                                                   v._instant  = instant->isChecked();
-                                                                   v._makeover = makeover->isChecked();
-                                                                   v._body     = body->isChecked();
+                                                                   v.mChange   = change->currentIndex();
+                                                                   v.mForms    = forms->text();
+                                                                   v.mSight    = sight->isChecked();
+                                                                   v.mHearing  = hearing->isChecked();
+                                                                   v.mTouch    = touch->isChecked();
+                                                                   v.mMental   = mental->isChecked();
+                                                                   v.mRadio    = radio->isChecked();
+                                                                   v.mSmell    = smell->isChecked();
+                                                                   v.mClair    = clair->isChecked();
+                                                                   v.mSpatial  = spatial->isChecked();
+                                                                   v.mCellular = cellular->isChecked();
+                                                                   v.mInstant  = instant->isChecked();
+                                                                   v.mMakeover = makeover->isChecked();
+                                                                   v.mBody     = body->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["change"]   = v._change;
-                                                                   obj["forms"]    = v._forms;
-                                                                   obj["sight"]    = v._sight;
-                                                                   obj["hearing"]  = v._hearing;
-                                                                   obj["touch"]    = v._touch;
-                                                                   obj["mental"]   = v._mental;
-                                                                   obj["radio"]    = v._radio;
-                                                                   obj["smell"]    = v._smell;
-                                                                   obj["clair"]    = v._clair;
-                                                                   obj["spatial"]  = v._spatial;
-                                                                   obj["cellular"] = v._cellular;
-                                                                   obj["instant"]  = v._instant;
-                                                                   obj["makeover"] = v._makeover;
-                                                                   obj["body"]     = v._body;
+                                                                   obj["change"]   = v.mChange;
+                                                                   obj["forms"]    = v.mForms;
+                                                                   obj["sight"]    = v.mSight;
+                                                                   obj["hearing"]  = v.mHearing;
+                                                                   obj["touch"]    = v.mTouch;
+                                                                   obj["mental"]   = v.mMental;
+                                                                   obj["radio"]    = v.mRadio;
+                                                                   obj["smell"]    = v.mSmell;
+                                                                   obj["clair"]    = v.mClair;
+                                                                   obj["spatial"]  = v.mSpatial;
+                                                                   obj["cellular"] = v.mCellular;
+                                                                   obj["instant"]  = v.mInstant;
+                                                                   obj["makeover"] = v.mMakeover;
+                                                                   obj["body"]     = v.mBody;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _change   = -1;
-        QString _forms    = "";
-        bool    _sight    = false;
-        bool    _hearing  = false;
-        bool    _touch    = false;
-        bool    _mental   = false;
-        bool    _radio    = false;
-        bool    _smell    = false;
-        bool    _sonar    = false;
-        bool    _clair    = false;
-        bool    _spatial  = false;
-        bool    _cellular = false;
-        bool    _imitate  = false;
-        bool    _instant  = false;
-        bool    _makeover = false;
-        bool    _body     = false;
+        int     mChange   = -1;
+        QString mForms    = "";
+        bool    mSight    = false;
+        bool    mHearing  = false;
+        bool    mTouch    = false;
+        bool    mMental   = false;
+        bool    mRadio    = false;
+        bool    mSmell    = false;
+        bool    mSonar    = false;
+        bool    mClair    = false;
+        bool    mSpatial  = false;
+        bool    mCellular = false;
+        bool    mImitate  = false;
+        bool    mInstant  = false;
+        bool    mMakeover = false;
+        bool    mBody     = false;
     } v;
 
     QComboBox* change = nullptr;
@@ -766,24 +766,24 @@ private:
     QCheckBox* body = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._change == -1 || (v._change < 3 && v._forms.isEmpty())) return "<incomplete>";
-        if (!(v._sight || v._hearing || v._touch || v._mental || v._radio || v._smell || v._clair || v._spatial)) return "<incomplete>";
+        if (v.mChange == -1 || (v.mChange < 3 && v.mForms.isEmpty())) return "<incomplete>";
+        if (!(v.mSight || v.mHearing || v.mTouch || v.mMental || v.mRadio || v.mSmell || v.mClair || v.mSpatial)) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Shape Shift Into ";
         QStringList forms { "A Single Shape", "Four shapes", "A Limited Group", "Any Shape" };
-        if (v._change < 3) res += forms[v._change] + " (" + v._forms + ")";
+        if (v.mChange < 3) res += forms[v.mChange] + " (" + v.mForms + ")";
         else res += "Any Shape";
         res += " Affecting ";
         QStringList senses;
-        if (v._sight) senses << "Sight";
-        if (v._hearing) senses << "Hearing";
-        if (v._touch) senses << "Touch";
-        if (v._mental) senses << "Mental";
-        if (v._radio) senses << "Radio";
-        if (v._smell) senses << "Smell";
-        if (v._clair) senses << "Clairsentience";
-        if (v._spatial) senses << "Spatial Awareness";
+        if (v.mSight) senses << "Sight";
+        if (v.mHearing) senses << "Hearing";
+        if (v.mTouch) senses << "Touch";
+        if (v.mMental) senses << "Mental";
+        if (v.mRadio) senses << "Radio";
+        if (v.mSmell) senses << "Smell";
+        if (v.mClair) senses << "Clairsentience";
+        if (v.mSpatial) senses << "Spatial Awareness";
         QString list = "";
         for (int i = 0; i < senses.count() - 1; ++i) {
             if (i != 0) list += ", ";
@@ -792,11 +792,11 @@ private:
         if (list.isEmpty()) list = senses[0];
         else list += ", and " + senses.back();
         res += list;
-        if (v._cellular) res += "; Cellular";
-        if (v._imitate) res += "; Imitate";
-        if (v._instant) res += "; Instant Change";
-        if (v._makeover) res += "; Makeover";
-        if (v._body) res += "; Affects Body Only";
+        if (v.mCellular) res += "; Cellular";
+        if (v.mImitate) res += "; Imitate";
+        if (v.mInstant) res += "; Instant Change";
+        if (v.mMakeover) res += "; Makeover";
+        if (v.mBody) res += "; Affects Body Only";
         return res;
     }
 
@@ -816,9 +816,9 @@ public:
     Shrinking(): AllPowers("Shrinking")                 { }
     Shrinking(const Shrinking& s): AllPowers(s)         { }
     Shrinking(Shrinking&& s): AllPowers(s)              { }
-    Shrinking(const QJsonObject& json): AllPowers(json) { v._levels = json["levels"].toInt(0);
-                                                          v._mass   = json["mass"].toBool(false);
-                                                          v._perc   = json["perc"].toBool(false);
+    Shrinking(const QJsonObject& json): AllPowers(json) { v.mLevels = json["levels"].toInt(0);
+                                                          v.mMass   = json["mass"].toBool(false);
+                                                          v.mPerc   = json["perc"].toBool(false);
                                                         }
     ~Shrinking() override { }
     Shrinking& operator=(const Shrinking& s) {
@@ -834,7 +834,7 @@ public:
         return *this;
     }
 
-    Fraction adv() override                                      { return Fraction(1, 2) * (v._mass + 1);
+    Fraction adv() override                                      { return Fraction(1, 2) * (v.mMass + 1);
                                                                  }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -843,34 +843,34 @@ public:
                                                                                                                                   "Choice Mass Decrease" });
                                                                    perc   = createCheckBox(parent, layout, "Easily Percieved");
                                                                  }
-    Fraction lim() override                                      { return (v._perc ? Fraction(1, 4) : Fraction(0));
+    Fraction lim() override                                      { return (v.mPerc ? Fraction(1, 4) : Fraction(0));
                                                                  }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return v._levels * 6_cp; } // NOLINT
+                                                                   return v.mLevels * 6_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   levels->setText(QString("%1").arg(s._levels));
-                                                                   mass->setCurrentIndex(s._mass);
-                                                                   perc->setChecked(s._perc);
+                                                                   levels->setText(QString("%1").arg(s.mLevels));
+                                                                   mass->setCurrentIndex(s.mMass);
+                                                                   perc->setChecked(s.mPerc);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._levels = levels->text().toInt();
-                                                                   v._mass   = mass->currentIndex();
-                                                                   v._perc   = perc->isChecked();
+                                                                   v.mLevels = levels->text().toInt();
+                                                                   v.mMass   = mass->currentIndex();
+                                                                   v.mPerc   = perc->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["levels"] = v._levels;
-                                                                   obj["mass"]   = v._mass;
-                                                                   obj["perc"]   = v._perc;
+                                                                   obj["levels"] = v.mLevels;
+                                                                   obj["mass"]   = v.mMass;
+                                                                   obj["perc"]   = v.mPerc;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int  _levels = 0;
-        int  _mass   = -1;
-        bool _perc   = false;
+        int  mLevels = 0;
+        int  mMass   = -1;
+        bool mPerc   = false;
     } v;
 
     QLineEdit* levels = nullptr;
@@ -878,24 +878,24 @@ private:
     QCheckBox* perc = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._levels < 1) return "<incomplete>";
+        if (v.mLevels < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v._levels) + " Levels Shrinking (";
-        res += QString("Height: %2m").arg(2.0 / pow(2.0, v._levels)); // NOLINT
-        if (v._mass == -1) {
-            res += QString("; Mass: %1 kg").arg(1.0 / (8.0 * pow(2, v._levels))); // NOLINT
-            res += QString("; +%1 KB").arg(6 * v._levels); // NOLINT
+        res += QString("+%1").arg(v.mLevels) + " Levels Shrinking (";
+        res += QString("Height: %2m").arg(2.0 / pow(2.0, v.mLevels)); // NOLINT
+        if (v.mMass == -1) {
+            res += QString("; Mass: %1 kg").arg(1.0 / (8.0 * pow(2, v.mLevels))); // NOLINT
+            res += QString("; +%1 KB").arg(6 * v.mLevels); // NOLINT
         }
-        if (v._mass == 1) {
-            res += QString("; Optionally %1 kg").arg(1.0 / (8.0 * pow(2, v._levels))); // NOLINT
-            res += QString("; Optionally +%1 KB").arg(6 * v._levels); // NOLINT
+        if (v.mMass == 1) {
+            res += QString("; Optionally %1 kg").arg(1.0 / (8.0 * pow(2, v.mLevels))); // NOLINT
+            res += QString("; Optionally +%1 KB").arg(6 * v.mLevels); // NOLINT
         }
-        if (!v._perc) res += QString("; -%1 PER Rolls Against").arg(2 * v._levels);
+        if (!v.mPerc) res += QString("; -%1 PER Rolls Against").arg(2 * v.mLevels);
         res += ")";
-        if (v._mass == 0) res += "; No Decreased Mass";
-        else if (v._mass == 1) res += "; Choice To Decrease Mass";
-        if (v._perc) res += "; Easily Perceived";
+        if (v.mMass == 0) res += "; No Decreased Mass";
+        else if (v.mMass == 1) res += "; Choice To Decrease Mass";
+        if (v.mPerc) res += "; Easily Perceived";
         return res;
     }
 
@@ -914,17 +914,17 @@ public:
     Stretching(): AllPowers("Stretching")                { }
     Stretching(const Stretching& s): AllPowers(s)        { }
     Stretching(Stretching&& s): AllPowers(s)             { }
-    Stretching(const QJsonObject& json): AllPowers(json) { v._meters  = json["meters"].toInt(0);
-                                                           v._distort = json["distort"].toInt(0);
-                                                           v._space   = json["space"].toBool(false);
-                                                           v._noncom  = json["noncom"].toInt(0);
-                                                           v._direct  = json["direct"].toBool(false);
-                                                           v._damage  = json["damage"].toBool(false);
-                                                           v._limit   = json["limit"].toBool(false);
-                                                           v._parts   = json["parts"].toString();
-                                                           v._nonon   = json["nonon"].toBool(false);
-                                                           v._cause   = json["cause"].toBool(false);
-                                                           v._range   = json["range"].toBool(false);
+    Stretching(const QJsonObject& json): AllPowers(json) { v.mMeters  = json["meters"].toInt(0);
+                                                           v.mDistort = json["distort"].toInt(0);
+                                                           v.mSpace   = json["space"].toBool(false);
+                                                           v.mNonCom  = json["noncom"].toInt(0);
+                                                           v.mDirect  = json["direct"].toBool(false);
+                                                           v.mDamage  = json["damage"].toBool(false);
+                                                           v.mLimit   = json["limit"].toBool(false);
+                                                           v.mParts   = json["parts"].toString();
+                                                           v.mNonOn   = json["nonon"].toBool(false);
+                                                           v.mCause   = json["cause"].toBool(false);
+                                                           v.mRange   = json["range"].toBool(false);
                                                          }
     ~Stretching() override { }
     Stretching& operator=(const Stretching& s) {
@@ -940,7 +940,7 @@ public:
         return *this;
     }
 
-    Fraction adv() override                                      { return (v._space ? Fraction(1, 4) : Fraction(0)); }
+    Fraction adv() override                                      { return (v.mSpace ? Fraction(1, 4) : Fraction(0)); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    meters  = createLineEdit(parent, layout, "Meters of Stretching?", std::mem_fn(&Power::numeric));
@@ -957,70 +957,70 @@ public:
                                                                    cause   = createCheckBox(parent, layout, "Only To Cause Damage");
                                                                    range   = createCheckBox(parent, layout, "Range Modifiers Apply");
                                                                  }
-    Fraction lim() override                                      { return (v._direct ? Fraction(1, 4) : Fraction(0)) +
-                                                                          (v._damage ? Fraction(1, 2) : Fraction(0)) +
-                                                                          (v._limit  ? Fraction(1, 4) : Fraction(0)) +
-                                                                          (v._nonon  ? Fraction(1, 4) : Fraction(0)) +
-                                                                          (v._cause  ? Fraction(1, 2) : Fraction(0)) +
-                                                                          (v._range  ? Fraction(1, 4) : Fraction(0)); }
+    Fraction lim() override                                      { return (v.mDirect ? Fraction(1, 4) : Fraction(0)) +
+                                                                          (v.mDamage ? Fraction(1, 2) : Fraction(0)) +
+                                                                          (v.mLimit  ? Fraction(1, 4) : Fraction(0)) +
+                                                                          (v.mNonOn  ? Fraction(1, 4) : Fraction(0)) +
+                                                                          (v.mCause  ? Fraction(1, 2) : Fraction(0)) +
+                                                                          (v.mRange  ? Fraction(1, 4) : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._meters + 5_cp * v._distort + 5_cp * v._noncom; } // NOLINT
+                                                                   return v.mMeters + 5_cp * v.mDistort + 5_cp * v.mNonCom; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   meters->setText(QString("%1").arg(s._meters));
-                                                                   distort->setText(QString("%1").arg(s._distort));
-                                                                   space->setChecked(s._space);
-                                                                   noncom->setText(QString("%1").arg(s._noncom));
-                                                                   direct->setChecked(s._direct);
-                                                                   damage->setChecked(s._damage);
-                                                                   limit->setChecked(s._limit);
-                                                                   parts->setText(s._parts);
-                                                                   nonon->setChecked(s._nonon);
-                                                                   cause->setChecked(s._cause);
-                                                                   range->setChecked(s._range);
+                                                                   meters->setText(QString("%1").arg(s.mMeters));
+                                                                   distort->setText(QString("%1").arg(s.mDistort));
+                                                                   space->setChecked(s.mSpace);
+                                                                   noncom->setText(QString("%1").arg(s.mNonCom));
+                                                                   direct->setChecked(s.mDirect);
+                                                                   damage->setChecked(s.mDamage);
+                                                                   limit->setChecked(s.mLimit);
+                                                                   parts->setText(s.mParts);
+                                                                   nonon->setChecked(s.mNonOn);
+                                                                   cause->setChecked(s.mCause);
+                                                                   range->setChecked(s.mRange);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._meters  = meters->text().toInt();
-                                                                   v._distort = distort->text().toInt();
-                                                                   v._space   = space->isChecked();
-                                                                   v._noncom  = noncom->text().toInt();
-                                                                   v._direct  = direct->isChecked();
-                                                                   v._damage  = damage->isChecked();
-                                                                   v._limit   = limit->isChecked();
-                                                                   v._parts   = parts->text();
-                                                                   v._nonon   = nonon->isChecked();
-                                                                   v._cause   = cause->isChecked();
-                                                                   v._range   = range->isChecked();
+                                                                   v.mMeters  = meters->text().toInt();
+                                                                   v.mDistort = distort->text().toInt();
+                                                                   v.mSpace   = space->isChecked();
+                                                                   v.mNonCom  = noncom->text().toInt();
+                                                                   v.mDirect  = direct->isChecked();
+                                                                   v.mDamage  = damage->isChecked();
+                                                                   v.mLimit   = limit->isChecked();
+                                                                   v.mParts   = parts->text();
+                                                                   v.mNonOn   = nonon->isChecked();
+                                                                   v.mCause   = cause->isChecked();
+                                                                   v.mRange   = range->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["meters"]  = v._meters;
-                                                                   obj["distort"] = v._distort;
-                                                                   obj["space"]   = v._space;
-                                                                   obj["noncom"]  = v._noncom;
-                                                                   obj["direct"]  = v._direct;
-                                                                   obj["damage"]  = v._damage;
-                                                                   obj["limit"]   = v._limit;
-                                                                   obj["parts"]   = v._parts;
-                                                                   obj["nonon"]   = v._nonon;
-                                                                   obj["cause"]   = v._cause;
-                                                                   obj["range"]   = v._range;
+                                                                   obj["meters"]  = v.mMeters;
+                                                                   obj["distort"] = v.mDistort;
+                                                                   obj["space"]   = v.mSpace;
+                                                                   obj["noncom"]  = v.mNonCom;
+                                                                   obj["direct"]  = v.mDirect;
+                                                                   obj["damage"]  = v.mDamage;
+                                                                   obj["limit"]   = v.mLimit;
+                                                                   obj["parts"]   = v.mParts;
+                                                                   obj["nonon"]   = v.mNonOn;
+                                                                   obj["cause"]   = v.mCause;
+                                                                   obj["range"]   = v.mRange;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _meters  = 0;
-        int     _distort = 0;
-        bool    _space   = false;
-        int     _noncom  = 0;
-        bool    _direct  = false;
-        bool    _damage  = false;
-        bool    _limit   = false;
-        QString _parts   = "";
-        bool    _nonon   = false;
-        bool    _cause   = false;
-        bool    _range   = false;
+        int     mMeters  = 0;
+        int     mDistort = 0;
+        bool    mSpace   = false;
+        int     mNonCom  = 0;
+        bool    mDirect  = false;
+        bool    mDamage  = false;
+        bool    mLimit   = false;
+        QString mParts   = "";
+        bool    mNonOn   = false;
+        bool    mCause   = false;
+        bool    mRange   = false;
     } v;
 
     QLineEdit* meters = nullptr;
@@ -1036,19 +1036,19 @@ private:
     QCheckBox* range = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._meters < 1 || (v._limit && v._parts.isEmpty()) || (v._cause && v._damage)) return "<incomplete>";
+        if (v.mMeters < 1 || (v.mLimit && v.mParts.isEmpty()) || (v.mCause && v.mDamage)) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v._meters) + "m Stretching";
-        res += QString("; Distort %1x & 1/%1x").arg((int) pow(2, v._distort));
-        if (v._space) res += QString("; Doesn't Cross Intervening Space");
-        if (!v._nonon) res += QString("; %1m Noncombat").arg((int) pow(2, v._noncom + 1));
-        if (v._direct) res += QString("; Always Direct");
-        if (v._damage) res += QString("; Cannot Do Damage");
-        if (v._limit) res += "; Limited Body Parts (" + v._parts + ")";
-        if (v._nonon) res += "; No Noncombat Stretching";
-        if (v._cause) res += "; Can Only Cause Damage";
-        if (v._range) res += "; Range Modifiers Apply";
+        res += QString("+%1").arg(v.mMeters) + "m Stretching";
+        res += QString("; Distort %1x & 1/%1x").arg((int) pow(2, v.mDistort));
+        if (v.mSpace) res += QString("; Doesn't Cross Intervening Space");
+        if (!v.mNonOn) res += QString("; %1m Noncombat").arg((int) pow(2, v.mNonCom + 1));
+        if (v.mDirect) res += QString("; Always Direct");
+        if (v.mDamage) res += QString("; Cannot Do Damage");
+        if (v.mLimit) res += "; Limited Body Parts (" + v.mParts + ")";
+        if (v.mNonOn) res += "; No Noncombat Stretching";
+        if (v.mCause) res += "; Can Only Cause Damage";
+        if (v.mRange) res += "; Range Modifiers Apply";
         return res;
     }
 

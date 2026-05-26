@@ -6,35 +6,34 @@
 #include <QJsonObject>
 #include <QObject>
 
-class Characteristic
-{
+class Characteristic {
 public:
     Characteristic()
-        : _base(0), _cost(0_cp), _init(0), _per(0), _primary(0), _secondary(0), _maxima(0) { }
+        : mBase(0), mCost(0_cp), mInit(0), mPer(0), mPrimary(0), mSecondary(0), mMaxima(0) { }
     Characteristic(int base, Points cost, int maxima, int per = 1, int init = 0, int primary = 0, int secondary = 0)
-        : _base(base), _cost(cost), _init(init == 0 ? base : init), _per(per), _primary(primary), _secondary(secondary), _maxima(maxima) { }
-    Characteristic(const Characteristic& c): Characteristic(c._base, c._cost, c._maxima, c._per, c._init, c._primary, c._secondary) { }
-    Characteristic(Characteristic&& c): Characteristic(c._base, c._cost, c._maxima, c._per, c._init, c._primary, c._secondary) { }
+        : mBase(base), mCost(cost), mInit(init == 0 ? base : init), mPer(per), mPrimary(primary), mSecondary(secondary), mMaxima(maxima) { }
+    Characteristic(const Characteristic& c): Characteristic(c.mBase, c.mCost, c.mMaxima, c.mPer, c.mInit, c.mPrimary, c.mSecondary) { }
+    Characteristic(Characteristic&& c): Characteristic(c.mBase, c.mCost, c.mMaxima, c.mPer, c.mInit, c.mPrimary, c.mSecondary) { }
     Characteristic(const QJsonObject& c);
     ~Characteristic() { }
 
     Characteristic& operator=(const Characteristic& c);
     Characteristic& operator=(Characteristic&& c);
 
-    int             base()           { return _base; }
-    Characteristic& base(int n)      { _base = n; return *this; }
-    Points          cost()           { return _cost; }
-    Characteristic& cost(Points n)   { _cost = n; return *this; }
-    int             init()           { return _init; }
-    Characteristic& init(int n)      { _init = n; return *this; }
-    int             maxima()         { return _maxima; }
-    Characteristic& maxima(int n)    { _maxima = n; return *this; }
-    int             per()            { return _per; }
-    Characteristic& per(int n)       { _per = n; return *this; }
-    int             primary()        { return _primary; }
-    Characteristic& primary(int n)   { _primary = n; return *this; }
-    int             secondary()      { return _secondary; }
-    Characteristic& secondary(int n) { _secondary = n; return *this; }
+    int             base()           { return mBase; }
+    Characteristic& base(int n)      { mBase = n; return *this; }
+    Points          cost()           { return mCost; }
+    Characteristic& cost(Points n)   { mCost = n; return *this; }
+    int             init()           { return mInit; }
+    Characteristic& init(int n)      { mInit = n; return *this; }
+    int             maxima()         { return mMaxima; }
+    Characteristic& maxima(int n)    { mMaxima = n; return *this; }
+    int             per()            { return mPer; }
+    Characteristic& per(int n)       { mPer = n; return *this; }
+    int             primary()        { return mPrimary; }
+    Characteristic& primary(int n)   { mPrimary = n; return *this; }
+    int             secondary()      { return mSecondary; }
+    Characteristic& secondary(int n) { mSecondary = n; return *this; }
 
     Points      points();
     QString     roll();
@@ -42,13 +41,13 @@ public:
     QString     value();
 
 private:
-    int    _base = 0;
-    Points _cost = 0_cp;
-    int    _init = 0;
-    int    _per = 0;
-    int    _primary = 0;
-    int    _secondary = 0;
-    int    _maxima = 0;
+    int    mBase = 0;
+    Points mCost = 0_cp;
+    int    mInit = 0;
+    int    mPer = 0;
+    int    mPrimary = 0;
+    int    mSecondary = 0;
+    int    mMaxima = 0;
 };
 
 #endif // CHARACTERISTIC_H

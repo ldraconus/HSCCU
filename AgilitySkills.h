@@ -33,29 +33,29 @@ public:
 
     bool isSkill() override { return true; }
 
-    QString  description(bool showRoll = false) override         { return v._name + " (" + (showRoll ? roll() : "+" + QString("%1").arg(v._plus)) + ")"; }
+    QString  description(bool showRoll = false) override         { return v.mName + " (" + (showRoll ? roll() : "+" + QString("%1").arg(v.mPlus)) + ")"; }
     bool     form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric)); return true; }
-    QString  name() override                                     { return v._name; }
-    Points   points(bool noStore = false) override               { if (!noStore) store(); return 3_cp + v._plus * 2_cp; }
-    void     restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s._plus)); v = s; }
+    QString  name() override                                     { return v.mName; }
+    Points   points(bool noStore = false) override               { if (!noStore) store(); return 3_cp + v.mPlus * 2_cp; }
+    void     restore() override                                  { vars s = v; plus->setText(QString("%1").arg(s.mPlus)); v = s; }
 #ifndef ISHSC
-    QString  roll() override                                     { return add(Sheet::ref().character().DEX().roll(), v._plus); }
+    QString  roll() override                                     { return add(Sheet::ref().character().DEX().roll(), v.mPlus); }
 #else
     QString  roll() override                                     { return QString("+%1").arg(v._plus); }
 #endif
-    void     store() override                                    { v._plus = plus->text().toInt(0); }
+    void     store() override                                    { v.mPlus = plus->text().toInt(0); }
 
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["name"] = v._name;
-        obj["plus"] = v._plus;
+        obj["name"] = v.mName;
+        obj["plus"] = v.mPlus;
         return obj;
     }
 
 private:
     struct vars {
-        QString _name = "";
-        int     _plus = 0;
+        QString mName = "";
+        int     mPlus = 0;
     } v;
 
     QLineEdit* plus = nullptr;

@@ -24,15 +24,15 @@ bool Complication::isNumber(QString txt) {
 }
 
 void Complication::callback(QCheckBox* checkBox) {
-    auto f = _callbacksCB.find(checkBox);
-    if (f == _callbacksCB.end()) return;
+    auto f = mCallbacksCB.find(checkBox);
+    if (f == mCallbacksCB.end()) return;
     auto function = f.value();
     function(this, checkBox->isChecked());
 }
 
 void Complication::callback(QLineEdit* edit) {
-    auto f = _callbacksEdit.find(edit);
-    if (f == _callbacksEdit.end()) return;
+    auto f = mCallbacksEdit.find(edit);
+    if (f == mCallbacksEdit.end()) return;
     auto function = f.value();
     function(this, edit->text());
 }
@@ -52,13 +52,13 @@ gsl::owner<QCheckBox*> Complication::createCheckBox(QWidget* parent, QVBoxLayout
 
 gsl::owner<QCheckBox*> Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(bool)> callback) {
     gsl::owner<QCheckBox*> checkBox = createCheckBox(parent, layout, prompt);
-    _callbacksCB.insert(_callbacksCB.cend(), checkBox, callback);
+    mCallbacksCB.insert(mCallbacksCB.cend(), checkBox, callback);
     return checkBox;
 }
 
 gsl::owner<QComboBox*> Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (Complication::*)(int)> callback) {
     gsl::owner<QComboBox*> comboBox = createComboBox(parent, layout, prompt, options);
-    _callbacksCBox.insert(_callbacksCBox.cend(), comboBox, callback);
+    mCallbacksCBox.insert(mCallbacksCBox.cend(), comboBox, callback);
     return comboBox;
 }
 
@@ -89,7 +89,7 @@ gsl::owner<QLabel*> Complication::createLabel(QWidget*, QVBoxLayout* layout, QSt
 
 gsl::owner<QLineEdit*> Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(QString)> callback) {
     gsl::owner<QLineEdit*> lineEdit = createLineEdit(parent, layout, prompt);
-    _callbacksEdit.insert(_callbacksEdit.cend(), lineEdit, callback);
+    mCallbacksEdit.insert(mCallbacksEdit.cend(), lineEdit, callback);
     return lineEdit;
 }
 

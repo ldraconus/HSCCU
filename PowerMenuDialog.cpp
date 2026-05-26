@@ -26,16 +26,16 @@ PowerMenuDialog::~PowerMenuDialog()
 
 void PowerMenuDialog::showEvent(QShowEvent*) {
     QRect dlg = geometry();
-    dlg.setTopLeft(_pos);
+    dlg.setTopLeft(mPos);
     setGeometry(dlg);
 
-    ui->copyButton->setEnabled(_showCopy);
-    ui->cutButton->setEnabled(_showCut);
-    ui->deleteButton->setEnabled(_showDelete);
-    ui->editButton->setEnabled(_showEdit);
-    ui->moveDownButton->setEnabled(_showMoveDown);
-    ui->moveUpButton->setEnabled(_showMoveUp);
-    ui->pasteButton->setEnabled(_showPaste);
+    ui->copyButton->setEnabled(mShowCopy);
+    ui->cutButton->setEnabled(mShowCut);
+    ui->deleteButton->setEnabled(mShowDelete);
+    ui->editButton->setEnabled(mShowEdit);
+    ui->moveDownButton->setEnabled(mShowMoveDown);
+    ui->moveUpButton->setEnabled(mShowMoveUp);
+    ui->pasteButton->setEnabled(mShowPaste);
 }
 
 void PowerMenuDialog::newButton() {

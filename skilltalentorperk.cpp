@@ -269,16 +269,16 @@ bool SkillTalentOrPerk::isNumber(QString txt) {
 
 void SkillTalentOrPerk::callback(QCheckBox* checkBox) {
     _sender = checkBox;
-    auto f = _callbacksCB.find(checkBox);
-    if (f == _callbacksCB.end()) return;
+    auto f = mCallbacksCB.find(checkBox);
+    if (f == mCallbacksCB.end()) return;
     auto function = f.value();
     function(this, checkBox->isChecked());
 }
 
 void SkillTalentOrPerk::callback(QLineEdit* edit) {
     _sender = edit;
-    auto f = _callbacksEdit.find(edit);
-    if (f == _callbacksEdit.end()) return;
+    auto f = mCallbacksEdit.find(edit);
+    if (f == mCallbacksEdit.end()) return;
     auto function = f.value();
     function(this, edit->text());
 }
@@ -300,7 +300,7 @@ QCheckBox* SkillTalentOrPerk::createCheckBox(QWidget* parent, QVBoxLayout* layou
     checkBox->setStyleSheet("QCheckBox { color: #000; background: #fff; }");
     layout->addWidget(checkBox);
     parent->connect(checkBox, SIGNAL(stateChanged(int)), parent, SLOT(stateChanged(int)));
-    _callbacksCB.insert(_callbacksCB.cend(), checkBox, callback);
+    mCallbacksCB.insert(mCallbacksCB.cend(), checkBox, callback);
     return checkBox;
 }
 
@@ -313,7 +313,7 @@ QComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layou
     comboBox->setCurrentIndex(-1);
     layout->addWidget(comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
-    _callbacksCBox.insert(_callbacksCBox.cend(), comboBox, callback);
+    mCallbacksCBox.insert(mCallbacksCBox.cend(), comboBox, callback);
     return comboBox;
 }
 
@@ -345,7 +345,7 @@ QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layou
     lineEdit->setStyleSheet("QLineEdit { color: #000; background: #fff; }");
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
-    _callbacksEdit.insert(_callbacksEdit.cend(), lineEdit, callback);
+    mCallbacksEdit.insert(mCallbacksEdit.cend(), lineEdit, callback);
     return lineEdit;
 }
 

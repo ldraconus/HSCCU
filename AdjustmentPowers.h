@@ -9,10 +9,10 @@ public:
     Absorption(): AllPowers("Absorption▲")               { }
     Absorption(const Absorption& s): AllPowers(s)        { }
     Absorption(Absorption&& s): AllPowers(s)             { }
-    Absorption(const QJsonObject& json): AllPowers(json) { v._body      = json["body"].toInt(0);
-                                                           v._to        = json["to"].toString("");
-                                                           v._defensive = json["defensive"].toInt(0);
-                                                           v._varying   = json["varying"].toBool(false);
+    Absorption(const QJsonObject& json): AllPowers(json) { v.mBody      = json["body"].toInt(0);
+                                                           v.mTo        = json["to"].toString("");
+                                                           v.mDefensive = json["defensive"].toInt(0);
+                                                           v.mVarying   = json["varying"].toBool(false);
                                                          }
     ~Absorption() override { }
 
@@ -43,35 +43,35 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points   points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points(v._body); }
+                                                                   return Points(v.mBody); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   body->setText(QString("%1").arg(s._body));
-                                                                   to->setText(s._to);
-                                                                   defensive->setCurrentIndex(s._defensive);
-                                                                   varying->setChecked(s._varying);
+                                                                   body->setText(QString("%1").arg(s.mBody));
+                                                                   to->setText(s.mTo);
+                                                                   defensive->setCurrentIndex(s.mDefensive);
+                                                                   varying->setChecked(s.mVarying);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._body      = body->text().toInt(0);
-                                                                   v._to        = to->text();
-                                                                   v._defensive = defensive->currentIndex();
-                                                                   v._varying   = varying->isChecked();
+                                                                   v.mBody      = body->text().toInt(0);
+                                                                   v.mTo        = to->text();
+                                                                   v.mDefensive = defensive->currentIndex();
+                                                                   v.mVarying   = varying->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["body"]      = v._body;
-                                                                   obj["to"]        = v._to;
-                                                                   obj["defensive"] = v._defensive;
-                                                                   obj["varying"]   = v._varying;
+                                                                   obj["body"]      = v.mBody;
+                                                                   obj["to"]        = v.mTo;
+                                                                   obj["defensive"] = v.mDefensive;
+                                                                   obj["varying"]   = v.mVarying;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _body = 0;
-        QString _to = "";
-        int     _defensive = -1;
-        bool    _varying = false;
+        int     mBody = 0;
+        QString mTo = "";
+        int     mDefensive = -1;
+        bool    mVarying = false;
     } v;
 
     QLineEdit* body = nullptr;
@@ -80,16 +80,16 @@ private:
     QCheckBox* varying = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._defensive < 1 && v._to.isEmpty()) return "<incomplete>";
+        if (v.mDefensive < 1 && v.mTo.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Absorption▲: " + QString("+%1").arg(v._body) + " to " + v._to;
-        if (v._defensive == 1) {
+        res += "Absorption▲: " + QString("+%1").arg(v.mBody) + " to " + v.mTo;
+        if (v.mDefensive == 1) {
             Fraction f(1, 2);
             res += "; (+" + f.toString() + ") Normal Defensive";
         }
-        if (v._defensive == 2) res += "; (+1) Resistant Defensive";
-        if (v._varying) {
+        if (v.mDefensive == 2) res += "; (+1) Resistant Defensive";
+        if (v.mVarying) {
             Fraction f(3, 4);
             res += "; (+" + f.toString() + ") Varying";
         }
@@ -100,8 +100,8 @@ private:
         Fraction var(0, 1);
         Fraction threeQuarter(3, 4);
         Fraction oneHalf(1, 2);
-        if (v._varying) var = threeQuarter;
-        switch (v._defensive) {
+        if (v.mVarying) var = threeQuarter;
+        switch (v.mDefensive) {
         case 1: return var + oneHalf;
         case 2: return var + 1;
         }
@@ -127,10 +127,10 @@ public:
     Aid(): AllPowers("Aid")                       { }
     Aid(const Aid& s): AllPowers(s)               { }
     Aid(Aid&& s): AllPowers(s)                    { }
-    Aid(const QJsonObject& json): AllPowers(json) { v._dice  = json["dice"].toInt(0);
-                                                    v._to    = json["to"].toString("");
-                                                    v._boost = json["boost"].toBool(false);
-                                                    v._who   = json["who"].toInt(0);
+    Aid(const QJsonObject& json): AllPowers(json) { v.mDice  = json["dice"].toInt(0);
+                                                    v.mTo    = json["to"].toString("");
+                                                    v.mBoost = json["boost"].toBool(false);
+                                                    v.mWho   = json["who"].toInt(0);
                                                   }
     ~Aid() override { }
 
@@ -157,35 +157,35 @@ public:
                                                                  }
     Fraction lim() override                                      { return def(); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._dice * 6_cp; } // NOLINT
+                                                                   return v.mDice * 6_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   dice->setText(QString("%1").arg(s._dice));
-                                                                   to->setText(s._to);
-                                                                   who->setCurrentIndex(s._who);
-                                                                   boost->setChecked(s._boost);
+                                                                   dice->setText(QString("%1").arg(s.mDice));
+                                                                   to->setText(s.mTo);
+                                                                   who->setCurrentIndex(s.mWho);
+                                                                   boost->setChecked(s.mBoost);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._dice  = dice->text().toInt();
-                                                                   v._to    = to->text();
-                                                                   v._who   = who->currentIndex();
-                                                                   v._boost = boost->isChecked();
+                                                                   v.mDice  = dice->text().toInt();
+                                                                   v.mTo    = to->text();
+                                                                   v.mWho   = who->currentIndex();
+                                                                   v.mBoost = boost->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]  = v._dice;
-                                                                   obj["to"]    = v._to;
-                                                                   obj["who"]   = v._who;
-                                                                   obj["boost"] = v._boost;
+                                                                   obj["dice"]  = v.mDice;
+                                                                   obj["to"]    = v.mTo;
+                                                                   obj["who"]   = v.mWho;
+                                                                   obj["boost"] = v.mBoost;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _dice = 0;
-        QString _to = "";
-        bool    _boost = false;
-        int     _who = -1;
+        int     mDice = 0;
+        QString mTo = "";
+        bool    mBoost = false;
+        int     mWho = -1;
     } v;
 
     QLineEdit* dice = nullptr;
@@ -194,21 +194,21 @@ private:
     QComboBox* who = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._dice < 1 || v._to.isEmpty()) return "<incomplete>";
+        if (v.mDice < 1 || v.mTo.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += (v._boost ? "Boost: " : "Aid: " ) + QString("+%1").arg(v._dice) + "d6 to " + v._to;
-        if (v._who == 1) {
+        res += (v.mBoost ? "Boost: " : "Aid: " ) + QString("+%1").arg(v.mDice) + "d6 to " + v.mTo;
+        if (v.mWho == 1) {
             Fraction f(1, 2);
             res += "; (-" + f.toString() + ") Only Aid Others";
         }
-        if (v._who == 2) res += "; (-1) Only Aid Self";
+        if (v.mWho == 2) res += "; (-1) Only Aid Self";
         return res;
     }
 
     Fraction def() {
         Fraction oneHalf(1, 2);
-        switch (v._who) {
+        switch (v.mWho) {
         case 1: return oneHalf;
         case 2: return Fraction(1);
         }
@@ -237,9 +237,9 @@ public:
     Drain(): AllPowers("Drain")                     { }
     Drain(const Drain& s): AllPowers(s)             { }
     Drain(Drain&& s): AllPowers(s)                  { }
-    Drain(const QJsonObject& json): AllPowers(json) { v._dice     = json["body"].toInt(0);
-                                                      v._from     = json["from"].toString("");
-                                                      v._suppress = json["suppress"].toBool(false);
+    Drain(const QJsonObject& json): AllPowers(json) { v.mDice     = json["body"].toInt(0);
+                                                      v.mFrom     = json["from"].toString("");
+                                                      v.mSuppress = json["suppress"].toBool(false);
                                                     }
     ~Drain() override { }
 
@@ -265,31 +265,31 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return Points(v._dice * 10); } // NOLINT
+                                                                   return Points(v.mDice * 10); } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   dice->setText(QString("%1").arg(s._dice));
-                                                                   from->setText(s._from);
-                                                                   suppress->setChecked(s._suppress);
+                                                                   dice->setText(QString("%1").arg(s.mDice));
+                                                                   from->setText(s.mFrom);
+                                                                   suppress->setChecked(s.mSuppress);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._dice     = dice->text().toInt();
-                                                                   v._from     = from->text();
-                                                                   v._suppress = suppress->isChecked();
+                                                                   v.mDice     = dice->text().toInt();
+                                                                   v.mFrom     = from->text();
+                                                                   v.mSuppress = suppress->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]     = v._dice;
-                                                                   obj["from"]     = v._from;
-                                                                   obj["suppress"] = v._suppress;
+                                                                   obj["dice"]     = v.mDice;
+                                                                   obj["from"]     = v.mFrom;
+                                                                   obj["suppress"] = v.mSuppress;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _dice = 0;
-        QString _from = "";
-        bool    _suppress = false;
+        int     mDice = 0;
+        QString mFrom = "";
+        bool    mSuppress = false;
     } v;
 
     QLineEdit* dice = nullptr;
@@ -297,10 +297,10 @@ private:
     QCheckBox* suppress = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._dice < 1 || v._from.isEmpty()) return "<incomplete>";
+        if (v.mDice < 1 || v.mFrom.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += (v._suppress ? "Suppress: " : "Drain: " ) + QString("+%1").arg(v._dice) + "d6 from " + v._from;
+        res += (v.mSuppress ? "Suppress: " : "Drain: " ) + QString("+%1").arg(v.mDice) + "d6 from " + v.mFrom;
         return res;
     }
 
@@ -319,9 +319,9 @@ public:
     Healing(): AllPowers("Healing")                   { }
     Healing(const Healing& s): AllPowers(s)           { }
     Healing(Healing&& s): AllPowers(s)                { }
-    Healing(const QJsonObject& json): AllPowers(json) { v._dice = json["dice"].toInt(0);
-                                                        v._to   = json["to"].toString("");
-                                                        v._rate = json["rate"].toInt(-1);
+    Healing(const QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
+                                                        v.mTo   = json["to"].toString("");
+                                                        v.mRate = json["rate"].toInt(-1);
                                                       }
     ~Healing() override { }
 
@@ -348,31 +348,31 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points(v._dice * 10); } // NOLINT
+                                                                   return Points(v.mDice * 10); } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   dice->setText(QString("%1").arg(s._dice));
-                                                                   to->setText(s._to);
-                                                                   rate->setCurrentIndex(s._rate);
+                                                                   dice->setText(QString("%1").arg(s.mDice));
+                                                                   to->setText(s.mTo);
+                                                                   rate->setCurrentIndex(s.mRate);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._dice = dice->text().toInt();
-                                                                   v._to   = to->text();
-                                                                   v._rate = rate->currentIndex();
+                                                                   v.mDice = dice->text().toInt();
+                                                                   v.mTo   = to->text();
+                                                                   v.mRate = rate->currentIndex();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v._dice;
-                                                                   obj["to"]   = v._to;
-                                                                   obj["rate"] = v._rate;
+                                                                   obj["dice"] = v.mDice;
+                                                                   obj["to"]   = v.mTo;
+                                                                   obj["rate"] = v.mRate;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _dice = 0;
-        QString _to = "";
-        int     _rate = -1;
+        int     mDice = 0;
+        QString mTo = "";
+        int     mRate = -1;
     } v;
 
     QLineEdit* dice = nullptr;
@@ -380,18 +380,18 @@ private:
     QComboBox* rate = nullptr;
 
     Fraction def() {
-        if (v._rate >= 1) return v._rate * Fraction(1, 4);
+        if (v.mRate >= 1) return v.mRate * Fraction(1, 4);
         return Fraction(0);
     }
 
     QString optOut(bool showEND) {
-        if (v._dice < 1 || v._to.isEmpty()) return "<incomplete>";
+        if (v.mDice < 1 || v.mTo.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Healing: " + QString("+%1").arg(v._dice) + "d6 to " + v._to;
+        res += "Healing: " + QString("+%1").arg(v.mDice) + "d6 to " + v.mTo;
         QStringList rate { "", "6 Hours", "Hour", "20 Minutes",
                            "5 Minutes", "Minute", "Turn" };
-        if (v._rate >= 1) res += " (Usable Every " + rate[v._rate] + "On Same Target)";
+        if (v.mRate >= 1) res += " (Usable Every " + rate[v.mRate] + "On Same Target)";
         return res;
     }
 

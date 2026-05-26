@@ -24,8 +24,8 @@ public:
     QString description() override {
         static QList<QString> impr { "Barely", "Slightly", "Greatly", "Fully" };
         static QList<QString> freq { "Infrequently", "Frequently", "Very Frequently", "Always" };
-        if (v._frequency < 0 || v._impairs < 0 || v._what.isEmpty()) return "<incomplete>";
-        return QString("Physical Complication: %1 (%2; %3 imparing)").arg(v._what, freq[v._frequency], impr[v._impairs]);
+        if (v.mFrequency < 0 || v.mImpairs < 0 || v.mWhat.isEmpty()) return "<incomplete>";
+        return QString("Physical Complication: %1 (%2; %3 imparing)").arg(v.mWhat, freq[v.mFrequency], impr[v.mImpairs]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what         = createLineEdit(parent, layout, "What is the complication?");
@@ -34,34 +34,34 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._frequency + 1) * 5_cp + (v._impairs < 0 ? 0 : v._impairs) * 5_cp; // NOLINT
+        return (v.mFrequency + 1) * 5_cp + (v.mImpairs < 0 ? 0 : v.mImpairs) * 5_cp; // NOLINT
     }
     void restore() override {
         vars s = v;
-        what->setText(s._what);
-        frequency->setCurrentIndex(s._frequency);
-        impairs->setCurrentIndex(s._impairs);
+        what->setText(s.mWhat);
+        frequency->setCurrentIndex(s.mFrequency);
+        impairs->setCurrentIndex(s.mImpairs);
         v = s;
     }
     void store() override {
-        v._what      = what->text();
-        v._frequency = frequency->currentIndex();
-        v._impairs   = impairs->currentIndex();
+        v.mWhat      = what->text();
+        v.mFrequency = frequency->currentIndex();
+        v.mImpairs   = impairs->currentIndex();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]      = "Physical Complication";
-        obj["frequency"] = v._frequency;
-        obj["impairs"]   = v._impairs;
-        obj["what"]      = v._what;
+        obj["frequency"] = v.mFrequency;
+        obj["impairs"]   = v.mImpairs;
+        obj["what"]      = v.mWhat;
         return obj;
     }
 
 private:
     struct vars {
-        int     _frequency = -1;
-        int     _impairs = -1;
-        QString _what = "";
+        int     mFrequency = -1;
+        int     mImpairs = -1;
+        QString mWhat = "";
     } v;
 
     gsl::owner<QComboBox*> frequency = nullptr;

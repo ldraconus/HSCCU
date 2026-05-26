@@ -10,41 +10,41 @@ class Fraction
 {
 public:
     Fraction()
-        : _numerator(0)
-        , _denominator(1) { }
+        : mNumerator(0)
+        , mDenominator(1) { }
     Fraction(long n, long d)
-        : _numerator(n)
-        , _denominator(std::abs(d)) { reduce(); }
+        : mNumerator(n)
+        , mDenominator(std::abs(d)) { reduce(); }
     Fraction(long w, long n, long d)
-        : _numerator(n + w * d)
-        , _denominator(std::abs(d)) { reduce(); }
+        : mNumerator(n + w * d)
+        , mDenominator(std::abs(d)) { reduce(); }
     Fraction(long w, const Fraction& f)
-        : _numerator(f._numerator + w * f._denominator)
-        , _denominator(f._denominator) { reduce(); }
+        : mNumerator(f.mNumerator + w * f.mDenominator)
+        , mDenominator(f.mDenominator) { reduce(); }
     explicit Fraction(long x)
-        : _numerator(x)
-        , _denominator(1) { }
+        : mNumerator(x)
+        , mDenominator(1) { }
     Fraction(const Fraction& f)
-        : _numerator(f._numerator)
-        , _denominator(f._denominator) { }
+        : mNumerator(f.mNumerator)
+        , mDenominator(f.mDenominator) { }
     Fraction(Fraction&& f)
-        : _numerator(f._numerator)
-        , _denominator(f._denominator) { }
+        : mNumerator(f.mNumerator)
+        , mDenominator(f.mDenominator) { }
     virtual ~Fraction() { }
 
-    long numerator()   { return _numerator; }
-    long denominator() { return _denominator; }
+    long numerator()   { return mNumerator; }
+    long denominator() { return mDenominator; }
 
     Fraction& operator=(const Fraction& f) {
         if (&f != this) {
-            _numerator = f._numerator;
-            _denominator = f._denominator;
+            mNumerator = f.mNumerator;
+            mDenominator = f.mDenominator;
         }
         return *this;
     }
     Fraction& operator=(Fraction&& f) {
-        _numerator = f._numerator;
-        _denominator = f._denominator;
+        mNumerator = f.mNumerator;
+        mDenominator = f.mDenominator;
         return *this;
     }
     Fraction& operator=(const long n) {
@@ -67,40 +67,40 @@ public:
     }
     Fraction operator*=(const long n) { return *this *= Fraction(n); }
     Fraction operator+(const Fraction f) {
-        long long n1 = _numerator;
-        long long d1 = _denominator;
-        long long n2 = f._numerator;
-        long long d2 = f._denominator;
+        long long n1 = mNumerator;
+        long long d1 = mDenominator;
+        long long n2 = f.mNumerator;
+        long long d2 = f.mDenominator;
         Fraction fr(gsl::narrow<long>(n1 * d2 + n2 * d1), gsl::narrow<long>(d1 * d2));
         fr.reduce();
         return fr;
     }
     Fraction operator+(const long n) { return *this + Fraction(n); }
     Fraction operator-(const Fraction f) {
-        long long n1 = _numerator;
-        long long d1 = _denominator;
-        long long n2 = f._numerator;
-        long long d2 = f._denominator;
+        long long n1 = mNumerator;
+        long long d1 = mDenominator;
+        long long n2 = f.mNumerator;
+        long long d2 = f.mDenominator;
         Fraction fr(gsl::narrow<long>(n1 * d2 - n2 * d1), gsl::narrow<long>(d1 * d2));
         fr.reduce();
         return fr;
     }
     Fraction operator-(const long n) { return *this - Fraction(n); }
     Fraction operator*(const Fraction f) {
-        long long n1 = _numerator;
-        long long d1 = _denominator;
-        long long n2 = f._numerator;
-        long long d2 = f._denominator;
+        long long n1 = mNumerator;
+        long long d1 = mDenominator;
+        long long n2 = f.mNumerator;
+        long long d2 = f.mDenominator;
         Fraction fr(gsl::narrow<long>(n1 * n2), gsl::narrow<long>(d1 * d2));
         fr.reduce();
         return fr;
     }
     Fraction operator*(const long n) { return *this * Fraction(n); }
     Fraction operator/(const Fraction f) {
-        long long n1 = _numerator;
-        long long d1 = _denominator;
-        long long n2 = f._numerator;
-        long long d2 = f._denominator;
+        long long n1 = mNumerator;
+        long long d1 = mDenominator;
+        long long n2 = f.mNumerator;
+        long long d2 = f.mDenominator;
         Fraction fr(gsl::narrow<long>(n1 * d2), ::abs(gsl::narrow<long>(d1 * n2)));
         fr.reduce();
         return fr;
@@ -108,46 +108,46 @@ public:
     Fraction operator/(const long n) { return *this / Fraction(n); }
     bool     operator<(const Fraction f) {
         Fraction n = *this - f;
-        return n._numerator < 0;
+        return n.mNumerator < 0;
     }
     bool     operator<(const long n) { return *this < Fraction(n); }
     bool     operator<=(const Fraction f) {
         Fraction n = *this - f;
-        return n._numerator <= 0;
+        return n.mNumerator <= 0;
     }
     bool     operator<=(const long n) { return *this <= Fraction(n); }
     bool     operator==(const Fraction f) {
         Fraction n = *this - f;
-        return n._numerator == 0;
+        return n.mNumerator == 0;
     }
     bool     operator==(const long n) { return *this == Fraction(n); }
     bool     operator!=(const Fraction f) {
         Fraction n = *this - f;
-        return n._numerator != 0;
+        return n.mNumerator != 0;
     }
     bool     operator!=(const long n) { return *this == Fraction(n); }
     bool     operator>=(const Fraction f) {
         Fraction n = *this - f;
-        return n._numerator >= 0;
+        return n.mNumerator >= 0;
     }
     bool     operator>=(const long n) { return *this >= Fraction(n); }
     bool     operator>(const Fraction f) {
         Fraction n = *this - f;
-        return n._numerator > 0;
+        return n.mNumerator > 0;
     }
     bool     operator>(const long n) { return *this > Fraction(n); }
 
     int toInt(bool down = false) const {
-        if (down && _denominator % 2 == 0) return (_numerator + (_denominator / 2) - 1) / _denominator;
-        return (_numerator + (_denominator / 2)) / _denominator;
+        if (down && mDenominator % 2 == 0) return (mNumerator + (mDenominator / 2) - 1) / mDenominator;
+        return (mNumerator + (mDenominator / 2)) / mDenominator;
     }
 
     Fraction abs();
     QString  toString();
 
 private:
-    long _numerator;
-    long _denominator;
+    long mNumerator;
+    long mDenominator;
 
     void reduce();
 };

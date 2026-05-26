@@ -14,8 +14,7 @@
 #include <QObject>
 #include <QVBoxLayout>
 
-class Complication
-{
+class Complication {
 protected:
     gsl::owner<QCheckBox*> createCheckBox(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (Complication::*)(bool)>);
     gsl::owner<QCheckBox*> createCheckBox(QWidget*, QVBoxLayout*, QString);
@@ -26,9 +25,9 @@ protected:
     gsl::owner<QLineEdit*> createLineEdit(QWidget*, QVBoxLayout*, QString);
 
 private:
-    QMap<QCheckBox*, std::_Mem_fn<void (Complication::*)(bool)>>     _callbacksCB;
-    QMap<QComboBox*, std::_Mem_fn<void (Complication::*)(int)>>      _callbacksCBox;
-    QMap<QLineEdit*, std::_Mem_fn<void (Complication::*)(QString)>>  _callbacksEdit;
+    QMap<QCheckBox*, std::_Mem_fn<void (Complication::*)(bool)>>     mCallbacksCB;
+    QMap<QComboBox*, std::_Mem_fn<void (Complication::*)(int)>>      mCallbacksCBox;
+    QMap<QLineEdit*, std::_Mem_fn<void (Complication::*)(QString)>>  mCallbacksEdit;
     void empty(bool)      { }
 
 public:

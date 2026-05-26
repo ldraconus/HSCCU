@@ -25,15 +25,15 @@ public:
     QString description() override {
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
         static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
-        if (v._frequency < 0 || v._what.isEmpty()) return "<incomplete>";
-        return QString("Negative Reputation: %1 (%2%3%4)").arg(v._what,
+        if (v.mFrequency < 0 || v.mWhat.isEmpty()) return "<incomplete>";
+        return QString("Negative Reputation: %1 (%2%3%4)").arg(v.mWhat,
 #ifndef ISHSC
                                                                Sheet::ref().getOption().showFrequencyRolls()
 #else
                                                                true
 #endif
-                                                                   ? freq[v._frequency] : freqSans[v._frequency],
-                                                               v._extreme ? "; Extreme" : "", v._limited ? "; Limited Group" : "");
+                                                                   ? freq[v.mFrequency] : freqSans[v.mFrequency],
+                                                               v.mExtreme ? "; Extreme" : "", v.mLimited ? "; Limited Group" : "");
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what      = createLineEdit(parent, layout, "What is the reputation?");
@@ -50,38 +50,38 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._extreme ? 5_cp : 0_cp) + (v._frequency + 1) * 5_cp - (v._limited ? 5_cp : 0_cp); // NOLINT
+        return (v.mExtreme ? 5_cp : 0_cp) + (v.mFrequency + 1) * 5_cp - (v.mLimited ? 5_cp : 0_cp); // NOLINT
     }
     void restore() override {
         vars s = v;
-        what->setText(s._what);
-        extreme->setChecked(s._extreme);
-        frequency->setCurrentIndex(s._frequency);
-        limited->setChecked(s._limited);
+        what->setText(s.mWhat);
+        extreme->setChecked(s.mExtreme);
+        frequency->setCurrentIndex(s.mFrequency);
+        limited->setChecked(s.mLimited);
         v = s;
     }
     void store() override {
-        v._what      = what->text();
-        v._extreme   = extreme->isChecked();
-        v._frequency = frequency->currentIndex();
-        v._limited   = limited->isChecked();
+        v.mWhat      = what->text();
+        v.mExtreme   = extreme->isChecked();
+        v.mFrequency = frequency->currentIndex();
+        v.mLimited   = limited->isChecked();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]      = "Negative Reputation";
-        obj["extreme"]   = v._extreme;
-        obj["frequency"] = v._frequency;
-        obj["limited"]   = v._limited;
-        obj["what"]      = v._what;
+        obj["extreme"]   = v.mExtreme;
+        obj["frequency"] = v.mFrequency;
+        obj["limited"]   = v.mLimited;
+        obj["what"]      = v.mWhat;
         return obj;
     }
 
 private:
     struct vars {
-        bool    _extreme = false;
-        int     _frequency = -1;
-        bool    _limited = false;
-        QString _what = "";
+        bool    mExtreme = false;
+        int     mFrequency = -1;
+        bool    mLimited = false;
+        QString mWhat = "";
     } v;
 
     gsl::owner<QCheckBox*> extreme = nullptr;

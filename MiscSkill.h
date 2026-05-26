@@ -24,20 +24,20 @@ public:
     ~MiscSkills() override { }
     MiscSkills& operator=(const MiscSkills& s) {
         if (this != &s) {
-            v._name = s.v._name;
+            v.mName = s.v.mName;
         }
         return *this;
     }
     MiscSkills& operator=(MiscSkills&& s) {
-        v._name = s.v._name;
+        v.mName = s.v.mName;
         return *this;
     }
 
     bool isSkill() override { return true; }
 
-    QString description(bool showRoll = false) override { return v._name +  (showRoll ? "" : ""); }
+    QString description(bool showRoll = false) override { return v.mName +  (showRoll ? "" : ""); }
     bool form(QWidget*, QVBoxLayout*) override          { return false; }
-    QString name() override                             { return v._name; }
+    QString name() override                             { return v.mName; }
     Points points(bool noStore = false) override        { if (!noStore) store(); return 0_cp; }
     void restore() override                             { }
     QString roll() override                             { return ""; }
@@ -45,13 +45,13 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["name"] = v._name;
+        obj["name"] = v.mName;
         return obj;
     }
 
 private:
     struct vars {
-        QString _name = "";
+        QString mName = "";
     } v;
 
 };
@@ -106,9 +106,9 @@ public:
     MSL(): MiscSkills("Movement Skill Levels")     { }
     MSL(const MSL& s): MiscSkills(s)               { }
     MSL(MSL&& s): MiscSkills(s)                    { }
-    MSL(const QJsonObject& json): MiscSkills(json) { v._plus = json["plus"].toInt(1);
-                                                     v._for  = json["for"].toString("");
-                                                     v._size = json["size"].toInt(0);
+    MSL(const QJsonObject& json): MiscSkills(json) { v.mPlus = json["plus"].toInt(1);
+                                                     v.mFor  = json["for"].toString("");
+                                                     v.mSize = json["size"].toInt(0);
     }
     ~MSL() override { }
     MSL& operator=(const MSL& s) {
@@ -129,30 +129,30 @@ public:
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   QList<Points> size { 0_cp, 2_cp, 3_cp };
-                                                                  return v._plus * size[v._size + 1]; }
+                                                                  return v.mPlus * size[v.mSize + 1]; }
     void    restore() override                                  { vars s = v;
-                                                                  plus->setText(QString("%1").arg(s._plus));
-                                                                  size->setCurrentIndex(s._size);
-                                                                  forwhat->setText(s._for);
+                                                                  plus->setText(QString("%1").arg(s.mPlus));
+                                                                  size->setCurrentIndex(s.mSize);
+                                                                  forwhat->setText(s.mFor);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._plus = plus->text().toInt(0);
-                                                                  v._for  = forwhat->text();
-                                                                  v._size = size->currentIndex();
+    void    store() override                                    { v.mPlus = plus->text().toInt(0);
+                                                                  v.mFor  = forwhat->text();
+                                                                  v.mSize = size->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = MiscSkills::toJson();
-                                                                  obj["plus"] = v._plus;
-                                                                  obj["for"]  = v._for;
-                                                                  obj["size"] = v._size;
+                                                                  obj["plus"] = v.mPlus;
+                                                                  obj["for"]  = v.mFor;
+                                                                  obj["size"] = v.mSize;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int     _plus = 0;
-        QString _for = "";
-        int     _size = -1;
+        int     mPlus = 0;
+        QString mFor = "";
+        int     mSize = -1;
     } v;
 
     QLineEdit* plus = nullptr;
@@ -160,11 +160,11 @@ private:
     QComboBox* size = nullptr;
 
     QString optOut() {
-        if (v._plus < 1 || v._size < 0) return "<incomplete>";
+        if (v.mPlus < 1 || v.mSize < 0) return "<incomplete>";
         QString res = "Movement Skill Levels: ";
-        switch (v._size) {
-        case 0: res += QString("+%1 with %2").arg(v._plus).arg(v._for);           break;
-        case 1: res += QString("+%1 with all movement").arg(v._plus).arg(v._for); break;
+        switch (v.mSize) {
+        case 0: res += QString("+%1 with %2").arg(v.mPlus).arg(v.mFor);           break;
+        case 1: res += QString("+%1 with all movement").arg(v.mPlus).arg(v.mFor); break;
         default: return "<incomplete>";
         }
 
@@ -183,9 +183,9 @@ public:
     PowerSkill(): MiscSkills("Power Skill")               { }
     PowerSkill(const PowerSkill& s): MiscSkills(s)        { }
     PowerSkill(PowerSkill&& s): MiscSkills(s)             { }
-    PowerSkill(const QJsonObject& json): MiscSkills(json) { v._what = json["what"].toString("");
-                                                            v._plus = json["plus"].toInt(0);
-                                                            v._stat = json["stat"].toInt(-1);
+    PowerSkill(const QJsonObject& json): MiscSkills(json) { v.mWhat = json["what"].toString("");
+                                                            v.mPlus = json["plus"].toInt(0);
+                                                            v.mStat = json["stat"].toInt(-1);
                                                           }
     ~PowerSkill() override { }
     PowerSkill& operator=(const PowerSkill& s) {
@@ -197,44 +197,44 @@ public:
         return *this;
     }
 
-    QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v._plus) + ") ": "") + optOut(); }
+    QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v.mPlus) + ") ": "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createLineEdit(parent, layout, "What power?");
                                                                   plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   stat = createComboBox(parent, layout, "Base on a stat?", { "No", "STR", "DEX", "CON", "INT", "EGO", "PRE"});
                                                                   return true;
                                                                 }
     Points   points(bool noStore = false) override              { if (!noStore) store();
-                                                                  return v._plus * 2_cp + 3_cp;
+                                                                  return v.mPlus * 2_cp + 3_cp;
                                                                 }
     void    restore() override                                  { vars s = v;
-                                                                  what->setText(s._what);
-                                                                  plus->setText(QString("%1").arg(s._plus));
-                                                                  stat->setCurrentIndex(s._stat);
+                                                                  what->setText(s.mWhat);
+                                                                  plus->setText(QString("%1").arg(s.mPlus));
+                                                                  stat->setCurrentIndex(s.mStat);
                                                                   v = s;
                                                                 }
-    QString roll() override                                     { return (v._stat >= 1) ?
+    QString roll() override                                     { return (v.mStat >= 1) ?
 #ifndef ISHSC
-                                                                             add(Sheet::ref().character().characteristic(v._stat).roll(), v._plus)
+                                                                             add(Sheet::ref().character().characteristic(v.mStat).roll(), v.mPlus)
 #else
                                                                              QString("+%1").arg(v._plus)
 #endif
                                                                                         : ""; }
-    void    store() override                                    { v._what = what->text();
-                                                                  v._plus = plus->text().toInt(0);
-                                                                  v._stat = stat->currentIndex();
+    void    store() override                                    { v.mWhat = what->text();
+                                                                  v.mPlus = plus->text().toInt(0);
+                                                                  v.mStat = stat->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = MiscSkills::toJson();
-                                                                  obj["what"] = v._what;
-                                                                  obj["plus"] = v._plus;
-                                                                  obj["stat"] = v._stat;
+                                                                  obj["what"] = v.mWhat;
+                                                                  obj["plus"] = v.mPlus;
+                                                                  obj["stat"] = v.mStat;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        QString _what = "";
-        int     _plus = 0;
-        int     _stat  = -1;
+        QString mWhat = "";
+        int     mPlus = 0;
+        int     mStat  = -1;
     } v;
 
     QLineEdit* what = nullptr;
@@ -242,9 +242,9 @@ private:
     QComboBox* stat = nullptr;
 
     QString optOut() {
-        if (v._plus <= 0 || v._what.isEmpty() || v._stat < 1) return "<incomplete>";
+        if (v.mPlus <= 0 || v.mWhat.isEmpty() || v.mStat < 1) return "<incomplete>";
         QStringList stat { "", " (STR", " (DEX", " (CON", " (INT", " (EGO", " (PRE" };
-        return QString("+%1 with ").arg(v._plus) + v._what + stat[v._stat] + ((v._stat != 0) ? " based)" : "");
+        return QString("+%1 with ").arg(v.mPlus) + v.mWhat + stat[v.mStat] + ((v.mStat != 0) ? " based)" : "");
     }
 
     void numeric(QString) override {
@@ -259,9 +259,9 @@ public:
     SkillLevels(): MiscSkills("Skill Levels") { }
     SkillLevels(const SkillLevels& s): MiscSkills(s)        { }
     SkillLevels(SkillLevels&& s): MiscSkills(s)             { }
-    SkillLevels(const QJsonObject& json): MiscSkills(json)  { v._plus = json["plus"].toInt(1);
-                                                              v._for  = json["for"].toString("");
-                                                              v._size = json["size"].toInt(0);
+    SkillLevels(const QJsonObject& json): MiscSkills(json)  { v.mPlus = json["plus"].toInt(1);
+                                                              v.mFor  = json["for"].toString("");
+                                                              v.mSize = json["size"].toInt(0);
                                                             }
     ~SkillLevels() override { }
     SkillLevels& operator=(const SkillLevels& s) {
@@ -286,30 +286,30 @@ public:
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   QList<Points> size { 0_cp, 2_cp, 3_cp, 4_cp, 6_cp, 10_cp, 12_cp }; // NOLINT
-                                                                  return v._plus * size[v._size + 1]; }
+                                                                  return v.mPlus * size[v.mSize + 1]; }
     void    restore() override                                  { vars s = v;
-                                                                  plus->setText(QString("%1").arg(s._plus));
-                                                                  size->setCurrentIndex(s._size);
-                                                                  forwhat->setText(s._for);
+                                                                  plus->setText(QString("%1").arg(s.mPlus));
+                                                                  size->setCurrentIndex(s.mSize);
+                                                                  forwhat->setText(s.mFor);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._plus = plus->text().toInt(0);
-                                                                  v._for  = forwhat->text();
-                                                                  v._size = size->currentIndex();
+    void    store() override                                    { v.mPlus = plus->text().toInt(0);
+                                                                  v.mFor  = forwhat->text();
+                                                                  v.mSize = size->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = MiscSkills::toJson();
-                                                                  obj["plus"] = v._plus;
-                                                                  obj["for"]  = v._for;
-                                                                  obj["size"] = v._size;
+                                                                  obj["plus"] = v.mPlus;
+                                                                  obj["for"]  = v.mFor;
+                                                                  obj["size"] = v.mSize;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int     _plus = 0;
-        QString _for = "";
-        int     _size = -1;
+        int     mPlus = 0;
+        QString mFor = "";
+        int     mSize = -1;
     } v;
 
     QLineEdit* plus = nullptr;
@@ -317,15 +317,15 @@ private:
     QComboBox* size = nullptr;
 
     QString optOut() {
-        if (v._plus < 1 || (v._size < 3 && v._for.isEmpty()) || v._size < 0) return "<incomplete>";
+        if (v.mPlus < 1 || (v.mSize < 3 && v.mFor.isEmpty()) || v.mSize < 0) return "<incomplete>";
         QString res;
-        switch (v._size) {
+        switch (v.mSize) {
         case 0:
         case 1:
-        case 2: res += QString("+%1 with %2").arg(v._plus).arg(v._for);                         break;
-        case 3: res += QString("+%1 With All Agility Skills").arg(v._plus);                     break;
-        case 4: res += QString("+%1 With All Non-Combat Skills").arg(v._plus);                  break;
-        case 5: res += QString("+%1 Overall Level%2").arg(v._plus).arg(v._plus > 1 ? "s" : ""); break; // NOLINT
+        case 2: res += QString("+%1 with %2").arg(v.mPlus).arg(v.mFor);                         break;
+        case 3: res += QString("+%1 With All Agility Skills").arg(v.mPlus);                     break;
+        case 4: res += QString("+%1 With All Non-Combat Skills").arg(v.mPlus);                  break;
+        case 5: res += QString("+%1 Overall Level%2").arg(v.mPlus).arg(v.mPlus > 1 ? "s" : ""); break; // NOLINT
         default: return "<incomplete>";
         }
 

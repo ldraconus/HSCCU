@@ -6,8 +6,7 @@
 #include "sheet.h"
 #endif
 
-class AccidentalChange: public Complication
-{
+class AccidentalChange: public Complication {
 public:
     AccidentalChange(): Complication() { }
     AccidentalChange(const AccidentalChange& ac)

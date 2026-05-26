@@ -31,34 +31,34 @@ public:
     QString description() override {
         static QList<QString> amount { "Destitute ($3,000 or less)",
                                        "Poor ($10,000 or less)" };
-        if (v._amount < 0) return "<incomplete>";
-        return amount[v._amount];
+        if (v.mAmount < 0) return "<incomplete>";
+        return amount[v.mAmount];
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         amount = createComboBox(parent, layout, "How Poor is the PC?", { "Destitute ($3,000 or less)", "Poor ($10,000 or less)" });
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._amount < 0) ? 0_cp : ((2 - v._amount) * 5_cp); // NOLINT
+        return (v.mAmount < 0) ? 0_cp : ((2 - v.mAmount) * 5_cp); // NOLINT
     }
     void restore() override {
         vars s = v;
-        amount->setCurrentIndex(s._amount);
+        amount->setCurrentIndex(s.mAmount);
         v = s;
     }
     void store() override {
-        v._amount = amount->currentIndex();
+        v.mAmount = amount->currentIndex();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]   = "Money";
-        obj["amount"] = v._amount;
+        obj["amount"] = v.mAmount;
         return obj;
     }
 
 private:
     struct vars {
-        int _amount = -1;
+        int mAmount = -1;
     } v;
 
     gsl::owner<QComboBox*> amount = nullptr;

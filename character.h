@@ -12,8 +12,7 @@
 #include <QObject>
 #include <QPixmap>
 
-class Character
-{
+class Character {
 public:
     Character();
     Character(const Character& c);
@@ -23,103 +22,103 @@ public:
     Character& operator=(const Character& c);
     Character& operator=(Character&& c);
 
-    QString    alternateIds()           { return _alternateIds; }
-    Character& alternateIds(QString a)  { _alternateIds = a; return *this; }
-    QString    campaignName()           { return _campaignName; }
-    Character& campaignName(QString n)  { _campaignName = n; return *this; }
-    QString    characterName()          { return _characterName; }
-    Character& characterName(QString n) { _characterName = n; return *this; }
-    QString    eyeColor()               { return _eyeColor; }
-    Character& eyeColor(QString n)      { _eyeColor = n; return *this; }
-    QString    gamemaster()             { return _gamemaster; }
-    Character& gamemaster(QString n)    { _gamemaster = n; return *this; }
-    QString    genre()                  { return _genre; }
-    Character& genre(QString n)         { _genre = n; return *this; }
-    QString    hairColor()              { return _hairColor; }
-    Character& hairColor(QString n)     { _hairColor = n; return *this; }
-    QString    playerName()             { return _playerName; }
-    Character& playerName(QString n)    { _playerName = n; return *this; }
-    Points     xp()                     { return _xp; }
-    Character& xp(Points n)             { _xp = n; return *this; }
+    QString    alternateIds()           { return mAlternateIds; }
+    Character& alternateIds(QString a)  { mAlternateIds = a; return *this; }
+    QString    campaignName()           { return mCampaignName; }
+    Character& campaignName(QString n)  { mCampaignName = n; return *this; }
+    QString    characterName()          { return mCharacterName; }
+    Character& characterName(QString n) { mCharacterName = n; return *this; }
+    QString    eyeColor()               { return mEyeColor; }
+    Character& eyeColor(QString n)      { mEyeColor = n; return *this; }
+    QString    gamemaster()             { return mGameMaster; }
+    Character& gamemaster(QString n)    { mGameMaster = n; return *this; }
+    QString    genre()                  { return mGenre; }
+    Character& genre(QString n)         { mGenre = n; return *this; }
+    QString    hairColor()              { return mHairColor; }
+    Character& hairColor(QString n)     { mHairColor = n; return *this; }
+    QString    playerName()             { return mPlayerName; }
+    Character& playerName(QString n)    { mPlayerName = n; return *this; }
+    Points     xp()                     { return mXP; }
+    Character& xp(Points n)             { mXP = n; return *this; }
 
-    Characteristic& STR()  { return _STR; }
-    Characteristic& DEX()  { return _DEX; }
-    Characteristic& CON()  { return _CON; }
-    Characteristic& INT()  { return _INT; }
-    Characteristic& EGO()  { return _EGO; }
-    Characteristic& PRE()  { return _PRE; }
-    Characteristic& OCV()  { return _OCV; }
-    Characteristic& DCV()  { return _DCV; }
-    Characteristic& OMCV() { return _OMCV; }
-    Characteristic& DMCV() { return _DMCV; }
-    Characteristic& SPD()  { return _SPD; }
-    Characteristic& PD()   { return _PD; }
-    Characteristic& ED()   { return _ED; }
-    Characteristic& REC()  { return _REC; }
-    Characteristic& END()  { return _END; }
-    Characteristic& BODY() { return _BODY; }
-    Characteristic& STUN() { return _STUN; }
+    Characteristic& STR()  { return mSTR; }
+    Characteristic& DEX()  { return mDEX; }
+    Characteristic& CON()  { return mCON; }
+    Characteristic& INT()  { return mINT; }
+    Characteristic& EGO()  { return mEGO; }
+    Characteristic& PRE()  { return mPRE; }
+    Characteristic& OCV()  { return mOCV; }
+    Characteristic& DCV()  { return mDCV; }
+    Characteristic& OMCV() { return mOMCV; }
+    Characteristic& DMCV() { return mDMCV; }
+    Characteristic& SPD()  { return mSPD; }
+    Characteristic& PD()   { return mPD; }
+    Characteristic& ED()   { return mED; }
+    Characteristic& REC()  { return mREC; }
+    Characteristic& END()  { return mEND; }
+    Characteristic& BODY() { return mBODY; }
+    Characteristic& STUN() { return mSTUN; }
 
-    QString    height()          { return _height; }
-    Character& height(QString h) { _height = h; return *this; }
-    QString    weight()          { return _weight; }
-    Character& weight(QString w) { _weight = w; return *this; }
+    QString    height()          { return mHeight; }
+    Character& height(QString h) { mHeight = h; return *this; }
+    QString    weight()          { return mWeight; }
+    Character& weight(QString w) { mWeight = w; return *this; }
 
-    int& tempPD()   { return _tempPD; }
-    int& tempED()   { return _tempED; }
-    int& rPD()      { return _rPD; }
-    int& rED()      { return _rED; }
-    int& temprPD()  { return _temprPD; }
-    int& temprED()  { return _temprED; }
-    int& FD()       { return _FD; }
-    int& MD()       { return _MD; }
-    int& PowD()     { return _PowD; }
-    int& running()  { return _running; }
-    int& leaping()  { return _leaping; }
-    int& swimming() { return _swimming; }
+    int& tempPD()   { return mTempPD; }
+    int& tempED()   { return mTempED; }
+    int& rPD()      { return mRPD; }
+    int& rED()      { return mRED; }
+    int& temprPD()  { return mTemprPD; }
+    int& temprED()  { return mTemprED; }
+    int& FD()       { return mFD; }
+    int& MD()       { return mMD; }
+    int& PowD()     { return mPowD; }
+    int& running()  { return mRunning; }
+    int& leaping()  { return mLeaping; }
+    int& swimming() { return mSwimming; }
 
     Characteristic& characteristic(int x) {
         switch (x) {
-        case 0:  return _STR;
-        case 1:  return _DEX;
-        case 2:  return _CON;
-        case 3:  return _INT;
-        case 4:  return _EGO;
-        case 5:  return _PRE; // NOLINT
-        case 6:  return _OCV; // NOLINT
-        case 7:  return _DCV; // NOLINT
-        case 8:  return _OMCV; // NOLINT
-        case 9:  return _DMCV; // NOLINT
-        case 10: return _SPD; // NOLINT
-        case 11: return _PD; // NOLINT
-        case 12: return _ED; // NOLINT
-        case 13: return _REC; // NOLINT
-        case 14: return _END; // NOLINT
-        case 15: return _BODY; // NOLINT
-        default: return _STUN; // NOLINT
+        case 0:  return mSTR;
+        case 1:  return mDEX;
+        case 2:  return mCON;
+        case 3:  return mINT;
+        case 4:  return mEGO;
+        case 5:  return mPRE; // NOLINT
+        case 6:  return mOCV; // NOLINT
+        case 7:  return mDCV; // NOLINT
+        case 8:  return mOMCV; // NOLINT
+        case 9:  return mDMCV; // NOLINT
+        case 10: return mSPD; // NOLINT
+        case 11: return mPD; // NOLINT
+        case 12: return mED; // NOLINT
+        case 13: return mREC; // NOLINT
+        case 14: return mEND; // NOLINT
+        case 15: return mBODY; // NOLINT
+        default: return mSTUN; // NOLINT
         }
     }
 
-    QList<shared_ptr<Complication>>&      complications()        { return _complications; }
-    QList<shared_ptr<SkillTalentOrPerk>>& skillsTalentsOrPerks() { return _skillsTalentsOrPerks; }
-    QList<shared_ptr<Power>>&             powersOrEquipment()    { return _powers; }
-    QString&                              image()                { return _image; }
-    qulonglong&                           imageDate()            { return _imageDate; }
-    QByteArray&                           imageData()            { return _imageData; }
-    QString&                              notes()                { return _notes; }
+    QList<shared_ptr<Complication>>&      complications()        { return mComplications; }
+    QList<shared_ptr<SkillTalentOrPerk>>& skillsTalentsOrPerks() { return mSkillsTalentsOrPerks; }
+    QList<shared_ptr<Power>>&             powersOrEquipment()    { return mPowers; }
+    QString&                              image()                { return mImage; }
+    qulonglong&                           imageDate()            { return mImageDate; }
+    QByteArray&                           imageData()            { return mImageData; }
+    QString&                              notes()                { return mNotes; }
 
-    void  clearEnhancers()     { _hasJackOfAllTrades = _hasLinguist = _hasScholar = _hasScientist = _hasTraveler = _hasWellConnected = false; }
-    bool& hasJackOfAllTrades() { return _hasJackOfAllTrades; }
-    bool& hasLinguist()        { return _hasLinguist; }
-    bool& hasScholar()         { return _hasScholar; }
-    bool& hasScientist()       { return _hasScientist; }
-    bool& hasTakesNoSTUN()     { return _hasTakesNoSTUN; }
-    bool& hasTraveler()        { return _hasTraveler; }
-    bool& hasWellConnected()   { return _hasWellConnected; }
+    void  clearEnhancers()     { mHasJackOfAllTrades = mHasLinguist = mHasScholar = mHasScientist = mHasTraveler = mHasWellConnected = false; }
+    bool& hasJackOfAllTrades() { return mHasJackOfAllTrades; }
+    bool& hasLinguist()        { return mHasLinguist; }
+    bool& hasScholar()         { return mHasScholar; }
+    bool& hasScientist()       { return mHasScientist; }
+    bool& hasTakesNoSTUN()     { return mHasTakesNoSTUN; }
+    bool& hasTraveler()        { return mHasTraveler; }
+    bool& hasWellConnected()   { return mHasWellConnected; }
 
     QJsonDocument copy(Option&);
     void          erase();
-#ifdef __wasm__
+#ifdef __EMSCRIPTEN__
     bool          load(Option&, const QByteArray&);
 #else
     bool          load(Option&, QString);
@@ -128,73 +127,73 @@ public:
     bool          store(Option&, QString);
 
 private:
-    Characteristic _STR;
-    Characteristic _DEX;
-    Characteristic _CON;
-    Characteristic _INT;
-    Characteristic _EGO;
-    Characteristic _PRE;
-    Characteristic _OCV;
-    Characteristic _DCV;
-    Characteristic _OMCV;
-    Characteristic _DMCV;
-    Characteristic _SPD;
-    Characteristic _PD;
-    Characteristic _ED;
-    Characteristic _REC;
-    Characteristic _END;
-    Characteristic _BODY;
-    Characteristic _STUN;
+    Characteristic mSTR;
+    Characteristic mDEX;
+    Characteristic mCON;
+    Characteristic mINT;
+    Characteristic mEGO;
+    Characteristic mPRE;
+    Characteristic mOCV;
+    Characteristic mDCV;
+    Characteristic mOMCV;
+    Characteristic mDMCV;
+    Characteristic mSPD;
+    Characteristic mPD;
+    Characteristic mED;
+    Characteristic mREC;
+    Characteristic mEND;
+    Characteristic mBODY;
+    Characteristic mSTUN;
 
-    QString _height;
-    QString _weight;
+    QString mHeight;
+    QString mWeight;
 
-    int _FD       = 0;
-    int _MD       = 0;
-    int _PowD     = 0;
-    int _rPD      = 0;
-    int _rED      = 0;
-    int _temprPD  = 0;
-    int _temprED  = 0;
-    int _tempPD   = 0;
-    int _tempED   = 0;
-    int _running  = 12; // NOLINT
-    int _leaping  = 4;
-    int _swimming = 4;
+    int mFD       = 0;
+    int mMD       = 0;
+    int mPowD     = 0;
+    int mRPD      = 0;
+    int mRED      = 0;
+    int mTemprPD  = 0;
+    int mTemprED  = 0;
+    int mTempPD   = 0;
+    int mTempED   = 0;
+    int mRunning  = 12; // NOLINT
+    int mLeaping  = 4;
+    int mSwimming = 4;
 
-    bool _hasJackOfAllTrades = false;
-    bool _hasLinguist        = false;
-    bool _hasScholar         = false;
-    bool _hasScientist       = false;
-    bool _hasTraveler        = false;
-    bool _hasWellConnected   = false;
-    bool _hasTakesNoSTUN     = false;
+    bool mHasJackOfAllTrades = false;
+    bool mHasLinguist        = false;
+    bool mHasScholar         = false;
+    bool mHasScientist       = false;
+    bool mHasTraveler        = false;
+    bool mHasWellConnected   = false;
+    bool mHasTakesNoSTUN     = false;
 
-    QList<shared_ptr<Complication>>      _complications;
-    QList<shared_ptr<SkillTalentOrPerk>> _skillsTalentsOrPerks;
-    QList<shared_ptr<Power>>             _powers;
+    QList<shared_ptr<Complication>>      mComplications;
+    QList<shared_ptr<SkillTalentOrPerk>> mSkillsTalentsOrPerks;
+    QList<shared_ptr<Power>>             mPowers;
 
     QList<std::tuple<QString, Characteristic*>> statPairs {
-        { "STR", &_STR }, { "DEX", &_DEX }, { "CON", &_CON }, { "INT", &_INT }, { "EGO", &_EGO },
-        { "PRE", &_PRE }, { "OCV", &_OCV }, { "OMCV", &_OMCV }, { "DCV", &_DCV }, { "DMCV", &_DMCV },
-        { "SPD", &_SPD }, { "PD", &_PD }, { "ED", &_ED }, { "REC", &_REC }, { "END", &_END },
-        { "BODY",&_BODY }, { "STUN", &_STUN }
+        { "STR", &mSTR }, { "DEX", &mDEX }, { "CON", &mCON }, { "INT", &mINT }, { "EGO", &mEGO },
+        { "PRE", &mPRE }, { "OCV", &mOCV }, { "OMCV", &mOMCV }, { "DCV", &mDCV }, { "DMCV", &mDMCV },
+        { "SPD", &mSPD }, { "PD", &mPD }, { "ED", &mED }, { "REC", &mREC }, { "END", &mEND },
+        { "BODY",&mBODY }, { "STUN", &mSTUN }
     };
 
-    QString _alternateIds  = "";
-    QString _campaignName  = "";
-    QString _characterName = "";
-    QString _eyeColor      = "";
-    QString _gamemaster    = "";
-    QString _genre         = "";
-    QString _hairColor     = "";
-    QString _notes         = "";
-    QString _playerName    = "";
-    Points  _xp            = 0_cp;
+    QString mAlternateIds  = "";
+    QString mCampaignName  = "";
+    QString mCharacterName = "";
+    QString mEyeColor      = "";
+    QString mGameMaster    = "";
+    QString mGenre         = "";
+    QString mHairColor     = "";
+    QString mNotes         = "";
+    QString mPlayerName    = "";
+    Points  mXP            = 0_cp;
 
-    QString    _image     = "";
-    qulonglong _imageDate = 0;
-    QByteArray _imageData;
+    QString    mImage     = "";
+    qulonglong mImageDate = 0;
+    QByteArray mImageData;
 
     void          fromJson(Option&, QJsonDocument& doc);
     QJsonDocument toJson(Option&);

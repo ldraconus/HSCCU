@@ -137,14 +137,14 @@ struct _statics {
     }
 };
 
-const QMap<QString, QString> Power::_adjustmentPower {
+const QMap<QString, QString> Power::mAdjustmentPower {
     SPCS("Absorption▲", Absorption),
     SPCS("Aid",         Aid),
     SPCS("Drain",       Drain),
     SPCS("Healing",     Healing)
 };
 
-const QMap<QString, QString> Power::_attackPower {
+const QMap<QString, QString> Power::mAttackPower {
     SPCS("Blast",               Blast),
     SPCS("Change Environment",  ChangeEnvironment),
     SPCS("Characteristics",     Characteristics),
@@ -164,14 +164,14 @@ const QMap<QString, QString> Power::_attackPower {
     SPCS("Transformϴ",          Transform)
 };
 
-const QMap<QString, QString> Power::_automatonPower {
+const QMap<QString, QString> Power::mAutomatonPower {
     SPCS("Cannot Be Stunnedϴ", CannotBeStunned),
     SPCS("Does Not Bleedϴ",    DoesNotBleed),
     SPCS("No Hit Locationsϴ",  NoHitLocations),
     SPCS("Takes No STUNϴ",     TakesNoSTUN)
 };
 
-const QMap<QString, QString> Power::_bodyAffectingPower {
+const QMap<QString, QString> Power::mBodyAffectingPower {
     SPCS("Density Increase",  DensityIncrease),
     SPCS("Desolidificationϴ", Desolidification),
     SPCS("Duplication▲",      Duplication),
@@ -183,7 +183,7 @@ const QMap<QString, QString> Power::_bodyAffectingPower {
     SPCS("Stretching",        Stretching)
 };
 
-const QMap<QString, QString> Power::_defensePower {
+const QMap<QString, QString> Power::mDefensePower {
     SPCS("Barrier",              Barrier),
     SPCS("Characteristics",      Characteristics),
     SPCS("Damage Negation▲",     DamageNegation),
@@ -196,14 +196,14 @@ const QMap<QString, QString> Power::_defensePower {
     SPCS("Resistant Defense",    ResistantDefense)
 };
 
-const QMap<QString, QString> Power::_frameworkPower {
+const QMap<QString, QString> Power::mFrameworkPower {
     SPCS("Group",               Group),
     SPCS("Multipower",          Multipower),
     SPCS("Variable Power Pool", VPP),
     SPCS("Blank Line",          Blank)
 };
 
-const QMap<QString, QString> Power::_mentalPower {
+const QMap<QString, QString> Power::mMentalPower {
     SPCS("Mental Blast",     MentalBlast),
     SPCS("Mental Illusions", MentalIllusions),
     SPCS("Mind Control",     MindControl),
@@ -212,7 +212,7 @@ const QMap<QString, QString> Power::_mentalPower {
     SPCS("Telepathy",        Telepathy)
 };
 
-const QMap<QString, QString> Power::_movementPower {
+const QMap<QString, QString> Power::mMovementPower {
     SPCS("Extra-Dimensional Movementϴ", ExtraDimensionalMovement),
     SPCS("FTL Travel",                  FTLTravel),
     SPCS("Flight",                      Flight),
@@ -224,20 +224,20 @@ const QMap<QString, QString> Power::_movementPower {
     SPCS("Tunneling",                   Tunneling)
 };
 
-const QMap<QString, QString> Power::_senseAffectingPower {
+const QMap<QString, QString> Power::mSenseAffectingPower {
     SPCS("Darkness",     Darkness),
     SPCS("Flash",        Flash),
     SPCS("Images",       Images),
     SPCS("Invisibility", Invisibility)
 };
 
-const QMap<QString, QString> Power::_sensoryPower {
+const QMap<QString, QString> Power::mSensoryPower {
     SPCS("Clairsentienceϴ", Clairsentience),
     SPCS("Enhanced Senses", EnhancedSenses),
     SPCS("Mind Scan",       MindScan)
 };
 
-const QMap<QString, QString> Power::_specialPower {
+const QMap<QString, QString> Power::mSpecialPower {
     SPCS("Duplication",           Duplication),
     SPCS("Endurance Reserve",     EnduranceReserve),
     SPCS("Enhanced Senses",       EnhancedSenses),
@@ -253,7 +253,7 @@ const QMap<QString, QString> Power::_specialPower {
     SPCS("Teleport Location",     TeleportLocation)
 };
 
-const QMap<QString, QString> Power::_standardPower {
+const QMap<QString, QString> Power::mStandardPower {
     SPCS("Barrier",             Barrier),
     SPCS("Blast",               Blast),
     SPCS("Change Environment",  ChangeEnvironment),
@@ -283,7 +283,7 @@ const QMap<QString, QString> Power::_standardPower {
     SPCS("Transformϴ",          Transform)
 };
 
-const QMap<QString, QString> Power::_equipment {
+const QMap<QString, QString> Power::mEquipment {
     SPCS("Weapon",    Weapon),
     SPCS("Armor",     Armor),
     SPCS("Equipment", Equip)
@@ -312,7 +312,7 @@ Power::Power() {
 
 int Power::doubling() {
     int dbl = 1;
-    for (const auto& mod: _modifiers) {
+    for (const auto& mod: mModifiers) {
         if (!mod->isAdder() || mod->name() != "Improved Noncombat Movement") continue;
         dbl += mod->doubling();
     }
@@ -326,49 +326,49 @@ bool Power::isNumber(QString txt) {
 }
 
 void Power::callback(QCheckBox* checkBox) {
-    _sender = checkBox;
-    auto f = _callbacksCB.find(checkBox);
-    if (f == _callbacksCB.end()) return;
+    mSender = checkBox;
+    auto f = mCallbacksCB.find(checkBox);
+    if (f == mCallbacksCB.end()) return;
     auto function = f->second;
     function(this, checkBox->isChecked());
 }
 
 void Power::callback(QLineEdit* edit) {
-    _sender = edit;
-    auto f = _callbacksEdit.find(edit);
-    if (f == _callbacksEdit.end()) return;
+    mSender = edit;
+    auto f = mCallbacksEdit.find(edit);
+    if (f == mCallbacksEdit.end()) return;
     auto function = f->second;
     function(this, 0);
 }
 
 void Power::callback(QComboBox* combo) {
-    _sender = combo;
-    auto f = _callbacksCBox.find(combo);
-    if (f == _callbacksCBox.end()) return;
+    mSender = combo;
+    auto f = mCallbacksCBox.find(combo);
+    if (f == mCallbacksCBox.end()) return;
     auto function = f->second;
     function(this, combo->currentIndex());
 }
 
 void Power::callback(QComboBox* combo, bool) {
-    _sender = combo;
-    auto f = _callbacksActivatedCBox.find(combo);
-    if (f == _callbacksActivatedCBox.end()) return;
+    mSender = combo;
+    auto f = mCallbacksActivatedCBox.find(combo);
+    if (f == mCallbacksActivatedCBox.end()) return;
     auto function = f->second;
     function(this, combo->currentIndex(), 0);
 }
 
 void Power::callback(QPushButton* btn) {
-    _sender = btn;
-    auto f = _callbacksBtn.find(btn);
-    if (f == _callbacksBtn.end()) return;
+    mSender = btn;
+    auto f = mCallbacksBtn.find(btn);
+    if (f == mCallbacksBtn.end()) return;
     auto function = f->second;
     function(this);
 }
 
 void Power::callback(QTreeWidget* tree) {
-    _sender = tree;
-    auto f = _callbacksTree.find(tree);
-    if (f == _callbacksTree.end()) return;
+    mSender = tree;
+    auto f = mCallbacksTree.find(tree);
+    if (f == mCallbacksTree.end()) return;
     auto function = f->second;
     function(this, 0, 0, false);
 }
@@ -389,21 +389,21 @@ QCheckBox* Power::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString p
 
 QCheckBox* Power::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, checkBoxCallback callback, int before) {
     QCheckBox* checkBox = createCheckBox(parent, layout, prompt, before);
-    if (checkBox) _callbacksCB.emplace(checkBox, callback);
+    if (checkBox) mCallbacksCB.emplace(checkBox, callback);
     return checkBox;
 }
 
 QComboBox* Power::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, comboBoxCallback callback,
                                  int before) {
     QComboBox* comboBox = createComboBox(parent, layout, prompt, options, before);
-    if (comboBox) _callbacksCBox.emplace(comboBox, callback);
+    if (comboBox) mCallbacksCBox.emplace(comboBox, callback);
     return comboBox;
 }
 
 QComboBox* Power::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, activatedCallback callback,
                                  int before) {
     QComboBox* comboBox = createComboBox(parent, layout, prompt, options, before);
-    if (comboBox) _callbacksActivatedCBox.emplace(comboBox, callback);
+    if (comboBox) mCallbacksActivatedCBox.emplace(comboBox, callback);
     return comboBox;
 }
 
@@ -438,7 +438,7 @@ QLabel* Power::createLabel(QWidget*, QVBoxLayout* layout, QString text, int befo
 
 QLineEdit* Power::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, lineEditCallback callback, int before) {
     QLineEdit* lineEdit = createLineEdit(parent, layout, prompt, before);
-    if (lineEdit) _callbacksEdit.emplace(lineEdit, callback);
+    if (lineEdit) mCallbacksEdit.emplace(lineEdit, callback);
     return lineEdit;
 }
 
@@ -458,7 +458,7 @@ QLineEdit* Power::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString p
 
 QPushButton* Power::createPushButton(QWidget* parent, QVBoxLayout* layout, QString prompt, pushButtonCallback callback, int before) {
     QPushButton* btn = createPushButton(parent, layout, prompt, before);
-    if (btn) _callbacksBtn.emplace(btn, callback);
+    if (btn) mCallbacksBtn.emplace(btn, callback);
     return btn;
 }
 
@@ -484,7 +484,7 @@ static QTreeWidgetItem* createTWItem(QString str) {
 
 QTreeWidget* Power::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<QString, QStringList> options, treeCallback callback, int before) {
     QTreeWidget* tree = createTreeWidget(parent, layout, options, before);
-    if (tree) _callbacksTree.emplace(tree, callback);
+    if (tree) mCallbacksTree.emplace(tree, callback);
     return tree;
 }
 
@@ -527,7 +527,7 @@ std::map<QWidget*, QLineEdit*> Power::_labeledEdits;
 
 QWidget* Power::createLabeledEdit(QWidget* parent, QVBoxLayout* layout, QString label, lineEditCallback callback, int before) {
     QWidget* wdgt = createLabeledEdit(parent, layout, label, before);
-    if (wdgt) _callbacksEdit.emplace(labeledEdit(wdgt), callback);
+    if (wdgt) mCallbacksEdit.emplace(labeledEdit(wdgt), callback);
     return wdgt;
 }
 
@@ -595,58 +595,58 @@ QList<QString> Power::Available() {
 }
 
 QList<QString> Power::AdjustmentPowers() {
-    return _adjustmentPower.keys();
+    return mAdjustmentPower.keys();
 }
 
 QList<QString> Power::AttackPowers() {
-    return _attackPower.keys();
+    return mAttackPower.keys();
 }
 
 QList<QString> Power::AutomatonPowers() {
-    return _automatonPower.keys();
+    return mAutomatonPower.keys();
 }
 
 QList<QString> Power::BodyAffectingPowers() {
-    return _bodyAffectingPower.keys();
+    return mBodyAffectingPower.keys();
 }
 
 QList<QString> Power::DefensePowers() {
-    return _defensePower.keys();
+    return mDefensePower.keys();
 }
 
 QList<QString> Power::FrameworkPowers() {
-    return _frameworkPower.keys();
+    return mFrameworkPower.keys();
 }
 
 QList<QString> Power::MentalPowers() {
-    return _mentalPower.keys();
+    return mMentalPower.keys();
 }
 
 QList<QString> Power::MovementPowers() {
-    return _movementPower.keys();
+    return mMovementPower.keys();
 }
 
 QList<QString> Power::SenseAffectingPowers() {
-    return _senseAffectingPower.keys();
+    return mSenseAffectingPower.keys();
 }
 
 QList<QString> Power::SensoryPowers() {
-    return _sensoryPower.keys();
+    return mSensoryPower.keys();
 }
 
 QList<QString> Power::SpecialPowers() {
-    return _specialPower.keys();
+    return mSpecialPower.keys();
 }
 
 QList<QString> Power::StandardPowers() {
-    return _standardPower.keys();
+    return mStandardPower.keys();
 }
 
 QList<QString> Power::Equipment() {
     static bool loaded = false;
 
     if (!loaded) loaded = LoadEquipment();
-    return _equipment.keys();
+    return mEquipment.keys();
 }
 
 bool Power::LoadEquipment() {
@@ -677,37 +677,37 @@ bool Power::LoadEquipment() {
 }
 
 shared_ptr<Power> Power::ByName(QString name) {
-    if (_adjustmentPower.contains(name))     return statics.powers[_adjustmentPower[name]]->create();
-    if (_attackPower.contains(name))         return statics.powers[_attackPower[name]]->create();
-    if (_automatonPower.contains(name))      return statics.powers[_automatonPower[name]]->create();
-    if (_bodyAffectingPower.contains(name))  return statics.powers[_bodyAffectingPower[name]]->create();
-    if (_defensePower.contains(name))        return statics.powers[_defensePower[name]]->create();
-    if (_mentalPower.contains(name))         return statics.powers[_mentalPower[name]]->create();
-    if (_movementPower.contains(name))       return statics.powers[_movementPower[name]]->create();
-    if (_senseAffectingPower.contains(name)) return statics.powers[_senseAffectingPower[name]]->create();
-    if (_sensoryPower.contains(name))        return statics.powers[_sensoryPower[name]]->create();
-    if (_specialPower.contains(name))        return statics.powers[_specialPower[name]]->create();
-    if (_standardPower.contains(name))       return statics.powers[_standardPower[name]]->create();
-    if (_frameworkPower.contains(name))      return statics.powers[_frameworkPower[name]]->create();
-    if (_equipment.contains(name))           return statics.powers[_equipment[name]]->create();
+    if (mAdjustmentPower.contains(name))     return statics.powers[mAdjustmentPower[name]]->create();
+    if (mAttackPower.contains(name))         return statics.powers[mAttackPower[name]]->create();
+    if (mAutomatonPower.contains(name))      return statics.powers[mAutomatonPower[name]]->create();
+    if (mBodyAffectingPower.contains(name))  return statics.powers[mBodyAffectingPower[name]]->create();
+    if (mDefensePower.contains(name))        return statics.powers[mDefensePower[name]]->create();
+    if (mMentalPower.contains(name))         return statics.powers[mMentalPower[name]]->create();
+    if (mMovementPower.contains(name))       return statics.powers[mMovementPower[name]]->create();
+    if (mSenseAffectingPower.contains(name)) return statics.powers[mSenseAffectingPower[name]]->create();
+    if (mSensoryPower.contains(name))        return statics.powers[mSensoryPower[name]]->create();
+    if (mSpecialPower.contains(name))        return statics.powers[mSpecialPower[name]]->create();
+    if (mStandardPower.contains(name))       return statics.powers[mStandardPower[name]]->create();
+    if (mFrameworkPower.contains(name))      return statics.powers[mFrameworkPower[name]]->create();
+    if (mEquipment.contains(name))           return statics.powers[mEquipment[name]]->create();
     return nullptr;
 }
 
 shared_ptr<Power> Power::FromJson(QString name, const QJsonObject& json) {
     shared_ptr<Power> power;
-    if (_adjustmentPower.contains(name))     power = statics.powers[_adjustmentPower[name]]->create(json);
-    if (_attackPower.contains(name))         power = statics.powers[_attackPower[name]]->create(json);
-    if (_automatonPower.contains(name))      power = statics.powers[_automatonPower[name]]->create(json);
-    if (_bodyAffectingPower.contains(name))  power = statics.powers[_bodyAffectingPower[name]]->create(json);
-    if (_defensePower.contains(name))        power = statics.powers[_defensePower[name]]->create(json);
-    if (_mentalPower.contains(name))         power = statics.powers[_mentalPower[name]]->create(json);
-    if (_movementPower.contains(name))       power = statics.powers[_movementPower[name]]->create(json);
-    if (_senseAffectingPower.contains(name)) power = statics.powers[_senseAffectingPower[name]]->create(json);
-    if (_sensoryPower.contains(name))        power = statics.powers[_sensoryPower[name]]->create(json);
-    if (_specialPower.contains(name))        power = statics.powers[_specialPower[name]]->create(json);
-    if (_standardPower.contains(name))       power = statics.powers[_standardPower[name]]->create(json);
-    if (_frameworkPower.contains(name))      power = statics.powers[_frameworkPower[name]]->create(json);
-    if (_equipment.contains(name))           power = statics.powers[_equipment[name]]->create(json);
+    if (mAdjustmentPower.contains(name))     power = statics.powers[mAdjustmentPower[name]]->create(json);
+    if (mAttackPower.contains(name))         power = statics.powers[mAttackPower[name]]->create(json);
+    if (mAutomatonPower.contains(name))      power = statics.powers[mAutomatonPower[name]]->create(json);
+    if (mBodyAffectingPower.contains(name))  power = statics.powers[mBodyAffectingPower[name]]->create(json);
+    if (mDefensePower.contains(name))        power = statics.powers[mDefensePower[name]]->create(json);
+    if (mMentalPower.contains(name))         power = statics.powers[mMentalPower[name]]->create(json);
+    if (mMovementPower.contains(name))       power = statics.powers[mMovementPower[name]]->create(json);
+    if (mSenseAffectingPower.contains(name)) power = statics.powers[mSenseAffectingPower[name]]->create(json);
+    if (mSensoryPower.contains(name))        power = statics.powers[mSensoryPower[name]]->create(json);
+    if (mSpecialPower.contains(name))        power = statics.powers[mSpecialPower[name]]->create(json);
+    if (mStandardPower.contains(name))       power = statics.powers[mStandardPower[name]]->create(json);
+    if (mFrameworkPower.contains(name))      power = statics.powers[mFrameworkPower[name]]->create(json);
+    if (mEquipment.contains(name))           power = statics.powers[mEquipment[name]]->create(json);
     if (power == nullptr) return nullptr;
 
     QJsonObject obj = json["modifiers"].toObject();
@@ -715,7 +715,7 @@ shared_ptr<Power> Power::FromJson(QString name, const QJsonObject& json) {
     for (const auto& key: keys) {
         const auto& base = Modifiers::ByName(key);
         shared_ptr<Modifier> mod = base->create(obj[key].toObject());
-        power->_modifiers.append(mod);
+        power->mModifiers.append(mod);
         if (mod->type() == ModifierBase::isAdvantage ||
             (mod->type() == ModifierBase::isBoth && mod->fraction(Modifier::NoStore) >= 0)) power->advantagesList().append(mod);
         else power->limitationsList().append(mod);
@@ -730,7 +730,7 @@ Fraction Power::endLessActing() {
         if (mod->name() == "Reduced Endurance") continue;
         advantages += mod->fraction(NoStore);
     }
-    Power* parent = _parent;
+    Power* parent = mParent;
     if (parent != nullptr) {
         for (const auto& mod: parent->advantagesList())
             if (!mod->isAdder()) {
@@ -756,28 +756,28 @@ QString Power::end() {
 #endif
     auto adv = this->endLessActing();
     active = Points((active.points * adv).toInt());
-    if (findModifier("Charges") != _modifiers.end()) per = 0;
+    if (findModifier("Charges") != mModifiers.end()) per = 0;
     auto mod = findModifier("Costs Endurance");
-    if (mod != _modifiers.end()) {
+    if (mod != mModifiers.end()) {
 #ifndef ISHSC
         per = opt.activePerEND().points;
 #endif
         if ((*mod)->endChange() == Fraction(1, 2)) active = active / 2_cp;
     }
     mod = findModifier("Reduced Endurance");
-    if (mod != _modifiers.end() && (*mod)->endChange() != Fraction(1, 2)) per = 0;
+    if (mod != mModifiers.end() && (*mod)->endChange() != Fraction(1, 2)) per = 0;
     mod = findModifier("Increased END Cost");
-    if (mod != _modifiers.end()) {
+    if (mod != mModifiers.end()) {
 #ifndef ISHSC
         if (per == 0) per = opt.activePerEND().points;
 #endif
         active = Points((active.points * (*mod)->endChange()).toInt());
     }
 #ifndef ISHSC
-    if (findModifier("Costs END Only To Activate") != _modifiers.end() && per == 0) per = opt.activePerEND().points;
+    if (findModifier("Costs END Only To Activate") != mModifiers.end() && per == 0) per = opt.activePerEND().points;
 #endif
     mod = findModifier("Costs Endurance To Maintain");
-    if (mod != _modifiers.end()) {
+    if (mod != mModifiers.end()) {
 #ifndef ISHSC
         if (per == 0) per = opt.activePerEND().points;
 #endif
@@ -790,7 +790,7 @@ QString Power::end() {
         if (per % 2 == 0) end = (acting + per / 2 - 1) / per;
         else end = (acting + per / 2) / per;
         mod = findModifier("Reduced Endurance");
-        if (mod != _modifiers.end() && (*mod)->endChange() == Fraction(1, 2)) end = end / 2;
+        if (mod != mModifiers.end() && (*mod)->endChange() == Fraction(1, 2)) end = end / 2;
         if (end < 1) end = 1;
     }
     return (end == 0) ? "-" : QString("%1").arg(end);
@@ -809,33 +809,33 @@ QString Power::noEnd() {
     active = Points((active.points * adv).toInt());
     int end = 0;
     int per = 0;
-    if (findModifier("Charges") != _modifiers.end()) per = 0;
+    if (findModifier("Charges") != mModifiers.end()) per = 0;
     auto mod = findModifier("Costs Endurance");
-    if (mod != _modifiers.end()) {
+    if (mod != mModifiers.end()) {
 #ifndef ISHSC
         per = opt.activePerEND().points;
 #endif
         if ((*mod)->endChange() == Fraction(1, 2)) active = active / 2_cp;
     }
     mod = findModifier("Increased END Cost");
-    if (mod != _modifiers.end()) {
+    if (mod != mModifiers.end()) {
 #ifndef ISHSC
         if (per == 0) per = opt.activePerEND().points;
 #endif
         active = Points((active.points * (*mod)->endChange()).toInt());
     }
 #ifndef ISHSC
-    if (findModifier("Costs END Only To Activate") != _modifiers.end() && per == 0) per = opt.activePerEND().points;
+    if (findModifier("Costs END Only To Activate") != mModifiers.end() && per == 0) per = opt.activePerEND().points;
 #endif
     mod = findModifier("Costs Endurance To Maintain");
-    if (mod != _modifiers.end()) {
+    if (mod != mModifiers.end()) {
 #ifndef ISHSC
         if (per == 0) per = opt.activePerEND().points;
 #endif
         active = Points((active.points * (*mod)->endChange()).toInt());
     }
     mod = findModifier("Reduced Endurance");
-    if (mod != _modifiers.end() && per != 0) {
+    if (mod != mModifiers.end() && per != 0) {
         if ((*mod)->endChange() == Fraction(1, 2)) active = active / 2_cp;
     }
 
@@ -844,17 +844,17 @@ QString Power::noEnd() {
 }
 
 QList<shared_ptr<Modifier>>::iterator Power::findModifier(QString name) {
-    for (auto mod = _modifiers.begin(); mod != _modifiers.end(); ++mod)
+    for (auto mod = mModifiers.begin(); mod != mModifiers.end(); ++mod)
         if ((*mod)->name() == name) return mod;
-    if (_parent != nullptr) {
-        for (auto mod = _parent->_modifiers.begin(); mod != _parent->_modifiers.end(); ++mod)
+    if (mParent != nullptr) {
+        for (auto mod = mParent->mModifiers.begin(); mod != mParent->mModifiers.end(); ++mod)
             if ((*mod)->name() == name) return mod;
     }
-    return _modifiers.end();
+    return mModifiers.end();
 }
 
 bool Power::hasModifier(QString name) {
-    return findModifier(name) != _modifiers.end();
+    return findModifier(name) != mModifiers.end();
 }
 
 Points Power::real(Fraction add, Points mod, Fraction sub) {

@@ -38,17 +38,17 @@ public:
     void loadPowers(QJsonArray powers) {
         for (const auto& power: powers) {
             QJsonObject obj = power.toObject();
-            v._powers.append(Power::FromJson(obj["name"].toString(), obj));
+            v.mPowers.append(Power::FromJson(obj["name"].toString(), obj));
         }
     }
 
     bool isFramework() override                      { return true; }
-    int  count() override                            { return gsl::narrow<int>(v._powers.count()); }
-    void append(shared_ptr<Power> p) override        { v._powers.append(p);    p->parent(this); }
-    void insert(int n, shared_ptr<Power> p) override { v._powers.insert(n, p); p->parent(this); }
-    void remove(int n) override                      { v._powers[n]->parent(nullptr); v._powers.removeAt(n); }
-    void remove(shared_ptr<Power> p) override        { p->parent(nullptr); v._powers.removeOne(p); }
-    QList<shared_ptr<Power>>& list() override        { return v._powers; }
+    int  count() override                            { return gsl::narrow<int>(v.mPowers.count()); }
+    void append(shared_ptr<Power> p) override        { v.mPowers.append(p);    p->parent(this); }
+    void insert(int n, shared_ptr<Power> p) override { v.mPowers.insert(n, p); p->parent(this); }
+    void remove(int n) override                      { v.mPowers[n]->parent(nullptr); v.mPowers.removeAt(n); }
+    void remove(shared_ptr<Power> p) override        { p->parent(nullptr); v.mPowers.removeOne(p); }
+    QList<shared_ptr<Power>>& list() override        { return v.mPowers; }
 
     Fraction adv() override         { return Fraction(0); }
     void     checked(bool) override { }
@@ -57,21 +57,21 @@ public:
 
     void        form(QWidget* widget, QVBoxLayout* layout) override { powerName = createLineEdit(widget, layout, "Nickname of power");
                                                                     }
-    QString     name() override                                     { return v._name;
+    QString     name() override                                     { return v.mName;
                                                                     }
-    QString     nickname() override                                 { return v._powerName;
+    QString     nickname() override                                 { return v.mPowerName;
                                                                     }
     void        restore() override                                  { vars s = v;
-                                                                      powerName->setText(s._powerName);
+                                                                      powerName->setText(s.mPowerName);
                                                                       v = s;
                                                                     }
-    void        store() override                                    { v._powerName = powerName->text();
+    void        store() override                                    { v.mPowerName = powerName->text();
                                                                     }
     QJsonObject toJson() const override                             { QJsonObject obj = Power::toJson();
-                                                                      obj["name"]      = v._name;
-                                                                      obj["powerName"] = v._powerName;
+                                                                      obj["name"]      = v.mName;
+                                                                      obj["powerName"] = v.mPowerName;
                                                                       QJsonArray powers;
-                                                                      for (int i = 0; i < v._powers.count(); ++i) powers.append(v._powers[i]->toJson());
+                                                                      for (int i = 0; i < v.mPowers.count(); ++i) powers.append(v.mPowers[i]->toJson());
                                                                       obj.insert("powers", powers);
                                                                       return obj;
                                                                     }
@@ -100,9 +100,9 @@ public:
 
 protected:
     struct vars {
-        QString _name = "";
-        QString _powerName = "";
-        QList<shared_ptr<Power>> _powers {};
+        QString mName = "";
+        QString mPowerName = "";
+        QList<shared_ptr<Power>> mPowers {};
     };
 
     vars& super() { return v; }
@@ -160,7 +160,8 @@ public:
         auto limit = limitations();
         auto advtg = advantages();
         auto modif = modifiers();
-        for (const auto& pe: super()._powers) {
+        for (int i = 0; i < super().mPowers.count(); ++i) {
+            auto& pe = super().mPowers[i];
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
@@ -193,7 +194,8 @@ public:
         auto advtg = advantages();
         auto modif = modifiers();
         int r = 1;
-        for (const auto& pe: super()._powers) {
+        for (int i = 0; i < super().mPowers.count(); ++i) {
+            auto& pe = super().mPowers[i];
             QString descr = pe->description();
             if (descr == "-") descr = "";
             if (!descr.isEmpty()) {
@@ -233,7 +235,7 @@ public:
     Multipower(): FrameworkPowers("Multipower")                { }
     Multipower(const Multipower& s): FrameworkPowers(s)        { }
     Multipower(Multipower&& s): FrameworkPowers(s)             { }
-    Multipower(const QJsonObject& json): FrameworkPowers(json) { v._points = json["points"].toInt(0);
+    Multipower(const QJsonObject& json): FrameworkPowers(json) { v.mPoints = json["points"].toInt(0);
                                                                }
     ~Multipower() override { }
 
@@ -250,7 +252,7 @@ public:
     bool isValid(shared_ptr<Power> power) override {
         if (power->isEquipment()) return false;
         auto points = power->acting();
-        return points <= v._points;
+        return points <= v.mPoints;
     }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -261,17 +263,17 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return Points(v._points); }
+                                                                   return Points(v.mPoints); }
     void     restore() override                                  { vars s = v;
                                                                    FrameworkPowers::restore();
-                                                                   pnts->setText(QString("%1").arg(s._points));
+                                                                   pnts->setText(QString("%1").arg(s.mPoints));
                                                                    v = s;
                                                                  }
     void     store() override                                    { FrameworkPowers::store();
-                                                                   v._points = pnts->text().toInt();
+                                                                   v.mPoints = pnts->text().toInt();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = FrameworkPowers::toJson();
-                                                                   obj["points"] = v._points;
+                                                                   obj["points"] = v.mPoints;
                                                                    return obj;
                                                                  }
 
@@ -284,7 +286,8 @@ public:
         auto limit = limitations();
         auto advtg = advantages();
         auto modif = modifiers();
-        for (const auto& pe: FrameworkPowers::super()._powers) {
+        for (int i = 0; i < super().mPowers.count(); ++i) {
+            auto& pe = super().mPowers[i];
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
@@ -323,7 +326,8 @@ public:
         auto limit = limitations();
         auto advtg = advantages();
         auto modif = modifiers();
-        for (const auto& pe: FrameworkPowers::super()._powers) {
+        for (int i = 0; i < super().mPowers.count(); ++i) {
+            auto& pe = super().mPowers[i];
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
@@ -354,13 +358,13 @@ public:
 
 private:
     struct vars {
-        int _points = 0;
+        int mPoints = 0;
     } v;
 
     QLineEdit* pnts = nullptr;
 
     QString optOut(bool) {
-        QString res = "Multipower Pool " + QString("(%1 cp)").arg(v._points);
+        QString res = "Multipower Pool " + QString("(%1 cp)").arg(v.mPoints);
         return res;
     }
 
@@ -380,18 +384,18 @@ public:
     VPP(): FrameworkPowers("Variable Power Pool")       { }
     VPP(const VPP& s): FrameworkPowers(s)               { }
     VPP(VPP&& s): FrameworkPowers(s)                    { }
-    VPP(const QJsonObject& json): FrameworkPowers(json) { v._pool    = json["pool"].toInt(0);
-                                                          v._control = json["control"].toInt(0);
-                                                          v._time    = json["time"].toInt(0);
-                                                          v._noSkill = json["noSkill"].toBool(false);
-                                                          v._given   = json["given"].toBool(false);
-                                                          v._circ    = json["circ"].toString();
-                                                          v._how     = json["how"].toBool(false);
-                                                          v._when2   = json["when2"].toBool(false);
-                                                          v._class   = json["class"].toInt(0);
-                                                          v._what    = json["what"].toString();
-                                                          v._one     = json["one"].toInt(0);
-                                                          v._power   = json["power"].toString();
+    VPP(const QJsonObject& json): FrameworkPowers(json) { v.mPool    = json["pool"].toInt(0);
+                                                          v.mControl = json["control"].toInt(0);
+                                                          v.mTime    = json["time"].toInt(0);
+                                                          v.mNoSkill = json["noSkill"].toBool(false);
+                                                          v.mGiven   = json["given"].toBool(false);
+                                                          v.mCirc    = json["circ"].toString();
+                                                          v.mHow     = json["how"].toBool(false);
+                                                          v.mWhen2   = json["when2"].toBool(false);
+                                                          v.mClass   = json["class"].toInt(0);
+                                                          v.mWhat    = json["what"].toString();
+                                                          v.mOne     = json["one"].toInt(0);
+                                                          v.mPower   = json["power"].toString();
                                                         }
     ~VPP() override { }
 
@@ -407,12 +411,12 @@ public:
     bool isVPP() override { return true; }
     bool isValid(shared_ptr<Power> power) override {
         if (power->isEquipment()) return false;
-        return power->acting() <= v._control && power->real() <= v._pool;
+        return power->acting() <= v.mControl && power->real() <= v.mPool;
     }
-    Points pool() override { return Points(v._pool); }
+    Points pool() override { return Points(v.mPool); }
 
-    Fraction adv() override                                      { return ((v._time > 3) ? Fraction(1, 2) * (v._time - 3) : Fraction(0)) +
-                                                                          (v._noSkill    ? Fraction(1)                    : Fraction(0)); }
+    Fraction adv() override                                      { return ((v.mTime > 3) ? Fraction(1, 2) * (v.mTime - 3) : Fraction(0)) +
+                                                                          (v.mNoSkill    ? Fraction(1)                    : Fraction(0)); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { FrameworkPowers::form(parent, layout);
@@ -442,61 +446,61 @@ public:
                                                                                          "Almost Useless Power" });
                                                                    powr = createLineEdit(parent, layout, "What Power?");
                                                                  }
-    Fraction lim() override                                      { return ((v._time >= 0 && v._time <= 1) ? 1 - Fraction(1, 2) * v._time : Fraction(0)) +
-                                                                          (v._given                       ? Fraction(1, 2)               : Fraction(0)) +
-                                                                          (v._how          ? Fraction(1, 2)              : Fraction(0)) +
-                                                                          (v._when2        ? Fraction(1, 2)              : Fraction(0)) +
-                                                                          ((v._class == 1) ? Fraction(1, 4)              : Fraction(0)) +
-                                                                          ((v._class == 2) ? Fraction(1, 2)              : Fraction(0)) +
-                                                                          ((v._class == 3) ? Fraction(1)                 : Fraction(0)) +
-                                                                          ((v._one == 1)   ? Fraction(1, 2)              : Fraction(0)) +
-                                                                          ((v._one == 2)   ? Fraction(1)                 : Fraction(0)) +
-                                                                          ((v._one == 3)   ? Fraction(1, Fraction(1, 2)) : Fraction(0)); }
+    Fraction lim() override                                      { return ((v.mTime >= 0 && v.mTime <= 1) ? 1 - Fraction(1, 2) * v.mTime : Fraction(0)) +
+                                                                          (v.mGiven                       ? Fraction(1, 2)               : Fraction(0)) +
+                                                                          (v.mHow          ? Fraction(1, 2)              : Fraction(0)) +
+                                                                          (v.mWhen2        ? Fraction(1, 2)              : Fraction(0)) +
+                                                                          ((v.mClass == 1) ? Fraction(1, 4)              : Fraction(0)) +
+                                                                          ((v.mClass == 2) ? Fraction(1, 2)              : Fraction(0)) +
+                                                                          ((v.mClass == 3) ? Fraction(1)                 : Fraction(0)) +
+                                                                          ((v.mOne == 1)   ? Fraction(1, 2)              : Fraction(0)) +
+                                                                          ((v.mOne == 2)   ? Fraction(1)                 : Fraction(0)) +
+                                                                          ((v.mOne == 3)   ? Fraction(1, Fraction(1, 2)) : Fraction(0)); }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return (v._control + 1_cp) / 2; }
+                                                                   return (v.mControl + 1_cp) / 2; }
     void     restore() override                                  { vars s = v;
                                                                    FrameworkPowers::restore();
-                                                                   Pool->setText(QString("%1").arg(s._pool));
-                                                                   ctrl->setText(QString("%1").arg(s._control));
-                                                                   time->setCurrentIndex(s._time);
-                                                                   skll->setChecked(s._noSkill);
-                                                                   givn->setChecked(s._given);
-                                                                   circ->setText(s._circ);
-                                                                   how->setChecked(s._how);
-                                                                   whn2->setChecked(s._when2);
-                                                                   clss->setCurrentIndex(v._class);
-                                                                   what->setText(v._what);
-                                                                   one->setCurrentIndex(v._one);
-                                                                   powr->setText(v._power);
+                                                                   Pool->setText(QString("%1").arg(s.mPool));
+                                                                   ctrl->setText(QString("%1").arg(s.mControl));
+                                                                   time->setCurrentIndex(s.mTime);
+                                                                   skll->setChecked(s.mNoSkill);
+                                                                   givn->setChecked(s.mGiven);
+                                                                   circ->setText(s.mCirc);
+                                                                   how->setChecked(s.mHow);
+                                                                   whn2->setChecked(s.mWhen2);
+                                                                   clss->setCurrentIndex(v.mClass);
+                                                                   what->setText(v.mWhat);
+                                                                   one->setCurrentIndex(v.mOne);
+                                                                   powr->setText(v.mPower);
                                                                    v = s;
                                                                  }
     void     store() override                                    { FrameworkPowers::store();
-                                                                   v._pool    = Pool->text().toInt();
-                                                                   v._control = ctrl->text().toInt();
-                                                                   v._time    = time->currentIndex();
-                                                                   v._noSkill = skll->isChecked();
-                                                                   v._given   = givn->isChecked();
-                                                                   v._circ    = circ->text();
-                                                                   v._how     = how->isChecked();
-                                                                   v._when2   = whn2->isChecked();
-                                                                   v._class   = clss->currentIndex();
-                                                                   v._what    = what->text();
-                                                                   v._one     = one->currentIndex();
-                                                                   v._power   = powr->text();
+                                                                   v.mPool    = Pool->text().toInt();
+                                                                   v.mControl = ctrl->text().toInt();
+                                                                   v.mTime    = time->currentIndex();
+                                                                   v.mNoSkill = skll->isChecked();
+                                                                   v.mGiven   = givn->isChecked();
+                                                                   v.mCirc    = circ->text();
+                                                                   v.mHow     = how->isChecked();
+                                                                   v.mWhen2   = whn2->isChecked();
+                                                                   v.mClass   = clss->currentIndex();
+                                                                   v.mWhat    = what->text();
+                                                                   v.mOne     = one->currentIndex();
+                                                                   v.mPower   = powr->text();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = FrameworkPowers::toJson();
-                                                                   obj["pool"]    = v._pool;
-                                                                   obj["control"] = v._control;
-                                                                   obj["time"]    = v._time;
-                                                                   obj["noSkill"] = v._noSkill;
-                                                                   obj["given"]   = v._given;
-                                                                   obj["circ"]    = v._circ;
-                                                                   obj["how"]     = v._how;
-                                                                   obj["when2"]   = v._when2;
-                                                                   obj["class"]   = v._class;
-                                                                   obj["what"]    = v._what;
-                                                                   obj["one"]     = v._one;
-                                                                   obj["power"]   = v._power;
+                                                                   obj["pool"]    = v.mPool;
+                                                                   obj["control"] = v.mControl;
+                                                                   obj["time"]    = v.mTime;
+                                                                   obj["noSkill"] = v.mNoSkill;
+                                                                   obj["given"]   = v.mGiven;
+                                                                   obj["circ"]    = v.mCirc;
+                                                                   obj["how"]     = v.mHow;
+                                                                   obj["when2"]   = v.mWhen2;
+                                                                   obj["class"]   = v.mClass;
+                                                                   obj["what"]    = v.mWhat;
+                                                                   obj["one"]     = v.mOne;
+                                                                   obj["power"]   = v.mPower;
                                                                    return obj;
                                                                  }
 
@@ -509,7 +513,8 @@ public:
         auto limit = limitations() - lim();
         auto advtg = advantages() - adv();
         auto modif = modifiers();
-        for (const auto& pe: FrameworkPowers::super()._powers) {
+        for (int i = 0; i < super().mPowers.count(); ++i) {
+            auto& pe = super().mPowers[i];
             if (pe == nullptr) continue;
             QString descr = pe->description();
             if (descr == "-") descr = "";
@@ -546,7 +551,8 @@ public:
         auto limit = limitations() - lim();
         auto advtg = advantages() - adv();
         auto modif = modifiers();
-        for (const auto& pe: FrameworkPowers::super()._powers) {
+        for (int i = 0; i < super().mPowers.count(); ++i) {
+            auto& pe = super().mPowers[i];
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
@@ -574,18 +580,18 @@ public:
 
 private:
     struct vars {
-        int     _pool    = 0;
-        int     _control = 0;
-        int     _time    = -1;
-        bool    _noSkill = false;
-        bool    _given   = false;
-        QString _circ    = "";
-        bool    _how     = false;
-        bool    _when2   = false;
-        int     _class   = -1;
-        QString _what    = "";
-        int     _one     = -1;
-        QString _power   = "";
+        int     mPool    = 0;
+        int     mControl = 0;
+        int     mTime    = -1;
+        bool    mNoSkill = false;
+        bool    mGiven   = false;
+        QString mCirc    = "";
+        bool    mHow     = false;
+        bool    mWhen2   = false;
+        int     mClass   = -1;
+        QString mWhat    = "";
+        int     mOne     = -1;
+        QString mPower   = "";
     } v;
 
     QLineEdit* Pool = nullptr;
@@ -604,21 +610,21 @@ private:
     QString optOut(bool showEND) {
         QString res;
         if (showEND) res = nickname().isEmpty() ? "" : nickname() + " ";
-        res += QString("VPP (%1 cp, %2 cp Control)").arg(v._pool).arg(v._control);
+        res += QString("VPP (%1 cp, %2 cp Control)").arg(v.mPool).arg(v.mControl);
         QStringList time {
             "VPP Can Only Be Changed Between Adventures", "VPP Can Only Be Changed Between Scenes", "Full Action", "Powers Can be Changed As A Half-Phase Action",
                 "Powers Can be Changed As A Zero Phase Action" };
-        if (v._time >= 0 && v._time != 2) res += "; " + time[v._time];
-        if (v._noSkill) res += "; No Skill Roll Required";
-        if (v._given) res += "; Powers Can Only Be Changed When " + v._circ;
-        if (v._how) res += "; Character Has No Control Over How Powers Change";
-        if (v._when2) res += "; Character Has No Control Over When Powers Change";
+        if (v.mTime >= 0 && v.mTime != 2) res += "; " + time[v.mTime];
+        if (v.mNoSkill) res += "; No Skill Roll Required";
+        if (v.mGiven) res += "; Powers Can Only Be Changed When " + v.mCirc;
+        if (v.mHow) res += "; Character Has No Control Over How Powers Change";
+        if (v.mWhen2) res += "; Character Has No Control Over When Powers Change";
         QStringList clss {
             "", "Slightly Limited Class Of Powers",
                 "Limited Class Of Powers",
                 "Very Limited Class Of Powers" };
-        if (v._class > 0) res += "; " + clss[v._class] + " - " + v._what;
-        if (v._one > 0) res += "; One Type Of Power - " + v._power;
+        if (v.mClass > 0) res += "; " + clss[v.mClass] + " - " + v.mWhat;
+        if (v.mOne > 0) res += "; One Type Of Power - " + v.mPower;
         return res;
     }
 

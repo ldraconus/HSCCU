@@ -11,16 +11,16 @@ public:
     ExtraDimensionalMovement(ExtraDimensionalMovement&& s): AllPowers(s)      { }
     ExtraDimensionalMovement(const QJsonObject& json)
         : AllPowers(json) {
-        v._time = json["time"].toBool(false);
-        v._numDim = json["numDim"].toInt(0);
-        v._dim = json["dim"].toString();
-        v._loc = json["loc"].toInt(0);
-        v._where = json["where"].toString();
-        v._when = json["when"].toInt(0);
-        v._moment = json["moment"].toString();
-        v._span = json["span"].toInt(0);
-        v._timLoc = json["timLoc"].toInt(0);
-        v._timWhr = json["timWhr"].toString();
+        v.mTime = json["time"].toBool(false);
+        v.mNumDim = json["numDim"].toInt(0);
+        v.mDim = json["dim"].toString();
+        v.mLoc = json["loc"].toInt(0);
+        v.mWhere = json["where"].toString();
+        v.mWhen = json["when"].toInt(0);
+        v.mMoment = json["moment"].toString();
+        v.mSpan = json["span"].toInt(0);
+        v.mTimLoc = json["timLoc"].toInt(0);
+        v.mTimWhr = json["timWhr"].toString();
     }
     ~ExtraDimensionalMovement() override { }
 
@@ -63,34 +63,34 @@ public:
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    auto pts = 20_cp; // NOLINT
-                                                                   if (v._time) {
+                                                                   if (v.mTime) {
                                                                        pts += 20_cp; // NOLINT
-                                                                       switch (v._when) {
+                                                                       switch (v.mWhen) {
                                                                        case 0: pts += 5_cp;                           break; // NOLINT
                                                                        case 1:
-                                                                       case 2: pts += (1_cp * (v._span + 1) + 1) / 2; break;
-                                                                       case 3: pts += 1_cp * (v._span + 1);           break;
+                                                                       case 2: pts += (1_cp * (v.mSpan + 1) + 1) / 2; break;
+                                                                       case 3: pts += 1_cp * (v.mSpan + 1);           break;
                                                                        }
-                                                                       switch (v._timLoc) {
+                                                                       switch (v.mTimLoc) {
                                                                        case 0:               break;
                                                                        case 1: pts += 2_cp;  break;
                                                                        case 2: pts += 5_cp;  break; // NOLINT
                                                                        case 3: pts += 10_cp; break; // NOLINT
                                                                        }
                                                                    } else {
-                                                                       switch (v._loc) {
-                                                                       case 0: switch (v._numDim) {
+                                                                       switch (v.mLoc) {
+                                                                       case 0: switch (v.mNumDim) {
                                                                            case 1: pts += 5_cp;  break; // NOLINT
                                                                            case 2: pts += 10_cp; break; // NOLINT
                                                                            }
                                                                            break;
-                                                                       case 1: switch (v._numDim) {
+                                                                       case 1: switch (v.mNumDim) {
                                                                            case 0: pts += 5_cp;  break; // NOLINT
                                                                            case 1: pts += 10_cp; break; // NOLINT
                                                                            case 2: pts += 15_cp; break; // NOLINT
                                                                            }
                                                                            break;
-                                                                       case 2: switch (v._numDim) {
+                                                                       case 2: switch (v.mNumDim) {
                                                                            case 1: pts += 2_cp;  break;
                                                                            case 2: pts += 7_cp; break; // NOLINT
                                                                            }
@@ -100,56 +100,56 @@ public:
                                                                    return pts; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   time->setChecked(s._time);
-                                                                   numDim->setCurrentIndex(s._numDim);
-                                                                   dim->setText(s._dim);
-                                                                   loc->setCurrentIndex(s._loc);
-                                                                   where->setText(s._where);
-                                                                   when->setCurrentIndex(s._when);
-                                                                   moment->setText(s._moment);
-                                                                   timLoc->setCurrentIndex(s._timLoc);
-                                                                   timWhr->setText(s._timWhr);
-                                                                   span->setCurrentIndex(s._span);
+                                                                   time->setChecked(s.mTime);
+                                                                   numDim->setCurrentIndex(s.mNumDim);
+                                                                   dim->setText(s.mDim);
+                                                                   loc->setCurrentIndex(s.mLoc);
+                                                                   where->setText(s.mWhere);
+                                                                   when->setCurrentIndex(s.mWhen);
+                                                                   moment->setText(s.mMoment);
+                                                                   timLoc->setCurrentIndex(s.mTimLoc);
+                                                                   timWhr->setText(s.mTimWhr);
+                                                                   span->setCurrentIndex(s.mSpan);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._time   = time->isChecked();
-                                                                   v._numDim = numDim->currentIndex();
-                                                                   v._dim    = dim->text();
-                                                                   v._loc    = loc->currentIndex();
-                                                                   v._where  = where->text();
-                                                                   v._when   = when->currentIndex();
-                                                                   v._moment = moment->text();
-                                                                   v._timLoc = timLoc->currentIndex();
-                                                                   v._timWhr = timWhr->text();
-                                                                   v._span   = span->currentIndex();
+                                                                   v.mTime   = time->isChecked();
+                                                                   v.mNumDim = numDim->currentIndex();
+                                                                   v.mDim    = dim->text();
+                                                                   v.mLoc    = loc->currentIndex();
+                                                                   v.mWhere  = where->text();
+                                                                   v.mWhen   = when->currentIndex();
+                                                                   v.mMoment = moment->text();
+                                                                   v.mTimLoc = timLoc->currentIndex();
+                                                                   v.mTimWhr = timWhr->text();
+                                                                   v.mSpan   = span->currentIndex();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["time"]   = v._time;
-                                                                   obj["numDim"] = v._numDim;
-                                                                   obj["dim"]    = v._dim;
-                                                                   obj["loc"]    = v._loc;
-                                                                   obj["where"]  = v._where;
-                                                                   obj["when"]   = v._when;
-                                                                   obj["moment"] = v._moment;
-                                                                   obj["timLoc"] = v._timLoc;
-                                                                   obj["timWhr"] = v._timWhr;
-                                                                   obj["span"]   = v._span;
+                                                                   obj["time"]   = v.mTime;
+                                                                   obj["numDim"] = v.mNumDim;
+                                                                   obj["dim"]    = v.mDim;
+                                                                   obj["loc"]    = v.mLoc;
+                                                                   obj["where"]  = v.mWhere;
+                                                                   obj["when"]   = v.mWhen;
+                                                                   obj["moment"] = v.mMoment;
+                                                                   obj["timLoc"] = v.mTimLoc;
+                                                                   obj["timWhr"] = v.mTimWhr;
+                                                                   obj["span"]   = v.mSpan;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        bool    _time   = 0;
-        int     _numDim = -1;
-        QString _dim    = "";
-        int     _loc    = -1;
-        QString _where  = "";
-        int     _when   = -1;
-        QString _moment = "";
-        int     _span   = -1;
-        int     _timLoc = -1;
-        QString _timWhr = "";
+        bool    mTime   = 0;
+        int     mNumDim = -1;
+        QString mDim    = "";
+        int     mLoc    = -1;
+        QString mWhere  = "";
+        int     mWhen   = -1;
+        QString mMoment = "";
+        int     mSpan   = -1;
+        int     mTimLoc = -1;
+        QString mTimWhr = "";
     } v;
 
     QCheckBox* time = nullptr;
@@ -164,42 +164,42 @@ private:
     QLineEdit* timWhr = nullptr;
 
     QString optOut(bool showEND) {
-        if (!v._time && v._loc != 1 && v._numDim == 0) return "<incomplete>";
-        if ((!v._time && ((v._numDim < 1 && v._dim.isEmpty())
-                         || (v._loc < 1 && v._where.isEmpty()))) ||
-            (v._time && ((v._when < 2 && v._moment.isEmpty()) ||
-                         (v._when > 1 && v._span < 1) ||
-                         (v._timLoc > 0 && v._timLoc < 3 && v._timWhr.isEmpty())))) return "<incomplete>";
+        if (!v.mTime && v.mLoc != 1 && v.mNumDim == 0) return "<incomplete>";
+        if ((!v.mTime && ((v.mNumDim < 1 && v.mDim.isEmpty())
+                         || (v.mLoc < 1 && v.mWhere.isEmpty()))) ||
+            (v.mTime && ((v.mWhen < 2 && v.mMoment.isEmpty()) ||
+                         (v.mWhen > 1 && v.mSpan < 1) ||
+                         (v.mTimLoc > 0 && v.mTimLoc < 3 && v.mTimWhr.isEmpty())))) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        if (v._time) {
+        if (v.mTime) {
             QStringList span
                 { "1 Turn", "1 Minute", "5 Minutes", "20 Minutes", "1 Hour", "6 Hours",
                   "1 Day", "1 Week", "1 Month", "1 Season", "1 Year", "5 Years",
                   "25 Years", "1 Century", "5 Centuries", "25 Centuries" };
             res += "ϴTime Travelϴ ";
-            if (v._when < 0) res += "To Fixed Time (" + v._moment + ")";
-            else if (v._when == 1) res += "To Fixed Times (" + v._moment + ")";
+            if (v.mWhen < 0) res += "To Fixed Time (" + v.mMoment + ")";
+            else if (v.mWhen == 1) res += "To Fixed Times (" + v.mMoment + ")";
             else {
-                if (v._when == 2) res += "Forward In Time";
-                else if (v._when == 3) res += "Backward In Time";
+                if (v.mWhen == 2) res += "Forward In Time";
+                else if (v.mWhen == 3) res += "Backward In Time";
                 else res += "Forwards And Backwards In Time";
-                res += " (" + span[v._span] + ")";
+                res += " (" + span[v.mSpan] + ")";
             }
-            if (v._timLoc > 0) {
-                if (v._timLoc != 3) res += "; To " + v._timWhr;
+            if (v.mTimLoc > 0) {
+                if (v.mTimLoc != 3) res += "; To " + v.mTimWhr;
                 else res += "; To Any Location";
             }
         }
         else {
             res += "Extra-Dimensional Movementϴ";
-            if (v._numDim < 1) res += "Single Dimenstion (" + v._dim + ")";
-            else if (v._numDim == 1) res += "; Related Group of Dimensions (" + v._dim + ")";
+            if (v.mNumDim < 1) res += "Single Dimenstion (" + v.mDim + ")";
+            else if (v.mNumDim == 1) res += "; Related Group of Dimensions (" + v.mDim + ")";
             else res += "; Any Dimension";
-            if (v._loc > 0) {
+            if (v.mLoc > 0) {
                 res += "; Any Location";
-                if (v._loc == 2) res += " Corresponding to Current Location";
-            } else res += "; To " + v._where;
+                if (v.mLoc == 2) res += " Corresponding to Current Location";
+            } else res += "; To " + v.mWhere;
         }
         return res;
     }
@@ -233,8 +233,8 @@ public:
     FTLTravel(): AllPowers("FTL Travel")                { }
     FTLTravel(const FTLTravel& s): AllPowers(s)         { }
     FTLTravel(FTLTravel&& s): AllPowers(s)              { }
-    FTLTravel(const QJsonObject& json): AllPowers(json) { v._speed   = json["speed"].toInt(0);
-                                                          v._instant = json["instant"].toBool(false);
+    FTLTravel(const QJsonObject& json): AllPowers(json) { v.mSpeed   = json["speed"].toInt(0);
+                                                          v.mInstant = json["instant"].toBool(false);
                                                         }
     ~FTLTravel() override { }
 
@@ -249,45 +249,45 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   Points pts = (v._instant ? 20_cp : 10_cp); // NOLINT
-                                                                   int steps = (int) (log((double) v._speed) / log(2.0)); // NOLINT
+                                                                   Points pts = (v.mInstant ? 20_cp : 10_cp); // NOLINT
+                                                                   int steps = (int) (log((double) v.mSpeed) / log(2.0)); // NOLINT
                                                                    pts = pts + steps * 2_cp;
                                                                    return pts;
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   instant->setChecked(s._instant);
-                                                                   speed->setText(QString("%1").arg(s._speed));
+                                                                   instant->setChecked(s.mInstant);
+                                                                   speed->setText(QString("%1").arg(s.mSpeed));
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._instant = instant->isChecked();
-                                                                   v._speed   = speed->text().toInt();
+                                                                   v.mInstant = instant->isChecked();
+                                                                   v.mSpeed   = speed->text().toInt();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["speed"]   = v._speed;
-                                                                   obj["instant"] = v._instant;
+                                                                   obj["speed"]   = v.mSpeed;
+                                                                   obj["instant"] = v.mInstant;
                                                                    return obj;
                                                                  }
 
-    int move() override      { return v._speed; }
+    int move() override      { return v.mSpeed; }
     QString units() override { return "LY/Y"; }
 
 private:
     struct vars {
-        int     _speed   = -1;
-        bool    _instant = false;
+        int     mSpeed   = -1;
+        bool    mInstant = false;
     } v;
 
     QLineEdit* speed = nullptr;
     QCheckBox* instant = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._speed < 1) return "<incomplete>";
+        if (v.mSpeed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1 LY/Y FTL Travel").arg(v._speed);
-        if (v._instant) res += "; Instant Lightspeed";
+        res += QString("%1 LY/Y FTL Travel").arg(v.mSpeed);
+        if (v.mInstant) res += "; Instant Lightspeed";
         return res;
     }
 
@@ -307,10 +307,10 @@ public:
     Flight(): AllPowers("Flight")                    { }
     Flight(const Flight& s): AllPowers(s)            { }
     Flight(Flight&& s): AllPowers(s)                 { }
-    Flight(const QJsonObject& json): AllPowers(json) { v._speed   = json["speed"].toInt(0);
-                                                       v._hover   = json["hover"].toInt(0);
-                                                       v._glide   = json["glide"].toBool(false);
-                                                       v._surface = json["surface"].toBool(false);
+    Flight(const QJsonObject& json): AllPowers(json) { v.mSpeed   = json["speed"].toInt(0);
+                                                       v.mHover   = json["hover"].toInt(0);
+                                                       v.mGlide   = json["glide"].toBool(false);
+                                                       v.mSurface = json["surface"].toBool(false);
                                                      }
     ~Flight() override { }
     virtual Flight& operator=(const Flight&) = delete;
@@ -318,50 +318,50 @@ public:
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
-    QString  end() override                                      { return v._glide ? noEnd() : Power::end(); }
+    QString  end() override                                      { return v.mGlide ? noEnd() : Power::end(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    speed   = createLineEdit(parent, layout, "Velocity?", std::mem_fn(&Power::numeric));
                                                                    hover   = createComboBox(parent, layout, "Cannot Hover?", { "", "2m/Phase", "Half-Move/Phase" });
                                                                    glide   = createCheckBox(parent, layout, "Gliding");
                                                                    surface = createCheckBox(parent, layout, "Only In Contact With Surface");
                                                                  }
-    Fraction lim() override                                      { return (v._glide     ? Fraction(1)               : Fraction(0)) +
-                                                                          (v._surface   ? Fraction(1, 4)            : Fraction(0)) +
-                                                                          (v._hover > 0 ? v._hover * Fraction(1, 4) : Fraction(0));
+    Fraction lim() override                                      { return (v.mGlide     ? Fraction(1)               : Fraction(0)) +
+                                                                          (v.mSurface   ? Fraction(1, 4)            : Fraction(0)) +
+                                                                          (v.mHover > 0 ? v.mHover * Fraction(1, 4) : Fraction(0));
                                                                  }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return v._speed * 1_cp;
+                                                                   return v.mSpeed * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   glide->setChecked(s._glide);
-                                                                   speed->setText(QString("%1").arg(s._speed));
-                                                                   surface->setChecked(s._surface);
-                                                                   hover->setCurrentIndex(v._hover);
+                                                                   glide->setChecked(s.mGlide);
+                                                                   speed->setText(QString("%1").arg(s.mSpeed));
+                                                                   surface->setChecked(s.mSurface);
+                                                                   hover->setCurrentIndex(v.mHover);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._glide   = glide->isChecked();
-                                                                   v._speed   = speed->text().toInt();
-                                                                   v._surface = surface->isChecked();
-                                                                   v._hover   = hover->currentIndex();
+                                                                   v.mGlide   = glide->isChecked();
+                                                                   v.mSpeed   = speed->text().toInt();
+                                                                   v.mSurface = surface->isChecked();
+                                                                   v.mHover   = hover->currentIndex();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["speed"]   = v._speed;
-                                                                   obj["glide"]   = v._glide;
-                                                                   obj["surface"] = v._surface;
-                                                                   obj["hover"]   = v._hover;
+                                                                   obj["speed"]   = v.mSpeed;
+                                                                   obj["glide"]   = v.mGlide;
+                                                                   obj["surface"] = v.mSurface;
+                                                                   obj["hover"]   = v.mHover;
                                                                    return obj;
                                                                  }
 
-    int move() override { return v._speed; }
+    int move() override { return v.mSpeed; }
 
 private:
     struct vars {
-        int  _speed   = -1;
-        int  _hover   = -1;
-        bool _glide   = false;
-        bool _surface = false;
+        int  mSpeed   = -1;
+        int  mHover   = -1;
+        bool mGlide   = false;
+        bool mSurface = false;
     } v;
 
     QLineEdit* speed = nullptr;
@@ -370,14 +370,14 @@ private:
     QCheckBox* surface = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._speed < 1) return "<incomplete>";
+        if (v.mSpeed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1m Flight").arg(v._speed);
-        if (v._hover == 1) res += "Cannot Hover (2m/Phase Min)";
-        if (v._hover == 2) res += QString("Cannot Hover (%1m/Phase Min)").arg((v._speed + 1) / 2);
-        if (v._glide) res += "; Gliding";
-        if (v._surface) res += "; Only In Contact With A Surface";
+        res += QString("%1m Flight").arg(v.mSpeed);
+        if (v.mHover == 1) res += "Cannot Hover (2m/Phase Min)";
+        if (v.mHover == 2) res += QString("Cannot Hover (%1m/Phase Min)").arg((v.mSpeed + 1) / 2);
+        if (v.mGlide) res += "; Gliding";
+        if (v.mSurface) res += "; Only In Contact With A Surface";
         return res;
     }
 
@@ -397,9 +397,9 @@ public:
     Leaping(): AllPowers("Leaping")                   { }
     Leaping(const Leaping& s): AllPowers(s)           { }
     Leaping(Leaping&& s): AllPowers(s)                { }
-    Leaping(const QJsonObject& json): AllPowers(json) { v._speed    = json["speed"].toInt(0);
-                                                        v._accurate = json["accurate"].toBool(false);
-                                                        v._limit = json["limit"].toInt(0);
+    Leaping(const QJsonObject& json): AllPowers(json) { v.mSpeed    = json["speed"].toInt(0);
+                                                        v.mAccurate = json["accurate"].toBool(false);
+                                                        v.mLimit = json["limit"].toInt(0);
                                                       }
     ~Leaping() override { }
 
@@ -413,37 +413,37 @@ public:
                                                                    accurate = createCheckBox(parent, layout, "Accurate Leap?");
                                                                    limit   = createComboBox(parent, layout, "Limited Movement?", { "Unlimited", "Upward Only", "Forward Only" });
                                                                  }
-    Fraction lim() override                                      { return (v._limit > 0 ? Fraction(1) : Fraction(0));
+    Fraction lim() override                                      { return (v.mLimit > 0 ? Fraction(1) : Fraction(0));
                                                                  }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return (v._speed + 1) / 2 * 1_cp + v._accurate * 5_cp; // NOLINT
+                                                                   return (v.mSpeed + 1) / 2 * 1_cp + v.mAccurate * 5_cp; // NOLINT
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   limit->setCurrentIndex(s._limit);
-                                                                   speed->setText(QString("%1").arg(s._speed));
-                                                                   accurate->setChecked(v._accurate);
+                                                                   limit->setCurrentIndex(s.mLimit);
+                                                                   speed->setText(QString("%1").arg(s.mSpeed));
+                                                                   accurate->setChecked(v.mAccurate);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._limit    = limit->currentIndex();
-                                                                   v._speed    = speed->text().toInt();
-                                                                   v._accurate = accurate->isChecked();
+                                                                   v.mLimit    = limit->currentIndex();
+                                                                   v.mSpeed    = speed->text().toInt();
+                                                                   v.mAccurate = accurate->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["speed"]    = v._speed;
-                                                                   obj["accurate"] = v._accurate;
-                                                                   obj["limit"]    = v._limit;
+                                                                   obj["speed"]    = v.mSpeed;
+                                                                   obj["accurate"] = v.mAccurate;
+                                                                   obj["limit"]    = v.mLimit;
                                                                    return obj;
                                                                  }
 
-    int move() override { return v._speed; }
+    int move() override { return v.mSpeed; }
 
 private:
     struct vars {
-        int  _speed    = 0;
-        bool _accurate = false;
-        int  _limit    = -1;
+        int  mSpeed    = 0;
+        bool mAccurate = false;
+        int  mLimit    = -1;
     } v;
 
     QLineEdit* speed = nullptr;
@@ -451,13 +451,13 @@ private:
     QComboBox* limit = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._speed < 1) return "<incomplete>";
+        if (v.mSpeed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1m Leap").arg(v._speed);
-        if (v._accurate) res += "; Accurate Leap";
-        if (v._limit == 1) res += "; Upward Movement Only";
-        if (v._limit == 2) res += "; Forward Movement Only";
+        res += QString("+%1m Leap").arg(v.mSpeed);
+        if (v.mAccurate) res += "; Accurate Leap";
+        if (v.mLimit == 1) res += "; Upward Movement Only";
+        if (v.mLimit == 2) res += "; Forward Movement Only";
         return res;
     }
 
@@ -477,9 +477,9 @@ public:
     Running(): AllPowers("Running")                   { }
     Running(const Running& s): AllPowers(s)           { }
     Running(Running&& s): AllPowers(s)                { }
-    Running(const QJsonObject& json): AllPowers(json) { v._speed   = json["speed"].toInt(0);
-                                                        v._correct = json["hover"].toBool(false);
-                                                        v._terrain = json["terrain"].toString();
+    Running(const QJsonObject& json): AllPowers(json) { v.mSpeed   = json["speed"].toInt(0);
+                                                        v.mCorrect = json["hover"].toBool(false);
+                                                        v.mTerrain = json["terrain"].toString();
     }
     ~Running() override { }
 
@@ -493,37 +493,37 @@ public:
                                                                    correct = createCheckBox(parent, layout, "Only On Appropriate Terrain?");
                                                                    terrain = createLineEdit(parent, layout, "Terrain?");
                                                                  }
-    Fraction lim() override                                      { return (v._correct ? Fraction(1, 2) : Fraction(0));
+    Fraction lim() override                                      { return (v.mCorrect ? Fraction(1, 2) : Fraction(0));
                                                                  }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return v._speed * 1_cp;
+                                                                   return v.mSpeed * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   speed->setText(QString("%1").arg(s._speed));
-                                                                   correct->setChecked(v._correct);
-                                                                   terrain->setText(v._terrain);
+                                                                   speed->setText(QString("%1").arg(s.mSpeed));
+                                                                   correct->setChecked(v.mCorrect);
+                                                                   terrain->setText(v.mTerrain);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._speed   = speed->text().toInt();
-                                                                   v._correct = correct->isChecked();
-                                                                   v._terrain = terrain->text();
+                                                                   v.mSpeed   = speed->text().toInt();
+                                                                   v.mCorrect = correct->isChecked();
+                                                                   v.mTerrain = terrain->text();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["speed"]   = v._speed;
-                                                                   obj["correct"] = v._correct;
-                                                                   obj["terrain"] = v._terrain;
+                                                                   obj["speed"]   = v.mSpeed;
+                                                                   obj["correct"] = v.mCorrect;
+                                                                   obj["terrain"] = v.mTerrain;
                                                                    return obj;
                                                                  }
 
-    int move() override { return v._speed; }
+    int move() override { return v.mSpeed; }
 
 private:
     struct vars {
-        int     _speed   = 0;
-        bool    _correct = false;
-        QString _terrain = "";
+        int     mSpeed   = 0;
+        bool    mCorrect = false;
+        QString mTerrain = "";
     } v;
 
     QLineEdit* speed = nullptr;
@@ -531,11 +531,11 @@ private:
     QLineEdit* terrain = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._speed < 1 || (v._correct && v._terrain.isEmpty())) return "<incomplete>";
+        if (v.mSpeed < 1 || (v.mCorrect && v.mTerrain.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1m Running").arg(v._speed);
-        if (v._correct) res += "; Only On Appropriate Terrain (" + v._terrain + ")";
+        res += QString("+%1m Running").arg(v.mSpeed);
+        if (v.mCorrect) res += "; Only On Appropriate Terrain (" + v.mTerrain + ")";
         return res;
     }
 
@@ -557,8 +557,8 @@ public:
     Swimming(Swimming&& s): AllPowers(s)               { }
     Swimming(const QJsonObject& json)
         : AllPowers(json) {
-        v._speed = json["speed"].toInt(0);
-        v._surface = json["surface"].toBool(false);
+        v.mSpeed = json["speed"].toInt(0);
+        v.mSurface = json["surface"].toBool(false);
     }
     ~Swimming() override { }
 
@@ -571,44 +571,44 @@ public:
                                                                    speed   = createLineEdit(parent, layout, "Velocity?", std::mem_fn(&Power::numeric));
                                                                    surface = createCheckBox(parent, layout, "Surface Only?");
                                                                  }
-    Fraction lim() override                                      { return (v._surface ? Fraction(1, 2) : Fraction(0));
+    Fraction lim() override                                      { return (v.mSurface ? Fraction(1, 2) : Fraction(0));
                                                                  }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return (v._speed + 1) / 2 * 1_cp;
+                                                                   return (v.mSpeed + 1) / 2 * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   speed->setText(QString("%1").arg(s._speed));
-                                                                   surface->setChecked(v._surface);
+                                                                   speed->setText(QString("%1").arg(s.mSpeed));
+                                                                   surface->setChecked(v.mSurface);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._speed   = speed->text().toInt();
-                                                                   v._surface = surface->isChecked();
+                                                                   v.mSpeed   = speed->text().toInt();
+                                                                   v.mSurface = surface->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["speed"]   = v._speed;
-                                                                   obj["surface"] = v._surface;
+                                                                   obj["speed"]   = v.mSpeed;
+                                                                   obj["surface"] = v.mSurface;
                                                                    return obj;
                                                                  }
 
-    int move() override { return v._speed; }
+    int move() override { return v.mSpeed; }
 
 private:
     struct vars {
-        int     _speed   = 0;
-        bool    _surface = false;
+        int     mSpeed   = 0;
+        bool    mSurface = false;
     } v;
 
     QLineEdit* speed = nullptr;
     QCheckBox* surface = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._speed < 1) return "<incomplete>";
+        if (v.mSpeed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1m Swimming").arg(v._speed);
-        if (v._surface) res += "; Surface Only";
+        res += QString("+%1m Swimming").arg(v.mSpeed);
+        if (v.mSurface) res += "; Surface Only";
         return res;
     }
 
@@ -630,7 +630,7 @@ public:
     Swinging(Swinging&& s): AllPowers(s)               { }
     Swinging(const QJsonObject& json)
         : AllPowers(json) {
-        v._speed = json["speed"].toInt(0);
+        v.mSpeed = json["speed"].toInt(0);
     }
     ~Swinging() override { }
 
@@ -645,35 +645,35 @@ public:
     Fraction lim() override                                      { return Fraction(0);
                                                                  }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return (v._speed + 1) / 2 * 1_cp;
+                                                                   return (v.mSpeed + 1) / 2 * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   speed->setText(QString("%1").arg(s._speed));
+                                                                   speed->setText(QString("%1").arg(s.mSpeed));
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._speed   = speed->text().toInt();
+                                                                   v.mSpeed   = speed->text().toInt();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["speed"]   = v._speed;
+                                                                   obj["speed"]   = v.mSpeed;
                                                                    return obj;
                                                                  }
 
-    int move() override { return v._speed; }
+    int move() override { return v.mSpeed; }
 
 private:
     struct vars {
-        int     _speed   = 0;
+        int     mSpeed   = 0;
     } v;
 
     QLineEdit* speed = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._speed < 1) return "<incomplete>";
+        if (v.mSpeed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1m Swinging").arg(v._speed);
+        res += QString("%1m Swinging").arg(v.mSpeed);
         return res;
     }
 
@@ -693,11 +693,11 @@ public:
     Teleportation(): AllPowers("Teleportation")             { }
     Teleportation(const Teleportation& s): AllPowers(s)     { }
     Teleportation(Teleportation&& s): AllPowers(s)          { }
-    Teleportation(const QJsonObject& json): AllPowers(json) { v._speed = json["speed"].toInt(0);
-                                                              v._veloc = json["veloc"].toBool(false);
-                                                              v._safe  = json["safe"].toBool(false);
-                                                              v._fixed = json["fixed"].toInt(0);
-                                                              v._pass = json["pass"].toBool(false);
+    Teleportation(const QJsonObject& json): AllPowers(json) { v.mSpeed = json["speed"].toInt(0);
+                                                              v.mVeloc = json["veloc"].toBool(false);
+                                                              v.mSafe  = json["safe"].toBool(false);
+                                                              v.mFixed = json["fixed"].toInt(0);
+                                                              v.mPass = json["pass"].toBool(false);
     }
     ~Teleportation() override { }
     Teleportation& operator=(const Teleportation& s) = delete;
@@ -714,45 +714,45 @@ public:
                                                                                                                         "Fixed Locations" });
                                                                    pass  = createCheckBox(parent, layout, "Must Pass Through Intervening Space");
                                                                  }
-    Fraction lim() override                                      { return ((v._fixed > -1) ? v._fixed * Fraction(1, 2) : Fraction(0)) + (v._pass ? Fraction(1, 4) : Fraction(0));
+    Fraction lim() override                                      { return ((v.mFixed > -1) ? v.mFixed * Fraction(1, 2) : Fraction(0)) + (v.mPass ? Fraction(1, 4) : Fraction(0));
                                                                  }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return v._speed * 1_cp + (v._veloc ? 10_cp : 0_cp) + (v._safe ? 5_cp : 0_cp); // NOLINT
+                                                                   return v.mSpeed * 1_cp + (v.mVeloc ? 10_cp : 0_cp) + (v.mSafe ? 5_cp : 0_cp); // NOLINT
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   speed->setText(QString("%1").arg(s._speed));
-                                                                   veloc->setChecked(v._veloc);
-                                                                   safe->setChecked(v._safe);
-                                                                   fixed->setCurrentIndex(v._fixed);
-                                                                   pass->setChecked(v._pass);
+                                                                   speed->setText(QString("%1").arg(s.mSpeed));
+                                                                   veloc->setChecked(v.mVeloc);
+                                                                   safe->setChecked(v.mSafe);
+                                                                   fixed->setCurrentIndex(v.mFixed);
+                                                                   pass->setChecked(v.mPass);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._speed = speed->text().toInt();
-                                                                   v._veloc = veloc->isChecked();
-                                                                   v._safe  = safe->isChecked();
-                                                                   v._fixed = fixed->currentIndex();
-                                                                   v._pass  = pass->isChecked();
+                                                                   v.mSpeed = speed->text().toInt();
+                                                                   v.mVeloc = veloc->isChecked();
+                                                                   v.mSafe  = safe->isChecked();
+                                                                   v.mFixed = fixed->currentIndex();
+                                                                   v.mPass  = pass->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["speed"] = v._speed;
-                                                                   obj["veloc"] = v._veloc;
-                                                                   obj["safe"]  = v._safe;
-                                                                   obj["fixed"] = v._fixed;
-                                                                   obj["pass"]  = v._pass;
+                                                                   obj["speed"] = v.mSpeed;
+                                                                   obj["veloc"] = v.mVeloc;
+                                                                   obj["safe"]  = v.mSafe;
+                                                                   obj["fixed"] = v.mFixed;
+                                                                   obj["pass"]  = v.mPass;
                                                                    return obj;
                                                                  }
 
-    int move() override { return v._speed; }
+    int move() override { return v.mSpeed; }
 
 private:
     struct vars {
-        int  _speed = 0;
-        bool _veloc = false;
-        bool _safe  = false;
-        int  _fixed = -1;
-        bool _pass  = false;
+        int  mSpeed = 0;
+        bool mVeloc = false;
+        bool mSafe  = false;
+        int  mFixed = -1;
+        bool mPass  = false;
     } v;
 
     QLineEdit* speed = nullptr;
@@ -762,15 +762,15 @@ private:
     QCheckBox* pass = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._speed < 1) return "<incomplete>";
+        if (v.mSpeed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1m Telportation").arg(v._speed);
-        if (v._veloc) res += "; No Relative Velocity";
-        if (v._safe)  res += "; Safe Aquatic Teleport";
-        if (v._fixed == 1) res += "; Can Only Teleport To Fixed Or Floating Locations";
-        if (v._fixed == 2) res += "; Can Only Teleport To Fixed Locations";
-        if (v._pass) res += "; Must Pass Through Intervening Space";
+        res += QString("%1m Telportation").arg(v.mSpeed);
+        if (v.mVeloc) res += "; No Relative Velocity";
+        if (v.mSafe)  res += "; Safe Aquatic Teleport";
+        if (v.mFixed == 1) res += "; Can Only Teleport To Fixed Or Floating Locations";
+        if (v.mFixed == 2) res += "; Can Only Teleport To Fixed Locations";
+        if (v.mPass) res += "; Must Pass Through Intervening Space";
         return res;
     }
 
@@ -790,11 +790,11 @@ public:
     Tunneling(): AllPowers("Tunneling")                 { }
     Tunneling(const Tunneling& s): AllPowers(s)         { }
     Tunneling(Tunneling&& s): AllPowers(s)              { }
-    Tunneling(const QJsonObject& json): AllPowers(json) { v._speed  = json["speed"].toInt(0);
-                                                          v._pd     = json["pd"].toInt(0);
-                                                          v._fillin = json["fillin"].toBool(false);
-                                                          v._limit  = json["limit"].toInt(0);
-                                                          v._to = json["to"].toString();
+    Tunneling(const QJsonObject& json): AllPowers(json) { v.mSpeed  = json["speed"].toInt(0);
+                                                          v.mPD     = json["pd"].toInt(0);
+                                                          v.mFillIn = json["fillin"].toBool(false);
+                                                          v.mLimit  = json["limit"].toInt(0);
+                                                          v.mTo = json["to"].toString();
                                                         }
     ~Tunneling() override { }
 
@@ -812,45 +812,45 @@ public:
                                                                                                                               "Very Limited Medium" });
                                                                    to     = createCheckBox(parent, layout, "Limited to?");
                                                                  }
-    Fraction lim() override                                      { return (v._limit != -1) ? v._limit * Fraction(1, 2) : Fraction(0);
+    Fraction lim() override                                      { return (v.mLimit != -1) ? v.mLimit * Fraction(1, 2) : Fraction(0);
                                                                  }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return v._speed * 1_cp + v._pd * 2_cp + (v._fillin ? 10_cp : 0_cp); // NOLINT
+                                                                   return v.mSpeed * 1_cp + v.mPD * 2_cp + (v.mFillIn ? 10_cp : 0_cp); // NOLINT
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   speed->setText(QString("%1").arg(s._speed));
-                                                                   pd->setText(QString("%1").arg(s._pd));
-                                                                   fillin->setChecked(s._fillin);
-                                                                   limit->setCurrentIndex(s._limit);
-                                                                   to->setText(s._to);
+                                                                   speed->setText(QString("%1").arg(s.mSpeed));
+                                                                   pd->setText(QString("%1").arg(s.mPD));
+                                                                   fillin->setChecked(s.mFillIn);
+                                                                   limit->setCurrentIndex(s.mLimit);
+                                                                   to->setText(s.mTo);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._speed = speed->text().toInt();
-                                                                   v._pd    = pd->text().toInt();
-                                                                   v._fillin = fillin->isChecked();
-                                                                   v._limit = limit->currentIndex();
-                                                                   v._to  = to->text();
+                                                                   v.mSpeed = speed->text().toInt();
+                                                                   v.mPD    = pd->text().toInt();
+                                                                   v.mFillIn = fillin->isChecked();
+                                                                   v.mLimit = limit->currentIndex();
+                                                                   v.mTo  = to->text();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["speed"]  = v._speed;
-                                                                   obj["pd"]     = v._pd;
-                                                                   obj["fillin"] = v._fillin;
-                                                                   obj["limit"]  = v._limit;
-                                                                   obj["to"]     = v._to;
+                                                                   obj["speed"]  = v.mSpeed;
+                                                                   obj["pd"]     = v.mPD;
+                                                                   obj["fillin"] = v.mFillIn;
+                                                                   obj["limit"]  = v.mLimit;
+                                                                   obj["to"]     = v.mTo;
                                                                    return obj;
                                                                  }
 
-    int move() override { return v._speed; }
+    int move() override { return v.mSpeed; }
 
 private:
     struct vars {
-        int     _speed  = 0;
-        int     _pd     = 0;
-        bool    _fillin = false;
-        int     _limit  = -1;
-        QString _to     = "";
+        int     mSpeed  = 0;
+        int     mPD     = 0;
+        bool    mFillIn = false;
+        int     mLimit  = -1;
+        QString mTo     = "";
     } v;
 
     QLineEdit* speed = nullptr;
@@ -860,13 +860,13 @@ private:
     QCheckBox* to = nullptr;
 
     QString optOut(bool showEND) {
-        if (v._speed < 1 || v._pd < 1 || (v._limit > 0 && v._to.isEmpty())) return "<incomplete>";
+        if (v.mSpeed < 1 || v.mPD < 1 || (v.mLimit > 0 && v.mTo.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1m Tunneling (%2 PD").arg(v._speed).arg(v._pd);
-        if (v._fillin) res += "; Fill In";
-        if (v._limit == 1) res += "; Limited Medium (" + v._to + ")";
-        if (v._limit == 2) res += "; Very Limited Medium (" + v._to + ")";
+        res += QString("%1m Tunneling (%2 PD").arg(v.mSpeed).arg(v.mPD);
+        if (v.mFillIn) res += "; Fill In";
+        if (v.mLimit == 1) res += "; Limited Medium (" + v.mTo + ")";
+        if (v.mLimit == 2) res += "; Very Limited Medium (" + v.mTo + ")";
         return res;
     }
 

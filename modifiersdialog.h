@@ -18,8 +18,7 @@ class ModifiersDialog;
 
 using std::shared_ptr;
 
-class ModifiersDialog : public QDialog
-{
+class ModifiersDialog : public QDialog {
     Q_OBJECT
 
 public:
@@ -34,7 +33,7 @@ public:
     ModifiersDialog& operator=(const ModifiersDialog&) = delete;
     ModifiersDialog& operator=(ModifiersDialog&&) = delete;
 
-    std::shared_ptr<class Modifier> modifier() { return _modifier; }
+    std::shared_ptr<class Modifier> modifier() { return mModifier; }
     bool modifier(std::shared_ptr<class Modifier>&);
 
     void updateForm();
@@ -42,24 +41,24 @@ public:
     /* Per the code, we need to wait until the dialog is full ready before we can just accept it.  With WASM,
      * we can't reliably run timers because of event loop issues, so we're trying this */
     void showEvent(QShowEvent*) override {
-        if (_justAccept) accept();
+        if (mJustAccept) accept();
     }
 
-    static ModifiersDialog& ref() { return *_modifiersDialog; }
+    static ModifiersDialog& ref() { return *mModifiersDialog; }
 
 private:
-    static ModifiersDialog* _modifiersDialog; // NOLINT
+    static ModifiersDialog* mModifiersDialog; // NOLINT
     Ui::ModifiersDialog *ui;
 
-    shared_ptr<class Modifier>  _modifier = nullptr;
-    shared_ptr<class Modifiers> _modifiers = nullptr;
+    shared_ptr<class Modifier>  mModifier = nullptr;
+    shared_ptr<class Modifiers> mModifiers = nullptr;
 
-    bool                 _accepted = false;
-    bool                 _add = false;
-    gsl::owner<QLabel*>  _description = nullptr;
-    bool                 _justAccept = false;
-    QPushButton*         _ok = nullptr;
-    bool                 _skipUpdate = false;
+    bool                 mAccepted = false;
+    bool                 mAdd = false;
+    gsl::owner<QLabel*>  mDescription = nullptr;
+    bool                 mJustAccept = false;
+    QPushButton*         mOk = nullptr;
+    bool                 mSkipUpdate = false;
 
     gsl::owner<QLabel*> createLabel(QVBoxLayout*, QString, bool wrap = false);
     void                setModifiers(bool);

@@ -5,7 +5,7 @@
 #include <QScreen>
 
 #define MAKE(x)           Modifier::mod<x> _##x // NOLINT
-#define LINK(w, x, y, z)  _modifiers[w] = make_shared<Modifier>(w, x, y, &statics::_##z); // NOLINT
+#define LINK(w, x, y, z)  sModifiers[w] = make_shared<Modifier>(w, x, y, &statics::_##z); // NOLINT
 
 namespace statics {
     MAKE(Ablative);
@@ -150,11 +150,10 @@ namespace statics {
     MAKE(WorksAgainstEGONotCharacteristic);
 }
 
-QMap<QString, shared_ptr<Modifier>> Modifiers::_modifiers; // NOLINT
+QMap<QString, shared_ptr<Modifier>> Modifiers::sModifiers; // NOLINT
 
-Modifiers::Modifiers()
-{
-    if (!_modifiers.isEmpty()) return;
+Modifiers::Modifiers() {
+    if (!sModifiers.isEmpty()) return;
     LINK("Ablative",                                Modifier::isLimitation, Modifier::isModifier, Ablative);
     LINK("Affected As Another Sense",               Modifier::isLimitation, Modifier::isModifier, AffectedAsAnotherSense);
     LINK("Affected As More Than One Sense",         Modifier::isLimitation, Modifier::isModifier, AffectedAsMoreThanOneSense);
@@ -298,19 +297,22 @@ Modifiers::Modifiers()
 }
 
 shared_ptr<Modifier> ModifierBase::create() {
-    if (_base) return _base->create();
+    if (mBase) return mBase->create();
     return nullptr;
 }
 
 shared_ptr<Modifier> ModifierBase::create(const QJsonObject& json) {
-    if (_base) return _base->create(json);
+    if (mBase) return mBase->create(json);
     return nullptr;
 }
 
 QList<shared_ptr<Modifier>> Modifiers::operator()(Modifier::ModifierType type) const {
     QList<shared_ptr<Modifier>> modifiers;
-    QStringList keys = _modifiers.keys();
-    for (const auto& modifier: keys) if (type & _modifiers[modifier]->type()) modifiers.push_back(_modifiers[modifier]);
+    QStringList keys = sModifiers.keys();
+    for (int i = 0 ; i < keys.count(); ++i) {
+        auto& modifier = keys[i];
+        if (type & sModifiers[modifier]->type()) modifiers.push_back(sModifiers[modifier]);
+    }
     return modifiers;
 }
 
@@ -323,33 +325,33 @@ bool Modifier::isNumber(QString txt) {
 }
 
 void ModifierBase::callback(QCheckBox* checkBox) {
-    _sender = checkBox;
-    auto f = _callbacksCB.find(checkBox);
-    if (f == _callbacksCB.end()) return;
+    mSender = checkBox;
+    auto f = mCallbacksCB.find(checkBox);
+    if (f == mCallbacksCB.end()) return;
     auto function = f.value();
     function(this, checkBox->isChecked());
 }
 
 void ModifierBase::callback(QComboBox* combo) {
-    _sender = combo;
-    auto f = _callbacksCBox.find(combo);
-    if (f == _callbacksCBox.end()) return;
+    mSender = combo;
+    auto f = mCallbacksCBox.find(combo);
+    if (f == mCallbacksCBox.end()) return;
     auto function = f.value();
     function(this, combo->currentIndex());
 }
 
 void ModifierBase::callback(QLineEdit* edit) {
-    _sender = edit;
-    auto f = _callbacksEdit.find(edit);
-    if (f == _callbacksEdit.end()) return;
+    mSender = edit;
+    auto f = mCallbacksEdit.find(edit);
+    if (f == mCallbacksEdit.end()) return;
     auto function = f.value();
     function(this, edit->text());
 }
 
 void ModifierBase::callback(QTreeWidget* tree) {
-    _sender = tree;
-    auto f = _callbacksTree.find(tree);
-    if (f == _callbacksTree.end()) return;
+    mSender = tree;
+    auto f = mCallbacksTree.find(tree);
+    if (f == mCallbacksTree.end()) return;
     auto function = f.value();
     function(this, 0, 0, false);
 }
@@ -374,7 +376,7 @@ gsl::owner<QCheckBox*> Modifier::createCheckBox(QWidget* parent, QVBoxLayout* la
     checkBox->setChecked(false);
     layout->addWidget(checkBox);
     parent->connect(checkBox, SIGNAL(stateChanged(int)), parent, SLOT(stateChanged(int)));
-    _callbacksCB.insert(_callbacksCB.cend(), checkBox, callback);
+    mCallbacksCB.insert(mCallbacksCB.cend(), checkBox, callback);
     return checkBox;
 }
 
@@ -386,7 +388,7 @@ gsl::owner<QComboBox*> Modifier::createComboBox(QWidget* parent, QVBoxLayout* la
     comboBox->setCurrentIndex(-1);
     layout->addWidget(comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
-    _callbacksCBox.insert(_callbacksCBox.cend(), comboBox, callback);
+    mCallbacksCBox.insert(mCallbacksCBox.cend(), comboBox, callback);
     return comboBox;
 }
 
@@ -415,7 +417,7 @@ gsl::owner<QLineEdit*> Modifier::createLineEdit(QWidget* parent, QVBoxLayout* la
     lineEdit->setText("");
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
-    _callbacksEdit.insert(_callbacksEdit.cend(), lineEdit, callback);
+    mCallbacksEdit.insert(mCallbacksEdit.cend(), lineEdit, callback);
     return lineEdit;
 }
 
@@ -440,7 +442,8 @@ gsl::owner<QTreeWidget*> Modifier::createTreeWidget(QWidget* parent, QVBoxLayout
     QStringList keys = options.keys();
     double height = 0.0;
     QFont font;
-    for (const auto& key: keys) {
+    for (int i = 0; i < keys.count(); ++i) {
+        auto& key = keys[i];
         auto* twitem = createTWItem(key);
         font = twitem->font(0);
         height += font.pointSizeF() + 4.0; // NOLINT
@@ -462,7 +465,7 @@ gsl::owner<QTreeWidget*> Modifier::createTreeWidget(QWidget* parent, QVBoxLayout
     hdr->setVisible(false);
     parent->connect(tree, SIGNAL(itemSelectionChanged()), parent, SLOT(itemSelectionChanged()));
     parent->connect(tree, SIGNAL(itemChanged(QTreeWidgetItem*,int)), parent, SLOT(itemChanged(QTreeWidgetItem*,int)));
-    _callbacksTree.insert(_callbacksTree.cend(), tree, callback);
+    mCallbacksTree.insert(mCallbacksTree.cend(), tree, callback);
     return tree;
 }
 
@@ -471,7 +474,8 @@ gsl::owner<QTreeWidget*> Modifier::createTreeWidget(QWidget* parent, QVBoxLayout
     QStringList keys = options.keys();
     double height = 0.0;
     QFont font;
-    for (const auto& key: keys) {
+    for (int i = 0 ; i < keys.count(); ++i) {
+        auto& key = keys[i];
         auto* twitem = createTWItem(key);
         font = twitem->font(0);
         height += font.pointSizeF() + 4.0; // NOLINT
@@ -497,8 +501,8 @@ gsl::owner<QTreeWidget*> Modifier::createTreeWidget(QWidget* parent, QVBoxLayout
 }
 
 shared_ptr<Modifier> Modifiers::ByName(QString name) {
-    if (_modifiers.find(name) != _modifiers.end())
-        return _modifiers[name]->create();
+    if (sModifiers.find(name) != sModifiers.end())
+        return sModifiers[name]->create();
     return nullptr;
 }
 

@@ -5,7 +5,6 @@
 #include "modifier.h"
 #include "skilltalentorperk.h"
 
-#include <functional>
 #include <map>
 
 #include <QCheckBox>
@@ -51,19 +50,20 @@ protected:
 
     QList<shared_ptr<Modifier>>::iterator findModifier(QString);
 
-    std::map<QCheckBox*,   checkBoxCallback>   _callbacksCB;
-    std::map<QComboBox*,   comboBoxCallback>   _callbacksCBox;
-    std::map<QComboBox*,   activatedCallback>  _callbacksActivatedCBox;
-    std::map<QLineEdit*,   lineEditCallback>   _callbacksEdit;
-    std::map<QTreeWidget*, treeCallback>       _callbacksTree;
-    std::map<QPushButton*, pushButtonCallback> _callbacksBtn;
+    std::map<QCheckBox*,   checkBoxCallback>   mCallbacksCB;
+    std::map<QComboBox*,   comboBoxCallback>   mCallbacksCBox;
+    std::map<QComboBox*,   activatedCallback>  mCallbacksActivatedCBox;
+    std::map<QLineEdit*,   lineEditCallback>   mCallbacksEdit;
+    std::map<QTreeWidget*, treeCallback>       mCallbacksTree;
+    std::map<QPushButton*, pushButtonCallback> mCallbacksBtn;
     void empty(bool) { }
 
     QString add(QString n, int p) {
         QList<QString> vals = n.split("/");
         QString res;
         bool first = true;
-        for (const auto& val: vals) {
+        for (int i = 0; i < vals.count(); ++i) {
+            auto& val = vals[i];
             if (first) first = false;
             else res += "/";
             QList<QString> num = val.split("-");
@@ -72,14 +72,14 @@ protected:
         return res;
     }
 
-    QList<shared_ptr<Modifier>> _advantagesList;
-    QList<shared_ptr<Modifier>> _limitationsList;
+    QList<shared_ptr<Modifier>> mAdvantagesList;
+    QList<shared_ptr<Modifier>> mLimitationsList;
 
-    bool     _inMultipower = false;
-    QWidget* _sender;
+    bool     mInMultipower = false;
+    QWidget* mSender;
 
-    Power* _parent = nullptr;
-    int    _row    = -1;
+    Power* mParent = nullptr;
+    int    mRow    = -1;
 
 public:
     QLineEdit* labeledEdit(QWidget* w)       { return _labeledEdits[w]; }
@@ -115,43 +115,43 @@ public:
 
     Power();
     Power(const Power& p)
-        : _advantagesList(p._advantagesList)
-        , _limitationsList(p._limitationsList)
-        , _inMultipower(p._inMultipower)
-        , _sender(p._sender)
-        , _parent(p._parent)
-        , _row(p._row)
-        , _modifiers(p._modifiers) { Power(); }
+        : mAdvantagesList(p.mAdvantagesList)
+        , mLimitationsList(p.mLimitationsList)
+        , mInMultipower(p.mInMultipower)
+        , mSender(p.mSender)
+        , mParent(p.mParent)
+        , mRow(p.mRow)
+        , mModifiers(p.mModifiers) { Power(); }
     Power(Power&& p)
-        : _advantagesList(p._advantagesList)
-        , _limitationsList(p._limitationsList)
-        , _inMultipower(p._inMultipower)
-        , _sender(p._sender)
-        , _parent(p._parent)
-        , _row(p._row)
-        , _modifiers(p._modifiers) { Power(); }
+        : mAdvantagesList(p.mAdvantagesList)
+        , mLimitationsList(p.mLimitationsList)
+        , mInMultipower(p.mInMultipower)
+        , mSender(p.mSender)
+        , mParent(p.mParent)
+        , mRow(p.mRow)
+        , mModifiers(p.mModifiers) { Power(); }
     virtual ~Power() { }
 
     Power& operator=(const Power& s) {
         if (this != &s) {
-            _advantagesList = s._advantagesList;
-            _limitationsList = s._limitationsList;
-            _inMultipower = s._inMultipower;
-            _sender = s._sender;
-            _parent = s._parent;
-            _row = s._row;
-            _modifiers = s._modifiers;
+            mAdvantagesList = s.mAdvantagesList;
+            mLimitationsList = s.mLimitationsList;
+            mInMultipower = s.mInMultipower;
+            mSender = s.mSender;
+            mParent = s.mParent;
+            mRow = s.mRow;
+            mModifiers = s.mModifiers;
         }
         return *this;
     }
     Power& operator=(Power&& s) {
-        _advantagesList = s._advantagesList;
-        _limitationsList = s._limitationsList;
-        _inMultipower = s._inMultipower;
-        _sender = s._sender;
-        _parent = s._parent;
-        _row = s._row;
-        _modifiers = s._modifiers;
+        mAdvantagesList = s.mAdvantagesList;
+        mLimitationsList = s.mLimitationsList;
+        mInMultipower = s.mInMultipower;
+        mSender = s.mSender;
+        mParent = s.mParent;
+        mRow = s.mRow;
+        mModifiers = s.mModifiers;
         return *this;
     }
 
@@ -171,8 +171,8 @@ public:
 
     virtual QJsonObject toJson() const           { QJsonObject obj;
                                                    QJsonObject mods;
-                                                   for (const auto& mod: _advantagesList)  mods[mod->name()] = mod->toJson();
-                                                   for (const auto& mod: _limitationsList) mods[mod->name()] = mod->toJson();
+                                                   for (const auto& mod: mAdvantagesList)  mods[mod->name()] = mod->toJson();
+                                                   for (const auto& mod: mLimitationsList) mods[mod->name()] = mod->toJson();
                                                    obj["modifiers"] = mods;
                                                    return obj;
                                                  }
@@ -189,24 +189,24 @@ public:
 
     Fraction endLessActing();
 
-    Power* parent()         { return _parent; }
-    Power* parent(Power* p) { _parent = p; return _parent; }
-    int    row()            { return _row; }
-    int    row(int r)       { _row = r; return _row; }
+    Power* parent()         { return mParent; }
+    Power* parent(Power* p) { mParent = p; return mParent; }
+    int    row()            { return mRow; }
+    int    row(int r)       { mRow = r; return mRow; }
 
     struct sizeMods {
-        int _STR = 0;
-        int _CON = 0;
-        int _PRE = 0;
-        int _PD = 0;
-        int _ED = 0;
-        int _BODY = 0;
-        int _STUN = 0;
-        int _reach = 0;
-        int _running = 0;
-        int _KBRes = 0;
-        int _aoeRad = 0;
-        QString _comp {};
+        int mSTR = 0;
+        int mCON = 0;
+        int mPRE = 0;
+        int mPD = 0;
+        int mED = 0;
+        int mBODY = 0;
+        int mSTUN = 0;
+        int mReach = 0;
+        int mRunning = 0;
+        int mKBRes = 0;
+        int mAOERad = 0;
+        QString mComp {};
     };
 
     virtual int characteristic(int) { return 0; }
@@ -216,7 +216,7 @@ public:
     virtual bool                      isMultipower()                 { return false; }
     virtual bool                      isVPP()                        { return false; }
     virtual bool                      isValid(shared_ptr<Power>)     { return true; }
-    virtual void                      inMultipower()                 { _inMultipower = true; }
+    virtual void                      inMultipower()                 { mInMultipower = true; }
     virtual Points                    pool()                         { return 0_cp; }
     virtual int                       count()                        { return -1; }
     virtual void                      append(shared_ptr<Power>)      { }
@@ -247,11 +247,11 @@ public:
     Points acting(Fraction a = Fraction(0), Points mod = 0_cp);
     Points active();
 
-    QList<shared_ptr<Modifier>>& advantagesList()  { return _advantagesList; }
-    QList<shared_ptr<Modifier>>& limitationsList() { return _limitationsList; }
-    QList<shared_ptr<Modifier>>& modifiers()       { return _modifiers; }
+    QList<shared_ptr<Modifier>>& advantagesList()  { return mAdvantagesList; }
+    QList<shared_ptr<Modifier>>& limitationsList() { return mLimitationsList; }
+    QList<shared_ptr<Modifier>>& modifiers()       { return mModifiers; }
 
-    QWidget* sender() { return _sender; }
+    QWidget* sender() { return mSender; }
 
     void callback(QCheckBox*);
     void callback(QComboBox*);
@@ -286,21 +286,21 @@ public:
     bool isNumber(QString);
 
 private:
-    QList<shared_ptr<Modifier>> _modifiers;
+    QList<shared_ptr<Modifier>> mModifiers;
 
-    static const QMap<QString, QString> _adjustmentPower;
-    static const QMap<QString, QString> _attackPower;
-    static const QMap<QString, QString> _automatonPower;
-    static const QMap<QString, QString> _bodyAffectingPower;
-    static const QMap<QString, QString> _defensePower;
-    static const QMap<QString, QString> _frameworkPower;
-    static const QMap<QString, QString> _mentalPower;
-    static const QMap<QString, QString> _movementPower;
-    static const QMap<QString, QString> _senseAffectingPower;
-    static const QMap<QString, QString> _sensoryPower;
-    static const QMap<QString, QString> _specialPower;
-    static const QMap<QString, QString> _standardPower;
-    static const QMap<QString, QString> _equipment;
+    static const QMap<QString, QString> mAdjustmentPower;
+    static const QMap<QString, QString> mAttackPower;
+    static const QMap<QString, QString> mAutomatonPower;
+    static const QMap<QString, QString> mBodyAffectingPower;
+    static const QMap<QString, QString> mDefensePower;
+    static const QMap<QString, QString> mFrameworkPower;
+    static const QMap<QString, QString> mMentalPower;
+    static const QMap<QString, QString> mMovementPower;
+    static const QMap<QString, QString> mSenseAffectingPower;
+    static const QMap<QString, QString> mSensoryPower;
+    static const QMap<QString, QString> mSpecialPower;
+    static const QMap<QString, QString> mStandardPower;
+    static const QMap<QString, QString> mEquipment;
 };
 
 class AllPowers: public Power {
@@ -424,8 +424,8 @@ public:
     void form(QWidget* widget, QVBoxLayout* layout) override {
         if (isEquipment()) powerName = nullptr;
         else powerName = createLineEdit(widget, layout, "Nickname of power");
-        if (_parent != nullptr && _parent->isMultipower()) varies = createCheckBox(widget, layout, "Varies");
-        else if (_inMultipower) varies = createCheckBox(widget, layout, "Varies");
+        if (mParent != nullptr && mParent->isMultipower()) varies = createCheckBox(widget, layout, "Varies");
+        else if (mInMultipower) varies = createCheckBox(widget, layout, "Varies");
         else varies = nullptr;
     }
     QString     name() override                                     { return v._name;

@@ -9,10 +9,9 @@
 ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ComplicationsDialog),
-    _description(nullptr),
-    _ok(nullptr),
-    _points(nullptr)
-{
+    mDescription(nullptr),
+    mOk(nullptr),
+    mPoints(nullptr) {
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
 
@@ -25,15 +24,17 @@ ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
     connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickComplication(int)));
 
     QList<QString> complications = Complication::Available();
-    for (const auto& complication: complications) ui->comboBox->addItem(complication);
+    for (int i = 0; i < complications.count(); ++i) {
+        auto& complication = complications[i];
+        ui->comboBox->addItem(complication);
+    }
 
     Sheet::ref().fixButtonBox(ui->buttonBox);
-    _ok = ui->buttonBox->button(QDialogButtonBox::Ok); // NOLINT
-    _ok->setEnabled(false);
+    mOk = ui->buttonBox->button(QDialogButtonBox::Ok); // NOLINT
+    mOk->setEnabled(false);
 }
 
-ComplicationsDialog::~ComplicationsDialog()
-{
+ComplicationsDialog::~ComplicationsDialog() {
     delete ui;
 }
 
@@ -43,18 +44,18 @@ ComplicationsDialog& ComplicationsDialog::complication(shared_ptr<Complication>&
     if (name.isEmpty()) return *this;
     qsizetype idx = Complication::Available().indexOf(name);
     if (idx == -1) return *this;
-    _skipUpdate = true;
+    mSkipUpdate = true;
     ui->comboBox->setCurrentIndex(gsl::narrow<int>(idx));
-    _complication = c;
+    mComplication = c;
     ui->comboBox->setEnabled(false);
     gsl::owner<QVBoxLayout*> layout = new QVBoxLayout(ui->form);
-    try { _complication->createForm(this, layout); } catch (...) { accept(); return *this; }
+    try { mComplication->createForm(this, layout); } catch (...) { accept(); return *this; }
     createLabel(layout, "");
-    _points      = createLabel(layout, "-1 Points");
-    _description = createLabel(layout, "<incomplete>", WordWrap);
+    mPoints      = createLabel(layout, "-1 Points");
+    mDescription = createLabel(layout, "<incomplete>", WordWrap);
 
     layout->addStretch(1);
-    _complication->restore();
+    mComplication->restore();
     updateForm();
     return *this;
 }
@@ -73,8 +74,8 @@ gsl::owner<QLabel*> ComplicationsDialog::createLabel(QVBoxLayout* parent, QStrin
 }
 
 void ComplicationsDialog::pickComplication(int idx) {
-    if (_skipUpdate) {
-        _skipUpdate = false;
+    if (mSkipUpdate) {
+        mSkipUpdate = false;
         return;
     }
 
@@ -84,11 +85,11 @@ void ComplicationsDialog::pickComplication(int idx) {
         ui->form->setLayout(layout);
     }
 
-    _complication = Complication::ByIndex(idx);
-    try { _complication->createForm(this, layout); } catch (...) { accept(); }
+    mComplication = Complication::ByIndex(idx);
+    try { mComplication->createForm(this, layout); } catch (...) { accept(); }
     createLabel(layout, "");
-    _points      = createLabel(layout, "-1 Points");
-    _description = createLabel(layout, "<incomplete>", WordWrap);
+    mPoints      = createLabel(layout, "-1 Points");
+    mDescription = createLabel(layout, "<incomplete>", WordWrap);
 
     layout->addStretch(1);
     updateForm();
@@ -96,18 +97,18 @@ void ComplicationsDialog::pickComplication(int idx) {
 
 void ComplicationsDialog::stateChanged(int) {
     QCheckBox* checkBox = dynamic_cast<QCheckBox*>(sender());
-    _complication->callback(checkBox);
+    mComplication->callback(checkBox);
     updateForm();
 }
 
 void ComplicationsDialog::textChanged(QString) {
     QLineEdit* text = dynamic_cast<QLineEdit*>(sender());
-    _complication->callback(text);
+    mComplication->callback(text);
     updateForm();
 }
 
 void ComplicationsDialog::updateForm() {
-    _points->setText(QString("%1 points").arg(_complication->points().points));
-    _description->setText(_complication->description());
-    _ok->setEnabled(_complication->description() != "<incomplete>");
+    mPoints->setText(QString("%1 points").arg(mComplication->points().points));
+    mDescription->setText(mComplication->description());
+    mOk->setEnabled(mComplication->description() != "<incomplete>");
 }

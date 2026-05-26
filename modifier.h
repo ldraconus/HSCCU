@@ -75,42 +75,42 @@ public:
     };
 
     ModifierBase()
-        : _name("")
-        , _type(isLimitation)
-        , _adder(isModifier)
-        , _base(nullptr) { }
+        : mName("")
+        , mType(isLimitation)
+        , mAdder(isModifier)
+        , mBase(nullptr) { }
     ModifierBase(QString nm, ModifierType type, bool adder, base* base = nullptr)
-        : _name(nm)
-        , _type(type)
-        , _adder(adder)
-        , _base(base) { }
+        : mName(nm)
+        , mType(type)
+        , mAdder(adder)
+        , mBase(base) { }
     ModifierBase(const ModifierBase& m)
-        : _name(m._name)
-        , _type(m._type)
-        , _adder(m._adder)
-        , _base(m._base) { }
+        : mName(m.mName)
+        , mType(m.mType)
+        , mAdder(m.mAdder)
+        , mBase(m.mBase) { }
     ModifierBase(const ModifierBase* m)
-        : _name(m->_name)
-        , _type(m->_type)
-        , _adder(m->_adder)
-        , _base(m->_base) { }
+        : mName(m->mName)
+        , mType(m->mType)
+        , mAdder(m->mAdder)
+        , mBase(m->mBase) { }
     ModifierBase(ModifierBase&& m)
-        : _name(m._name)
-        , _type(m._type)
-        , _adder(m._adder)
-        , _base(m._base) { }
+        : mName(m.mName)
+        , mType(m.mType)
+        , mAdder(m.mAdder)
+        , mBase(m.mBase) { }
 
     ModifierBase& operator=(const ModifierBase& m) = delete;
     ModifierBase& operator=(ModifierBase&&) = delete;
 
     virtual ~ModifierBase() { }
 
-    QWidget* _sender = nullptr; // NOLINT
+    QWidget* mSender = nullptr; // NOLINT
 
-    bool             isAdder() const  { return _adder; }
-    base             modifier() const { return _base; }
-    ModifierType     type() const     { return _type; }
-    QString          name() const     { return _name; }
+    bool             isAdder() const  { return mAdder; }
+    base             modifier() const { return mBase; }
+    ModifierType     type() const     { return mType; }
+    QString          name() const     { return mName; }
 
     void callback(QCheckBox*);
     void callback(QLineEdit*);
@@ -124,16 +124,16 @@ public:
     virtual QString       description(bool show = false)     { return show ? "<incomplete>" : "<incomplete>"; }
 
 private:
-    QString       _name = "";
-    ModifierType  _type = isLimitation;
-    bool          _adder = false;
-    base*         _base = nullptr;
+    QString       mName = "";
+    ModifierType  mType = isLimitation;
+    bool          mAdder = false;
+    base*         mBase = nullptr;
 
  protected:
-    QMap<QCheckBox*,   std::_Mem_fn<void (ModifierBase::*)(bool)>>            _callbacksCB; // NNOLINT
-    QMap<QComboBox*,   std::_Mem_fn<void (ModifierBase::*)(int)>>             _callbacksCBox; // NOLINT
-    QMap<QLineEdit*,   std::_Mem_fn<void (ModifierBase::*)(QString)>>         _callbacksEdit; // NOLINT
-    QMap<QTreeWidget*, std::_Mem_fn<void (ModifierBase::*)(int, int, bool)>>  _callbacksTree; // NOLINT
+    QMap<QCheckBox*,   std::_Mem_fn<void (ModifierBase::*)(bool)>>            mCallbacksCB; // NNOLINT
+    QMap<QComboBox*,   std::_Mem_fn<void (ModifierBase::*)(int)>>             mCallbacksCBox; // NOLINT
+    QMap<QLineEdit*,   std::_Mem_fn<void (ModifierBase::*)(QString)>>         mCallbacksEdit; // NOLINT
+    QMap<QTreeWidget*, std::_Mem_fn<void (ModifierBase::*)(int, int, bool)>>  mCallbacksTree; // NOLINT
     void empty(bool) { }
 
 public:
@@ -236,7 +236,7 @@ public:
     Modifier& operator=(const Modifier&) = delete;
     Modifier& operator=(Modifier&&) = delete;
 
-    QWidget* sender() const { return _sender; }
+    QWidget* sender() const { return mSender; }
 
     bool createForm(QWidget*, QVBoxLayout*) override;
 
@@ -281,7 +281,7 @@ public:
 
 class Modifiers {
 private:
-    static QMap<QString, shared_ptr<Modifier>> _modifiers; // NOLINT
+    static QMap<QString, shared_ptr<Modifier>> sModifiers; // NOLINT
 
 public:
     Modifiers();
@@ -301,26 +301,26 @@ class NoFormModifier: public Modifier {
 public:
     NoFormModifier(QString n, ModifierType m, Fraction v)
         : Modifier(n, m, isModifier)
-        , _value(v)
-        , _points(0_cp) { }
+        , mValue(v)
+        , mPoints(0_cp) { }
     NoFormModifier(QString n, ModifierType m, Points p)
         : Modifier(n, m, isAnAdder)
-        , _value(Fraction(0))
-        , _points(p) { }
+        , mValue(Fraction(0))
+        , mPoints(p) { }
     NoFormModifier(const NoFormModifier& m)
         : Modifier(m)
-        , _value(m._value)
-        , _points(m._points) { }
+        , mValue(m.mValue)
+        , mPoints(m.mPoints) { }
     NoFormModifier(NoFormModifier&& m)
         : Modifier(m)
-        , _value(m._value)
-        , _points(m._points) { }
+        , mValue(m.mValue)
+        , mPoints(m.mPoints) { }
     NoFormModifier(QJsonObject json)
         : Modifier(json["name"].toString(""),
                    ModifierType(json["type"].toInt(0)),
                    json["adder"].toBool(false))
-        , _value(Fraction(json["value"].toArray()[0].toInt(0), json["value"].toArray()[1].toInt(1)))
-        , _points(json["points"].toInt()) { }
+        , mValue(Fraction(json["value"].toArray()[0].toInt(0), json["value"].toArray()[1].toInt(1)))
+        , mPoints(json["points"].toInt()) { }
     ~NoFormModifier() override { }
 
     NoFormModifier& operator=(const NoFormModifier& n) = delete;
@@ -330,8 +330,8 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<NoFormModifier>(json); }
 
     QString       description(bool show = false) override  { return QString(show ? fraction(Modifier::NoStore).toString() + " ": "") + name(); }
-    Fraction      fraction(bool noStore = false) override  { return noStore ? _value : _value; }
-    Points        points(bool noStore = false) override    { return noStore ? _points : _points; }
+    Fraction      fraction(bool noStore = false) override  { return noStore ? mValue : mValue; }
+    Points        points(bool noStore = false) override    { return noStore ? mPoints : mPoints; }
     void          restore() override                       { }
     void          store() override                         { }
     QJsonObject   toJson() override                        { QJsonObject obj;
@@ -339,15 +339,15 @@ public:
                                                              obj["type"]  = type();
                                                              obj["adder"] = isAdder();
                                                              QJsonArray arr;
-                                                             arr.append((int) _value.numerator());
-                                                             arr.append((int) _value.denominator());
+                                                             arr.append((int) mValue.numerator());
+                                                             arr.append((int) mValue.denominator());
                                                              obj["value"] = arr;
-                                                             obj["points"] = (int) _points.points;
+                                                             obj["points"] = (int) mPoints.points;
                                                              return obj;
                                                            }
 private:
-    Fraction _value;
-    Points _points;
+    Fraction mValue;
+    Points mPoints;
 };
 
 class Ablative: public Modifier {
@@ -432,7 +432,7 @@ public:
     AffectedAsAnotherSense(QJsonObject json)
         : Modifier(json["name"].toString(""),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._sense = json["sense"].toInt(0); }
+                   json["adder"].toBool(false)) { v.mSense = json["sense"].toInt(0); }
     ~AffectedAsAnotherSense() override { }
 
     AffectedAsAnotherSense& operator=(const AffectedAsAnotherSense&) = delete;
@@ -449,28 +449,28 @@ public:
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               return Fraction(1, 4); }
     void          restore() override                        { vars s = v;
-                                                              sense->setCurrentIndex(s._sense);
+                                                              sense->setCurrentIndex(s.mSense);
                                                               v = s; }
-    void          store() override                          { v._sense = sense->currentIndex(); }
+    void          store() override                          { v.mSense = sense->currentIndex(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"] = name();
                                                               obj["type"] = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["sense"] = v._sense;
+                                                              obj["sense"] = v.mSense;
                                                               return obj; }
 
 private:
     struct vars {
-        int _sense = 0;
+        int mSense = 0;
     } v;
 
     gsl::owner<QComboBox*> sense = nullptr;
 
     QString optOut(bool show) {
         Fraction quarter(1, 4);
-        if (v._sense < 1) return "<incomplete>";
+        if (v.mSense < 1) return "<incomplete>";
         QStringList sense { "", "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
-        return (show ? "(-" + quarter.toString() + ") " : "") + "Affected As Another Sense (" + sense[v._sense] + ")";
+        return (show ? "(-" + quarter.toString() + ") " : "") + "Affected As Another Sense (" + sense[v.mSense] + ")";
     }
 };
 
@@ -488,8 +488,8 @@ public:
     AffectedAsMoreThanOneSense(QJsonObject json)
         : Modifier(json["name"].toString("Affected as More Than One Sense"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._veryUncommon = json["veryUncommon"].toBool();
-                                                  v._senses       = json["senses"].toString(""); }
+                   json["adder"].toBool(false)) { v.mVeryUncommon = json["veryUncommon"].toBool();
+                                                  v.mSenses       = json["senses"].toString(""); }
     ~AffectedAsMoreThanOneSense() override { }
 
     AffectedAsMoreThanOneSense& operator=(const AffectedAsMoreThanOneSense&) = delete;
@@ -505,25 +505,25 @@ public:
                                                               senses       = createLineEdit(p, l, "Affect as?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
-                                                              return v._veryUncommon ? Fraction(1, 2) : Fraction(1, 4); }
+                                                              return v.mVeryUncommon ? Fraction(1, 2) : Fraction(1, 4); }
     void          restore() override                        { vars s = v;
-                                                              veryUncommon->setChecked(s._veryUncommon);
-                                                              senses->setText(s._senses);
+                                                              veryUncommon->setChecked(s.mVeryUncommon);
+                                                              senses->setText(s.mSenses);
                                                               v = s; }
-    void          store() override                          { v._senses       = senses->text();
-                                                              v._veryUncommon = veryUncommon->isChecked(); }
+    void          store() override                          { v.mSenses       = senses->text();
+                                                              v.mVeryUncommon = veryUncommon->isChecked(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]         = name();
                                                               obj["type"]         = type();
                                                               obj["adder"]        = isAdder();
-                                                              obj["senses"]       = v._senses;
-                                                              obj["veryUncommon"] = v._veryUncommon;
+                                                              obj["senses"]       = v.mSenses;
+                                                              obj["veryUncommon"] = v.mVeryUncommon;
                                                               return obj; }
 
 private:
     struct vars {
-        bool    _veryUncommon = false;
-        QString _senses = "";
+        bool    mVeryUncommon = false;
+        QString mSenses = "";
     } v;
 
     gsl::owner<QCheckBox*> veryUncommon = nullptr;
@@ -532,9 +532,9 @@ private:
     QString optOut(bool show) {
         Fraction quarter(1, 4);
         Fraction half(1, 2);
-        if (v._senses.isEmpty()) return "<incomplete>";
-        return (show ? "(-" + (v._veryUncommon ? half.toString() : quarter.toString()) + ") " : "") + "Affected As More Than One Sense: " + v._senses +
-                (v._veryUncommon ? " (Senses are very uncommon)" : "");
+        if (v.mSenses.isEmpty()) return "<incomplete>";
+        return (show ? "(-" + (v.mVeryUncommon ? half.toString() : quarter.toString()) + ") " : "") + "Affected As More Than One Sense: " + v.mSenses +
+                (v.mVeryUncommon ? " (Senses are very uncommon)" : "");
     }
 };
 
@@ -552,8 +552,8 @@ public:
     AffectsDesolid(QJsonObject json)
         : Modifier(json["name"].toString("Affects Desolid"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._limited = json["limited"].toBool();
-                                                  v._what    = json["what"].toString(""); }
+                   json["adder"].toBool(false)) { v.mLimited = json["limited"].toBool();
+                                                  v.mWhat    = json["what"].toString(""); }
     ~AffectsDesolid() override { }
 
     AffectedAsMoreThanOneSense& operator=(const AffectsDesolid&) = delete;
@@ -569,25 +569,25 @@ public:
                                                               what    = createLineEdit(p, l, "Limited to?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
-                                                              return v._limited ? Fraction(1, 4) : Fraction(1, 2); }
+                                                              return v.mLimited ? Fraction(1, 4) : Fraction(1, 2); }
     void          restore() override                        { vars s = v;
-                                                              limited->setChecked(s._limited);
-                                                              what->setText(s._what);
+                                                              limited->setChecked(s.mLimited);
+                                                              what->setText(s.mWhat);
                                                               v = s; }
-    void          store() override                          { v._what    = what->text();
-                                                              v._limited = limited->isChecked(); }
+    void          store() override                          { v.mWhat    = what->text();
+                                                              v.mLimited = limited->isChecked(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["limited"] = v._limited;
-                                                              obj["what"]    = v._what;
+                                                              obj["limited"] = v.mLimited;
+                                                              obj["what"]    = v.mWhat;
                                                               return obj; }
 
 private:
     struct vars {
-        bool    _limited = false;
-        QString _what = "";
+        bool    mLimited = false;
+        QString mWhat = "";
     } v;
 
     gsl::owner<QCheckBox*> limited = nullptr;
@@ -596,9 +596,9 @@ private:
     QString optOut(bool show) {
         Fraction quarter(1, 4);
         Fraction half(1, 2);
-        if (v._what.isEmpty() && v._limited) return "<incomplete>";
-        return (show ? "(+" + (v._limited ? quarter.toString() : half.toString()) + ") " : "") + "Affects Desolid" +
-                (v._limited ? " (only versus " + v._what + ")" : "");
+        if (v.mWhat.isEmpty() && v.mLimited) return "<incomplete>";
+        return (show ? "(+" + (v.mLimited ? quarter.toString() : half.toString()) + ") " : "") + "Affects Desolid" +
+                (v.mLimited ? " (only versus " + v.mWhat + ")" : "");
     }
 };
 
@@ -692,7 +692,7 @@ public:
     AlternateCombatValue(QJsonObject json)
         : Modifier(json["name"].toString("Alternate Combat Value▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._is = json["is"].toInt(0); }
+                   json["adder"].toBool(false)) { v.mIs = json["is"].toInt(0); }
     ~AlternateCombatValue() override { }
 
     AlternateCombatValue& operator=(const AlternateCombatValue&) = delete;
@@ -711,7 +711,7 @@ public:
                                                                                   std::mem_fn(&ModifierBase::index));
                                                               return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
-                                                              switch (v._is) {
+                                                              switch (v.mIs) {
                                                               case 0:  return Fraction(1, 4);
                                                               case 1:  return Fraction(-1, 4);
                                                               case 2:  return Fraction(0, 1);
@@ -720,19 +720,19 @@ public:
                                                               }
                                                             }
     void          restore() override                        { vars s = v;
-                                                              is->setCurrentIndex(s._is);
+                                                              is->setCurrentIndex(s.mIs);
                                                               v = s; }
-    void          store() override                          { v._is = is->currentIndex(); }
+    void          store() override                          { v.mIs = is->currentIndex(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["is"]    = v._is;
+                                                              obj["is"]    = v.mIs;
                                                               return obj; }
 
 private:
     struct vars {
-        int    _is = 0;
+        int    mIs = 0;
     } v;
 
     gsl::owner<QComboBox*> is = nullptr;
@@ -745,9 +745,9 @@ private:
             "Non-Mental Power uses OMCV instead of OCV",
             "Non-Mental Power attacks against DMCV instead of DCV"
         };
-        if (v._is < 1) return "<incomplete>";
+        if (v.mIs < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
-        return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "ACV▲: " + is[v._is];
+        return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "ACV▲: " + is[v.mIs];
     }
 };
 
@@ -784,17 +784,17 @@ public:
     AreaOfEffect(QJsonObject json)
         : Modifier(json["name"].toString("Area Of Effect"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._kind = json["kind"].toInt(0);
-                                                  v._explosion = json["explosion"].toBool(false);
-                                                  v._fixedShape = json["fixedShape"].toBool(false);
-                                                  v._shape = json["shape"].toString("");
-                                                  v._nonselective = json["nonselective"].toBool(false);
-                                                  v._selective = json["selective"].toBool(false);
-                                                  v._mobile = json["mobile"].toBool(false);
-                                                  v._accurate = json["accurate"].toBool(false);
-                                                  v._thinCone = json["thinCone"].toBool(false);
-                                                  v._damageShield = json["damageShield"].toBool(false);
-                                                  v._multiplier = json["multiplier"].toInt(0);
+                   json["adder"].toBool(false)) { v.mKind = json["kind"].toInt(0);
+                                                  v.mExplosion = json["explosion"].toBool(false);
+                                                  v.mFixedShape = json["fixedShape"].toBool(false);
+                                                  v.mShape = json["shape"].toString("");
+                                                  v.mNonselective = json["nonselective"].toBool(false);
+                                                  v.mSelective = json["selective"].toBool(false);
+                                                  v.mMobile = json["mobile"].toBool(false);
+                                                  v.mAccurate = json["accurate"].toBool(false);
+                                                  v.mThinCone = json["thinCone"].toBool(false);
+                                                  v.mDamageShield = json["damageShield"].toBool(false);
+                                                  v.mMultiplier = json["multiplier"].toInt(0);
                                                 }
     ~AreaOfEffect() override { }
 
@@ -833,85 +833,85 @@ public:
                                                               damageShield->setEnabled(false);
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              kind->setCurrentIndex(s._kind);
-                                                              fixedShape->setChecked(s._fixedShape);
-                                                              shape->setText(s._shape);
-                                                              explosion->setChecked(s._explosion);
-                                                              nonselective->setChecked(s._nonselective);
-                                                              selective->setChecked(s._selective);
-                                                              mobile->setChecked(s._mobile);
-                                                              accurate->setChecked(s._accurate);
-                                                              thinCone->setChecked(s._thinCone);
-                                                              damageShield->setChecked(s._damageShield);
-                                                              multiplier->setText(QString("%1").arg(s._multiplier));
+                                                              kind->setCurrentIndex(s.mKind);
+                                                              fixedShape->setChecked(s.mFixedShape);
+                                                              shape->setText(s.mShape);
+                                                              explosion->setChecked(s.mExplosion);
+                                                              nonselective->setChecked(s.mNonselective);
+                                                              selective->setChecked(s.mSelective);
+                                                              mobile->setChecked(s.mMobile);
+                                                              accurate->setChecked(s.mAccurate);
+                                                              thinCone->setChecked(s.mThinCone);
+                                                              damageShield->setChecked(s.mDamageShield);
+                                                              multiplier->setText(QString("%1").arg(s.mMultiplier));
                                                               v = s;
                                                             }
-    void          store() override                          { v._kind = kind->currentIndex();
-                                                              v._fixedShape = fixedShape->isChecked();
-                                                              v._shape = shape->text();
-                                                              v._explosion = explosion->isChecked();
-                                                              v._nonselective = nonselective->isChecked();
-                                                              v._selective = selective->isChecked();
-                                                              v._mobile = mobile->isChecked();
-                                                              v._accurate = mobile->isChecked();
-                                                              v._thinCone = thinCone->isChecked();
-                                                              v._damageShield = damageShield->isChecked();
-                                                              v._multiplier = multiplier->text().toInt(0);
+    void          store() override                          { v.mKind = kind->currentIndex();
+                                                              v.mFixedShape = fixedShape->isChecked();
+                                                              v.mShape = shape->text();
+                                                              v.mExplosion = explosion->isChecked();
+                                                              v.mNonselective = nonselective->isChecked();
+                                                              v.mSelective = selective->isChecked();
+                                                              v.mMobile = mobile->isChecked();
+                                                              v.mAccurate = mobile->isChecked();
+                                                              v.mThinCone = thinCone->isChecked();
+                                                              v.mDamageShield = damageShield->isChecked();
+                                                              v.mMultiplier = multiplier->text().toInt(0);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["kind"]  = v._kind;
-                                                              obj["fixedShape"] = v._fixedShape;
-                                                              obj["shape"] = v._shape;
-                                                              obj["explosion"] = v._explosion;
-                                                              obj["nonselective"] = v._nonselective;
-                                                              obj["selective"] = v._selective;
-                                                              obj["mobile"] = v._mobile;
-                                                              obj["accurate"] = v._accurate;
-                                                              obj["thinCone"] = v._thinCone;
-                                                              obj["damageShield"] = v._damageShield;
-                                                              obj["multiplier"] = v._multiplier;
+                                                              obj["kind"]  = v.mKind;
+                                                              obj["fixedShape"] = v.mFixedShape;
+                                                              obj["shape"] = v.mShape;
+                                                              obj["explosion"] = v.mExplosion;
+                                                              obj["nonselective"] = v.mNonselective;
+                                                              obj["selective"] = v.mSelective;
+                                                              obj["mobile"] = v.mMobile;
+                                                              obj["accurate"] = v.mAccurate;
+                                                              obj["thinCone"] = v.mThinCone;
+                                                              obj["damageShield"] = v.mDamageShield;
+                                                              obj["multiplier"] = v.mMultiplier;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
         int steps = 0;
-        if (v._multiplier < 1) v._multiplier = 1;
-        switch (v._kind) {
-        case 0: steps = (int) (log((double) (v._multiplier - 1) / 4 + 1)  / log(2.0)); break; // NOLINT
-        case 1: steps = (int) (log((double) (v._multiplier - 1) / 8 + 1)  / log(2.0)); break; // NOLINT
-        case 2: steps = (int) (log((double) (v._multiplier - 1) / 16 + 1) / log(2.0)); break; // NOLINT
-        case 3: steps = (int) (log((double) (v._multiplier - 1) / 2 + 1)  / log(2.0)); break; // NOLINT
-        case 4: steps = (int) (log((double) (v._multiplier - 1) / 2 + 1)  / log(2.0)); break; // NOLINT
+        if (v.mMultiplier < 1) v.mMultiplier = 1;
+        switch (v.mKind) {
+        case 0: steps = (int) (log((double) (v.mMultiplier - 1) / 4 + 1)  / log(2.0)); break; // NOLINT
+        case 1: steps = (int) (log((double) (v.mMultiplier - 1) / 8 + 1)  / log(2.0)); break; // NOLINT
+        case 2: steps = (int) (log((double) (v.mMultiplier - 1) / 16 + 1) / log(2.0)); break; // NOLINT
+        case 3: steps = (int) (log((double) (v.mMultiplier - 1) / 2 + 1)  / log(2.0)); break; // NOLINT
+        case 4: steps = (int) (log((double) (v.mMultiplier - 1) / 2 + 1)  / log(2.0)); break; // NOLINT
         }
         f *= steps + 1;
-        if (v._explosion) f -= Fraction(1, 2);
-        if (v._nonselective) f -= Fraction(1, 4);
-        if (v._selective) f += Fraction(1, 4);
-        if (v._mobile) f += Fraction(1, 2);
-        if (v._accurate) f += Fraction(1, 4);
-        if (v._thinCone) f -= Fraction(1, 4);
-        if (v._fixedShape) f -= Fraction(1, 4);
+        if (v.mExplosion) f -= Fraction(1, 2);
+        if (v.mNonselective) f -= Fraction(1, 4);
+        if (v.mSelective) f += Fraction(1, 4);
+        if (v.mMobile) f += Fraction(1, 2);
+        if (v.mAccurate) f += Fraction(1, 4);
+        if (v.mThinCone) f -= Fraction(1, 4);
+        if (v.mFixedShape) f -= Fraction(1, 4);
         if (f < Fraction(1, 4)) f = Fraction(1, 4);
         return f;
     }
 
 private:
     struct vars {
-        int     _kind = 0;
-        bool    _fixedShape = false;
-        QString _shape = "";
-        bool    _explosion = false;
-        bool    _nonselective = false;
-        bool    _selective = false;
-        bool    _mobile = false;
-        bool    _accurate = false;
-        bool    _thinCone = false;
-        bool    _damageShield = false;
-        int     _multiplier = 0;
+        int     mKind = 0;
+        bool    mFixedShape = false;
+        QString mShape = "";
+        bool    mExplosion = false;
+        bool    mNonselective = false;
+        bool    mSelective = false;
+        bool    mMobile = false;
+        bool    mAccurate = false;
+        bool    mThinCone = false;
+        bool    mDamageShield = false;
+        int     mMultiplier = 0;
     } v;
 
     gsl::owner<QComboBox*> kind = nullptr;
@@ -930,7 +930,7 @@ private:
         QString txt = multiplier->text();
         if (txt.isEmpty() || isNumber(txt)) {
             if (txt.toInt(nullptr) < 1 && !txt.isEmpty()) multiplier->undo();
-            v._multiplier = txt.toInt(nullptr);
+            v.mMultiplier = txt.toInt(nullptr);
             return;
         }
         multiplier->undo();
@@ -966,7 +966,7 @@ private:
                     break;
             default: return;
             }
-            multiplier->setText(QString("%1").arg(v._multiplier));
+            multiplier->setText(QString("%1").arg(v.mMultiplier));
         }
         ModifiersDialog::ref().updateForm();
     }
@@ -978,20 +978,20 @@ private:
         QStringList size = {
             "m radius", "m sides", "m long", "m area", "m area"
         };
-        if (v._kind < 0 || (v._fixedShape && v._shape.isEmpty())) return "<incomplete>";
-        if (v._multiplier < 1) v._multiplier = 1;
+        if (v.mKind < 0 || (v.mFixedShape && v.mShape.isEmpty())) return "<incomplete>";
+        if (v.mMultiplier < 1) v.mMultiplier = 1;
         Fraction f(fraction(Modifier::NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Area Of Effect: " + kind[v._kind];
-        if (v._kind == 4) desc += QString(" (%1x%1%2)").arg(v._multiplier).arg(size[v._kind]);
-        else desc += QString(" (%1%2)").arg(v._multiplier).arg(size[v._kind]);
-        if (v._fixedShape) desc += "; Fixed Shape(" + v._shape + ")";
-        if (v._accurate) desc += "; Accurate";
-        if (v._explosion) desc += "; Explosion";
-        if (v._mobile) desc += "; Mobile";
-        if (v._nonselective) desc += "; Non-selective Targeting";
-        if (v._selective) desc += "; Selective Targeting";
-        if (v._thinCone) desc += "; Thin Cone";
-        if (v._damageShield) desc += "; Damage Shield";
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Area Of Effect: " + kind[v.mKind];
+        if (v.mKind == 4) desc += QString(" (%1x%1%2)").arg(v.mMultiplier).arg(size[v.mKind]);
+        else desc += QString(" (%1%2)").arg(v.mMultiplier).arg(size[v.mKind]);
+        if (v.mFixedShape) desc += "; Fixed Shape(" + v.mShape + ")";
+        if (v.mAccurate) desc += "; Accurate";
+        if (v.mExplosion) desc += "; Explosion";
+        if (v.mMobile) desc += "; Mobile";
+        if (v.mNonselective) desc += "; Non-selective Targeting";
+        if (v.mSelective) desc += "; Selective Targeting";
+        if (v.mThinCone) desc += "; Thin Cone";
+        if (v.mDamageShield) desc += "; Damage Shield";
         return desc;
     }
 };
@@ -1010,7 +1010,7 @@ public:
     ArmorPiercing(QJsonObject json)
         : Modifier(json["name"].toString(""),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._times = json["times"].toInt(0);
+                   json["adder"].toBool(false)) { v.mTimes = json["times"].toInt(0);
                                                 }
     ~ArmorPiercing() override { }
 
@@ -1031,28 +1031,28 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { times = createLineEdit(p, l, "Times?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              times->setText(QString("%1").arg(s._times));
+                                                              times->setText(QString("%1").arg(s.mTimes));
                                                               v = s;
                                                             }
-    void          store() override                          { v._times = times->text().toInt(0);
+    void          store() override                          { v.mTimes = times->text().toInt(0);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["times"] = v._times;
+                                                              obj["times"] = v.mTimes;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        f *= v._times;
+        f *= v.mTimes;
         return f;
     }
 
 private:
     struct vars {
-        int _times = 0;
+        int mTimes = 0;
     } v;
 
     QLineEdit* times = nullptr;
@@ -1061,18 +1061,18 @@ private:
         QString txt = times->text();
         if (txt.isEmpty() || isNumber(txt)) {
             if (txt.toInt(nullptr) < 1 && !txt.isEmpty()) times->undo();
-            v._times = txt.toInt(nullptr);
-            if (v._times < 1) v._times = 1;
+            v.mTimes = txt.toInt(nullptr);
+            if (v.mTimes < 1) v.mTimes = 1;
             return;
         }
         times->undo();
     }
 
     QString optOut(bool show) {
-        if (v._times < 0) return "<incomplete>";
+        if (v.mTimes < 0) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                ((v._times > 1) ? QString("%1x").arg(v._times) : "") +"Armor Piercing";
+                ((v.mTimes > 1) ? QString("%1x").arg(v.mTimes) : "") +"Armor Piercing";
         return desc;
     }
 };
@@ -1092,9 +1092,9 @@ public:
         : Modifier(json["name"].toString("Attack Versus Alternate Defense▲"),
                    ModifierType(json["type"].toInt(0)),
                    json["adder"].toBool(false)) { v._original = json["original"].toInt(0);
-                                                  v._newone = json["newone"].toInt(0);
-                                                  v._versus = json["versus"].toString();
-                                                  v._nnd = json["nnd"].toBool(false);
+                                                  v.mNewOne = json["newone"].toInt(0);
+                                                  v.mVersus = json["versus"].toString();
+                                                  v.mNND = json["nnd"].toBool(false);
                                                 }
     ~AVAD() override { }
 
@@ -1125,41 +1125,41 @@ public:
                                                               return true; }
     void          restore() override                        { vars s = v;
                                                               original->setCurrentIndex(s._original);
-                                                              newone->setCurrentIndex(s._newone);
-                                                              versus->setText(s._versus);
-                                                              nnd->setChecked(s._nnd);
+                                                              newone->setCurrentIndex(s.mNewOne);
+                                                              versus->setText(s.mVersus);
+                                                              nnd->setChecked(s.mNND);
                                                               v = s;
                                                             }
     void          store() override                          { v._original = original->currentIndex();
-                                                              v._newone = newone->currentIndex();
-                                                              v._versus = versus->text();
-                                                              v._nnd = nnd->isChecked();
+                                                              v.mNewOne = newone->currentIndex();
+                                                              v.mVersus = versus->text();
+                                                              v.mNND = nnd->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
                                                               obj["original"] = v._original;
-                                                              obj["newone"] = v._newone;
-                                                              obj["versus"] = v._versus;
-                                                              obj["nnd"] = v._nnd;
+                                                              obj["newone"] = v.mNewOne;
+                                                              obj["versus"] = v.mVersus;
+                                                              obj["nnd"] = v.mNND;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 2);
-        int diff = v._newone - v._original;
+        int diff = v.mNewOne - v._original;
         f *= diff;
-        if (v._nnd) f -= Fraction(1, 2);
+        if (v.mNND) f -= Fraction(1, 2);
         return f;
     }
 
 private:
     struct vars {
         int _original = 0;
-        int _newone = 0;
-        QString _versus = "";
-        bool _nnd = false;
+        int mNewOne = 0;
+        QString mVersus = "";
+        bool mNND = false;
     } v;
 
     gsl::owner<QComboBox*> original = nullptr;
@@ -1168,10 +1168,10 @@ private:
     gsl::owner<QCheckBox*> nnd = nullptr;
 
     QString optOut(bool show) {
-        if (v._original < 1 || v._newone < 1 || v._versus.isEmpty()) return "<incomplete>";
+        if (v._original < 1 || v.mNewOne < 1 || v.mVersus.isEmpty()) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 + (v._nnd ? "NND: Defense is " : "Attack Versus Alternate Defense: ") + v._versus;
+                 + (v.mNND ? "NND: Defense is " : "Attack Versus Alternate Defense: ") + v.mVersus;
         return desc;
     }
 };
@@ -1193,9 +1193,9 @@ public:
     Autofire(QJsonObject json)
         : Modifier(json["name"].toString("Autofire"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._five = json["five"].toBool(false);
-                                                  v._doubling = json["doubling"].toInt(0);
-                                                  v._bypass = json["bypass"].toBool(false);
+                   json["adder"].toBool(false)) { v.mFive = json["five"].toBool(false);
+                                                  v.mDoubling = json["doubling"].toInt(0);
+                                                  v.mByPass = json["bypass"].toBool(false);
                                                 }
     ~Autofire() override { }
 
@@ -1214,38 +1214,38 @@ public:
                                                               bypass = createCheckBox(p, l, "All or nothing (NND)", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              five->setChecked(s._five);
-                                                              doubling->setText(QString("%1").arg(s._doubling));
-                                                              bypass->setChecked(s._bypass);
+                                                              five->setChecked(s.mFive);
+                                                              doubling->setText(QString("%1").arg(s.mDoubling));
+                                                              bypass->setChecked(s.mByPass);
                                                               v = s;
                                                             }
-    void          store() override                          { v._five = five->isChecked();
-                                                              v._doubling = doubling->text().toInt(nullptr);
-                                                              v._bypass = bypass->isChecked();
+    void          store() override                          { v.mFive = five->isChecked();
+                                                              v.mDoubling = doubling->text().toInt(nullptr);
+                                                              v.mByPass = bypass->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["five"] = v._five;
-                                                              obj["doubling"] = v._doubling;
-                                                              obj["bypass"] = v._bypass;
+                                                              obj["five"] = v.mFive;
+                                                              obj["doubling"] = v.mDoubling;
+                                                              obj["bypass"] = v.mByPass;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._five) f = Fraction(1, 2);
-        if (v._doubling > 0) f += Fraction(1, 2) * v._doubling;
-        if (v._bypass) f += 1;
+        if (v.mFive) f = Fraction(1, 2);
+        if (v.mDoubling > 0) f += Fraction(1, 2) * v.mDoubling;
+        if (v.mByPass) f += 1;
         return f;
     }
 
 private:
     struct vars {
-        bool _five = false;
-        int _doubling = 0;
-        bool _bypass = false;
+        bool mFive = false;
+        int mDoubling = 0;
+        bool mByPass = false;
     } v;
 
     gsl::owner<QCheckBox*> five = nullptr;
@@ -1255,7 +1255,7 @@ private:
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 QString("Autofire: %1 shots").arg((3 + 5) * std::pow(2, v._doubling)); // NOLINT
+                 QString("Autofire: %1 shots").arg((3 + 5) * std::pow(2, v.mDoubling)); // NOLINT
         return desc;
     }
 
@@ -1432,7 +1432,7 @@ public:
     CanOnlyBeUsedThroughMindLink(QJsonObject json)
         : Modifier(json["name"].toString("CanOnlyBeUsedThroughMindLink"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._value = json["value"].toInt(0);
+                   json["adder"].toBool(false)) { v.mValue = json["value"].toInt(0);
                                                 }
     ~CanOnlyBeUsedThroughMindLink() override { }
 
@@ -1450,27 +1450,27 @@ public:
                                                                                                                        }, std::mem_fn(&ModifierBase::index));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              value->setCurrentIndex(s._value);
+                                                              value->setCurrentIndex(s.mValue);
                                                               v = s;
                                                             }
-    void          store() override                          { v._value = value->currentIndex();
+    void          store() override                          { v.mValue = value->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["value"] = v._value;
+                                                              obj["value"] = v.mValue;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         static QList<Fraction> fractions { { 0, 1 }, { 1, 4 }, { 1, 2 }, { 3, 4 }, { 1, 1 }, { 1, { 1, 4 } }, { 1, { 1, 2 } }, { 1, { 3, 4 } }, { 2, 1 } };
-        return fractions[v._value];
+        return fractions[v.mValue];
     }
 
 private:
     struct vars {
-        int _value = 0;
+        int mValue = 0;
     } v;
 
     gsl::owner<QComboBox*> value = nullptr;
@@ -1478,8 +1478,8 @@ private:
     QString optOut(bool show) {
         static QStringList values { "", "¹⁄₄⁄", "¹⁄₂⁄", "³⁄₄", "1", "1¹⁄₄⁄", "1¹⁄₂⁄", "1³⁄₄", "2" };
 
-        if (v._value < 1) return "<incomplete>";
-        return (show ? QString("(%1").arg(values[v._value]) + ") " : "") + "Can Only Be Used Through Mind Link";
+        if (v.mValue < 1) return "<incomplete>";
+        return (show ? QString("(%1").arg(values[v.mValue]) + ") " : "") + "Can Only Be Used Through Mind Link";
     }
 };
 
@@ -1535,8 +1535,8 @@ public:
     CannotBeUsedWith(QJsonObject json)
         : Modifier(json["name"].toString("Cannot Be Used With ..."),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._veryEffective = json["veryEffective"].toBool();
-                                                  v._maneuver = json["maneuver"].toString();
+                   json["adder"].toBool(false)) { v.mVeryEffective = json["veryEffective"].toBool();
+                                                  v.mManeuver = json["maneuver"].toString();
                                                 }
     ~CannotBeUsedWith() override { }
 
@@ -1554,26 +1554,26 @@ public:
                                                               maneuver = createLineEdit(p, l, "Maneuver", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
-                                                              return v._veryEffective ? Fraction(1, 2) : Fraction(1, 4); }
+                                                              return v.mVeryEffective ? Fraction(1, 2) : Fraction(1, 4); }
     void          restore() override                        { vars s = v;
-                                                              veryEffective->setChecked(s._veryEffective);
-                                                              maneuver->setText(s._maneuver);
+                                                              veryEffective->setChecked(s.mVeryEffective);
+                                                              maneuver->setText(s.mManeuver);
                                                               v = s; }
-    void          store() override                          { v._veryEffective = veryEffective->isChecked();
-                                                              v._maneuver = maneuver->text();
+    void          store() override                          { v.mVeryEffective = veryEffective->isChecked();
+                                                              v.mManeuver = maneuver->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]          = name();
                                                               obj["type"]          = type();
                                                               obj["adder"]         = isAdder();
-                                                              obj["maneuver"]      = v._maneuver;
-                                                              obj["veryEffective"] = v._veryEffective;
+                                                              obj["maneuver"]      = v.mManeuver;
+                                                              obj["veryEffective"] = v.mVeryEffective;
                                                               return obj; }
 
 private:
     struct vars {
-        bool    _veryEffective = false;
-        QString _maneuver = "";
+        bool    mVeryEffective = false;
+        QString mManeuver = "";
     } v;
 
     gsl::owner<QCheckBox*> veryEffective = nullptr;
@@ -1582,8 +1582,8 @@ private:
     QString optOut(bool show) {
         Fraction quarter(1, 4);
         Fraction half(1, 2);
-        return (show ? "(-" + (v._veryEffective ? half.toString() : quarter.toString()) + ") " : "") + "Cannot Be used With " + v._maneuver +
-                (v._veryEffective ? " (very effective)" : "");
+        return (show ? "(-" + (v.mVeryEffective ? half.toString() : quarter.toString()) + ") " : "") + "Cannot Be used With " + v.mManeuver +
+                (v.mVeryEffective ? " (very effective)" : "");
     }
 };
 
@@ -1616,8 +1616,8 @@ private:
     Fraction chargeFraction() {
         int lim = 0;
         int max = sizeof(_charges) / sizeof(int);
-        if (v._charges > 0) {
-            for (lim = 0; lim < max; ++lim) if (_charges[lim] >= v._charges) break; // NOLINT
+        if (v.mCharges > 0) {
+            for (lim = 0; lim < max; ++lim) if (_charges[lim] >= v.mCharges) break; // NOLINT
             if (lim >= max) lim = max - 1;
         }
 
@@ -1637,15 +1637,15 @@ public:
     Charges(QJsonObject json)
         : Modifier(json["name"].toString("Charges"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._charges      = json["charges"].toInt(0);
-                                                  v._clips        = json["clips"].toInt(0);
-                                                  v._boostable    = json["boostable"].toBool(false);
-                                                  v._continuing   = json["continuing"].toInt(0);
-                                                  v._fuelCharge   = json["fuelCharge"].toBool(false);
-                                                  v._recoverable  = json["recoverable"].toBool(false);
-                                                  v._recoveryTime = json["recoveryTime"].toInt(0);
-                                                  v._expensive    = json["expensive"].toBool(false);
-                                                  v._reload       = json["reload"].toInt(0);
+                   json["adder"].toBool(false)) { v.mCharges      = json["charges"].toInt(0);
+                                                  v.mClips        = json["clips"].toInt(0);
+                                                  v.mBoostable    = json["boostable"].toBool(false);
+                                                  v.mContinuing   = json["continuing"].toInt(0);
+                                                  v.mFuelCharge   = json["fuelCharge"].toBool(false);
+                                                  v.mRecoverable  = json["recoverable"].toBool(false);
+                                                  v.mRecoveryTime = json["recoveryTime"].toInt(0);
+                                                  v.mExpensive    = json["expensive"].toBool(false);
+                                                  v.mReload       = json["reload"].toInt(0);
                                                 }
     ~Charges() override { }
 
@@ -1677,68 +1677,68 @@ public:
                                                               return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = chargeFraction();
-                                                              if (v._boostable) res += Fraction(1, 4);
-                                                              if (v._clips) {
-                                                                  int steps = (int) (log((double) v._clips) / log(2.0)); // NOLINT
+                                                              if (v.mBoostable) res += Fraction(1, 4);
+                                                              if (v.mClips) {
+                                                                  int steps = (int) (log((double) v.mClips) / log(2.0)); // NOLINT
                                                                   res += steps * Fraction(1, 4);
                                                               }
-                                                              res += v._continuing * Fraction(1, 4);
-                                                              if (v._fuelCharge) res += Fraction(1, 4);
-                                                              if (v._recoverable) res += Fraction(1, 2);
-                                                              if (v._recoveryTime >= 0) res -= v._recoveryTime * Fraction(1, 4);
-                                                              if (v._expensive) res -= Fraction(1, 4);
-                                                              if (v._reload > -1) res -= v._reload * Fraction(1, 4);
+                                                              res += v.mContinuing * Fraction(1, 4);
+                                                              if (v.mFuelCharge) res += Fraction(1, 4);
+                                                              if (v.mRecoverable) res += Fraction(1, 2);
+                                                              if (v.mRecoveryTime >= 0) res -= v.mRecoveryTime * Fraction(1, 4);
+                                                              if (v.mExpensive) res -= Fraction(1, 4);
+                                                              if (v.mReload > -1) res -= v.mReload * Fraction(1, 4);
                                                               return res;
                                                             }
     void          restore() override                        { vars s = v;
-                                                              charges->setText(QString("%1").arg(s._charges));
-                                                              clips->setText(QString("%1").arg(s._clips));
-                                                              boostable->setEnabled(s._clips > 1);
-                                                              boostable->setChecked(s._boostable);
-                                                              continuing->setCurrentIndex(s._continuing);
-                                                              fuelCharge->setChecked(s._fuelCharge);
-                                                              recoverable->setChecked(s._recoverable);
-                                                              recoveryTime->setCurrentIndex(s._recoveryTime);
-                                                              expensive->setChecked(s._expensive);
-                                                              reload->setCurrentIndex(s._reload);
+                                                              charges->setText(QString("%1").arg(s.mCharges));
+                                                              clips->setText(QString("%1").arg(s.mClips));
+                                                              boostable->setEnabled(s.mClips > 1);
+                                                              boostable->setChecked(s.mBoostable);
+                                                              continuing->setCurrentIndex(s.mContinuing);
+                                                              fuelCharge->setChecked(s.mFuelCharge);
+                                                              recoverable->setChecked(s.mRecoverable);
+                                                              recoveryTime->setCurrentIndex(s.mRecoveryTime);
+                                                              expensive->setChecked(s.mExpensive);
+                                                              reload->setCurrentIndex(s.mReload);
                                                               v = s;
                                                             }
-    void          store() override                          { v._charges      = charges->text().toInt();
-                                                              v._clips        = clips->text().toInt();
-                                                              v._boostable    = boostable->isChecked();
-                                                              v._continuing   = continuing->currentIndex();
-                                                              v._fuelCharge   = fuelCharge->isChecked();
-                                                              v._recoverable  = recoverable->isChecked();
-                                                              v._recoveryTime = recoveryTime->currentIndex();
-                                                              v._expensive    = expensive->isChecked();
-                                                              v._reload       = reload->currentIndex();
+    void          store() override                          { v.mCharges      = charges->text().toInt();
+                                                              v.mClips        = clips->text().toInt();
+                                                              v.mBoostable    = boostable->isChecked();
+                                                              v.mContinuing   = continuing->currentIndex();
+                                                              v.mFuelCharge   = fuelCharge->isChecked();
+                                                              v.mRecoverable  = recoverable->isChecked();
+                                                              v.mRecoveryTime = recoveryTime->currentIndex();
+                                                              v.mExpensive    = expensive->isChecked();
+                                                              v.mReload       = reload->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]         = name();
                                                               obj["type"]         = type();
-                                                              obj["charges"]      = v._charges;
-                                                              obj["clips"]        = v._clips;
-                                                              obj["boostable"]    = v._boostable;
-                                                              obj["continuing"]   = v._continuing;
-                                                              obj["fuelCharge"]   = v._fuelCharge;
-                                                              obj["recoverable"]  = v._recoverable;
-                                                              obj["recoveryTime"] = v._recoveryTime;
-                                                              obj["expensive"]    = v._expensive;
-                                                              obj["reload"]       = v._reload;
+                                                              obj["charges"]      = v.mCharges;
+                                                              obj["clips"]        = v.mClips;
+                                                              obj["boostable"]    = v.mBoostable;
+                                                              obj["continuing"]   = v.mContinuing;
+                                                              obj["fuelCharge"]   = v.mFuelCharge;
+                                                              obj["recoverable"]  = v.mRecoverable;
+                                                              obj["recoveryTime"] = v.mRecoveryTime;
+                                                              obj["expensive"]    = v.mExpensive;
+                                                              obj["reload"]       = v.mReload;
                                                               return obj;
                                                             }
 
 private:
     struct vars {
-        int  _charges = 0;
-        int  _clips = 0;
-        bool _boostable = false;
-        int  _continuing = 0;
-        bool _fuelCharge = false;
-        bool _recoverable = false;
-        int  _recoveryTime = 0;
-        bool _expensive = false;
-        int  _reload = 0;
+        int  mCharges = 0;
+        int  mClips = 0;
+        bool mBoostable = false;
+        int  mContinuing = 0;
+        bool mFuelCharge = false;
+        bool mRecoverable = false;
+        int  mRecoveryTime = 0;
+        bool mExpensive = false;
+        int  mReload = 0;
     } v;
 
     gsl::owner<QLineEdit*> charges = nullptr;
@@ -1763,10 +1763,10 @@ private:
                 else {
                     reload->setEnabled(false);
                     reload->setCurrentIndex(-1);
-                    v._reload = -1;
+                    v.mReload = -1;
                     boostable->setEnabled(false);
                     boostable->setChecked(false);
-                    v._boostable = false;
+                    v.mBoostable = false;
                 }
             }
             store();
@@ -1786,17 +1786,17 @@ private:
         static QStringList extraTime {
             "", "2 Phases", "Turn", "1 Minute", "5 Minutes", "20 Minutes",  "1 Hour", "6 Hours", "1 Day", "1 Week", "1 Month", "1 Season", "1 Year", "5 Years"
         };
-        if (v._charges < 1) return "<incomplete>";
+        if (v.mCharges < 1) return "<incomplete>";
         Fraction mod = fraction(NoStore);
         QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(NoStore).toString() + ") " : "") + "Charges (" +
-                QString("%1").arg(v._charges) + QString(" charge%1").arg((v._charges > 1) ? "s" : "");
-        if (v._fuelCharge) res += "; Fuel Charge";
-        if (v._recoverable) res += "; Recoverable";
-        if (v._recoveryTime > 0) res += "; Recovery Time: " + recTime[v._recoveryTime];
-        if (v._continuing > 0) res += "Continuing: " + conTime[v._continuing];
-        if (v._clips > 1) res += QString("; %1 clips").arg(v._clips);
-        if (v._reload > 0) res += "; Extra Time to Reload - " + extraTime[v._reload];
-        if (v._expensive) res += "; Charges are Expensive or Difficult to Obtain";
+                QString("%1").arg(v.mCharges) + QString(" charge%1").arg((v.mCharges > 1) ? "s" : "");
+        if (v.mFuelCharge) res += "; Fuel Charge";
+        if (v.mRecoverable) res += "; Recoverable";
+        if (v.mRecoveryTime > 0) res += "; Recovery Time: " + recTime[v.mRecoveryTime];
+        if (v.mContinuing > 0) res += "Continuing: " + conTime[v.mContinuing];
+        if (v.mClips > 1) res += QString("; %1 clips").arg(v.mClips);
+        if (v.mReload > 0) res += "; Extra Time to Reload - " + extraTime[v.mReload];
+        if (v.mExpensive) res += "; Charges are Expensive or Difficult to Obtain";
         return res + ")";
     }
 };
@@ -1834,9 +1834,9 @@ public:
     Concentration(QJsonObject json)
         : Modifier(json["name"].toString("Concentration"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._zeroDCV  = json["zeroDCV"].toBool(false);
-                                                  v._unaware  = json["unaware"].toBool(false);
-                                                  v._constant = json["constant"].toBool(false);
+                   json["adder"].toBool(false)) { v.mZeroDCV  = json["zeroDCV"].toBool(false);
+                                                  v.mUnaware  = json["unaware"].toBool(false);
+                                                  v.mConstant = json["constant"].toBool(false);
                                                 }
     ~Concentration() override { }
 
@@ -1856,34 +1856,34 @@ public:
                                                               return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 4);
-                                                              if (v._zeroDCV) res += Fraction(1, 4);
-                                                              if (v._unaware) res += Fraction(1, 4);
+                                                              if (v.mZeroDCV) res += Fraction(1, 4);
+                                                              if (v.mUnaware) res += Fraction(1, 4);
                                                               return res;
                                                             }
     void          restore() override                        { vars s = v;
-                                                              zeroDCV->setChecked(s._zeroDCV);
-                                                              unaware->setChecked(s._unaware);
-                                                              constant->setChecked(s._constant);
+                                                              zeroDCV->setChecked(s.mZeroDCV);
+                                                              unaware->setChecked(s.mUnaware);
+                                                              constant->setChecked(s.mConstant);
                                                               v = s;
                                                             }
-    void          store() override                          { v._zeroDCV  = zeroDCV->isChecked();
-                                                              v._unaware  = unaware->isChecked();
-                                                              v._constant = constant->isChecked();
+    void          store() override                          { v.mZeroDCV  = zeroDCV->isChecked();
+                                                              v.mUnaware  = unaware->isChecked();
+                                                              v.mConstant = constant->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
-                                                              obj["zeroDCV"]  = v._zeroDCV;
-                                                              obj["unaware"]  = v._unaware;
-                                                              obj["constant"] = v._constant;
+                                                              obj["zeroDCV"]  = v.mZeroDCV;
+                                                              obj["unaware"]  = v.mUnaware;
+                                                              obj["constant"] = v.mConstant;
                                                               return obj;
                                                             }
 
 private:
     struct vars {
-        bool _zeroDCV = false;
-        bool _unaware = false;
-        bool _constant = false;
+        bool mZeroDCV = false;
+        bool mUnaware = false;
+        bool mConstant = false;
     } v;
 
     gsl::owner<QCheckBox*> zeroDCV = nullptr;
@@ -1935,7 +1935,7 @@ public:
     CostsEndurance(QJsonObject json)
         : Modifier(json["name"].toString("CostsEndurance"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._howMuch  = json["howMuch"].toInt(0);
+                   json["adder"].toBool(false)) { v.mHowMuch  = json["howMuch"].toInt(0);
                                                 }
     ~CostsEndurance() override { }
 
@@ -1955,36 +1955,36 @@ public:
                                                               return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 4);
-                                                              if (v._howMuch > 0) res += Fraction(1, 4);
+                                                              if (v.mHowMuch > 0) res += Fraction(1, 4);
                                                               return res;
                                                             }
     void          restore() override                        { vars s = v;
-                                                              howMuch->setCurrentIndex(s._howMuch);
+                                                              howMuch->setCurrentIndex(s.mHowMuch);
                                                               v = s;
                                                             }
-    void          store() override                          { v._howMuch  = howMuch->currentIndex();
+    void          store() override                          { v.mHowMuch  = howMuch->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
-                                                              obj["howMuch"]  = v._howMuch;
+                                                              obj["howMuch"]  = v.mHowMuch;
                                                               return obj;
                                                             }
 
-    Fraction endChange() override { if (v._howMuch == 0) return Fraction(1, 2); return Fraction(1); }
+    Fraction endChange() override { if (v.mHowMuch == 0) return Fraction(1, 2); return Fraction(1); }
 
 private:
     struct vars {
-        int  _howMuch = 0;
+        int  mHowMuch = 0;
     } v;
 
     gsl::owner<QComboBox*> howMuch = nullptr;
 
     QString optOut(bool show) {
-        if (v._howMuch < 1) return "<incomplete>";
+        if (v.mHowMuch < 1) return "<incomplete>";
         Fraction mod = fraction(Modifier::NoStore);
         QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + "Costs Endurance (";
-        if (v._howMuch == 1) res += Fraction(1, 2).toString();
+        if (v.mHowMuch == 1) res += Fraction(1, 2).toString();
         else res += "Full";
         return res + " END)";
     }
@@ -2023,7 +2023,7 @@ public:
     CostsEnduranceToMaintain(QJsonObject json)
         : Modifier(json["name"].toString("CostsEnduranceToMaintain"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._howMuch  = json["howMuch"].toInt(0);
+                   json["adder"].toBool(false)) { v.mHowMuch  = json["howMuch"].toInt(0);
                                                 }
     ~CostsEnduranceToMaintain() override { }
 
@@ -2042,35 +2042,35 @@ public:
                                                               return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 4);
-                                                              if (v._howMuch > 0) res += Fraction(1, 4);
+                                                              if (v.mHowMuch > 0) res += Fraction(1, 4);
                                                               return res;
                                                             }
     void          restore() override                        { vars s = v;
-                                                              howMuch->setCurrentIndex(s._howMuch);
+                                                              howMuch->setCurrentIndex(s.mHowMuch);
                                                               v = s;
                                                             }
-    void          store() override                          { v._howMuch  = howMuch->currentIndex();
+    void          store() override                          { v.mHowMuch  = howMuch->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
-                                                              obj["howMuch"]  = v._howMuch;
+                                                              obj["howMuch"]  = v.mHowMuch;
                                                               return obj;
                                                             }
 
-    Fraction endChange() override { return v._howMuch == 0 ? Fraction(1, 2) : Fraction(1); }
+    Fraction endChange() override { return v.mHowMuch == 0 ? Fraction(1, 2) : Fraction(1); }
 
     struct vars {
-        int  _howMuch = 0;
+        int  mHowMuch = 0;
     } v;
 
     gsl::owner<QComboBox*> howMuch = nullptr;
 
     QString optOut(bool show) {
-        if (v._howMuch < 1) return "<incomplete>";
+        if (v.mHowMuch < 1) return "<incomplete>";
         Fraction mod = fraction(Modifier::NoStore);
         QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + "Costs Endurance To Maintain (";
-        if (v._howMuch == 1) res += Fraction(1, 2).toString();
+        if (v.mHowMuch == 1) res += Fraction(1, 2).toString();
         else res += "Full";
         return res + " END)";
     }
@@ -2312,7 +2312,7 @@ public:
     DelayedEffect(QJsonObject json)
         : Modifier(json["name"].toString("Delayed EffectꚚ"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._doubling = json["doubling"].toInt(0);
+                   json["adder"].toBool(false)) { v.mDoubling = json["doubling"].toInt(0);
                                                 }
     ~DelayedEffect() override { }
 
@@ -2329,38 +2329,38 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { doubling = createLineEdit(p, l, "Doublings of powers?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              doubling->setText(QString("%1").arg(s._doubling));
+                                                              doubling->setText(QString("%1").arg(s.mDoubling));
                                                               v = s;
                                                             }
-    void          store() override                          { v._doubling = doubling->text().toInt(nullptr);
+    void          store() override                          { v.mDoubling = doubling->text().toInt(nullptr);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["doubling"] = v._doubling;
+                                                              obj["doubling"] = v.mDoubling;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(0, 1);
-        if (v._doubling > 0) f = Fraction(1, 4) * v._doubling;
+        if (v.mDoubling > 0) f = Fraction(1, 4) * v.mDoubling;
         return f;
     }
 
 private:
     struct vars {
-        int _doubling = 0;
+        int mDoubling = 0;
     } v;
 
     gsl::owner<QLineEdit*> doubling = nullptr;
 
     QString optOut(bool show) {
-        if (v._doubling == 0) return "<incomplete>";
+        if (v.mDoubling == 0) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 QString("Delayed EffectꚚ: x%1").arg((int) pow(2.0, (double) v._doubling)); // NOLINT
+                 QString("Delayed EffectꚚ: x%1").arg((int) pow(2.0, (double) v.mDoubling)); // NOLINT
         return desc;
     }
 };
@@ -2446,7 +2446,7 @@ public:
     DifficultToDispel(QJsonObject json)
         : Modifier(json["name"].toString("Difficult To Dispel"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._doubling = json["doubling"].toInt(0);
+                   json["adder"].toBool(false)) { v.mDoubling = json["doubling"].toInt(0);
                                                 }
     ~DifficultToDispel() override { }
 
@@ -2463,38 +2463,38 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { doubling = createLineEdit(p, l, "Doublings of active points?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              doubling->setText(QString("%1").arg(s._doubling));
+                                                              doubling->setText(QString("%1").arg(s.mDoubling));
                                                               v = s;
                                                             }
-    void          store() override                          { v._doubling = doubling->text().toInt(nullptr);
+    void          store() override                          { v.mDoubling = doubling->text().toInt(nullptr);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
                                                               obj["adder"]    = isAdder();
-                                                              obj["doubling"] = v._doubling;
+                                                              obj["doubling"] = v.mDoubling;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(0, 1);
-        if (v._doubling > 0) f = Fraction(1, 4) * v._doubling;
+        if (v.mDoubling > 0) f = Fraction(1, 4) * v.mDoubling;
         return f;
     }
 
 private:
     struct vars {
-        int _doubling = 0;
+        int mDoubling = 0;
     } v;
 
     gsl::owner<QLineEdit*> doubling = nullptr;
 
     QString optOut(bool show) {
-        if (v._doubling == 0) return "<incomplete>";
+        if (v.mDoubling == 0) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 QString("Difficult To Dispel: x%1 Active Points").arg((int) pow(2.0, (double) v._doubling)); // NOLINT
+                 QString("Difficult To Dispel: x%1 Active Points").arg((int) pow(2.0, (double) v.mDoubling)); // NOLINT
         return desc;
     }
 };
@@ -2589,8 +2589,8 @@ public:
     DoesntWorkOnDefinedDamage(QJsonObject json)
         : Modifier(json["name"].toString("Doesn't Work On [Defined] Damage"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._doesnt = json["doesnt"].toString("");
-                                                  v._howCommon = json["howCommon"].toInt(0);
+                   json["adder"].toBool(false)) { v.mDoesnt = json["doesnt"].toString("");
+                                                  v.mHowCommon = json["howCommon"].toInt(0);
                                                 }
     ~DoesntWorkOnDefinedDamage() override { }
 
@@ -2609,41 +2609,41 @@ public:
                                                                                          std::mem_fn(&ModifierBase::index));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              doesnt->setText(s._doesnt);
-                                                              howCommon->setCurrentIndex(s._howCommon);
+                                                              doesnt->setText(s.mDoesnt);
+                                                              howCommon->setCurrentIndex(s.mHowCommon);
                                                               v = s;
                                                             }
-    void          store() override                          { v._doesnt    = doesnt->text();
-                                                              v._howCommon = howCommon->currentIndex();
+    void          store() override                          { v.mDoesnt    = doesnt->text();
+                                                              v.mHowCommon = howCommon->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]      = name();
                                                               obj["type"]      = type();
                                                               obj["adder"]     = isAdder();
-                                                              obj["doesnt"]    = v._doesnt;
-                                                              obj["howCommon"] = v._howCommon;
+                                                              obj["doesnt"]    = v.mDoesnt;
+                                                              obj["howCommon"] = v.mHowCommon;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        return v._howCommon * Fraction(1, 4);
+        return v.mHowCommon * Fraction(1, 4);
     }
 
 private:
     struct vars {
-        QString _doesnt = "";
-        int     _howCommon = 0;
+        QString mDoesnt = "";
+        int     mHowCommon = 0;
     } v;
 
     gsl::owner<QLineEdit*> doesnt = nullptr;
     gsl::owner<QComboBox*> howCommon = nullptr;
 
     QString optOut(bool show) {
-        if (v._doesnt.isEmpty() || v._howCommon < 1) return "<incomplete>";
+        if (v.mDoesnt.isEmpty() || v.mHowCommon < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Doesn't Work On " + v._doesnt;
+                 "Doesn't Work On " + v.mDoesnt;
         return desc;
     }
 };
@@ -2700,8 +2700,8 @@ public:
     ExpandedEffect(QJsonObject json)
         : Modifier(json["name"].toString("Expanded Effect▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._effects = json["effects"].toString("");
-                                                  v._howMany = json["howMany"].toInt(0);
+                   json["adder"].toBool(false)) { v.mEffects = json["effects"].toString("");
+                                                  v.mHowMany = json["howMany"].toInt(0);
                                                 }
     ~ExpandedEffect() override { }
 
@@ -2720,41 +2720,41 @@ public:
                                                                                        std::mem_fn(&ModifierBase::index));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              effects->setText(s._effects);
-                                                              howMany->setCurrentIndex(s._howMany);
+                                                              effects->setText(s.mEffects);
+                                                              howMany->setCurrentIndex(s.mHowMany);
                                                               v = s;
                                                             }
-    void          store() override                          { v._effects = effects->text();
-                                                              v._howMany = howMany->currentIndex();
+    void          store() override                          { v.mEffects = effects->text();
+                                                              v.mHowMany = howMany->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["effects"] = v._effects;
-                                                              obj["howMany"] = v._howMany;
+                                                              obj["effects"] = v.mEffects;
+                                                              obj["howMany"] = v.mHowMany;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        return (v._howMany) * Fraction(1, 2);
+        return (v.mHowMany) * Fraction(1, 2);
     }
 
 private:
     struct vars {
-        QString _effects = "";
-        int     _howMany = 0;
+        QString mEffects = "";
+        int     mHowMany = 0;
     } v;
 
     gsl::owner<QLineEdit*> effects = nullptr;
     gsl::owner<QComboBox*> howMany = nullptr;
 
     QString optOut(bool show) {
-        if (v._effects.isEmpty() || v._howMany < 1) return "<incomplete>";
+        if (v.mEffects.isEmpty() || v.mHowMany < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Expanded Effect▲: " + v._effects;
+                 "Expanded Effect▲: " + v.mEffects;
         return desc;
     }
 };
@@ -2773,9 +2773,9 @@ public:
     ExtraTime(QJsonObject json)
         : Modifier(json["name"].toString("Extra Time"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._time     = json["time"].toInt(-1);
-                                                  v._lockout  = json["lockout"].toBool(false);
-                                                  v._activate = json["activate"].toBool(false);
+                   json["adder"].toBool(false)) { v.mTime     = json["time"].toInt(-1);
+                                                  v.mLockout  = json["lockout"].toBool(false);
+                                                  v.mActivate = json["activate"].toBool(false);
                                                 }
     ~ExtraTime() override { }
 
@@ -2797,44 +2797,44 @@ public:
                                                               activate = createCheckBox(p, l, "Only to Activate", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              time->setCurrentIndex(s._time);
-                                                              lockout->setChecked(s._lockout);
-                                                              activate->setChecked(s._activate);
+                                                              time->setCurrentIndex(s.mTime);
+                                                              lockout->setChecked(s.mLockout);
+                                                              activate->setChecked(s.mActivate);
                                                               v = s;
                                                             }
-    void          store() override                          { v._time     = time->currentIndex();
-                                                              v._lockout  = lockout->isChecked();
-                                                              v._activate = activate->isChecked();
+    void          store() override                          { v.mTime     = time->currentIndex();
+                                                              v.mLockout  = lockout->isChecked();
+                                                              v.mActivate = activate->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
                                                               obj["adder"]    = isAdder();
-                                                              obj["time"]     = v._time;
-                                                              obj["lockout"]  = v._lockout;
-                                                              obj["activate"] = v._activate;
+                                                              obj["time"]     = v.mTime;
+                                                              obj["lockout"]  = v.mLockout;
+                                                              obj["activate"] = v.mActivate;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._time <= 5) switch (v._time) { // NOLINT
+        if (v.mTime <= 5) switch (v.mTime) { // NOLINT
         case 2:
         case 3: f = Fraction(1, 2);    break;
         case 4: f = Fraction(3, 4);    break;
         case 5: f = Fraction(1, Fraction(1, 4)); break; // NOLINT
-        } else f = Fraction(1) + (v._time - 5) * Fraction(1, 2); // NOLINT
-        if (v._lockout) f += Fraction(1, 4);
-        if (v._activate) f = f / 2;
+        } else f = Fraction(1) + (v.mTime - 5) * Fraction(1, 2); // NOLINT
+        if (v.mLockout) f += Fraction(1, 4);
+        if (v.mActivate) f = f / 2;
         return f;
     }
 
 private:
     struct vars {
-        int _time = 0;
-        int _lockout = 0;
-        int _activate = 0;
+        int mTime = 0;
+        int mLockout = 0;
+        int mActivate = 0;
     } v;
 
     gsl::owner<QComboBox*> time = nullptr;
@@ -2845,13 +2845,13 @@ private:
         static QStringList extra { "", "Delayed Phase", "Extra Segment", "Full Phase", "Extra Phase",
                                    "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
                                    "Day", "Week", "Month", "Season", "Year", "5 Years" };
-        if (v._time < 1) return "<incomplete>";
+        if (v.mTime < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Extra Time: " + extra[v._time];
+                 "Extra Time: " + extra[v.mTime];
         QString sep = " (";
-        if (v._lockout) { desc += sep + "Cannot Activate Other Powers"; sep = "; "; }
-        if (v._activate) { desc += sep + "Only to Activate"; sep = "; "; }
+        if (v.mLockout) { desc += sep + "Cannot Activate Other Powers"; sep = "; "; }
+        if (v.mActivate) { desc += sep + "Only to Activate"; sep = "; "; }
         if (sep == "; ") desc += ")";
         return desc;
     }
@@ -2871,7 +2871,7 @@ public:
     EyeContactRequired(QJsonObject json)
         : Modifier(json["name"].toString("Eye Contact Required"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._throughout  = json["throughout"].toBool(false);
+                   json["adder"].toBool(false)) { v.mThroughout  = json["throughout"].toBool(false);
                                                 }
     ~EyeContactRequired() override { }
 
@@ -2888,29 +2888,29 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { throughout = createCheckBox(p, l, "Must Keep Eye Contact Throuhgout", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              throughout->setChecked(s._throughout);
+                                                              throughout->setChecked(s.mThroughout);
                                                               v = s;
                                                             }
-    void          store() override                          { v._throughout = throughout->isChecked();
+    void          store() override                          { v.mThroughout = throughout->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
                                                               obj["adder"]    = isAdder();
-                                                              obj["throughout"] = v._throughout;
+                                                              obj["throughout"] = v.mThroughout;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 2);
-        if (v._throughout) f = Fraction(1, 1);
+        if (v.mThroughout) f = Fraction(1, 1);
         return f;
     }
 
 private:
     struct vars {
-        bool _throughout = false;
+        bool mThroughout = false;
     } v;
 
     gsl::owner<QCheckBox*> throughout = nullptr;
@@ -2919,7 +2919,7 @@ private:
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Eye Contact Required";
-        if (v._throughout) desc += "(Throughout)";
+        if (v.mThroughout) desc += "(Throughout)";
         return desc;
     }
 };
@@ -2938,12 +2938,12 @@ public:
     Focus(QJsonObject json)
         : Modifier(json["name"].toString("Focus"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._what          = json["what"].toString();
-                                                  v._type          = json["Type"].toInt(-1);
-                                                  v._mobility      = json["mobility"].toInt(0);
-                                                  v._expendability = json["expendability"].toInt(0);
-                                                  v._durability    = json["durability"].toInt(0);
-                                                  v._universal     = json["universal"].toBool(false);
+                   json["adder"].toBool(false)) { v.mWhat          = json["what"].toString();
+                                                  v.mType          = json["Type"].toInt(-1);
+                                                  v.mMobility      = json["mobility"].toInt(0);
+                                                  v.mExpendability = json["expendability"].toInt(0);
+                                                  v.mDurability    = json["durability"].toInt(0);
+                                                  v.mUniversal     = json["universal"].toBool(false);
                                                 }
     ~Focus() override { }
 
@@ -2971,31 +2971,31 @@ public:
                                                               universal     = createCheckBox(p, l, "Universal Focus", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              what->setText(s._what);
-                                                              ntype->setCurrentIndex(s._type);
-                                                              mobility->setCurrentIndex(s._mobility);
-                                                              expendability->setCurrentIndex(s._expendability);
-                                                              durability->setCurrentIndex(s._durability);
-                                                              universal->setChecked(s._universal);
+                                                              what->setText(s.mWhat);
+                                                              ntype->setCurrentIndex(s.mType);
+                                                              mobility->setCurrentIndex(s.mMobility);
+                                                              expendability->setCurrentIndex(s.mExpendability);
+                                                              durability->setCurrentIndex(s.mDurability);
+                                                              universal->setChecked(s.mUniversal);
                                                               v = s;
                                                             }
-    void          store() override                          { v._what          = what->text();
-                                                              v._type          = ntype->currentIndex();
-                                                              v._mobility      = mobility->currentIndex();
-                                                              v._expendability = expendability->currentIndex();
-                                                              v._durability    = durability->currentIndex();
-                                                              v._universal     = universal->isChecked();
+    void          store() override                          { v.mWhat          = what->text();
+                                                              v.mType          = ntype->currentIndex();
+                                                              v.mMobility      = mobility->currentIndex();
+                                                              v.mExpendability = expendability->currentIndex();
+                                                              v.mDurability    = durability->currentIndex();
+                                                              v.mUniversal     = universal->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]          = name();
                                                               obj["type"]          = type();
-                                                              obj["what"]          = v._what;
+                                                              obj["what"]          = v.mWhat;
                                                               obj["adder"]         = isAdder();
-                                                              obj["Type"]          = v._type;
-                                                              obj["mobiliity"]     = v._mobility;
-                                                              obj["expendability"] = v._expendability;
-                                                              obj["durability"]    = v._durability;
-                                                              obj["universal"]     = v._universal;
+                                                              obj["Type"]          = v.mType;
+                                                              obj["mobiliity"]     = v.mMobility;
+                                                              obj["expendability"] = v.mExpendability;
+                                                              obj["durability"]    = v.mDurability;
+                                                              obj["universal"]     = v.mUniversal;
                                                               return obj;
                                                             }
 
@@ -3005,18 +3005,18 @@ public:
         static QList<Fraction> Mobility      { { 0, 1 }, { 0, 1 }, { 1, 2 }, { 1, 1 }, { 1, 4 } };
         static QList<Fraction> Expendability { { 0, 1 }, { 0, 1 }, { 1, 4 }, { 1, 2 }, { 1, 1 } };
         static QList<Fraction> Durability    { { 0, 1 }, { 0, 1 }, { 1, 4 }, { 0, 1 }, { 0, 1 } };
-        try { return Type[v._type + 1] + Mobility[v._mobility + 1] + Expendability[v._expendability + 1] + Durability[v._durability + 1]; }
+        try { return Type[v.mType + 1] + Mobility[v.mMobility + 1] + Expendability[v.mExpendability + 1] + Durability[v.mDurability + 1]; }
         catch (...) { return Fraction(0); }
     }
 
 private:
     struct vars {
-        QString _what;
-        int     _type;
-        int     _mobility;
-        int     _expendability;
-        int     _durability;
-        bool    _universal;
+        QString mWhat;
+        int     mType;
+        int     mMobility;
+        int     mExpendability;
+        int     mDurability;
+        bool    mUniversal;
     } v {};
 
     gsl::owner<QLineEdit*> what = nullptr;
@@ -3027,18 +3027,18 @@ private:
     gsl::owner<QCheckBox*> universal = nullptr;
 
     QString optOut(bool show) {
-        if (v._what.isEmpty() || v._type < 0) return "<incomplete>";
+        if (v.mWhat.isEmpty() || v.mType < 0) return "<incomplete>";
         QStringList Type { "IIF", "IAF", "OIF", "OAF" };
         QStringList Mobiillity { "", "Bulky", "Immobile", "Arrangement" };
         QStringList Expendability { "", "Difficult To Obtain", "Very Difficult To Obtain", "Extremely Difficult To Obtain" };
         QStringList Durability { "", "Fragile", "Durable", "Unbreakable" };
         Fraction f = fraction(Modifier::NoStore);
         try {
-            QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + Type[v._type] + " (" + v._what;
+            QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + Type[v.mType] + " (" + v.mWhat;
             QString sep = "; ";
-            if (v._mobility > 0) desc += sep + Mobiillity[v._mobility];
-            if (v._expendability > 0) desc += sep + Expendability[v._expendability];
-            if (v._durability > 0) desc += sep + Durability[v._durability];
+            if (v.mMobility > 0) desc += sep + Mobiillity[v.mMobility];
+            if (v.mExpendability > 0) desc += sep + Expendability[v.mExpendability];
+            if (v.mDurability > 0) desc += sep + Durability[v.mDurability];
             desc += ")";
             return desc;
         } catch (...) { return ""; }
@@ -3059,8 +3059,8 @@ public:
     Gestures(QJsonObject json)
         : Modifier(json["name"].toString("Gestures"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._throughout  = json["throughout"].toBool(false);
-                                                  v._bothHands   = json["bothHands"].toBool(false);
+                   json["adder"].toBool(false)) { v.mThroughout  = json["throughout"].toBool(false);
+                                                  v.mBothHands   = json["bothHands"].toBool(false);
                                                 }
     ~Gestures() override { }
 
@@ -3078,34 +3078,34 @@ public:
                                                               throughout = createCheckBox(p, l, "Must Gesture Throuhgout", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              bothHands->setChecked(s._bothHands);
-                                                              throughout->setChecked(s._throughout);
+                                                              bothHands->setChecked(s.mBothHands);
+                                                              throughout->setChecked(s.mThroughout);
                                                               v = s;
                                                             }
-    void          store() override                          { v._throughout = throughout->isChecked();
-                                                              v._bothHands = bothHands->isChecked();
+    void          store() override                          { v.mThroughout = throughout->isChecked();
+                                                              v.mBothHands = bothHands->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]       = name();
                                                               obj["type"]       = type();
                                                               obj["adder"]      = isAdder();
-                                                              obj["throughout"] = v._throughout;
-                                                              obj["bothHands"]  = v._bothHands;
+                                                              obj["throughout"] = v.mThroughout;
+                                                              obj["bothHands"]  = v.mBothHands;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._bothHands) f = Fraction(1, 2);
-        if (v._throughout) f *= 2;
+        if (v.mBothHands) f = Fraction(1, 2);
+        if (v.mThroughout) f *= 2;
         return f;
     }
 
 private:
     struct vars {
-        bool _bothHands;
-        bool _throughout;
+        bool mBothHands;
+        bool mThroughout;
     } v {};
 
     gsl::owner<QCheckBox*> bothHands = nullptr;
@@ -3116,8 +3116,8 @@ private:
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Gesstures";
         QString sep = " (";
-        if (v._bothHands) { desc += sep + "Both Hands"; sep = "; "; }
-        if (v._throughout) { desc += sep + "Throughout"; sep = "; "; }
+        if (v.mBothHands) { desc += sep + "Both Hands"; sep = "; "; }
+        if (v.mThroughout) { desc += sep + "Throughout"; sep = "; "; }
         if (sep == "; ") desc += ")";
         return desc;
     }
@@ -3156,8 +3156,8 @@ public:
     HoleInTheMiddle(QJsonObject json)
         : Modifier(json["name"].toString("Hole In The Middle"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._changeable = json["changeable"].toBool(false);
-                                                  v._shape      = json["shape"].toString();
+                   json["adder"].toBool(false)) { v.mChangeable = json["changeable"].toBool(false);
+                                                  v.mShape      = json["shape"].toString();
                                                 }
     ~HoleInTheMiddle() override { }
 
@@ -3174,51 +3174,51 @@ public:
                                                               shape      = createLineEdit(p, l, "Hole shape?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              changeable->setChecked(s._changeable);
-                                                              shape->setText(s._shape);
+                                                              changeable->setChecked(s.mChangeable);
+                                                              shape->setText(s.mShape);
                                                               v = s;
                                                             }
-    void          store() override                          { v._changeable = changeable->isChecked();
-                                                              v._shape      = shape->text();
+    void          store() override                          { v.mChangeable = changeable->isChecked();
+                                                              v.mShape      = shape->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]       = name();
                                                               obj["type"]       = type();
                                                               obj["adder"]      = isAdder();
-                                                              obj["changeable"] = v._changeable;
-                                                              obj["shape"]      = v._shape;
+                                                              obj["changeable"] = v.mChangeable;
+                                                              obj["shape"]      = v.mShape;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._changeable) f = Fraction(1, 2);
+        if (v.mChangeable) f = Fraction(1, 2);
         return f;
     }
 
 private:
     struct vars {
-        bool    _changeable;
-        QString _shape;
+        bool    mChangeable;
+        QString mShape;
     } v {};
 
     gsl::owner<QCheckBox*> changeable = nullptr;
     gsl::owner<QLineEdit*> shape = nullptr;
 
     QString optOut(bool show) {
-        if (!v._changeable && v._shape.isEmpty()) return "<incomplete>";
+        if (!v.mChangeable && v.mShape.isEmpty()) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Hole In The Middle";
-        if (v._changeable) desc += " (Any Shape)";
-        else desc += " (" + v._shape + ")";
+        if (v.mChangeable) desc += " (Any Shape)";
+        else desc += " (" + v.mShape + ")";
         return desc;
     }
 
     void checked(bool) override {
         store();
-        shape->setEnabled(!v._changeable);
+        shape->setEnabled(!v.mChangeable);
         ModifiersDialog::ref().updateForm();
     }
 };
@@ -3256,7 +3256,7 @@ public:
     ImprovedNoncombatMovement(QJsonObject json)
         : Modifier(json["name"].toString("Improved Noncombat Movement"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(true)) { v._doubling  = json["doubling"].toInt(0);
+                   json["adder"].toBool(true)) { v.mDoubling  = json["doubling"].toInt(0);
                                                }
     ~ImprovedNoncombatMovement() override { }
 
@@ -3273,29 +3273,29 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { dbling = createLineEdit(p, l, "How many doublings?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              dbling->setText(QString("%1").arg(s._doubling));
+                                                              dbling->setText(QString("%1").arg(s.mDoubling));
                                                               v = s;
                                                             }
-    void          store() override                          { v._doubling = dbling->text().toInt();
+    void          store() override                          { v.mDoubling = dbling->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
                                                               obj["adder"]    = isAdder();
-                                                              obj["doubling"] = v._doubling;
+                                                              obj["doubling"] = v.mDoubling;
                                                               return obj;
                                                             }
 
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return 5_cp * v._doubling; // NOLINT
+        return 5_cp * v.mDoubling; // NOLINT
     }
 
-    int doubling() override { return v._doubling; }
+    int doubling() override { return v.mDoubling; }
 
 private:
     struct vars {
-        int _doubling;
+        int mDoubling;
     } v {};
 
     gsl::owner<QLineEdit*> dbling = nullptr;
@@ -3303,7 +3303,7 @@ private:
     QString optOut(bool show) {
         Points p(points(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((p < 0) ? "" : "+") + QString("%1").arg(p.points) + ") " : "") +
-                 "Improved Noncombat Movement (" + QString("x%1").arg(2 * (int) pow(2, v._doubling)) + ")";
+                 "Improved Noncombat Movement (" + QString("x%1").arg(2 * (int) pow(2, v.mDoubling)) + ")";
         return desc;
     }
 };
@@ -3322,7 +3322,7 @@ public:
     Inaccurate(QJsonObject json)
         : Modifier(json["name"].toString("Inaccurate"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._zero  = json["zero"].toBool(false);
+                   json["adder"].toBool(false)) { v.mZero  = json["zero"].toBool(false);
                                                 }
     ~Inaccurate() override { }
 
@@ -3339,29 +3339,29 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { zero = createCheckBox(p, l, "0 OCV", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              zero->setChecked(s._zero);
+                                                              zero->setChecked(s.mZero);
                                                               v = s;
                                                             }
-    void          store() override                          { v._zero = zero->isChecked();
+    void          store() override                          { v.mZero = zero->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["zero"]  = v._zero;
+                                                              obj["zero"]  = v.mZero;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._zero) f = Fraction(1, 2);
+        if (v.mZero) f = Fraction(1, 2);
         return f;
     }
 
 private:
     struct vars {
-        bool _zero;
+        bool mZero;
     } v {};
 
     gsl::owner<QCheckBox*> zero = nullptr;
@@ -3370,7 +3370,7 @@ private:
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Inaccurate";
-        if (v._zero) desc += " (0 OCV, Range Mods start at 6m)";
+        if (v.mZero) desc += " (0 OCV, Range Mods start at 6m)";
         else { Fraction(1, 2); desc += " (" + f.toString() + " OCV, Range Mods start at 4m)"; }
         return desc;
     }
@@ -3390,7 +3390,7 @@ public:
     Incantations(QJsonObject json)
         : Modifier(json["name"].toString("Incantations"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._throughout = json["throughout"].toBool(false);
+                   json["adder"].toBool(false)) { v.mThroughout = json["throughout"].toBool(false);
                                                 }
     ~Incantations() override { }
 
@@ -3407,29 +3407,29 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { throughout = createCheckBox(p, l, "Must Incant Throuhgout", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              throughout->setChecked(s._throughout);
+                                                              throughout->setChecked(s.mThroughout);
                                                               v = s;
                                                             }
-    void          store() override                          { v._throughout = throughout->isChecked();
+    void          store() override                          { v.mThroughout = throughout->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]       = name();
                                                               obj["type"]       = type();
                                                               obj["adder"]      = isAdder();
-                                                              obj["throughout"] = v._throughout;
+                                                              obj["throughout"] = v.mThroughout;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._throughout) f *= 2;
+        if (v.mThroughout) f *= 2;
         return f;
     }
 
 private:
     struct vars {
-        bool _throughout;
+        bool mThroughout;
     } v {};
 
     gsl::owner<QCheckBox*> throughout = nullptr;
@@ -3439,7 +3439,7 @@ private:
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Incantations";
         QString sep = " (";
-        if (v._throughout) { desc += sep + "Throughout"; sep = "; "; }
+        if (v.mThroughout) { desc += sep + "Throughout"; sep = "; "; }
         if (sep == "; ") desc += ")";
         return desc;
     }
@@ -3459,9 +3459,9 @@ public:
     IncreasedENDCost(QJsonObject json)
         : Modifier(json["name"].toString("Increased END Cost"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._amount        = json["amount"].toInt(-1);
-                                                  v._circumstances = json["circumstances"].toInt(0);
-                                                  v._what          = json["what"].toString();
+                   json["adder"].toBool(false)) { v.mAmount        = json["amount"].toInt(-1);
+                                                  v.mCircumstances = json["circumstances"].toInt(0);
+                                                  v.mWhat          = json["what"].toString();
                                                 }
     ~IncreasedENDCost() override { }
 
@@ -3481,42 +3481,42 @@ public:
                                                               what          = createLineEdit(p, l, "What circumstances?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              amount->setCurrentIndex(s._amount);
-                                                              circumstances->setCurrentIndex(s._circumstances);
+                                                              amount->setCurrentIndex(s.mAmount);
+                                                              circumstances->setCurrentIndex(s.mCircumstances);
                                                               v = s;
                                                             }
-    void          store() override                          { v._amount        = amount->currentIndex();
-                                                              v._circumstances = circumstances->currentIndex();
+    void          store() override                          { v.mAmount        = amount->currentIndex();
+                                                              v.mCircumstances = circumstances->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]          = name();
                                                               obj["type"]          = type();
                                                               obj["adder"]         = isAdder();
-                                                              obj["amount"]        = v._amount;
-                                                              obj["circumstances"] = v._circumstances;
-                                                              obj["what"]          = v._what;
+                                                              obj["amount"]        = v.mAmount;
+                                                              obj["circumstances"] = v.mCircumstances;
+                                                              obj["what"]          = v.mWhat;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f;
-        if (v._circumstances < 0) return f;
-        if (v._amount < 8) f = Fraction(1, 2) * v._amount; // NOLINT
-        else if (v._amount == 8) f = Fraction(3, Fraction(1, 2)); // NOLINT
+        if (v.mCircumstances < 0) return f;
+        if (v.mAmount < 8) f = Fraction(1, 2) * v.mAmount; // NOLINT
+        else if (v.mAmount == 8) f = Fraction(3, Fraction(1, 2)); // NOLINT
         else f = Fraction(4);
-        f -= v._circumstances * Fraction(1, 4);
+        f -= v.mCircumstances * Fraction(1, 4);
         if (f < Fraction(0)) f = Fraction(0);
         return f;
     }
 
-    Fraction endChange() override { return Fraction(v._amount + 1); }
+    Fraction endChange() override { return Fraction(v.mAmount + 1); }
 
 private:
     struct vars {
-        int     _amount;
-        int     _circumstances;
-        QString _what;
+        int     mAmount;
+        int     mCircumstances;
+        QString mWhat;
     } v {};
 
     gsl::owner<QComboBox*> amount = nullptr;
@@ -3524,12 +3524,12 @@ private:
     gsl::owner<QLineEdit*> what = nullptr;
 
     QString optOut(bool show) {
-        if (v._amount < 1) return "<incomplete>";
+        if (v.mAmount < 1) return "<incomplete>";
         QStringList Amount { "", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9", "x10" };
         QStringList Circumstances { "", "Very Common", "Common", "Uncommon" };
         Fraction f = fraction(Modifier::NoStore);
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Increased END Cost (" + Amount[v._amount];
-        if (Circumstances[v._circumstances] != "") desc += "; " + Circumstances[v._circumstances] + ((v._circumstances != 0) ? ": " + v._what : "");
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Increased END Cost (" + Amount[v.mAmount];
+        if (Circumstances[v.mCircumstances] != "") desc += "; " + Circumstances[v.mCircumstances] + ((v.mCircumstances != 0) ? ": " + v.mWhat : "");
         return desc + ")";
     }
 
@@ -3555,7 +3555,7 @@ public:
     IncreasedMass(QJsonObject json)
         : Modifier(json["name"].toString("Increased Mass"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._doubling  = json["doubling"].toInt(0);
+                   json["adder"].toBool(false)) { v.mDoubling  = json["doubling"].toInt(0);
                                                 }
     ~IncreasedMass() override { }
 
@@ -3572,27 +3572,27 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              doubling->setText(QString("%1").arg(s._doubling));
+                                                              doubling->setText(QString("%1").arg(s.mDoubling));
                                                               v = s;
                                                             }
-    void          store() override                          { v._doubling = doubling->text().toInt();
+    void          store() override                          { v.mDoubling = doubling->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
                                                               obj["adder"]    = isAdder();
-                                                              obj["doubling"] = v._doubling;
+                                                              obj["doubling"] = v.mDoubling;
                                                               return obj;
                                                             }
 
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return 5_cp * v._doubling; // NOLINT
+        return 5_cp * v.mDoubling; // NOLINT
     }
 
 private:
     struct vars {
-        int _doubling;
+        int mDoubling;
     } v {};
 
     gsl::owner<QLineEdit*> doubling = nullptr;
@@ -3600,7 +3600,7 @@ private:
     QString optOut(bool show) {
         Points p(points(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((p < 0) ? "" : "+") + QString("%1").arg(p.points) + ") " : "") +
-                 "Increased Mass (" + QString("x%1, %2 kg").arg((int) pow(2, v._doubling)).arg(200 * (int) pow(2, v._doubling)) + ")"; // NOLINT
+                 "Increased Mass (" + QString("x%1, %2 kg").arg((int) pow(2, v.mDoubling)).arg(200 * (int) pow(2, v.mDoubling)) + ")"; // NOLINT
         return desc;
     }
 };
@@ -3619,7 +3619,7 @@ public:
     IncreasedMaximumEffect(QJsonObject json)
         : Modifier(json["name"].toString("Increased Maximum Effect"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._doubling  = json["doubling"].toInt(0);
+                   json["adder"].toBool(false)) { v.mDoubling  = json["doubling"].toInt(0);
                                                 }
     ~IncreasedMaximumEffect() override { }
 
@@ -3636,27 +3636,27 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              doubling->setText(QString("%1").arg(s._doubling));
+                                                              doubling->setText(QString("%1").arg(s.mDoubling));
                                                               v = s;
                                                             }
-    void          store() override                          { v._doubling = doubling->text().toInt();
+    void          store() override                          { v.mDoubling = doubling->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
                                                               obj["adder"]    = isAdder();
-                                                              obj["doubling"] = v._doubling;
+                                                              obj["doubling"] = v.mDoubling;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        return Fraction(1, 4) * v._doubling;
+        return Fraction(1, 4) * v.mDoubling;
     }
 
 private:
     struct vars {
-        int _doubling;
+        int mDoubling;
     } v {};
 
     gsl::owner<QLineEdit*> doubling = nullptr;
@@ -3664,7 +3664,7 @@ private:
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Increased Maximum Effect (" + QString("x%1").arg((int) pow(2, v._doubling)) + ")";
+                 "Increased Maximum Effect (" + QString("x%1").arg((int) pow(2, v.mDoubling)) + ")";
         return desc;
     }
 };
@@ -3683,7 +3683,7 @@ public:
     IncreasedMaximumRange(QJsonObject json)
         : Modifier(json["name"].toString("Increased Maximum Range"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._doubling  = json["doubling"].toInt(0);
+                   json["adder"].toBool(false)) { v.mDoubling  = json["doubling"].toInt(0);
                                                 }
     ~IncreasedMaximumRange() override { }
 
@@ -3700,27 +3700,27 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              doubling->setText(QString("%1").arg(s._doubling));
+                                                              doubling->setText(QString("%1").arg(s.mDoubling));
                                                               v = s;
                                                             }
-    void          store() override                          { v._doubling = doubling->text().toInt();
+    void          store() override                          { v.mDoubling = doubling->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
                                                               obj["adder"]    = isAdder();
-                                                              obj["doubling"] = v._doubling;
+                                                              obj["doubling"] = v.mDoubling;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        return Fraction(1, 4) * v._doubling;
+        return Fraction(1, 4) * v.mDoubling;
     }
 
 private:
     struct vars {
-        int _doubling;
+        int mDoubling;
     } v {};
 
     gsl::owner<QLineEdit*> doubling = nullptr;
@@ -3728,7 +3728,7 @@ private:
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Increased Maximum Range (" + QString("x%1").arg((int) pow(2, v._doubling)) + ")";
+                 "Increased Maximum Range (" + QString("x%1").arg((int) pow(2, v.mDoubling)) + ")";
         return desc;
     }
 };
@@ -3747,9 +3747,9 @@ public:
     Indirect(QJsonObject json)
         : Modifier(json["name"].toString("Indirect"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._location  = json["location"].toInt(0);
-                                                  v._locAndDir = json["locAndDir"].toString();
-                                                  v._direction = json["mobility"].toInt(0);
+                   json["adder"].toBool(false)) { v.mPowerSource  = json["location"].toInt(0);
+                                                  v.mLocAndDir = json["locAndDir"].toString();
+                                                  v.mDirection = json["mobility"].toInt(0);
                                                 }
     ~Indirect() override { }
 
@@ -3771,38 +3771,38 @@ public:
                                                                                                                             "Variable" }, std::mem_fn(&ModifierBase::index));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              location->setCurrentIndex(s._location);
-                                                              locAndDir->setText(s._locAndDir);
-                                                              direction->setCurrentIndex(s._direction);
+                                                              location->setCurrentIndex(s.mPowerSource);
+                                                              locAndDir->setText(s.mLocAndDir);
+                                                              direction->setCurrentIndex(s.mDirection);
                                                               v = s;
                                                             }
-    void          store() override                          { v._location  = location->currentIndex();
-                                                              v._locAndDir = locAndDir->text();
-                                                              v._direction = direction->currentIndex();
+    void          store() override                          { v.mPowerSource  = location->currentIndex();
+                                                              v.mLocAndDir = locAndDir->text();
+                                                              v.mDirection = direction->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]      = name();
                                                               obj["type"]      = type();
                                                               obj["adder"]     = isAdder();
-                                                              obj["location"]  = v._location;
-                                                              obj["locAndDir"] = v._locAndDir;
-                                                              obj["direction"] = v._direction;
+                                                              obj["location"]  = v.mPowerSource;
+                                                              obj["locAndDir"] = v.mLocAndDir;
+                                                              obj["direction"] = v.mDirection;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f;
-        if (v._location < 0 || v._direction < 0) return f;
-        f = Fraction(1, 4) * (v._location + v._direction);
+        if (v.mPowerSource < 0 || v.mDirection < 0) return f;
+        f = Fraction(1, 4) * (v.mPowerSource + v.mDirection);
         return f;
     }
 
 private:
     struct vars {
-        int     _location;
-        QString _locAndDir;
-        int     _direction;
+        int     mPowerSource;
+        QString mLocAndDir;
+        int     mDirection;
     } v {};
 
     gsl::owner<QComboBox*> location = nullptr;
@@ -3810,14 +3810,14 @@ private:
     gsl::owner<QComboBox*> direction = nullptr;
 
     QString optOut(bool show) {
-        if (v._location < 0 || v._direction < 0 || ((v._location == 2 || v._direction == 2) && v._locAndDir.isEmpty())) return "<incomplete>";
+        if (v.mPowerSource < 0 || v.mDirection < 0 || ((v.mPowerSource == 2 || v.mDirection == 2) && v.mLocAndDir.isEmpty())) return "<incomplete>";
         QStringList Location { "Always The Character", "Always the Same", "Variable" };
         QStringList Direction { "Directly from Source to Target", "Always the Same", "Variable" };
         Fraction f = fraction(Modifier::NoStore);
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Indirect (" + Location[v._location];
-        if (v._location == 1 && v._direction != 2) desc += ", " + v._locAndDir;
-        desc += "; " + Direction[v._direction];
-        if (v._location == 2 || v._direction == 2) desc += ", " + v._locAndDir;
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Indirect (" + Location[v.mPowerSource];
+        if (v.mPowerSource == 1 && v.mDirection != 2) desc += ", " + v.mLocAndDir;
+        desc += "; " + Direction[v.mDirection];
+        if (v.mPowerSource == 2 || v.mDirection == 2) desc += ", " + v.mLocAndDir;
         return desc + ")";
     }
 
@@ -3881,10 +3881,10 @@ public:
     InvisiblePowerEffects(QJsonObject json)
         : Modifier(json["name"].toString("Invisible Power Effects"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._inobvious = json["inobvious"].toBool(false);
-                                                  v._how       = json["how"].toInt(0);
-                                                  v._sense     = json["sense"].toString();
-                                                  v._effect    = json["Effect"].toInt(0);
+                   json["adder"].toBool(false)) { v.mInobvious = json["inobvious"].toBool(false);
+                                                  v.mHow       = json["how"].toInt(0);
+                                                  v.mSense     = json["sense"].toString();
+                                                  v.mEffect    = json["Effect"].toInt(0);
                                                 }
     ~InvisiblePowerEffects() override { }
 
@@ -3911,44 +3911,44 @@ public:
                                                                                                                    std::mem_fn(&ModifierBase::index));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              inobvious->setChecked(s._inobvious);
-                                                              how->setCurrentIndex(s._how);
-                                                              sense->setText(s._sense);
-                                                              effect->setCurrentIndex(s._effect);
+                                                              inobvious->setChecked(s.mInobvious);
+                                                              how->setCurrentIndex(s.mHow);
+                                                              sense->setText(s.mSense);
+                                                              effect->setCurrentIndex(s.mEffect);
                                                               v = s;
                                                             }
-    void          store() override                          { v._inobvious = inobvious->isChecked();
-                                                              v._how       = how->currentIndex();
-                                                              v._sense     = sense->text();
-                                                              v._effect    = effect->currentIndex();
+    void          store() override                          { v.mInobvious = inobvious->isChecked();
+                                                              v.mHow       = how->currentIndex();
+                                                              v.mSense     = sense->text();
+                                                              v.mEffect    = effect->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]      = name();
                                                               obj["type"]      = type();
                                                               obj["adder"]     = isAdder();
-                                                              obj["inobvious"] = v._inobvious;
-                                                              obj["how"]       = v._how;
-                                                              obj["sense"]     = v._sense;
-                                                              obj["effect"]    = v._effect;
+                                                              obj["inobvious"] = v.mInobvious;
+                                                              obj["how"]       = v.mHow;
+                                                              obj["sense"]     = v.mSense;
+                                                              obj["effect"]    = v.mEffect;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(0, 1);
-        if (v._effect > 0) f = (v._effect % 2 != 0) ? Fraction(1, 4) : Fraction(1, 2);
-        if (v._inobvious) f += Fraction(1, 4) * (v._how);
-        else if (v._how > 2) f += Fraction(1, 2) * (v._how - 3);
-        else f += Fraction(1, 4) * v._how;
+        if (v.mEffect > 0) f = (v.mEffect % 2 != 0) ? Fraction(1, 4) : Fraction(1, 2);
+        if (v.mInobvious) f += Fraction(1, 4) * (v.mHow);
+        else if (v.mHow > 2) f += Fraction(1, 2) * (v.mHow - 3);
+        else f += Fraction(1, 4) * v.mHow;
         return f;
     }
 
 private:
     struct vars {
-        bool    _inobvious;
-        int     _how;
-        QString _sense;
-        int     _effect;
+        bool    mInobvious;
+        int     mHow;
+        QString mSense;
+        int     mEffect;
     } v {};
 
     gsl::owner<QCheckBox*> inobvious = nullptr;
@@ -3957,9 +3957,9 @@ private:
     gsl::owner<QComboBox*> effect = nullptr;
 
     QString optOut(bool show) {
-        if (v._how < 1 || v._effect < 1) return "<incomplete>";
-        if (v._inobvious && v._how != 1 && v._sense.isEmpty()) return "<incomplete>";
-        if (!v._inobvious && v._how != 3 && v._sense.isEmpty()) return "<incomplete>";
+        if (v.mHow < 1 || v.mEffect < 1) return "<incomplete>";
+        if (v.mInobvious && v.mHow != 1 && v.mSense.isEmpty()) return "<incomplete>";
+        if (!v.mInobvious && v.mHow != 3 && v.mSense.isEmpty()) return "<incomplete>";
         static QStringList How { "",
                                  "Inobvious to One Sense Group",
                                  "Inobvious to Two Sense Groups",
@@ -3973,10 +3973,10 @@ private:
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Invisible Power Effects (";
-        if (v._inobvious) desc += How[v._how + 2];
-        else desc += How[v._how];
-        desc += (v._sense.isEmpty() ? "" : ": " + v._sense);
-        if (v._effect > 0) desc += "; " + Effect[v._effect];
+        if (v.mInobvious) desc += How[v.mHow + 2];
+        else desc += How[v.mHow];
+        desc += (v.mSense.isEmpty() ? "" : ": " + v.mSense);
+        if (v.mEffect > 0) desc += "; " + Effect[v.mEffect];
         return desc + ")";
     }
 
@@ -3988,8 +3988,8 @@ private:
                            "Imperceptible to Onse Sense Group",
                            "Fully Invisible" };
         int start = 0;
-        if (v._inobvious) start = 2;
-        v._how = -1;
+        if (v.mInobvious) start = 2;
+        v.mHow = -1;
         how->setCurrentIndex(-1);
         how->clear();
         for (int i = start; i < data.count(); ++i) how->addItem(data[i]);
@@ -3998,7 +3998,7 @@ private:
 
     void index(int) override {
         store();
-        sense->setEnabled((v._inobvious && v._how != 1) || (!v._inobvious && v._how != 3));
+        sense->setEnabled((v.mInobvious && v.mHow != 1) || (!v.mInobvious && v.mHow != 3));
         ModifiersDialog::ref().updateForm();
     }
 };
@@ -4017,7 +4017,7 @@ public:
     LimitedEffect(QJsonObject json)
         : Modifier(json["name"].toString("Limited Effect"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._sense = json["sense"].toString();
+                   json["adder"].toBool(false)) { v.mSense = json["sense"].toString();
                                                 }
     ~LimitedEffect() override { }
 
@@ -4034,16 +4034,16 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { sense = createLineEdit(p, l, "Sense(s)?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              sense->setText(s._sense);
+                                                              sense->setText(s.mSense);
                                                               v = s;
                                                             }
-    void          store() override                          { v._sense     = sense->text();
+    void          store() override                          { v.mSense     = sense->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["sense"] = v._sense;
+                                                              obj["sense"] = v.mSense;
                                                               return obj;
                                                             }
 
@@ -4054,16 +4054,16 @@ public:
 
 private:
     struct vars {
-        QString _sense;
+        QString mSense;
     } v {};
 
     gsl::owner<QLineEdit*> sense = nullptr;
 
     QString optOut(bool show) {
-        if (v._sense.isEmpty()) return "<incomplete>";
+        if (v.mSense.isEmpty()) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Limited Effect (" + v._sense + ")";
+                 "Limited Effect (" + v.mSense + ")";
         return desc;
     }
 };
@@ -4101,9 +4101,9 @@ public:
     LimitedPower(QJsonObject json)
         : Modifier(json["name"].toString("Limited Power"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._conditional = json["conditional"].toBool(false);
-                                                  v._how         = json["how"].toInt(0);
-                                                  v._what        = json["what"].toString();
+                   json["adder"].toBool(false)) { v.mConditional = json["conditional"].toBool(false);
+                                                  v.mHow         = json["how"].toInt(0);
+                                                  v.mWhat        = json["what"].toString();
                                                 }
     ~LimitedPower() override { }
 
@@ -4127,28 +4127,28 @@ public:
                                                               what        = createLineEdit(p, l, "What?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              conditional->setChecked(s._conditional);
-                                                              how->setCurrentIndex(s._how);
-                                                              what->setText(s._what);
+                                                              conditional->setChecked(s.mConditional);
+                                                              how->setCurrentIndex(s.mHow);
+                                                              what->setText(s.mWhat);
                                                               v = s;
                                                             }
-    void          store() override                          { v._conditional = conditional->isChecked();
-                                                              v._how       = how->currentIndex();
-                                                              v._what     = what->text();
+    void          store() override                          { v.mConditional = conditional->isChecked();
+                                                              v.mHow       = how->currentIndex();
+                                                              v.mWhat     = what->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]        = name();
                                                               obj["type"]        = type();
                                                               obj["adder"]       = isAdder();
-                                                              obj["conditional"] = v._conditional;
-                                                              obj["how"]         = v._how;
-                                                              obj["what"]        = v._what;
+                                                              obj["conditional"] = v.mConditional;
+                                                              obj["how"]         = v.mHow;
+                                                              obj["what"]        = v.mWhat;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        switch (v._how + (v._conditional ? 1 : 0)) {
+        switch (v.mHow + (v.mConditional ? 1 : 0)) {
         case 1: return Fraction(0, 1);
         case 2: return Fraction(1, 4);
         case 3: return Fraction(1, 2);
@@ -4162,9 +4162,9 @@ public:
 
 private:
     struct vars {
-        bool    _conditional;
-        int     _how;
-        QString _what;
+        bool    mConditional;
+        int     mHow;
+        QString mWhat;
     } v {};
 
     gsl::owner<QCheckBox*> conditional = nullptr;
@@ -4172,11 +4172,11 @@ private:
     gsl::owner<QLineEdit*> what = nullptr;
 
     QString optOut(bool show) {
-        if (v._how < 1 || v._what.isEmpty()) return "<incomplete>";
+        if (v.mHow < 1 || v.mWhat.isEmpty()) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "-") + f.toString() + ") " : "") +
                  "Limited Power (";
-        desc += v._what;
+        desc += v.mWhat;
         return desc + ")";
     }
 
@@ -4189,11 +4189,11 @@ private:
                               "Power loses about two-thirds of its overall effectiveness",
                               "Power loses almost all of its overall effectiveness" };
         QStringList conditional { "", "Very Common", "Common", "Uncommon", "Very Uncommon" };
-        v._how = -1;
+        v.mHow = -1;
         how->setCurrentIndex(-1);
         how->clear();
-        how->setCurrentText(v._conditional ? "What Condition?" : "How Limited?");
-        for (int i = 0; i < (v._conditional ? conditional.count() : limited.count()); ++i) how->addItem(v._conditional ? conditional[i] : limited[i]);
+        how->setCurrentText(v.mConditional ? "What Condition?" : "How Limited?");
+        for (int i = 0; i < (v.mConditional ? conditional.count() : limited.count()); ++i) how->addItem(v.mConditional ? conditional[i] : limited[i]);
         ModifiersDialog::ref().updateForm();
     }
 };
@@ -4212,7 +4212,7 @@ public:
     LimitedRange(QJsonObject json)
         : Modifier(json["name"].toString("Limited Range"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._noRange = json["noRange"].toBool(false);
+                   json["adder"].toBool(false)) { v.mNoRange = json["noRange"].toBool(false);
                                                 }
     ~LimitedRange() override { }
 
@@ -4229,29 +4229,29 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { noRange = createCheckBox(p, l, "Power Has No Range", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              noRange->setChecked(s._noRange);
+                                                              noRange->setChecked(s.mNoRange);
                                                               v = s;
                                                             }
-    void          store() override                          { v._noRange = noRange->isChecked();
+    void          store() override                          { v.mNoRange = noRange->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["noRange"] = v._noRange;
+                                                              obj["noRange"] = v.mNoRange;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._noRange) f = Fraction(1, 4);
+        if (v.mNoRange) f = Fraction(1, 4);
         return f;
     }
 
 private:
     struct vars {
-        bool _noRange;
+        bool mNoRange;
     } v {};
 
     gsl::owner<QCheckBox*> noRange = nullptr;
@@ -4278,8 +4278,8 @@ public:
     LimitedSpecialEffect(QJsonObject json)
         : Modifier(json["name"].toString("Limited Special Effect"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._how         = json["how"].toInt(0);
-                                                  v._what        = json["what"].toString();
+                   json["adder"].toBool(false)) { v.mHow         = json["how"].toInt(0);
+                                                  v.mWhat        = json["what"].toString();
                                                 }
     ~LimitedSpecialEffect() override { }
 
@@ -4297,25 +4297,25 @@ public:
                                                               what = createLineEdit(p, l, "What?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              how->setCurrentIndex(s._how);
-                                                              what->setText(s._what);
+                                                              how->setCurrentIndex(s.mHow);
+                                                              what->setText(s.mWhat);
                                                               v = s;
                                                             }
-    void          store() override                          { v._how       = how->currentIndex();
-                                                              v._what     = what->text();
+    void          store() override                          { v.mHow       = how->currentIndex();
+                                                              v.mWhat     = what->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]        = name();
                                                               obj["type"]        = type();
                                                               obj["adder"]       = isAdder();
-                                                              obj["how"]         = v._how;
-                                                              obj["what"]        = v._what;
+                                                              obj["how"]         = v.mHow;
+                                                              obj["what"]        = v.mWhat;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        switch (v._how) {
+        switch (v.mHow) {
         case 1: return Fraction(1, 4);
         case 2: return Fraction(1, 2);
         case 3: return Fraction(1, 1);
@@ -4326,19 +4326,19 @@ public:
 
 private:
     struct vars {
-        int     _how;
-        QString _what;
+        int     mHow;
+        QString mWhat;
     } v {};
 
     gsl::owner<QComboBox*> how = nullptr;
     gsl::owner<QLineEdit*> what = nullptr;
 
     QString optOut(bool show) {
-        if (v._how < 1 || v._what.isEmpty()) return "<incomplete>";
+        if (v.mHow < 1 || v.mWhat.isEmpty()) return "<incomplete>";
         static QStringList Limited { "", "Very Common", "Common", "Uncommon" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Limited Special Effect (" + Limited[v._how] + ": " + v._what + ")";
+                 "Limited Special Effect (" + Limited[v.mHow] + ": " + v.mWhat + ")";
         return desc;
     }
 
@@ -4377,13 +4377,13 @@ public:
     Linked(QJsonObject json)
         : Modifier(json["name"].toString("Linked"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._greater  = json["greater"].toBool(false);
-                                                  v._both     = json["both"].toBool(false);
-                                                  v._prop     = json["prop"].toBool(false);
-                                                  v._full     = json["full"].toBool(false);
-                                                  v._constant = json["constant"].toBool(false);
-                                                  v._instant  = json["instant"].toBool(false);
-                                                  v._target   = json["target"].toString();
+                   json["adder"].toBool(false)) { v.mGreater  = json["greater"].toBool(false);
+                                                  v.mBoth     = json["both"].toBool(false);
+                                                  v.mProp     = json["prop"].toBool(false);
+                                                  v.mFull     = json["full"].toBool(false);
+                                                  v.mConstant = json["constant"].toBool(false);
+                                                  v.mInstant  = json["instant"].toBool(false);
+                                                  v.mTarget   = json["target"].toString();
                                                 }
     ~Linked() override { }
 
@@ -4406,58 +4406,58 @@ public:
                                                               target   = createLineEdit(p, l, "Linked to?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              greater->setChecked(s._greater);
-                                                              both->setChecked(s._both);
-                                                              prop->setChecked(s._prop);
-                                                              full->setChecked(s._full);
-                                                              constant->setChecked(s._constant);
-                                                              instant->setChecked(s._instant);
-                                                              target->setText(s._target);
+                                                              greater->setChecked(s.mGreater);
+                                                              both->setChecked(s.mBoth);
+                                                              prop->setChecked(s.mProp);
+                                                              full->setChecked(s.mFull);
+                                                              constant->setChecked(s.mConstant);
+                                                              instant->setChecked(s.mInstant);
+                                                              target->setText(s.mTarget);
                                                               v = s;
                                                             }
-    void          store() override                          { v._greater  = greater->isChecked();
-                                                              v._both     = both->isChecked();
-                                                              v._prop     = prop->isChecked();
-                                                              v._full     = full->isChecked();
-                                                              v._constant = constant->isChecked();
-                                                              v._instant  = instant->isChecked();
-                                                              v._target   = target->text();
+    void          store() override                          { v.mGreater  = greater->isChecked();
+                                                              v.mBoth     = both->isChecked();
+                                                              v.mProp     = prop->isChecked();
+                                                              v.mFull     = full->isChecked();
+                                                              v.mConstant = constant->isChecked();
+                                                              v.mInstant  = instant->isChecked();
+                                                              v.mTarget   = target->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
                                                               obj["adder"]    = isAdder();
-                                                              obj["greater"]  = v._greater;
-                                                              obj["both"]     = v._both;
-                                                              obj["prop"]     = v._prop;
-                                                              obj["full"]     = v._full;
-                                                              obj["constant"] = v._constant;
-                                                              obj["instant"]  = v._instant;
-                                                              obj["target"]   = v._target;
+                                                              obj["greater"]  = v.mGreater;
+                                                              obj["both"]     = v.mBoth;
+                                                              obj["prop"]     = v.mProp;
+                                                              obj["full"]     = v.mFull;
+                                                              obj["constant"] = v.mConstant;
+                                                              obj["instant"]  = v.mInstant;
+                                                              obj["target"]   = v.mTarget;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(-1, 2);
-        if (v._greater) f = Fraction(-1, 4);
-        if (v._both) f -= Fraction(1, 4);
-        if (v._prop) f += Fraction(1, 4);
-        if (v._full) f -= Fraction(1, 4);
-        if (v._constant) f += Fraction(1, 4);
-        if (v._instant) f += Fraction(1, 4);
+        if (v.mGreater) f = Fraction(-1, 4);
+        if (v.mBoth) f -= Fraction(1, 4);
+        if (v.mProp) f += Fraction(1, 4);
+        if (v.mFull) f -= Fraction(1, 4);
+        if (v.mConstant) f += Fraction(1, 4);
+        if (v.mInstant) f += Fraction(1, 4);
         return f;
     }
 
 private:
     struct vars {
-        bool    _greater;
-        bool    _both;
-        bool    _prop;
-        bool    _full;
-        bool    _constant;
-        bool    _instant;
-        QString _target;
+        bool    mGreater;
+        bool    mBoth;
+        bool    mProp;
+        bool    mFull;
+        bool    mConstant;
+        bool    mInstant;
+        QString mTarget;
     } v {};
 
     gsl::owner<QCheckBox*> greater = nullptr;
@@ -4471,14 +4471,14 @@ private:
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Linked to " + v._target;
+                 "Linked to " + v.mTarget;
         QString sep = " (";
-        if (v._greater) { desc += sep + "Greater Power Linked to Lesser▲"; sep = "; "; }
-        if (v._both) { desc += sep + "Must Use Together and Lesser is Inconvenient"; sep = "; "; }
-        if (v._prop) { desc += sep + "Need Not Use Powers Proportionally"; sep = "; "; }
-        if (v._full) { desc += sep + "Greater must be at Full Power to use Lesser"; sep = "; "; }
-        if (v._constant) { desc += sep + "Greater Power is Constant"; sep = "; "; }
-        if (v._instant) { desc += sep + "Instant Power can be Used any Time with Constant"; sep = ": "; }
+        if (v.mGreater) { desc += sep + "Greater Power Linked to Lesser▲"; sep = "; "; }
+        if (v.mBoth) { desc += sep + "Must Use Together and Lesser is Inconvenient"; sep = "; "; }
+        if (v.mProp) { desc += sep + "Need Not Use Powers Proportionally"; sep = "; "; }
+        if (v.mFull) { desc += sep + "Greater must be at Full Power to use Lesser"; sep = "; "; }
+        if (v.mConstant) { desc += sep + "Greater Power is Constant"; sep = "; "; }
+        if (v.mInstant) { desc += sep + "Instant Power can be Used any Time with Constant"; sep = ": "; }
         if (sep == "; ") desc += ")";
         return desc;
     }
@@ -4517,8 +4517,8 @@ public:
     MandatoryEffect(QJsonObject json)
         : Modifier(json["name"].toString("Mandatory Effect"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._effect = json["effect"].toInt(0);
-                                                  v._other  = json["other"].toString();
+                   json["adder"].toBool(false)) { v.mEffect = json["effect"].toInt(0);
+                                                  v.mOther  = json["other"].toString();
                                                 }
     ~MandatoryEffect() override { }
 
@@ -4536,27 +4536,27 @@ public:
                                                               other  = createLineEdit(p, l, "Other Effects?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              effect->setCurrentIndex(s._effect);
-                                                              other->setText(s._other);
+                                                              effect->setCurrentIndex(s.mEffect);
+                                                              other->setText(s.mOther);
                                                               v = s;
                                                             }
-    void          store() override                          { v._effect = effect->currentIndex();
-                                                              v._other  = other->text();
+    void          store() override                          { v.mEffect = effect->currentIndex();
+                                                              v.mOther  = other->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]   = name();
                                                               obj["type"]   = type();
                                                               obj["adder"]  = isAdder();
-                                                              obj["effect"] = v._effect;
-                                                              obj["other"]  = v._other;
+                                                              obj["effect"] = v.mEffect;
+                                                              obj["other"]  = v.mOther;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f;
-        if (!v._other.isEmpty()) f = Fraction(1, 4);
-        switch (v._effect) {
+        if (!v.mOther.isEmpty()) f = Fraction(1, 4);
+        switch (v.mEffect) {
         case 1: return f + Fraction(1, 4);
         case 2: return f + Fraction(1, 2);
         case 3: return f + Fraction(3, 4);
@@ -4566,20 +4566,20 @@ public:
 
 private:
     struct vars {
-        int     _effect;
-        QString _other;
+        int     mEffect;
+        QString mOther;
     } v {};
 
     gsl::owner<QComboBox*> effect = nullptr;
     gsl::owner<QLineEdit*> other = nullptr;
 
     QString optOut(bool show) {
-        if (v._effect < 1) return "<incomplete>";
+        if (v.mEffect < 1) return "<incomplete>";
         static QStringList Limited { "", "EGO+10", "EGO+20", "EGO+30" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Mandatory Effect (" + Limited[v._effect];
-        if (!v._other.isEmpty()) desc += " and " + v._other;
+                 "Mandatory Effect (" + Limited[v.mEffect];
+        if (!v.mOther.isEmpty()) desc += " and " + v.mOther;
         return desc + ")";
     }
 };
@@ -4598,7 +4598,7 @@ public:
     Mass(QJsonObject json)
         : Modifier(json["name"].toString("MassꚚ"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._mass = json["mass"].toInt(0);
+                   json["adder"].toBool(false)) { v.mMass = json["mass"].toInt(0);
                                                 }
     ~Mass() override { }
 
@@ -4616,22 +4616,22 @@ public:
                                                                                                          "Normal Mass", "2x Mass" }, std::mem_fn(&ModifierBase::index));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              mass->setCurrentIndex(s._mass);
+                                                              mass->setCurrentIndex(s.mMass);
                                                               v = s;
                                                             }
-    void          store() override                          { v._mass = mass->currentIndex();
+    void          store() override                          { v.mMass = mass->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["mass"]  = v._mass;
+                                                              obj["mass"]  = v.mMass;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        switch (v._mass) {
+        switch (v.mMass) {
         case 1: return Fraction(1, 2);
         case 2: return Fraction(1, 1);
         case 3: return Fraction(1, Fraction(1, 2));
@@ -4641,17 +4641,17 @@ public:
 
 private:
     struct vars {
-        int     _mass;
+        int mMass;
     } v {};
 
     gsl::owner<QComboBox*> mass = nullptr;
 
     QString optOut(bool show) {
-        if (v._mass < 1) return "<incomplete>";
+        if (v.mMass < 1) return "<incomplete>";
         static QStringList Limited { "", Fraction(1, 2).toString() + " Mass", "Normal Mass", "2x Mass" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "MassꚚ (" + Limited[v._mass] + ")";
+                 "MassꚚ (" + Limited[v.mMass] + ")";
         return desc;
     }
 };
@@ -4670,8 +4670,8 @@ public:
     Megascale(QJsonObject json)
         : Modifier(json["name"].toString("Megascaleϴ"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._scale     = json["scale"].toInt(0);
-                                                  v._invariant = json["invariant"].toBool(false);
+                   json["adder"].toBool(false)) { v.mScale     = json["scale"].toInt(0);
+                                                  v.mInvariant = json["invariant"].toBool(false);
                                                 }
     ~Megascale() override { }
 
@@ -4693,19 +4693,19 @@ public:
                                                               invariant = createCheckBox(p, l, "Can't change scale");
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              scale->setCurrentIndex(s._scale);
-                                                              invariant->setChecked(s._invariant);
+                                                              scale->setCurrentIndex(s.mScale);
+                                                              invariant->setChecked(s.mInvariant);
                                                               v = s;
                                                             }
-    void          store() override                          { v._scale     = scale->currentIndex();
-                                                              v._invariant = invariant->isChecked();
+    void          store() override                          { v.mScale     = scale->currentIndex();
+                                                              v.mInvariant = invariant->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]      = name();
                                                               obj["type"]      = type();
                                                               obj["adder"]     = isAdder();
-                                                              obj["scale"]     = v._scale;
-                                                              obj["invariant"] = v._invariant;
+                                                              obj["scale"]     = v.mScale;
+                                                              obj["invariant"] = v.mInvariant;
                                                               return obj;
                                                             }
 
@@ -4717,29 +4717,29 @@ public:
            Fraction(3, Fraction(3, 4)), Fraction(4), Fraction(4, Fraction(1, 4)), Fraction(4, Fraction(1, 2)), Fraction(5, Fraction(1, 2)), // NOLINT
            Fraction(7) // NOLINT
         };
-        if (v._scale < 1) return Fraction(0);
-        return cost[v._scale] + (v._invariant ? Fraction(1, 4) : Fraction(0));
+        if (v.mScale < 1) return Fraction(0);
+        return cost[v.mScale] + (v.mInvariant ? Fraction(1, 4) : Fraction(0));
     }
 
 private:
     struct vars {
-        int  _scale;
-        bool _invariant;
+        int  mScale;
+        bool mInvariant;
     } v {};
 
     gsl::owner<QComboBox*> scale = nullptr;
     gsl::owner<QCheckBox*> invariant = nullptr;
 
     QString optOut(bool show) {
-        if (v._scale == -1) return "<incomplete>";
+        if (v.mScale == -1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QStringList scale { "", "1 km", "10 km", "100 km", "1,000 km", "10,000 km", "100,000 km",
                             "1 million km", "100 million km", "1 billion km", "10 billion km",
                             "100 billion km", "1 trillion km", "1 light year", "10 light years",
                             "100,000 light-years", "100 billion light-years" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Megascaleϴ (" + scale[v._scale];
-        if (v._invariant) desc += "; Can't change scale";
+                 "Megascaleϴ (" + scale[v.mScale];
+        if (v.mInvariant) desc += "; Can't change scale";
         return desc + ")";
     }
 };
@@ -4777,8 +4777,8 @@ public:
     NoConciousControl(QJsonObject json)
         : Modifier(json["name"].toString("No Concious Control▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._activation = json["activation"].toBool(false);
-                                                  v._effects    = json["effects"].toBool(false);
+                   json["adder"].toBool(false)) { v.mActivation = json["activation"].toBool(false);
+                                                  v.mEffects    = json["effects"].toBool(false);
                                                 }
     ~NoConciousControl() override { }
 
@@ -4796,47 +4796,47 @@ public:
                                                               effects    = createCheckBox(p, l, "Effects", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              activation->setChecked(s._activation);
-                                                              effects->setChecked(s._effects);
+                                                              activation->setChecked(s.mActivation);
+                                                              effects->setChecked(s.mEffects);
                                                               v = s;
                                                             }
-    void          store() override                          { v._activation = activation->isChecked();
-                                                              v._effects    = effects->isChecked();
+    void          store() override                          { v.mActivation = activation->isChecked();
+                                                              v.mEffects    = effects->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]       = name();
                                                               obj["type"]       = type();
                                                               obj["adder"]      = isAdder();
-                                                              obj["activation"] = v._activation;
-                                                              obj["effects"]    = v._effects;
+                                                              obj["activation"] = v.mActivation;
+                                                              obj["effects"]    = v.mEffects;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f;
-        if (v._activation) f += Fraction(1);
-        if (v._effects) f += Fraction(1);
+        if (v.mActivation) f += Fraction(1);
+        if (v.mEffects) f += Fraction(1);
         return f;
     }
 
 private:
     struct vars {
-        bool _activation;
-        bool _effects;
+        bool mActivation;
+        bool mEffects;
     } v {};
 
     gsl::owner<QCheckBox*> activation = nullptr;
     gsl::owner<QCheckBox*> effects = nullptr;
 
     QString optOut(bool show) {
-        if (!v._activation && !v._effects) return "<incomplete>";
+        if (!v.mActivation && !v.mEffects) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "No Concious Control▲";
         QString sep = " (";
-        if (v._activation) { desc += sep + "Activation"; sep = " and "; }
-        if (v._effects) { desc += sep + "Effects"; sep = "; "; }
+        if (v.mActivation) { desc += sep + "Activation"; sep = " and "; }
+        if (v.mEffects) { desc += sep + "Effects"; sep = "; "; }
         return desc + ")";
     }
 };
@@ -5026,7 +5026,7 @@ public:
     OnlyInAlternateID(QJsonObject json)
         : Modifier(json["name"].toString("Only In Alternate Identity"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._identity = json["identity"].toString(0);
+                   json["adder"].toBool(false)) { v.mIdentity = json["identity"].toString(0);
                                                 }
     ~OnlyInAlternateID() override { }
 
@@ -5043,16 +5043,16 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { identity = createLineEdit(p, l, "Identity", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              identity->setText(s._identity);
+                                                              identity->setText(s.mIdentity);
                                                               v = s;
                                                             }
-    void          store() override                          { v._identity = identity->text();
+    void          store() override                          { v.mIdentity = identity->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
                                                               obj["adder"]    = isAdder();
-                                                              obj["identity"] = v._identity;
+                                                              obj["identity"] = v.mIdentity;
                                                               return obj;
                                                             }
 
@@ -5064,16 +5064,16 @@ public:
 
 private:
     struct vars {
-        QString _identity;
+        QString mIdentity;
     } v {};
 
     gsl::owner<QLineEdit*> identity = nullptr;
 
     QString optOut(bool show) {
-        if (v._identity.isEmpty()) return "<incomplete>";
+        if (v.mIdentity.isEmpty()) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Only In Alternate Identity (" + v._identity + ")";
+                 "Only In Alternate Identity (" + v.mIdentity + ")";
         return desc;
     }
 };
@@ -5130,8 +5130,8 @@ public:
     OnlyWorksAgainstDefined(QJsonObject json)
         : Modifier(json["name"].toString("Only Works Against [Defined]"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._against = json["against"].toString("");
-                                                  v._howCommon = json["howCommon"].toInt(0);
+                   json["adder"].toBool(false)) { v.mAgainst = json["against"].toString("");
+                                                  v.mHowCommon = json["howCommon"].toInt(0);
                                                 }
     ~OnlyWorksAgainstDefined() override { }
 
@@ -5150,41 +5150,41 @@ public:
                                                                                          std::mem_fn(&ModifierBase::index));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              against->setText(s._against);
-                                                              howCommon->setCurrentIndex(s._howCommon);
+                                                              against->setText(s.mAgainst);
+                                                              howCommon->setCurrentIndex(s.mHowCommon);
                                                               v = s;
                                                             }
-    void          store() override                          { v._against    = against->text();
-                                                              v._howCommon = howCommon->currentIndex();
+    void          store() override                          { v.mAgainst    = against->text();
+                                                              v.mHowCommon = howCommon->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]      = name();
                                                               obj["type"]      = type();
                                                               obj["adder"]     = isAdder();
-                                                              obj["against"]   = v._against;
-                                                              obj["howCommon"] = v._howCommon;
+                                                              obj["against"]   = v.mAgainst;
+                                                              obj["howCommon"] = v.mHowCommon;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        return 1 - (v._howCommon - 1) * Fraction(1, 4);
+        return 1 - (v.mHowCommon - 1) * Fraction(1, 4);
     }
 
 private:
     struct vars {
-        QString _against;
-        int     _howCommon;
+        QString mAgainst;
+        int     mHowCommon;
     } v {};
 
     gsl::owner<QLineEdit*> against = nullptr;
     gsl::owner<QComboBox*> howCommon = nullptr;
 
     QString optOut(bool show) {
-        if (v._against.isEmpty() || v._howCommon < 0) return "<incomplete>";
+        if (v.mAgainst.isEmpty() || v.mHowCommon < 0) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Only Works Against " + v._against;
+                 "Only Works Against " + v.mAgainst;
         return desc;
     }
 };
@@ -5203,7 +5203,7 @@ public:
     Opaque(QJsonObject json)
         : Modifier(json["name"].toString("Opaque"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._what = toStringList(json["what"].toArray());
+                   json["adder"].toBool(false)) { v.mWhat = toStringList(json["what"].toArray());
                                                 }
     ~Opaque() override { }
 
@@ -5235,16 +5235,16 @@ public:
                                                                                                std::mem_fn(&ModifierBase::selected));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              setTreeWidget(what, s._what);
+                                                              setTreeWidget(what, s.mWhat);
                                                               v = s;
                                                             }
-    void          store() override                          { v._what = treeWidget(what);
+    void          store() override                          { v.mWhat = treeWidget(what);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["what"]  = toArray(v._what);
+                                                              obj["what"]  = toArray(v.mWhat);
                                                               return obj;
                                                             }
 
@@ -5254,7 +5254,8 @@ public:
         QStringList groups = { "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
         QStringList senses = { "Normal Hearing", "Active Sonar", "Ultrasonic Perception", "Mental Awareness", "Mind Scan", "Radio Perception", "Radar", "Normal Sight",
                                "Nightvision", "Infrared Pereception", "Ultraviolet Perception", "Normal Smell", "Normal Taste", "Normal Touch" };
-        for (const auto& str: v._what) {
+        for (int i = 0; i < v.mWhat.count(); ++i) {
+            auto& str = v.mWhat[i];
             if (groups.contains(str)) p += 10_cp; // NOLINT
             else if (senses.contains(str)) p += 5_cp; // NOLINT
         }
@@ -5263,20 +5264,20 @@ public:
 
 private:
     struct vars {
-        QStringList _what;
+        QStringList mWhat;
     } v {};
 
     gsl::owner<QTreeWidget*> what = nullptr;
 
     QString optOut(bool show) {
-        if (v._what.isEmpty()) return "<incomplete>";
+        if (v.mWhat.isEmpty()) return "<incomplete>";
         Points p(points(Modifier::NoStore));
-        QString desc = (show ? QString("(+%1) ").arg(p.points) : "") + "Opaque to " + v._what[0];
-        auto len = v._what.length();
+        QString desc = (show ? QString("(+%1) ").arg(p.points) : "") + "Opaque to " + v.mWhat[0];
+        auto len = v.mWhat.length();
         for (auto i = 1; i < len; ++i) {
             if (i != len - 1) desc += ", ";
             else desc += ", and ";
-            desc += v._what[i];
+            desc += v.mWhat[i];
         }
         return desc;
     }
@@ -5322,7 +5323,7 @@ public:
     Perceivable(QJsonObject json)
         : Modifier(json["name"].toString("Perceivable"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._imperceptable = json["imperceptable"].toBool(false);
+                   json["adder"].toBool(false)) { v.mImperceptable = json["imperceptable"].toBool(false);
                                                 }
     ~Perceivable() override { }
 
@@ -5339,29 +5340,29 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { imperceptable = createCheckBox(p, l, "Imperceptable power is Obvious", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              imperceptable->setChecked(s._imperceptable);
+                                                              imperceptable->setChecked(s.mImperceptable);
                                                               v = s;
                                                             }
-    void          store() override                          { v._imperceptable = imperceptable->isChecked();
+    void          store() override                          { v.mImperceptable = imperceptable->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]          = name();
                                                               obj["type"]          = type();
                                                               obj["adder"]         = isAdder();
-                                                              obj["imperceptable"] = v._imperceptable;
+                                                              obj["imperceptable"] = v.mImperceptable;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._imperceptable) f = Fraction(1, 2);
+        if (v.mImperceptable) f = Fraction(1, 2);
         return f;
     }
 
 private:
     struct vars {
-        bool _imperceptable;
+        bool mImperceptable;
     } v {};
 
     gsl::owner<QCheckBox*> imperceptable = nullptr;
@@ -5464,7 +5465,7 @@ public:
     RangeBasedOnSTR(QJsonObject json)
         : Modifier(json["name"].toString("Range Based On STR"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._noRange = json["noRange"].toBool(false);
+                   json["adder"].toBool(false)) { v.mNoRange = json["noRange"].toBool(false);
                                                 }
     ~RangeBasedOnSTR() override { }
 
@@ -5481,29 +5482,29 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { noRange = createCheckBox(p, l, "Power has no range", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              noRange->setChecked(s._noRange);
+                                                              noRange->setChecked(s.mNoRange);
                                                               v = s;
                                                             }
-    void          store() override                          { v._noRange = noRange->isChecked();
+    void          store() override                          { v.mNoRange = noRange->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["noRange"] = v._noRange;
+                                                              obj["noRange"] = v.mNoRange;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(-1, 4);
-        if (v._noRange) f = Fraction(1, 4);
+        if (v.mNoRange) f = Fraction(1, 4);
         return f;
     }
 
 private:
     struct vars {
-        bool _noRange;
+        bool mNoRange;
     } v {};
 
     gsl::owner<QCheckBox*> noRange = nullptr;
@@ -5644,7 +5645,7 @@ public:
     ReducedEndurance(QJsonObject json)
         : Modifier(json["name"].toString("Reduced Endurance"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._noEND = json["noEND"].toBool(false);
+                   json["adder"].toBool(false)) { v.mNoEND = json["noEND"].toBool(false);
                                                 }
     ~ReducedEndurance() override { }
 
@@ -5661,31 +5662,31 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { noEND = createCheckBox(p, l, "0 END", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              noEND->setChecked(s._noEND);
+                                                              noEND->setChecked(s.mNoEND);
                                                               v = s;
                                                             }
-    void          store() override                          { v._noEND = noEND->isChecked();
+    void          store() override                          { v.mNoEND = noEND->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["noEND"] = v._noEND;
+                                                              obj["noEND"] = v.mNoEND;
                                                               return obj;
                                                             }
 
-    Fraction endChange() override { return v._noEND ? Fraction(0) : Fraction(1, 2); }
+    Fraction endChange() override { return v.mNoEND ? Fraction(0) : Fraction(1, 2); }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._noEND) f = Fraction(1, 2);
+        if (v.mNoEND) f = Fraction(1, 2);
         return f;
     }
 
 private:
     struct vars {
-        bool _noEND;
+        bool mNoEND;
     } v {};
 
     gsl::owner<QCheckBox*> noEND = nullptr;
@@ -5693,7 +5694,7 @@ private:
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 (v._noEND ? "0 END" : (Fraction(1, 2).toString() + "END"));
+                 (v.mNoEND ? "0 END" : (Fraction(1, 2).toString() + "END"));
         return desc;
     }
 };
@@ -5712,7 +5713,7 @@ public:
     ReducedNegation(QJsonObject json)
         : Modifier(json["name"].toString("Reduced Negation"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._reduced = json["reduced"].toInt(0);
+                   json["adder"].toBool(false)) { v.mReduced = json["reduced"].toInt(0);
                                                 }
     ~ReducedNegation() override { }
 
@@ -5729,35 +5730,35 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { reduced = createLineEdit(p, l, "Points of negation?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              reduced->setText(QString("%1").arg(s._reduced));
+                                                              reduced->setText(QString("%1").arg(s.mReduced));
                                                               v = s;
                                                             }
-    void          store() override                          { v._reduced = reduced->text().toInt();
+    void          store() override                          { v.mReduced = reduced->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["reduced"] = v._reduced;
+                                                              obj["reduced"] = v.mReduced;
                                                               return obj;
                                                             }
 
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return 2_cp * v._reduced;
+        return 2_cp * v.mReduced;
     }
 
 private:
     struct vars {
-        int _reduced;
+        int mReduced;
     } v {};
 
     gsl::owner<QLineEdit*> reduced = nullptr;
 
     QString optOut(bool show) {
-        if (v._reduced < 1) return "<incomplete>";
+        if (v.mReduced < 1) return "<incomplete>";
         Points p(points(Modifier::NoStore));
-        QString desc = (show ? QString("(+%1) ").arg(p.points) : "")  + QString("Reduced Negation (-%1)").arg(v._reduced);
+        QString desc = (show ? QString("(+%1) ").arg(p.points) : "")  + QString("Reduced Negation (-%1)").arg(v.mReduced);
         return desc;
     }
 };
@@ -5795,7 +5796,7 @@ public:
     ReducedRangeModifier(QJsonObject json)
         : Modifier(json["name"].toString("Reduced Range Modifier"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._noRangeMod = json["noRangeMod"].toBool(false);
+                   json["adder"].toBool(false)) { v.mNoRangeMod = json["noRangeMod"].toBool(false);
                                                 }
     ~ReducedRangeModifier() override { }
 
@@ -5812,29 +5813,29 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { noRangeMod = createCheckBox(p, l, "No Range Modifier", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              noRangeMod->setChecked(s._noRangeMod);
+                                                              noRangeMod->setChecked(s.mNoRangeMod);
                                                               v = s;
                                                             }
-    void          store() override                          { v._noRangeMod = noRangeMod->isChecked();
+    void          store() override                          { v.mNoRangeMod = noRangeMod->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]       = name();
                                                               obj["type"]       = type();
                                                               obj["adder"]      = isAdder();
-                                                              obj["noRangeMod"] = v._noRangeMod;
+                                                              obj["noRangeMod"] = v.mNoRangeMod;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._noRangeMod) f = Fraction(1, 2);
+        if (v.mNoRangeMod) f = Fraction(1, 2);
         return f;
     }
 
 private:
     struct vars {
-        bool _noRangeMod;
+        bool mNoRangeMod;
     } v {};
 
     gsl::owner<QCheckBox*> noRangeMod = nullptr;
@@ -5842,7 +5843,7 @@ private:
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 (v._noRangeMod ? "No Range Modifier" : (Fraction(1, 2).toString() + " Range Modifier"));
+                 (v.mNoRangeMod ? "No Range Modifier" : (Fraction(1, 2).toString() + " Range Modifier"));
         return desc;
     }
 };
@@ -5861,7 +5862,7 @@ public:
     RequiredHands(QJsonObject json)
         : Modifier(json["name"].toString("Required HandsꚚ"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._hands = json["hands"].toInt(0);
+                   json["adder"].toBool(false)) { v.mHands = json["hands"].toInt(0);
                                                 }
     ~RequiredHands() override { }
 
@@ -5879,37 +5880,37 @@ public:
                                                                                          std::mem_fn(&ModifierBase::index));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              hands->setCurrentIndex(s._hands);
+                                                              hands->setCurrentIndex(s.mHands);
                                                               v = s;
                                                             }
-    void          store() override                          { v._hands = hands->currentIndex();
+    void          store() override                          { v.mHands = hands->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["hands"] = v._hands;
+                                                              obj["hands"] = v.mHands;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        return v._hands * Fraction(1, 4);
+        return v.mHands * Fraction(1, 4);
     }
 
 private:
     struct vars {
-        int _hands;
+        int mHands;
     } v {};
 
     gsl::owner<QComboBox*> hands = nullptr;
 
     QString optOut(bool show) {
-        if (v._hands < 1) return "<incomplete>";
+        if (v.mHands < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         static QStringList hands { "", "One-And-A-Half", "Two" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 hands[v._hands] + " HandedꚚ";
+                 hands[v.mHands] + " HandedꚚ";
         return desc;
     }
 };
@@ -5928,14 +5929,14 @@ public:
     RequiresARoll(QJsonObject json)
         : Modifier(json["name"].toString("Requires A Roll"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._type  = json["rType"].toBool(false);
-                                                  v._roll  = json["roll"].toInt(0);
-                                                  v._when  = json["when"].toBool(false);
-                                                  v._skill = json["skill"].toString();
-                                                  v._isa   = json["isa"].toBool(false);
-                                                  v._per   = json["per"].toInt(0);
-                                                  v._two   = json["two"].toBool(false);
-                                                  v._fails = json["fails"].toInt(0);
+                   json["adder"].toBool(false)) { v.mType  = json["rType"].toBool(false);
+                                                  v.mRoll  = json["roll"].toInt(0);
+                                                  v.mWhen  = json["when"].toBool(false);
+                                                  v.mSkill = json["skill"].toString();
+                                                  v.mIsA   = json["isa"].toBool(false);
+                                                  v.mPer   = json["per"].toInt(0);
+                                                  v.mTwo   = json["two"].toBool(false);
+                                                  v.mFails = json["fails"].toInt(0);
                                                 }
     ~RequiresARoll() override { }
 
@@ -5959,71 +5960,71 @@ public:
                                                                                      std::mem_fn(&ModifierBase::index));
                                                               fails = createComboBox(p, l, "How fragile is it?", { "Normal", "Burnout", "Jammed" },
                                                                                      std::mem_fn(&ModifierBase::index));
-                                                              roll->setEnabled(!v._type);
-                                                              skill->setEnabled(v._type);
-                                                              isa->setEnabled(v._type);
-                                                              per->setEnabled(v._type);
-                                                              two->setEnabled(v._two);
+                                                              roll->setEnabled(!v.mType);
+                                                              skill->setEnabled(v.mType);
+                                                              isa->setEnabled(v.mType);
+                                                              per->setEnabled(v.mType);
+                                                              two->setEnabled(v.mTwo);
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              rType->setChecked(s._type);
-                                                              when->setChecked(s._when);
-                                                              roll->setCurrentIndex(s._roll);
-                                                              skill->setText(s._skill);
-                                                              isa->setChecked(s._isa);
-                                                              per->setCurrentIndex(s._per);
-                                                              two->setChecked(s._two);
-                                                              fails->setCurrentIndex(s._fails);
+                                                              rType->setChecked(s.mType);
+                                                              when->setChecked(s.mWhen);
+                                                              roll->setCurrentIndex(s.mRoll);
+                                                              skill->setText(s.mSkill);
+                                                              isa->setChecked(s.mIsA);
+                                                              per->setCurrentIndex(s.mPer);
+                                                              two->setChecked(s.mTwo);
+                                                              fails->setCurrentIndex(s.mFails);
                                                               v = s;
                                                             }
-    void          store() override                          { v._type  = rType->isChecked();
-                                                              v._when  = when->isChecked();
-                                                              v._roll  = roll->currentIndex();
-                                                              v._skill = skill->text();
-                                                              v._isa   = isa->isChecked();
-                                                              v._per   = per->currentIndex();
-                                                              v._two   = two->isChecked();
-                                                              v._fails = fails->currentIndex();
+    void          store() override                          { v.mType  = rType->isChecked();
+                                                              v.mWhen  = when->isChecked();
+                                                              v.mRoll  = roll->currentIndex();
+                                                              v.mSkill = skill->text();
+                                                              v.mIsA   = isa->isChecked();
+                                                              v.mPer   = per->currentIndex();
+                                                              v.mTwo   = two->isChecked();
+                                                              v.mFails = fails->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["rType"] = v._type;
-                                                              obj["when"]  = v._when;
-                                                              obj["roll"]  = v._roll;
-                                                              obj["skill"] = v._skill;
-                                                              obj["isa"]   = v._isa;
-                                                              obj["per"]   = v._per;
-                                                              obj["two"]   = v._two;
-                                                              obj["fails"] = v._fails;
+                                                              obj["rType"] = v.mType;
+                                                              obj["when"]  = v.mWhen;
+                                                              obj["roll"]  = v.mRoll;
+                                                              obj["skill"] = v.mSkill;
+                                                              obj["isa"]   = v.mIsA;
+                                                              obj["per"]   = v.mPer;
+                                                              obj["two"]   = v.mTwo;
+                                                              obj["fails"] = v.mFails;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 2);
-        if (v._type) {
-            if (v._isa) f -= Fraction(1, 4);
-            if (v._per == 0) f -= Fraction(1, 4);
-            else if (v._per == 2) f += Fraction(1, 2);
-            if (v._two) f -= Fraction(1, 4);
-        } else f -= (v._roll - 5) * Fraction(1, 4); // NOLINT
-        if (v._fails >= 1) f += Fraction(1, 2);
+        if (v.mType) {
+            if (v.mIsA) f -= Fraction(1, 4);
+            if (v.mPer == 0) f -= Fraction(1, 4);
+            else if (v.mPer == 2) f += Fraction(1, 2);
+            if (v.mTwo) f -= Fraction(1, 4);
+        } else f -= (v.mRoll - 5) * Fraction(1, 4); // NOLINT
+        if (v.mFails >= 1) f += Fraction(1, 2);
         if (f < Fraction(1, 4)) f = Fraction(1, 4);
         return f;
     }
 
 private:
     struct vars {
-        bool    _type;
-        bool    _when;
-        int     _roll;
-        QString _skill;
-        bool    _isa;
-        bool    _two;
-        int     _per;
-        int     _fails;
+        bool    mType;
+        bool    mWhen;
+        int     mRoll;
+        QString mSkill;
+        bool    mIsA;
+        bool    mTwo;
+        int     mPer;
+        int     mFails;
     } v {};
 
     gsl::owner<QCheckBox*> rType = nullptr;
@@ -6041,18 +6042,18 @@ private:
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         QString sep;
-        if (v._type) {
-            if (v._skill.isEmpty() || v._per < 1) return "<incomplete>";
-            desc = "Skill Roll: " + v._skill + " (-1 per " + per[v._per];
+        if (v.mType) {
+            if (v.mSkill.isEmpty() || v.mPer < 1) return "<incomplete>";
+            desc = "Skill Roll: " + v.mSkill + " (-1 per " + per[v.mPer];
             sep = "; ";
         } else {
-            if (v._roll < 1) return "<incomplete>";
-            desc = "Roll " + roll[v._roll];
+            if (v.mRoll < 1) return "<incomplete>";
+            desc = "Roll " + roll[v.mRoll];
             sep = " (";
         }
-        if (v._when) { desc += sep + "Every phase or Use"; sep = "; "; }
-        if (v._fails == 1) { desc += sep + "Burnout"; sep = "; "; }
-        else if (v._fails == 2) { desc += sep + "Jammed"; sep = ": "; }
+        if (v.mWhen) { desc += sep + "Every phase or Use"; sep = "; "; }
+        if (v.mFails == 1) { desc += sep + "Burnout"; sep = "; "; }
+        else if (v.mFails == 2) { desc += sep + "Jammed"; sep = ": "; }
         if (sep == "; ") desc += ")";
         return desc;
     }
@@ -6061,11 +6062,11 @@ private:
         store();
         QCheckBox* box = dynamic_cast<QCheckBox*>(sender());
         if (box == rType) {
-            roll->setEnabled(!v._type);
-            skill->setEnabled(v._type);
-            isa->setEnabled(v._type);
-            per->setEnabled(v._type);
-            two->setEnabled(v._two);
+            roll->setEnabled(!v.mType);
+            skill->setEnabled(v.mType);
+            isa->setEnabled(v.mType);
+            per->setEnabled(v.mType);
+            two->setEnabled(v.mTwo);
         }
         ModifiersDialog::ref().updateForm();
     }
@@ -6085,8 +6086,8 @@ public:
     RequiresMultipleCharges(QJsonObject json)
         : Modifier(json["name"].toString("Requires Multiple Charges"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._max   = json["max"].toInt(0);
-                                                  v._needs = json["needs"].toInt(0);
+                   json["adder"].toBool(false)) { v.mMax   = json["max"].toInt(0);
+                                                  v.mNeeds = json["needs"].toInt(0);
                                                 }
     ~RequiresMultipleCharges() override { }
 
@@ -6104,19 +6105,19 @@ public:
                                                               needs = createLineEdit(p, l, "Charges needed?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              max->setText(QString("%1").arg(s._max));
-                                                              needs->setText(QString("%1").arg(s._needs));
+                                                              max->setText(QString("%1").arg(s.mMax));
+                                                              needs->setText(QString("%1").arg(s.mNeeds));
                                                               v = s;
                                                             }
-    void          store() override                          { v._max   = max->text().toInt();
-                                                              v._needs = needs->text().toInt();
+    void          store() override                          { v.mMax   = max->text().toInt();
+                                                              v.mNeeds = needs->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["max"]     = v._max;
-                                                              obj["needs"]   = v._needs;
+                                                              obj["max"]     = v.mMax;
+                                                              obj["needs"]   = v.mNeeds;
                                                               return obj;
                                                             }
 
@@ -6129,26 +6130,26 @@ public:
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(0);
-        if (v._needs == 2) f = Fraction(1, 4);
-        else f = (v._needs - 3) / 5 * Fraction(1, 4) + Fraction(1, 4); // NOLINT
-        if (v._max < 65) f += (6 - (int) (log((double) v._max) / log(2.0))) * Fraction(1, 4); // NOLINT
+        if (v.mNeeds == 2) f = Fraction(1, 4);
+        else f = (v.mNeeds - 3) / 5 * Fraction(1, 4) + Fraction(1, 4); // NOLINT
+        if (v.mMax < 65) f += (6 - (int) (log((double) v.mMax) / log(2.0))) * Fraction(1, 4); // NOLINT
         return f;
     }
 
 private:
     struct vars {
-        int _max;
-        int _needs;
+        int mMax;
+        int mNeeds;
     } v {};
 
     gsl::owner<QLineEdit*> max = nullptr;
     gsl::owner<QLineEdit*> needs = nullptr;
 
     QString optOut(bool show) {
-        if (v._max < 1 || v._needs < 2) return "<incomplete>";
+        if (v.mMax < 1 || v.mNeeds < 2) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
-        desc += QString("%1").arg(v._needs) + " Charges per Use";
+        desc += QString("%1").arg(v.mNeeds) + " Charges per Use";
         return desc;
     }
 };
@@ -6167,7 +6168,7 @@ public:
     RequiresMultipleUsers(QJsonObject json)
         : Modifier(json["name"].toString("Requires Multiple Users"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._needs = json["needs"].toInt(0);
+                   json["adder"].toBool(false)) { v.mNeeds = json["needs"].toInt(0);
                                                 }
     ~RequiresMultipleUsers() override { }
 
@@ -6184,16 +6185,16 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { needs = createLineEdit(p, l, "Users needed?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              needs->setText(QString("%1").arg(s._needs));
+                                                              needs->setText(QString("%1").arg(s.mNeeds));
                                                               v = s;
                                                             }
-    void          store() override                          { v._needs = needs->text().toInt();
+    void          store() override                          { v.mNeeds = needs->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["needs"]   = v._needs;
+                                                              obj["needs"]   = v.mNeeds;
                                                               return obj;
                                                             }
 
@@ -6205,22 +6206,22 @@ public:
     // x=log(C)/log(2)
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        Fraction f = ((int) (log((double) v._needs) / log(2.0)) + 1) * Fraction(1, 4); // NOLINT
+        Fraction f = ((int) (log((double) v.mNeeds) / log(2.0)) + 1) * Fraction(1, 4); // NOLINT
         return f;
     }
 
 private:
     struct vars {
-        int _needs;
+        int mNeeds;
     } v {};
 
     gsl::owner<QLineEdit*> needs = nullptr;
 
     QString optOut(bool show) {
-        if (v._needs < 2) return "<incomplete>";
+        if (v.mNeeds < 2) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
-        desc += QString("%1").arg(v._needs) + " Users to Activate";
+        desc += QString("%1").arg(v.mNeeds) + " Users to Activate";
         return desc;
     }
 };
@@ -6258,8 +6259,8 @@ public:
     Restrainable(QJsonObject json)
         : Modifier(json["name"].toString("Restrainable"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._nonStandard = json["nonStandard"].toBool(false);
-                                                  v._restraint   = json["restraint"].toString();
+                   json["adder"].toBool(false)) { v.mNonStandard = json["nonStandard"].toBool(false);
+                                                  v.mRestraint   = json["restraint"].toString();
                                                 }
     ~Restrainable() override { }
 
@@ -6277,33 +6278,33 @@ public:
                                                               restraint->setEnabled(false);
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              nonStandard->setChecked(s._nonStandard);
-                                                              restraint->setText(s._restraint);
+                                                              nonStandard->setChecked(s.mNonStandard);
+                                                              restraint->setText(s.mRestraint);
                                                               v = s;
                                                             }
-    void          store() override                          { v._nonStandard = nonStandard->isChecked();
-                                                              v._restraint   = restraint->text();
+    void          store() override                          { v.mNonStandard = nonStandard->isChecked();
+                                                              v.mRestraint   = restraint->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]        = name();
                                                               obj["type"]        = type();
                                                               obj["adder"]       = isAdder();
-                                                              obj["nonStandard"] = v._nonStandard;
-                                                              obj["restraint"]   = v._restraint;
+                                                              obj["nonStandard"] = v.mNonStandard;
+                                                              obj["restraint"]   = v.mRestraint;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 2);
-        if (v._nonStandard) f = Fraction(1, 4);
+        if (v.mNonStandard) f = Fraction(1, 4);
         return f;
     }
 
 private:
     struct vars {
-        bool    _nonStandard;
-        QString _restraint;
+        bool    mNonStandard;
+        QString mRestraint;
     } v {};
 
     gsl::owner<QCheckBox*> nonStandard = nullptr;
@@ -6312,13 +6313,13 @@ private:
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Restrainable";
-        if (v._nonStandard) desc += "(Only by " + v._restraint + ")";
+        if (v.mNonStandard) desc += "(Only by " + v.mRestraint + ")";
         return desc;
     }
 
     void checked(bool) override {
         store();
-        restraint->setEnabled(v._nonStandard);
+        restraint->setEnabled(v.mNonStandard);
         ModifiersDialog::ref().updateForm();
     }
 };
@@ -6356,7 +6357,7 @@ public:
     RessurectionOnly(QJsonObject json)
         : Modifier(json["name"].toString("Ressurection Only"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._regen = json["regen"].toBool(false);
+                   json["adder"].toBool(false)) { v.mRegen = json["regen"].toBool(false);
                                                 }
     ~RessurectionOnly() override { }
 
@@ -6373,29 +6374,29 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { regen = createCheckBox(p, l, "Regeneration", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              regen->setChecked(s._regen);
+                                                              regen->setChecked(s.mRegen);
                                                               v = s;
                                                             }
-    void          store() override                          { v._regen = regen->isChecked();
+    void          store() override                          { v.mRegen = regen->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["regen"] = v._regen;
+                                                              obj["regen"] = v.mRegen;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 2);
-        if (v._regen) f = Fraction(2);
+        if (v.mRegen) f = Fraction(2);
         return f;
     }
 
 private:
     struct vars {
-        bool _regen;
+        bool mRegen;
     } v {};
 
     gsl::owner<QCheckBox*> regen = nullptr;
@@ -6440,12 +6441,12 @@ public:
     SideEffects(QJsonObject json)
         : Modifier(json["name"].toString("Side Effects"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._level    = json["level"].toInt(0);
-                                                  v._effect   = json["effect"].toString();
-                                                  v._when     = json["when"].toInt(0);
-                                                  v._affects  = json["affects"].toInt(0);
-                                                  v._constant = json["constant"].toBool(false);
-                                                  v._pre      = json["pre"].toBool(false);
+                   json["adder"].toBool(false)) { v.mLevel    = json["level"].toInt(0);
+                                                  v.mEffect   = json["effect"].toString();
+                                                  v.mWhen     = json["when"].toInt(0);
+                                                  v.mAffects  = json["affects"].toInt(0);
+                                                  v.mConstant = json["constant"].toBool(false);
+                                                  v.mPre      = json["pre"].toBool(false);
                                                 }
     ~SideEffects() override { }
 
@@ -6471,52 +6472,52 @@ public:
                                                               effect   = createLineEdit(p, l, "What Effect (Power Description)?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              level->setCurrentIndex(s._level);
-                                                              effect->setText(s._effect);
-                                                              when->setCurrentIndex(s._when);
-                                                              affects->setCurrentIndex(s._affects);
-                                                              constant->setChecked(s._constant);
-                                                              pre->setChecked(s._pre);
+                                                              level->setCurrentIndex(s.mLevel);
+                                                              effect->setText(s.mEffect);
+                                                              when->setCurrentIndex(s.mWhen);
+                                                              affects->setCurrentIndex(s.mAffects);
+                                                              constant->setChecked(s.mConstant);
+                                                              pre->setChecked(s.mPre);
                                                               v = s;
                                                             }
-    void          store() override                          { v._level    = level->currentIndex();
-                                                              v._effect   = effect->text();
-                                                              v._when     = when->currentIndex();
-                                                              v._affects  = affects->currentIndex();
-                                                              v._constant = constant->isChecked();
-                                                              v._pre      = pre->isChecked();
+    void          store() override                          { v.mLevel    = level->currentIndex();
+                                                              v.mEffect   = effect->text();
+                                                              v.mWhen     = when->currentIndex();
+                                                              v.mAffects  = affects->currentIndex();
+                                                              v.mConstant = constant->isChecked();
+                                                              v.mPre      = pre->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
                                                               obj["adder"]    = isAdder();
-                                                              obj["level"]    = v._level;
-                                                              obj["effect"]   = v._effect;
-                                                              obj["when"]     = v._when;
-                                                              obj["affects"]  = v._affects;
-                                                              obj["constant"] = v._constant;
-                                                              obj["pre"]      = v._pre;
+                                                              obj["level"]    = v.mLevel;
+                                                              obj["effect"]   = v.mEffect;
+                                                              obj["when"]     = v.mWhen;
+                                                              obj["affects"]  = v.mAffects;
+                                                              obj["constant"] = v.mConstant;
+                                                              obj["pre"]      = v.mPre;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f;
-        switch (v._level) {
+        switch (v.mLevel) {
         case 1: f = Fraction(1, 4); break;
         case 2: f = Fraction(1, 2); break;
         case 3: f = Fraction(1);    break;
         }
-        switch (v._affects) {
+        switch (v.mAffects) {
         case 1:                      break;
         case 2:
         case 4: f -= Fraction(1, 4); break;
         case 3:
         case 5: f += Fraction(1, 4); break; // NOLINT
         }
-        if (v._constant) f += Fraction(1, 4);
-        if (v._pre) f -= Fraction(1, 4);
-        switch (v._when) {
+        if (v.mConstant) f += Fraction(1, 4);
+        if (v.mPre) f -= Fraction(1, 4);
+        switch (v.mWhen) {
         case 1:                      break;
         case 2:
         case 4: f -= Fraction(1, 4); break;
@@ -6528,12 +6529,12 @@ public:
 
 private:
     struct vars {
-        int     _level;
-        QString _effect;
-        int     _when;
-        int     _affects;
-        bool    _constant;
-        bool    _pre;
+        int     mLevel;
+        QString mEffect;
+        int     mWhen;
+        int     mAffects;
+        bool    mConstant;
+        bool    mPre;
     } v {};
 
     gsl::owner<QComboBox*> level = nullptr;
@@ -6549,11 +6550,11 @@ private:
                            "When Power Stops Being Used" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
-        if (v._affects < 1 || v._when < 1 || v._level < 1 || v._effect.isEmpty()) return "<incomplete>";
-        desc += "Side Effect (" + v._effect;
-        desc += " On " + affects[v._affects];
-        desc += " When " + when[v._when];
-        if (v._constant) desc += "; Fixed Damage";
+        if (v.mAffects < 1 || v.mWhen < 1 || v.mLevel < 1 || v.mEffect.isEmpty()) return "<incomplete>";
+        desc += "Side Effect (" + v.mEffect;
+        desc += " On " + affects[v.mAffects];
+        desc += " When " + when[v.mWhen];
+        if (v.mConstant) desc += "; Fixed Damage";
         return desc + ")";
     }
 };
@@ -6591,7 +6592,7 @@ public:
     StandardRange(QJsonObject json)
         : Modifier(json["name"].toString("Standard Range"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._rmod = json["rmod"].toBool(false);
+                   json["adder"].toBool(false)) { v.mRMod = json["rmod"].toBool(false);
                                                 }
     ~StandardRange() override { }
 
@@ -6608,29 +6609,29 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { rmod = createCheckBox(p, l, "Subject To Range Mod", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              rmod->setChecked(s._rmod);
+                                                              rmod->setChecked(s.mRMod);
                                                               v = s;
                                                             }
-    void          store() override                          { v._rmod = rmod->isChecked();
+    void          store() override                          { v.mRMod = rmod->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["rmod"]  = v._rmod;
+                                                              obj["rmod"]  = v.mRMod;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._rmod) f = Fraction(1, 2);
+        if (v.mRMod) f = Fraction(1, 2);
         return f;
     }
 
 private:
     struct vars {
-        bool _rmod;
+        bool mRMod;
     } v {};
 
     gsl::owner<QCheckBox*> rmod = nullptr;
@@ -6638,7 +6639,7 @@ private:
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Standard Range";
-        if (v._rmod) desc += " (Subject To Range Penallties)";
+        if (v.mRMod) desc += " (Subject To Range Penallties)";
         return desc;
     }
 };
@@ -6657,7 +6658,7 @@ public:
     StopsWorkingIfKnockedOutStunned(QJsonObject json)
         : Modifier(json["name"].toString("Stops Working If Knocked Out/Stunned"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._stunned = json["stunned"].toBool(false);
+                   json["adder"].toBool(false)) { v.mStunned = json["stunned"].toBool(false);
                                                 }
     ~StopsWorkingIfKnockedOutStunned() override { }
 
@@ -6674,29 +6675,29 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { stunned = createCheckBox(p, l, "Or Stunned", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              stunned->setChecked(s._stunned);
+                                                              stunned->setChecked(s.mStunned);
                                                               v = s;
                                                             }
-    void          store() override                          { v._stunned = stunned->isChecked();
+    void          store() override                          { v.mStunned = stunned->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["stunned"] = v._stunned;
+                                                              obj["stunned"] = v.mStunned;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._stunned) f = Fraction(1, 2);
+        if (v.mStunned) f = Fraction(1, 2);
         return f;
     }
 
 private:
     struct vars {
-        bool _stunned;
+        bool mStunned;
     } v {};
 
     gsl::owner<QCheckBox*> stunned = nullptr;
@@ -6704,7 +6705,7 @@ private:
     QString optOut(bool show) {
         Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Stops Working If Knocked Out";
-        if (v._stunned) desc += " Or Stunned";
+        if (v.mStunned) desc += " Or Stunned";
         return desc;
     }
 };
@@ -6717,7 +6718,7 @@ public:
     Sticky(QJsonObject json)
         : Modifier(json["name"].toString("Sticky"),
                    ModifierType(json["type"].toInt(isAdvantage)),
-                   json["adder"].toBool(isModifier)) { v._all = json["all"].toBool(false); }
+                   json["adder"].toBool(isModifier)) { v.mAll = json["all"].toBool(false); }
     Sticky(const Sticky& m)
         : Modifier(m)
         , v(m.v) { }
@@ -6736,25 +6737,25 @@ public:
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { all = createCheckBox(p, l, "Free one, free all??", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
-    void          restore() override                        { vars s = v; all->setChecked(s._all); v = s; }
-    void          store() override                          { v._all = all->isChecked(); }
+    void          restore() override                        { vars s = v; all->setChecked(s.mAll); v = s; }
+    void          store() override                          { v.mAll = all->isChecked(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["all"]   = v._all;
+                                                              obj["all"]   = v.mAll;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        if (v._all) return Fraction(1, 4);
+        if (v.mAll) return Fraction(1, 4);
         else return Fraction(1, 2);
     }
 
 private:
     struct vars {
-        bool _all;
+        bool mAll;
     } v {};
 
     gsl::owner<QCheckBox*> all = nullptr;
@@ -6763,7 +6764,7 @@ private:
         Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                        "Sticky";
-        if (v._all) desc += " (Free on, free all)";
+        if (v.mAll) desc += " (Free on, free all)";
         return desc;
     }
 };
@@ -6782,7 +6783,7 @@ public:
     STRMinimum(QJsonObject json)
         : Modifier(json["name"].toString("STR MinimumꚚ"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._min = json["min"].toInt(0);
+                   json["adder"].toBool(false)) { v.mMin = json["min"].toInt(0);
                                                 }
     ~STRMinimum() override { }
 
@@ -6797,30 +6798,30 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { min = createLineEdit(p, l, "STR Minimum?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              min->setText(QString("%1").arg(s._min));
+                                                              min->setText(QString("%1").arg(s.mMin));
                                                               v = s;
                                                             }
-    void          store() override                          { v._min = min->text().toInt(0);
+    void          store() override                          { v.mMin = min->text().toInt(0);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["min"]   = v._min;
+                                                              obj["min"]   = v.mMin;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        if (v._min >= 4 && v._min <= 8) return Fraction(1, 4); // NOLINT
-        else if (v._min >= 9 && v._min <= 13) return Fraction(1, 2); // NOLINT
-        else if (v._min >= 14 && v._min <= 18) return Fraction(3, 4); // NOLINT
-        else if (v._min >= 19) return Fraction(1); // NOLINT
+        if (v.mMin >= 4 && v.mMin <= 8) return Fraction(1, 4); // NOLINT
+        else if (v.mMin >= 9 && v.mMin <= 13) return Fraction(1, 2); // NOLINT
+        else if (v.mMin >= 14 && v.mMin <= 18) return Fraction(3, 4); // NOLINT
+        else if (v.mMin >= 19) return Fraction(1); // NOLINT
         return Fraction(0);
     }
 
 private:
     struct vars {
-        int _min;
+        int mMin;
     } v {};
 
     gsl::owner<QLineEdit*> min = nullptr;
@@ -6829,18 +6830,18 @@ private:
         QString txt = min->text();
         if (txt.isEmpty() || isNumber(txt)) {
             if (txt.toInt(nullptr) < 1 && !txt.isEmpty()) min->undo();
-            v._min = txt.toInt(nullptr);
-            if (v._min < 1) v._min = 1;
+            v.mMin = txt.toInt(nullptr);
+            if (v.mMin < 1) v.mMin = 1;
             return;
         }
         min->undo();
     }
 
     QString optOut(bool show) {
-        if (v._min < 0) return "<incomplete>";
+        if (v.mMin < 0) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                "STR MinimumꚚ (" + QString("%1)").arg(v._min);
+                "STR MinimumꚚ (" + QString("%1)").arg(v.mMin);
         return desc;
     }
 };
@@ -6897,8 +6898,8 @@ public:
     TimeLimit(QJsonObject json)
         : Modifier(json["name"].toString("Time Limit"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._type = json["lType"].toInt(0);
-                                                  v._time = json["time"].toInt(0);
+                   json["adder"].toBool(false)) { v.mType = json["lType"].toInt(0);
+                                                  v.mTime = json["time"].toInt(0);
                                                 }
     ~TimeLimit() override { }
 
@@ -6918,30 +6919,30 @@ public:
                                                                                                           "1 Year", "5 Years" }, std::mem_fn(&ModifierBase::index));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              lType->setCurrentIndex(s._type);
+                                                              lType->setCurrentIndex(s.mType);
                                                               ModifiersDialog::ref().update();
-                                                              time->setCurrentIndex(s._time);
+                                                              time->setCurrentIndex(s.mTime);
                                                               v = s;
                                                             }
-    void          store() override                          { v._type = lType->currentIndex();
-                                                              v._time = time->currentIndex();
+    void          store() override                          { v.mType = lType->currentIndex();
+                                                              v.mTime = time->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["lType"] = v._type;
-                                                              obj["time"]  = v._time;
+                                                              obj["lType"] = v.mType;
+                                                              obj["time"]  = v.mTime;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        switch (v._type) {
+        switch (v.mType) {
         case 1:
-        case 2: return (v._time) * Fraction(1, 4);
-        case 3: if (v._time <= 5) return -4 + v._time * Fraction(1, 2); // NOLINT
-                else return -1 + (v._time - 5) * Fraction(1, 4); // NOLINT
+        case 2: return (v.mTime) * Fraction(1, 4);
+        case 3: if (v.mTime <= 5) return -4 + v.mTime * Fraction(1, 2); // NOLINT
+                else return -1 + (v.mTime - 5) * Fraction(1, 4); // NOLINT
         }
 
         return Fraction(0);
@@ -6949,15 +6950,15 @@ public:
 
 private:
     struct vars {
-        int _type;
-        int _time;
+        int mType;
+        int mTime;
     } v {};
 
     gsl::owner<QComboBox*> lType = nullptr;
     gsl::owner<QComboBox*> time = nullptr;
 
     QString optOut(bool show) {
-        if (v._type < 1 || v._time < 1) return "<incomplete>";
+        if (v.mType < 1 || v.mTime < 1) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QStringList instant = { "", "An Extra Phase", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                                 "1 Hour", "6 Hours", "1 Day", "1 Week", "1 Month", "1 Season",
@@ -6968,10 +6969,10 @@ private:
         QStringList other = { "", "An Extra Phase", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                               "1 Hour", "6 Hours", "1 Day" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Time Limit (";
-        switch (v._type) {
-        case 1: desc += instant[v._time];  break;
-        case 2: desc += constant[v._time]; break;
-        case 3: desc += other[v._time];    break;
+        switch (v.mType) {
+        case 1: desc += instant[v.mTime];  break;
+        case 2: desc += constant[v.mTime]; break;
+        case 3: desc += other[v.mTime];    break;
         }
         return desc + ")";
     }
@@ -6990,14 +6991,14 @@ private:
                                   "1 Hour", "6 Hours", "1 Day" };
             time->clear();
 
-            switch (v._type) {
+            switch (v.mType) {
             case 1: time->addItems(instant);  break;
             case 2: time->addItems(constant); break;
             case 3: time->addItems(other);    break;
             }
             time->setCurrentIndex(-1);
             time->setCurrentText("How Long?");
-            v._time = -1;
+            v.mTime = -1;
         }
         ModifiersDialog::ref().updateForm();
     }
@@ -7017,8 +7018,8 @@ public:
     Transdimensional(QJsonObject json)
         : Modifier(json["name"].toString("Transdimensionalϴ"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._type  = json["lType"].toInt(0);
-                                                  v._which = json["which"].toString();
+                   json["adder"].toBool(false)) { v.mType  = json["lType"].toInt(0);
+                                                  v.mWhich = json["which"].toString();
                                                 }
     ~Transdimensional() override { }
 
@@ -7037,25 +7038,25 @@ public:
                                                               which  = createLineEdit(p, l, "Which?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              lType->setCurrentIndex(s._type);
-                                                              which->setText(s._which);
+                                                              lType->setCurrentIndex(s.mType);
+                                                              which->setText(s.mWhich);
                                                               v = s;
                                                             }
-    void          store() override                          { v._type = lType->currentIndex();
-                                                              v._which = which->text();
+    void          store() override                          { v.mType = lType->currentIndex();
+                                                              v.mWhich = which->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["lType"] = v._type;
-                                                              obj["which"] = v._which;
+                                                              obj["lType"] = v.mType;
+                                                              obj["which"] = v.mWhich;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        switch (v._type) {
+        switch (v.mType) {
         case 1: return Fraction(1, 2);
         case 2: return Fraction(3, 4);
         case 3: return Fraction(1);
@@ -7066,22 +7067,22 @@ public:
 
 private:
     struct vars {
-        int     _type;
-        QString _which;
+        int     mType;
+        QString mWhich;
     } v {};
 
     gsl::owner<QComboBox*> lType = nullptr;
     gsl::owner<QLineEdit*> which = nullptr;
 
     QString optOut(bool show) {
-        if (v._type < 1 || (v._type != 3 && v._which.isEmpty())) return "<incomplete>";
+        if (v.mType < 1 || (v.mType != 3 && v.mWhich.isEmpty())) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QStringList type = { "", "Single Dimension", "Related Group of Dimensions", "Any Dimension" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Transdimensionalϴ (";
-        switch (v._type) {
+        switch (v.mType) {
         case 0:
-        case 1: desc += type[v._type] + "; " + v._which; break;
-        case 2: desc += type[v._type];                  break;
+        case 1: desc += type[v.mType] + "; " + v.mWhich; break;
+        case 2: desc += type[v.mType];                  break;
         }
         return desc + ")";
     }
@@ -7101,13 +7102,13 @@ public:
     Trigger(QJsonObject json)
         : Modifier(json["name"].toString("Trigger"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._change  = json["change"].toBool(false);
-                                                  v._cond    = json["cond"].toString();
-                                                  v._active  = json["active"].toBool(false);
-                                                  v._act     = json["act"].toInt(0);
-                                                  v._reset   = json["reset"].toInt(0);
-                                                  v._expire  = json["expire"].toBool(false);
-                                                  v._misfire = json["misfire"].toBool(false);
+                   json["adder"].toBool(false)) { v.mChange  = json["change"].toBool(false);
+                                                  v.mCond    = json["cond"].toString();
+                                                  v.mActive  = json["active"].toBool(false);
+                                                  v.mAct     = json["act"].toInt(0);
+                                                  v.mReset   = json["reset"].toInt(0);
+                                                  v.mExpire  = json["expire"].toBool(false);
+                                                  v.mMisfire = json["misfire"].toBool(false);
                                                 }
     ~Trigger() override { }
 
@@ -7132,58 +7133,58 @@ public:
                                                               misfire = createCheckBox(p, l, "Can Misfire", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              change->setChecked(s._change);
-                                                              cond->setText(s._cond);
-                                                              active->setChecked(s._active);
-                                                              act->setCurrentIndex(s._act);
-                                                              reset->setCurrentIndex(s._reset);
-                                                              expire->setChecked(s._expire);
-                                                              misfire->setChecked(s._misfire);
+                                                              change->setChecked(s.mChange);
+                                                              cond->setText(s.mCond);
+                                                              active->setChecked(s.mActive);
+                                                              act->setCurrentIndex(s.mAct);
+                                                              reset->setCurrentIndex(s.mReset);
+                                                              expire->setChecked(s.mExpire);
+                                                              misfire->setChecked(s.mMisfire);
                                                             }
-    void          store() override                          { v._change  = change->isChecked();
-                                                              v._cond    = cond->text();
-                                                              v._active  = active->isChecked();
-                                                              v._act     = act->currentIndex();
-                                                              v._reset   = reset->currentIndex();
-                                                              v._expire  = expire->isChecked();
-                                                              v._misfire = misfire->isChecked();
+    void          store() override                          { v.mChange  = change->isChecked();
+                                                              v.mCond    = cond->text();
+                                                              v.mActive  = active->isChecked();
+                                                              v.mAct     = act->currentIndex();
+                                                              v.mReset   = reset->currentIndex();
+                                                              v.mExpire  = expire->isChecked();
+                                                              v.mMisfire = misfire->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["change"]  = v._change;
-                                                              obj["cond"]    = v._cond;
-                                                              obj["active"]  = v._active;
-                                                              obj["act"]     = v._act;
-                                                              obj["reset"]   = v._reset;
-                                                              obj["expire"]  = v._expire;
-                                                              obj["misfire"] = v._misfire;
+                                                              obj["change"]  = v.mChange;
+                                                              obj["cond"]    = v.mCond;
+                                                              obj["active"]  = v.mActive;
+                                                              obj["act"]     = v.mAct;
+                                                              obj["reset"]   = v.mReset;
+                                                              obj["expire"]  = v.mExpire;
+                                                              obj["misfire"] = v.mMisfire;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._change) f = Fraction(1, 2);
-        if (v._active) f += Fraction(1, 4);
-        f += (v._act - 1) * Fraction(1, 4);
-        f += (v._reset - 3) * Fraction(1, 4);
-        if (v._expire) f -= Fraction(1, 4);
-        if (v._misfire) f -= Fraction(1, 4);
+        if (v.mChange) f = Fraction(1, 2);
+        if (v.mActive) f += Fraction(1, 4);
+        f += (v.mAct - 1) * Fraction(1, 4);
+        f += (v.mReset - 3) * Fraction(1, 4);
+        if (v.mExpire) f -= Fraction(1, 4);
+        if (v.mMisfire) f -= Fraction(1, 4);
         if (f < Fraction(1, 4)) f = Fraction(1, 4);
         return f;
     }
 
 private:
     struct vars {
-        int     _change;
-        QString _cond;
-        bool    _active;
-        int     _act;
-        int     _reset;
-        bool    _expire;
-        bool    _misfire;
+        int     mChange;
+        QString mCond;
+        bool    mActive;
+        int     mAct;
+        int     mReset;
+        bool    mExpire;
+        bool    mMisfire;
     } v {};
 
     gsl::owner<QCheckBox*> change = nullptr;
@@ -7195,17 +7196,17 @@ private:
     gsl::owner<QCheckBox*> misfire = nullptr;
 
     QString optOut(bool show) {
-        if (v._cond.isEmpty() || v._act < 1 || v._reset < 1) return "<incomplete>";
+        if (v.mCond.isEmpty() || v.mAct < 1 || v.mReset < 1) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QStringList reset { "", "Turn to", "Full Phase to", "Half Phase to", "0-Phase to", "Automatically" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Trigger (";
-        desc += v._cond;
-        if (v._change) desc += "; Can change conditions";
-        if (v._active) desc += ": 0-Phase Act.";
-        desc += QString("; %1 Activating Conditions").arg(v._act);
-        desc += "; " + reset[v._reset] + " reset";
-        if (v._expire) desc += "; expires";
-        if (v._misfire) desc += "; misfire";
+        desc += v.mCond;
+        if (v.mChange) desc += "; Can change conditions";
+        if (v.mActive) desc += ": 0-Phase Act.";
+        desc += QString("; %1 Activating Conditions").arg(v.mAct);
+        desc += "; " + reset[v.mReset] + " reset";
+        if (v.mExpire) desc += "; expires";
+        if (v.mMisfire) desc += "; misfire";
         return desc + ")";
     }
 };
@@ -7237,7 +7238,7 @@ public:
     Uncontrolled(QJsonObject json)
         : Modifier(json["name"].toString("Uncontrolledϴ"),
                    ModifierType(json["type"].toInt(0)),
-                   json["addr"].toBool(isModifier)) { v._until = json["until"].toString(); }
+                   json["addr"].toBool(isModifier)) { v.mUntil = json["until"].toString(); }
     Uncontrolled(const Uncontrolled& m)
         : Modifier(m)
         , v(m.v) { }
@@ -7258,13 +7259,13 @@ public:
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { until = createLineEdit(p, l, "Until?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
-    void          restore() override                        { vars s = v; until->setText(s._until); v = s; }
-    void          store() override                          { v._until = until->text(); }
+    void          restore() override                        { vars s = v; until->setText(s.mUntil); v = s; }
+    void          store() override                          { v.mUntil = until->text(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["until"] = v._until;
+                                                              obj["until"] = v.mUntil;
                                                               return obj;
                                                             }
 
@@ -7275,15 +7276,15 @@ public:
 
 private:
     struct vars {
-        QString _until;
+        QString mUntil;
     } v {};
 
     gsl::owner<QLineEdit*> until = nullptr;
 
     QString optOut(bool show) {
-        if (v._until.isEmpty()) return "<incomplete>";
+        if (v.mUntil.isEmpty()) return "<incomplete>";
         Fraction f(fraction(NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Uncontrolled Until " + v._until;
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Uncontrolled Until " + v.mUntil;
         return desc;
     }
 };
@@ -7321,8 +7322,8 @@ public:
     UsableAsMovement(QJsonObject json)
         : Modifier(json["name"].toString("Usable As [Movement]"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._num   = json["num"].toInt(0);
-                                                  v._which = json["which"].toString();
+                   json["adder"].toBool(false)) { v.mNum   = json["num"].toInt(0);
+                                                  v.mWhich = json["which"].toString();
                                                 }
     ~UsableAsMovement() override { }
 
@@ -7340,40 +7341,40 @@ public:
                                                               which = createLineEdit(p, l, "Which?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              num->setText(QString("%1").arg(s._num));
-                                                              which->setText(s._which);
+                                                              num->setText(QString("%1").arg(s.mNum));
+                                                              which->setText(s.mWhich);
                                                               v = s;
                                                             }
-    void          store() override                          { v._num = num->text().toInt();
-                                                              v._which = which->text();
+    void          store() override                          { v.mNum = num->text().toInt();
+                                                              v.mWhich = which->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["num"]   = v._num;
-                                                              obj["which"] = v._which;
+                                                              obj["num"]   = v.mNum;
+                                                              obj["which"] = v.mWhich;
                                                               return obj;
                                                             }
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        return v._num * Fraction(1, 4);
+        return v.mNum * Fraction(1, 4);
     }
 
 private:
     struct vars {
-        int     _num;
-        QString _which;
+        int     mNum;
+        QString mWhich;
     } v {};
 
     gsl::owner<QLineEdit*> num = nullptr;
     gsl::owner<QLineEdit*> which = nullptr;
 
     QString optOut(bool show) {
-        if (v._num < 1 || v._which.isEmpty()) return "<incomplete>";
+        if (v.mNum < 1 || v.mWhich.isEmpty()) return "<incomplete>";
         Fraction f(fraction(NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Usable As " + v._which;
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Usable As " + v.mWhich;
         return desc;
     }
 };
@@ -7392,14 +7393,14 @@ public:
     UsableByOthers(QJsonObject json)
         : Modifier(json["name"].toString("Usable On Othersϴ"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._doubles = json["double"].toInt(0);
-                                                  v._ten     = json["ten"].toBool(false);
-                                                  v._one     = json["one"].toBool(false);
-                                                  v._force   = json["force"].toBool(false);
-                                                  v._control = json["control"].toInt(0);
-                                                  v._pays    = json["pays"].toBool(false);
-                                                  v._range   = json["range"].toInt(0);
-                                                  v._stay    = json["stay"].toInt(0);
+                   json["adder"].toBool(false)) { v.mDoubles = json["double"].toInt(0);
+                                                  v.mTen     = json["ten"].toBool(false);
+                                                  v.mOne     = json["one"].toBool(false);
+                                                  v.mForce   = json["force"].toBool(false);
+                                                  v.mControl = json["control"].toInt(0);
+                                                  v.mPays    = json["pays"].toBool(false);
+                                                  v.mRange   = json["range"].toInt(0);
+                                                  v.mStay    = json["stay"].toInt(0);
                                                 }
     ~UsableByOthers() override { }
 
@@ -7424,64 +7425,64 @@ public:
                                                                                        std::mem_fn(&ModifierBase::index));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              doubles->setText(QString("%1").arg(s._doubles));
-                                                              ten->setChecked(s._ten);
-                                                              one->setChecked(s._one);
-                                                              force->setChecked(s._force);
-                                                              control->setCurrentIndex(s._control);
-                                                              pays->setChecked(s._pays);
-                                                              range->setCurrentIndex(s._range);
-                                                              stay->setCurrentIndex(s._stay);
+                                                              doubles->setText(QString("%1").arg(s.mDoubles));
+                                                              ten->setChecked(s.mTen);
+                                                              one->setChecked(s.mOne);
+                                                              force->setChecked(s.mForce);
+                                                              control->setCurrentIndex(s.mControl);
+                                                              pays->setChecked(s.mPays);
+                                                              range->setCurrentIndex(s.mRange);
+                                                              stay->setCurrentIndex(s.mStay);
                                                               v = s;
                                                             }
-    void          store() override                          { v._doubles = doubles->text().toInt(0);
-                                                              v._ten     = ten->isChecked();
-                                                              v._one     = one->isChecked();
-                                                              v._force   = force->isChecked();
-                                                              v._control = control->currentIndex();
-                                                              v._pays    = pays->isChecked();
-                                                              v._range   = range->currentIndex();
-                                                              v._stay    = stay->currentIndex();
+    void          store() override                          { v.mDoubles = doubles->text().toInt(0);
+                                                              v.mTen     = ten->isChecked();
+                                                              v.mOne     = one->isChecked();
+                                                              v.mForce   = force->isChecked();
+                                                              v.mControl = control->currentIndex();
+                                                              v.mPays    = pays->isChecked();
+                                                              v.mRange   = range->currentIndex();
+                                                              v.mStay    = stay->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["doubles"] = v._doubles;
-                                                              obj["ten"]     = v._ten;
-                                                              obj["one"]     = v._one;
-                                                              obj["force"]   = v._force;
-                                                              obj["control"] = v._control;
-                                                              obj["pays"]    = v._pays;
-                                                              obj["range"]   = v._range;
-                                                              obj["stay"]    = v._stay;
+                                                              obj["doubles"] = v.mDoubles;
+                                                              obj["ten"]     = v.mTen;
+                                                              obj["one"]     = v.mOne;
+                                                              obj["force"]   = v.mForce;
+                                                              obj["control"] = v.mControl;
+                                                              obj["pays"]    = v.mPays;
+                                                              obj["range"]   = v.mRange;
+                                                              obj["stay"]    = v.mStay;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 4);
-        if (v._ten) f += Fraction(1);
-        else f += v._doubles * Fraction(1, 4);
-        if (v._one) f -= Fraction(1, 4);
-        if (v._force) f += Fraction(1);
-        f += v._control * Fraction(1, 4);
-        if (v._pays) f -= Fraction(1, 4);
-        f += (v._range) * Fraction(1, 4);
-        f -= (v._stay) * Fraction(1, 4);
+        if (v.mTen) f += Fraction(1);
+        else f += v.mDoubles * Fraction(1, 4);
+        if (v.mOne) f -= Fraction(1, 4);
+        if (v.mForce) f += Fraction(1);
+        f += v.mControl * Fraction(1, 4);
+        if (v.mPays) f -= Fraction(1, 4);
+        f += (v.mRange) * Fraction(1, 4);
+        f -= (v.mStay) * Fraction(1, 4);
         if (f < Fraction(1, 4)) f = Fraction(1, 4);
         return f;
     }
 
 private:
     struct vars {
-        int  _doubles;
-        bool _ten;
-        bool _one;
-        bool _force;
-        int  _control;
-        bool _pays;
-        int  _range;
-        int  _stay;
+        int  mDoubles;
+        bool mTen;
+        bool mOne;
+        bool mForce;
+        int  mControl;
+        bool mPays;
+        int  mRange;
+        int  mStay;
     } v {};
 
     gsl::owner<QLineEdit*> doubles = nullptr;
@@ -7497,36 +7498,36 @@ private:
         QString txt = doubles->text();
         if (txt.isEmpty() || isNumber(txt)) {
             if (txt.toInt(nullptr) < 0 && !txt.isEmpty()) doubles->undo();
-            v._doubles = txt.toInt(nullptr);
-            if (v._doubles < 0) v._doubles = 0;
+            v.mDoubles = txt.toInt(nullptr);
+            if (v.mDoubles < 0) v.mDoubles = 0;
             return;
         }
         doubles->undo();
     }
 
     QString optOut(bool show) {
-        if (v._doubles < 0) return "<incomplete>";
+        if (v.mDoubles < 0) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
-        if (v._force) desc += "Usable Against Othersϴ";
+        if (v.mForce) desc += "Usable Against Othersϴ";
         else desc += "Usable On Othersϴ";
-        desc += "(x" + QString("%1").arg((int) pow(2.0, v._doubles)) + " targets"; // NOLINT
-        if (v._ten) desc += "; Anyone In 10m";
-        if (v._one) desc += "; One At A Time";
-        switch (v._control) {
+        desc += "(x" + QString("%1").arg((int) pow(2.0, v.mDoubles)) + " targets"; // NOLINT
+        if (v.mTen) desc += "; Anyone In 10m";
+        if (v.mOne) desc += "; One At A Time";
+        switch (v.mControl) {
         case 0: desc += "; Recipient Controls";                        break;
         case 1: desc += "; Recipient Controls But Grantor Can Revoke"; break;
         case 2: desc += "; Grantor Controls";                          break;
         }
-        if (v._pays) desc += "; Grantor Pays END";
+        if (v.mPays) desc += "; Grantor Pays END";
         else desc += "; Receipient Pays END";
-        switch (v._range) {
+        switch (v.mRange) {
         case 0: desc += "; Must Be In Reach";         break;
         case 1: desc += "; Must Be In Limited Range"; break;
         case 2: desc += "; Must Be In Range";         break;
         }
         desc += " When Granted";
-        switch (v._stay) {
+        switch (v.mStay) {
         case 1: desc += "; Must Stay In LIne-Of-Sight"; break;
         case 2: desc += "; Must stay In Range";         break;
         }
@@ -7549,11 +7550,11 @@ public:
     VariableAdvantage(QJsonObject json)
         : Modifier(json["name"].toString("Variable Advantageϴ"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._whole   = json["whole"].toInt(0);
-                                                  v._half    = json["half"].toBool(false);
-                                                  v._quarter = json["quarter"].toBool(false);
-                                                  v._limit   = json["limit"].toBool(false);
-                                                  v._advs    = json["advs"].toString();
+                   json["adder"].toBool(false)) { v.mWhole   = json["whole"].toInt(0);
+                                                  v.mHalf    = json["half"].toBool(false);
+                                                  v.mQuarter = json["quarter"].toBool(false);
+                                                  v.mLimit   = json["limit"].toBool(false);
+                                                  v.mAdvs    = json["advs"].toString();
                                                 }
     ~VariableAdvantage() override { }
 
@@ -7572,36 +7573,36 @@ public:
                                                               advs    = createLineEdit(p, l, "Advantages?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              whole->setText(QString("%1").arg(s._whole));
-                                                              half->setChecked(s._half);
-                                                              quarter->setChecked(s._quarter);
-                                                              limit->setChecked(s._limit);
-                                                              advs->setText(s._advs);
+                                                              whole->setText(QString("%1").arg(s.mWhole));
+                                                              half->setChecked(s.mHalf);
+                                                              quarter->setChecked(s.mQuarter);
+                                                              limit->setChecked(s.mLimit);
+                                                              advs->setText(s.mAdvs);
                                                               v = s;
                                                             }
-    void          store() override                          { v._whole   = whole->text().toInt(0);
-                                                              v._half    = half->isChecked();
-                                                              v._quarter = quarter->isChecked();
-                                                              v._limit   = limit->isChecked();
-                                                              v._advs    = advs->text();
+    void          store() override                          { v.mWhole   = whole->text().toInt(0);
+                                                              v.mHalf    = half->isChecked();
+                                                              v.mQuarter = quarter->isChecked();
+                                                              v.mLimit   = limit->isChecked();
+                                                              v.mAdvs    = advs->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["whole"]   = v._whole;
-                                                              obj["half"]    = v._half;
-                                                              obj["quarter"] = v._quarter;
-                                                              obj["limit"]   = v._limit;
-                                                              obj["advs"]    = v._advs;
+                                                              obj["whole"]   = v.mWhole;
+                                                              obj["half"]    = v.mHalf;
+                                                              obj["quarter"] = v.mQuarter;
+                                                              obj["limit"]   = v.mLimit;
+                                                              obj["advs"]    = v.mAdvs;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        Fraction f(v._whole);
-        if (v._half) f += Fraction(1, 2);
-        if (v._quarter) f -= Fraction(1, 4);
-        if (v._limit) f -= Fraction(1, 4);
+        Fraction f(v.mWhole);
+        if (v.mHalf) f += Fraction(1, 2);
+        if (v.mQuarter) f -= Fraction(1, 4);
+        if (v.mLimit) f -= Fraction(1, 4);
         f = f * 2;
         if (f < Fraction(1, 4)) f = Fraction(1, 4);
         return f;
@@ -7609,11 +7610,11 @@ public:
 
 private:
     struct vars {
-        int     _whole;
-        bool    _half;
-        bool    _quarter;
-        bool    _limit;
-        QString _advs;
+        int     mWhole;
+        bool    mHalf;
+        bool    mQuarter;
+        bool    mLimit;
+        QString mAdvs;
     } v {};
 
     gsl::owner<QLineEdit*> whole = nullptr;
@@ -7623,15 +7624,15 @@ private:
     gsl::owner<QLineEdit*> advs = nullptr;
 
     QString optOut(bool show) {
-        if (v._whole < 0 || (v._limit && v._advs.isEmpty())) return "<incomplete>";
+        if (v.mWhole < 0 || (v.mLimit && v.mAdvs.isEmpty())) return "<incomplete>";
         Fraction f(fraction(NoStore));
-        Fraction amt(v._whole);
-        if (v._half) amt += Fraction(1, 2);
-        if (v._quarter) amt += Fraction(1, 4);
+        Fraction amt(v.mWhole);
+        if (v.mHalf) amt += Fraction(1, 2);
+        if (v.mQuarter) amt += Fraction(1, 4);
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         desc += "Variable Advantageϴ";
         desc += " (+" + amt.toString() + " in Advantages";
-        if (v._limit) desc += "; Only From: " + v._advs;
+        if (v.mLimit) desc += "; Only From: " + v.mAdvs;
         return desc + ")";
     }
 };
@@ -7650,7 +7651,7 @@ public:
     VariableEffect(QJsonObject json)
         : Modifier(json["name"].toString("Variable Effect▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._effect = json["effect"].toString(); }
+                   json["adder"].toBool(false)) { v.mEffect = json["effect"].toString(); }
     ~VariableEffect() override { }
 
     VariableEffect& operator=(const VariableEffect&) = delete;
@@ -7663,13 +7664,13 @@ public:
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { effect = createLineEdit(p, l, "Effects?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
-    void          restore() override                        { vars s = v; effect->setText(s._effect); v = s; }
-    void          store() override                          { v._effect = effect->text(); }
+    void          restore() override                        { vars s = v; effect->setText(s.mEffect); v = s; }
+    void          store() override                          { v.mEffect = effect->text(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]   = name();
                                                               obj["type"]   = type();
                                                               obj["adder"]  = isAdder();
-                                                              obj["effect"] = v._effect;
+                                                              obj["effect"] = v.mEffect;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -7679,15 +7680,15 @@ public:
 
 private:
     struct vars {
-        QString _effect;
+        QString mEffect;
     } v {};
 
     gsl::owner<QLineEdit*> effect = nullptr;
 
     QString optOut(bool show) {
-        if (v._effect.isEmpty()) return "<incomplete>";
+        if (v.mEffect.isEmpty()) return "<incomplete>";
         Fraction f(fraction(NoStore));
-        return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Variable Effect▲ (versus " + v._effect + ")";
+        return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Variable Effect▲ (versus " + v.mEffect + ")";
     }
 };
 
@@ -7705,9 +7706,9 @@ public:
     VariableLimitations(QJsonObject json)
         : Modifier(json["name"].toString("Variable Limitations▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._whole   = json["whole"].toInt(0);
-                                                  v._half    = json["half"].toBool(false);
-                                                  v._quarter = json["quarter"].toBool(false);
+                   json["adder"].toBool(false)) { v.mWhole   = json["whole"].toInt(0);
+                                                  v.mHalf    = json["half"].toBool(false);
+                                                  v.mQuarter = json["quarter"].toBool(false);
                                                 }
     ~VariableLimitations() override { }
 
@@ -7724,38 +7725,38 @@ public:
                                                               quarter = createCheckBox(p, l, "+" + Fraction(1, 4).toString(), std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              whole->setText(QString("%1").arg(s._whole));
-                                                              half->setChecked(s._half);
-                                                              quarter->setChecked(s._quarter);
+                                                              whole->setText(QString("%1").arg(s.mWhole));
+                                                              half->setChecked(s.mHalf);
+                                                              quarter->setChecked(s.mQuarter);
                                                               v = s;
                                                             }
-    void          store() override                          { v._whole   = whole->text().toInt(0);
-                                                              v._half    = half->isChecked();
-                                                              v._quarter = quarter->isChecked();
+    void          store() override                          { v.mWhole   = whole->text().toInt(0);
+                                                              v.mHalf    = half->isChecked();
+                                                              v.mQuarter = quarter->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]    = name();
                                                               obj["type"]    = type();
                                                               obj["adder"]   = isAdder();
-                                                              obj["whole"]   = v._whole;
-                                                              obj["half"]    = v._half;
-                                                              obj["quarter"] = v._quarter;
+                                                              obj["whole"]   = v.mWhole;
+                                                              obj["half"]    = v.mHalf;
+                                                              obj["quarter"] = v.mQuarter;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        Fraction f(v._whole);
-        if (v._half) f += Fraction(1, 2);
-        if (v._quarter) f -= Fraction(1, 4);
+        Fraction f(v.mWhole);
+        if (v.mHalf) f += Fraction(1, 2);
+        if (v.mQuarter) f -= Fraction(1, 4);
         f = f * 2;
         return f;
     }
 
 private:
     struct vars {
-        int     _whole;
-        bool    _half;
-        bool    _quarter;
+        int     mWhole;
+        bool    mHalf;
+        bool    mQuarter;
     } v {};
 
     gsl::owner<QLineEdit*> whole = nullptr;
@@ -7763,11 +7764,11 @@ private:
     gsl::owner<QCheckBox*> quarter = nullptr;
 
     QString optOut(bool show) {
-        if (v._whole < 0) return "<incomplete>";
+        if (v.mWhole < 0) return "<incomplete>";
         Fraction f(fraction(NoStore));
-        Fraction amt(v._whole);
-        if (v._half) amt += Fraction(1, 2);
-        if (v._quarter) amt += Fraction(1, 4);
+        Fraction amt(v.mWhole);
+        if (v.mHalf) amt += Fraction(1, 2);
+        if (v.mQuarter) amt += Fraction(1, 4);
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         desc += "Variable Limitations▲ (+" + amt.toString() + " in Limitations" + ")";
         return desc;
@@ -7788,7 +7789,7 @@ public:
     VariableSpecialEffects(QJsonObject json)
         : Modifier(json["name"].toString("Variable Special Effects"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._effect = json["effect"].toString();
+                   json["adder"].toBool(false)) { v.mEffect = json["effect"].toString();
                                                 }
     ~VariableSpecialEffects() override { }
 
@@ -7803,27 +7804,27 @@ public:
     bool          form(QWidget* p, QVBoxLayout* l) override { effect = createLineEdit(p, l, "Special Effects?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              effect->setText(s._effect);
+                                                              effect->setText(s.mEffect);
                                                               v = s;
                                                             }
-    void          store() override                          { v._effect = effect->text();
+    void          store() override                          { v.mEffect = effect->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]   = name();
                                                               obj["type"]   = type();
                                                               obj["adder"]  = isAdder();
-                                                              obj["effect"] = v._effect;
+                                                              obj["effect"] = v.mEffect;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        if (v._effect.isEmpty()) return Fraction(1, 2);
+        if (v.mEffect.isEmpty()) return Fraction(1, 2);
         return Fraction(1, 4);
     }
 
 private:
     struct vars {
-        QString _effect;
+        QString mEffect;
     } v {};
 
     gsl::owner<QLineEdit*> effect = nullptr;
@@ -7831,7 +7832,7 @@ private:
     QString optOut(bool show) {
         Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Variable Special Effects";
-        if (!v._effect.isEmpty()) desc += " (from:  " + v._effect + ")";
+        if (!v.mEffect.isEmpty()) desc += " (from:  " + v.mEffect + ")";
         return desc;
     }
 };
@@ -7850,7 +7851,7 @@ public:
     WorksAgainstEGONotCharacteristic(QJsonObject json)
         : Modifier(json["name"].toString("Works Against EGO Not [Characteristic]▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._characteristic  = json["characteristic"].toInt(0);
+                   json["adder"].toBool(false)) { v.mCharacteristic  = json["characteristic"].toInt(0);
                                                 }
     ~WorksAgainstEGONotCharacteristic() override { }
 
@@ -7869,16 +7870,16 @@ public:
                                                                                      std::mem_fn(&ModifierBase::index));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              characteristic->setCurrentIndex(s._characteristic);
+                                                              characteristic->setCurrentIndex(s.mCharacteristic);
                                                               v = s;
                                                             }
-    void          store() override                          { v._characteristic = characteristic->currentIndex();
+    void          store() override                          { v.mCharacteristic = characteristic->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]           = name();
                                                               obj["type"]           = type();
                                                               obj["adder"]          = isAdder();
-                                                              obj["characteristic"] = v._characteristic;
+                                                              obj["characteristic"] = v.mCharacteristic;
                                                               return obj;
                                                             }
 
@@ -7889,17 +7890,17 @@ public:
 
 private:
     struct vars {
-        int _characteristic;
+        int mCharacteristic;
     } v {};
 
     gsl::owner<QComboBox*> characteristic = nullptr;
 
     QString optOut(bool show) {
-        if (v._characteristic < 1) return "<incomplete>";
+        if (v.mCharacteristic < 1) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QStringList characteristic = { "", "STR", "DEX", "INT", "EGO", "PRE", "OCV", "DCV", "OMCV", "DMCV",
                                        "SPD", "PD", "ED", "REC", "END", "BODY", "STUN" };
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + QString("Works Against EGO Not %1▲").arg(characteristic[v._characteristic]);
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + QString("Works Against EGO Not %1▲").arg(characteristic[v.mCharacteristic]);
         return desc;
     }
 };

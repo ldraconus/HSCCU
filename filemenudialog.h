@@ -5,8 +5,7 @@ namespace Ui {
 class FileMenuDialog;
 }
 
-class FileMenuDialog : public QDialog
-{
+class FileMenuDialog : public QDialog {
     Q_OBJECT
 
 public:

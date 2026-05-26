@@ -10,8 +10,7 @@ namespace Ui {
 class ComplicationsDialog;
 }
 
-class ComplicationsDialog : public QDialog
-{
+class ComplicationsDialog : public QDialog {
     Q_OBJECT
 
 public:
@@ -24,7 +23,7 @@ public:
     ComplicationsDialog& operator=(const ComplicationsDialog&) = delete;
     ComplicationsDialog& operator=(ComplicationsDialog&&) = delete;
 
-    shared_ptr<Complication> complication() { return _complication; }
+    shared_ptr<Complication> complication() { return mComplication; }
     ComplicationsDialog& complication(shared_ptr<Complication>& c);
 
 private:
@@ -32,11 +31,11 @@ private:
 
     static const bool WordWrap = true;
 
-    shared_ptr<Complication> _complication = nullptr;
-    gsl::owner<QLabel*>      _description = nullptr;
-    gsl::owner<QPushButton*> _ok = nullptr;
-    gsl::owner<QLabel*>      _points = nullptr;
-    bool                     _skipUpdate = false;
+    shared_ptr<Complication> mComplication = nullptr;
+    gsl::owner<QLabel*>      mDescription = nullptr;
+    gsl::owner<QPushButton*> mOk = nullptr;
+    gsl::owner<QLabel*>      mPoints = nullptr;
+    bool                     mSkipUpdate = false;
 
     gsl::owner<QLabel*> createLabel(QVBoxLayout*, QString, bool wordWrap = false);
     void                updateForm();

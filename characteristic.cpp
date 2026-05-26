@@ -4,22 +4,22 @@
 #endif
 
 Characteristic::Characteristic(const QJsonObject& c)
-    : _cost(this->cost())
+    : mCost(this->cost())
 {
     if (c.find("base") == c.end()) throw("");
 
-    _base = c["base"].toInt(0);
-    _init = this->init();
-    _per = this->per();
+    mBase = c["base"].toInt(0);
+    mInit = this->init();
+    mPer = this->per();
 }
 
 Characteristic& Characteristic::operator=(const Characteristic& c) {
-    if (this != &c) _base = c._base;
+    if (this != &c) mBase = c.mBase;
     return *this;
 }
 
 Characteristic& Characteristic::operator=(Characteristic&& c) {
-    _base = c._base;
+    mBase = c.mBase;
     return *this;
 }
 
@@ -28,18 +28,18 @@ Points Characteristic::points() {
     Option& opt = Sheet::ref().option();
 #endif
 
-    int half = _per / 2;
-    if (_per % 2 == 0) half--;
+    int half = mPer / 2;
+    if (mPer % 2 == 0) half--;
 #ifndef ISHSC
-    int max = opt.normalHumanMaxima() ? _maxima : INT_MAX;
+    int max = opt.normalHumanMaxima() ? mMaxima : INT_MAX;
 #else
     int max = INT_MAX;
 #endif
-    int val = _base - _init;
-    int min = (val + _init > max) ? max - _init : val;
+    int val = mBase - mInit;
+    int min = (val + mInit > max) ? max - mInit : val;
     int dbl = val - min;
 
-    return Points(((min + dbl) * _cost.points + dbl * _cost.points + half) / _per);
+    return Points(((min + dbl) * mCost.points + dbl * mCost.points + half) / mPer);
 }
 
 
@@ -48,20 +48,20 @@ QString Characteristic::roll() {
     constexpr int step = 5;
     constexpr int halfStep = step / 2;
 
-    QString r = QString("%1-").arg(baseRoll + (_base + _primary + halfStep) / step);
-    if (_secondary != 0) r += QString("/%1-").arg(baseRoll + (_base + _primary + _secondary + halfStep) / step);
+    QString r = QString("%1-").arg(baseRoll + (mBase + mPrimary + halfStep) / step);
+    if (mSecondary != 0) r += QString("/%1-").arg(baseRoll + (mBase + mPrimary + mSecondary + halfStep) / step);
     return r;
 }
 
 QJsonObject Characteristic::toJson() {
     QJsonObject obj;
-    obj["base"] = _base;
+    obj["base"] = mBase;
     return obj;
 }
 
 QString Characteristic::value() {
-    QString v = QString("%1").arg(_base + _primary);
-    if (_secondary != 0) v += QString("/%1").arg(_base + _primary + _secondary);
+    QString v = QString("%1").arg(mBase + mPrimary);
+    if (mSecondary != 0) v += QString("/%1").arg(mBase + mPrimary + mSecondary);
     return v;
 }
 

@@ -27,9 +27,9 @@ public:
 
     bool isPerk() override { return true; }
 
-    QString description(bool showRoll = false) override { return v._name + (showRoll ? "" : ""); }
+    QString description(bool showRoll = false) override { return v.mName + (showRoll ? "" : ""); }
     bool    form(QWidget*, QVBoxLayout*) override       { return false; }
-    QString name() override                             { return v._name; }
+    QString name() override                             { return v.mName; }
     Points points(bool noStore = false) override        { if (!noStore) store(); return 0_cp; }
     void    restore() override                          { }
     QString roll() override                             { return ""; }
@@ -37,13 +37,13 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["name"] = v._name;
+        obj["name"] = v.mName;
         return obj;
     }
 
 private:
     struct vars {
-        QString _name;
+        QString mName;
     } v {};
 };
 
@@ -71,9 +71,9 @@ public:
     Access(): Perks("Access") { }
     Access(const Access& s): Perks(s)             { }
     Access(Access&& s): Perks(s)                  { }
-    Access(const QJsonObject& json): Perks(json)  { v._cost = json["cost"].toInt(1);
-                                                    v._for  = json["for"].toString("");
-                                                    v._hide = json["hide"].toInt(0);
+    Access(const QJsonObject& json): Perks(json)  { v.mCost = json["cost"].toInt(1);
+                                                    v.mFor  = json["for"].toString("");
+                                                    v.mHide = json["hide"].toInt(0);
     }
     ~Access() override { }
 
@@ -87,30 +87,30 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return (v._cost + 1) * 1_cp + v._hide; }
+                                                                  return (v.mCost + 1) * 1_cp + v.mHide; }
     void    restore() override                                  { vars s = v;
-                                                                  cost->setCurrentIndex(s._cost);
-                                                                  hide->setText(QString("%1").arg(s._hide));
-                                                                  forwhat->setText(s._for);
+                                                                  cost->setCurrentIndex(s.mCost);
+                                                                  hide->setText(QString("%1").arg(s.mHide));
+                                                                  forwhat->setText(s.mFor);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._cost = cost->currentIndex();
-                                                                  v._for  = forwhat->text();
-                                                                  v._hide = hide->text().toInt(0);
+    void    store() override                                    { v.mCost = cost->currentIndex();
+                                                                  v.mFor  = forwhat->text();
+                                                                  v.mHide = hide->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["cost"] = v._cost;
-                                                                  obj["for"]  = v._for;
-                                                                  obj["hide"] = v._hide;
+                                                                  obj["cost"] = v.mCost;
+                                                                  obj["for"]  = v.mFor;
+                                                                  obj["hide"] = v.mHide;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int     _cost = -1;
-        QString _for = "";
-        int     _hide = 0;
+        int     mCost = -1;
+        QString mFor = "";
+        int     mHide = 0;
     } v;
 
     QComboBox* cost = nullptr;
@@ -118,9 +118,9 @@ private:
     QLineEdit* hide = nullptr;
 
     QString optOut() {
-        if (v._cost < 0 || v._for.isEmpty()) return "<incomplete>";
-        QString res = "Access: " + v._for;
-        if (v._hide > 0) res += QString(" (-%1 to discover)").arg(v._hide);
+        if (v.mCost < 0 || v.mFor.isEmpty()) return "<incomplete>";
+        QString res = "Access: " + v.mFor;
+        if (v.mHide > 0) res += QString(" (-%1 to discover)").arg(v.mHide);
         return res;
     }
 
@@ -138,7 +138,7 @@ public:
     Anonymity(Anonymity&& s): Perks(s)               { }
     Anonymity(const QJsonObject& json)
         : Perks(json) {
-        v._extra = json["extra"].toInt(1);
+        v.mExtra = json["extra"].toInt(1);
     }
     ~Anonymity() override { }
 
@@ -150,22 +150,22 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return 3_cp + v._extra; }
+                                                                  return 3_cp + v.mExtra; }
     void    restore() override                                  { vars s = v;
-                                                                  extra->setText(QString("%1").arg(s._extra));
+                                                                  extra->setText(QString("%1").arg(s.mExtra));
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._extra = extra->text().toInt(0);
+    void    store() override                                    { v.mExtra = extra->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["extra"] = v._extra;
+                                                                  obj["extra"] = v.mExtra;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int _extra = 0;
+        int mExtra = 0;
     } v;
 
     QLineEdit* extra = nullptr;
@@ -186,8 +186,8 @@ public:
     ComputerLink(): Perks("Computer Link")              { }
     ComputerLink(const ComputerLink& s): Perks(s)       { }
     ComputerLink(ComputerLink&& s): Perks(s)            { }
-    ComputerLink(const QJsonObject& json): Perks(json)  { v._value = json["value"].toInt(1);
-        v._for = json["for"].toString("");
+    ComputerLink(const QJsonObject& json): Perks(json)  { v.mValue = json["value"].toInt(1);
+        v.mFor = json["for"].toString("");
     }
     ~ComputerLink() override { }
 
@@ -200,34 +200,34 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return v._value + 1_cp; }
+                                                                  return v.mValue + 1_cp; }
     void    restore() override                                  { vars s = v;
-                                                                  value->setText(QString("%1").arg(s._value));
-                                                                  forwhat->setText(s._for);
+                                                                  value->setText(QString("%1").arg(s.mValue));
+                                                                  forwhat->setText(s.mFor);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._for   = forwhat->text();
-                                                                  v._value = value->text().toInt(0);
+    void    store() override                                    { v.mFor   = forwhat->text();
+                                                                  v.mValue = value->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["for"]   = v._for;
-                                                                  obj["value"] = v._value;
+                                                                  obj["for"]   = v.mFor;
+                                                                  obj["value"] = v.mValue;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        QString _for = "";
-        int     _value = 0;
+        QString mFor = "";
+        int     mValue = 0;
     } v;
 
     QLineEdit* forwhat = nullptr;
     QLineEdit* value = nullptr;
 
     QString optOut() {
-        if (v._for.isEmpty()) return "<incomplete>";
-        QString res = "Computer Link: " + v._for;
+        if (v.mFor.isEmpty()) return "<incomplete>";
+        QString res = "Computer Link: " + v.mFor;
         return res;
     }
 
@@ -243,15 +243,15 @@ public:
     Contact(): Perks("Contact")                   { }
     Contact(const Contact& s): Perks(s)           { }
     Contact(Contact&& s): Perks(s)                { }
-    Contact(const QJsonObject& json): Perks(json) { v._base     = json["base"].toInt(0);
-                                                    v._plus     = json["plus"].toInt(0);
-                                                    v._limited  = json["limited"].toBool(false);
-                                                    v._who      = json["who"].toString("");
-                                                    v._useful   = json["useful"].toInt(0);
-                                                    v._access   = json["access"].toBool(false);
-                                                    v._contacts = json["contacts"].toBool(false);
-                                                    v._relate   = json["relate"].toInt(0);
-                                                    v._org = json["org"].toBool(false);
+    Contact(const QJsonObject& json): Perks(json) { v.mBase     = json["base"].toInt(0);
+                                                    v.mPlus     = json["plus"].toInt(0);
+                                                    v.mLimited  = json["limited"].toBool(false);
+                                                    v.mWho      = json["who"].toString("");
+                                                    v.mUseful   = json["useful"].toInt(0);
+                                                    v.mAccess   = json["access"].toBool(false);
+                                                    v.mContacts = json["contacts"].toBool(false);
+                                                    v.mRelate   = json["relate"].toInt(0);
+                                                    v.mOrg = json["org"].toBool(false);
     }
     ~Contact() override { }
 
@@ -278,8 +278,8 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  auto pts = (v._base + 1_cp + v._plus - (v._limited ? 1_cp : 0_cp) + (v._useful > 0 ? 1_cp * v._useful: 0_cp) + (v._access ? 1_cp : 0_cp) +
-                                                                          (v._contacts ? 1_cp : 0_cp) + ((v._relate == 0) ? -2 : v._relate - 1)) * (v._org ? 3_cp : 1_cp);
+                                                                  auto pts = (v.mBase + 1_cp + v.mPlus - (v.mLimited ? 1_cp : 0_cp) + (v.mUseful > 0 ? 1_cp * v.mUseful: 0_cp) + (v.mAccess ? 1_cp : 0_cp) +
+                                                                          (v.mContacts ? 1_cp : 0_cp) + ((v.mRelate == 0) ? -2 : v.mRelate - 1)) * (v.mOrg ? 3_cp : 1_cp);
 #ifndef ISHSC
                                                                   if (Sheet::ref().character().hasWellConnected()) pts -= 1_cp;
 #endif
@@ -287,52 +287,52 @@ public:
                                                                   return pts;
                                                                 }
     void    restore() override                                  { vars s = v;
-                                                                  base->setCurrentIndex(s._base);
-                                                                  plus->setText(QString("%1").arg(s._plus));
-                                                                  limited->setChecked(s._limited);
-                                                                  who->setText(s._who);
-                                                                  useful->setCurrentIndex(s._useful);
-                                                                  access->setChecked(s._access);
-                                                                  contacts->setChecked(s._contacts);
-                                                                  relate->setCurrentIndex(s._relate);
-                                                                  org->setChecked(s._org);
+                                                                  base->setCurrentIndex(s.mBase);
+                                                                  plus->setText(QString("%1").arg(s.mPlus));
+                                                                  limited->setChecked(s.mLimited);
+                                                                  who->setText(s.mWho);
+                                                                  useful->setCurrentIndex(s.mUseful);
+                                                                  access->setChecked(s.mAccess);
+                                                                  contacts->setChecked(s.mContacts);
+                                                                  relate->setCurrentIndex(s.mRelate);
+                                                                  org->setChecked(s.mOrg);
                                                                   v = s;
                                                                 }
-    QString roll() override                                     { return QString("%1-").arg(8 + v._base * 3 + v._plus); } // NOLINT
-    void    store() override                                    { v._base     = base->currentIndex();
-                                                                  v._plus     = plus->text().toInt(0);
-                                                                  v._limited  = limited->isChecked();
-                                                                  v._who      = who->text();
-                                                                  v._useful   = useful->currentIndex();
-                                                                  v._access   = access->isChecked();
-                                                                  v._contacts = contacts->isChecked();
-                                                                  v._relate   = relate->currentIndex();
-                                                                  v._org      = org->isChecked();
+    QString roll() override                                     { return QString("%1-").arg(8 + v.mBase * 3 + v.mPlus); } // NOLINT
+    void    store() override                                    { v.mBase     = base->currentIndex();
+                                                                  v.mPlus     = plus->text().toInt(0);
+                                                                  v.mLimited  = limited->isChecked();
+                                                                  v.mWho      = who->text();
+                                                                  v.mUseful   = useful->currentIndex();
+                                                                  v.mAccess   = access->isChecked();
+                                                                  v.mContacts = contacts->isChecked();
+                                                                  v.mRelate   = relate->currentIndex();
+                                                                  v.mOrg      = org->isChecked();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["base"]     = v._base;
-                                                                  obj["plus"]     = v._plus;
-                                                                  obj["limited"]  = v._limited;
-                                                                  obj["who"]      = v._who;
-                                                                  obj["useful"]   = v._useful;
-                                                                  obj["access"]   = v._access;
-                                                                  obj["contacts"] = v._contacts;
-                                                                  obj["relate"]   = v._relate;
-                                                                  obj["org"]      = v._org;
+                                                                  obj["base"]     = v.mBase;
+                                                                  obj["plus"]     = v.mPlus;
+                                                                  obj["limited"]  = v.mLimited;
+                                                                  obj["who"]      = v.mWho;
+                                                                  obj["useful"]   = v.mUseful;
+                                                                  obj["access"]   = v.mAccess;
+                                                                  obj["contacts"] = v.mContacts;
+                                                                  obj["relate"]   = v.mRelate;
+                                                                  obj["org"]      = v.mOrg;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int     _base = -1;
-        int     _plus = 0;
-        bool    _limited = false;
-        QString _who = "";
-        int     _useful = -1;
-        bool    _access = false;
-        bool    _contacts = false;
-        int     _relate = -1;
-        bool    _org = false;
+        int     mBase = -1;
+        int     mPlus = 0;
+        bool    mLimited = false;
+        QString mWho = "";
+        int     mUseful = -1;
+        bool    mAccess = false;
+        bool    mContacts = false;
+        int     mRelate = -1;
+        bool    mOrg = false;
     } v;
 
     QComboBox* base = nullptr;
@@ -346,20 +346,20 @@ private:
     QCheckBox* org = nullptr;
 
     QString optOut() {
-        if (v._base < 0 || v._useful < 0 || v._relate < 0 || v._who.isEmpty()) return "<incomplete>";
+        if (v.mBase < 0 || v.mUseful < 0 || v.mRelate < 0 || v.mWho.isEmpty()) return "<incomplete>";
         QString res;
-        if (v._plus) res += QString("+%1 ").arg(v._plus);
-        res += "Contact: " + v._who;
+        if (v.mPlus) res += QString("+%1 ").arg(v.mPlus);
+        res += "Contact: " + v.mWho;
         QString sep = " (";
-        if (v._limited) { res += sep + "Limited"; sep = "; "; }
+        if (v.mLimited) { res += sep + "Limited"; sep = "; "; }
         QStringList useful { "Useful", "Very Useful", "More Userful", "Extremely Useful" };
-        res += sep + useful[v._useful];
+        res += sep + useful[v.mUseful];
         sep = "; ";
-        if (v._access) res += sep + "Access";
-        if (v._contacts) res += sep + "Contacts";
+        if (v.mAccess) res += sep + "Access";
+        if (v.mContacts) res += sep + "Contacts";
         QStringList relate { "Unfriendly", "Neutral", "Good", "Very Good", "Slavishly Loyal" };
-        res += sep + relate[v._relate];
-        if (v._org) res += sep + "Organization";
+        res += sep + relate[v.mRelate];
+        if (v.mOrg) res += sep + "Organization";
         return res + ")";
     }
 
@@ -377,7 +377,7 @@ public:
     DeepCover(DeepCover&& s): Perks(s)               { }
     DeepCover(const QJsonObject& json)
         : Perks(json) {
-        v._as = json["as"].toString("");
+        v.mAs = json["as"].toString("");
     }
     ~DeepCover() override { }
 
@@ -390,26 +390,26 @@ public:
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   return 2_cp; }
-    void    restore() override                                  { vars s = v; as->setText(v._as); v = s;
+    void    restore() override                                  { vars s = v; as->setText(v.mAs); v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._as = as->text();
+    void    store() override                                    { v.mAs = as->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["as"] = v._as;
+                                                                  obj["as"] = v.mAs;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        QString _as = "";
+        QString mAs = "";
     } v;
 
     QLineEdit* as = nullptr;
 
     QString optOut() {
-        if (v._as.isEmpty()) return "<incomplete>";
-        return "Deep Cover: " + v._as;
+        if (v.mAs.isEmpty()) return "<incomplete>";
+        return "Deep Cover: " + v.mAs;
     }
 };
 
@@ -418,8 +418,8 @@ public:
     Favor(): Perks("Favor")                     { }
     Favor(const Favor& s): Perks(s)             { }
     Favor(Favor&& s): Perks(s)                  { }
-    Favor(const QJsonObject& json): Perks(json) { v._who  = json["who"].toString("");
-        v._cost = json["cost"].toInt(1);
+    Favor(const QJsonObject& json): Perks(json) { v.mWho  = json["who"].toString("");
+        v.mCost = json["cost"].toInt(1);
     }
     ~Favor() override { }
 
@@ -432,39 +432,39 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  auto pts = (v._cost > 0) ? Points(v._cost) : 1_cp;
+                                                                  auto pts = (v.mCost > 0) ? Points(v.mCost) : 1_cp;
 #ifndef ISHSC
                                                                   if (Sheet::ref().character().hasWellConnected()) pts -= 1_cp;
 #endif
                                                                   if (pts < 1_cp) pts = 1_cp;
                                                                   return pts; }
     void    restore() override                                  { vars s = v;
-                                                                  who->setText(v._who);
-                                                                  cost->setText(QString("%1").arg(v._cost));
+                                                                  who->setText(v.mWho);
+                                                                  cost->setText(QString("%1").arg(v.mCost));
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return "14-"; }
-    void    store() override                                    { v._who  = who->text();
-                                                                  v._cost = cost->text().toInt();
+    void    store() override                                    { v.mWho  = who->text();
+                                                                  v.mCost = cost->text().toInt();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["who"]  = v._who;
-                                                                  obj["cost"] = v._cost;
+                                                                  obj["who"]  = v.mWho;
+                                                                  obj["cost"] = v.mCost;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        QString _who = "";
-        int     _cost = 1;
+        QString mWho = "";
+        int     mCost = 1;
     } v;
 
     QLineEdit* who = nullptr;
     QLineEdit* cost = nullptr;
 
     QString optOut() {
-        if (v._who.isEmpty()) return "<incomplete>";
-        return "Favor: " + v._who + QString(" (%1 pt)").arg(v._cost);
+        if (v.mWho.isEmpty()) return "<incomplete>";
+        return "Favor: " + v.mWho + QString(" (%1 pt)").arg(v.mCost);
     }
 
     void numeric(QString) override {
@@ -483,9 +483,9 @@ public:
     Follower(): Perks("Follower")                  { }
     Follower(const Follower& s): Perks(s)          { }
     Follower(Follower&& s): Perks(s)               { }
-    Follower(const QJsonObject& json): Perks(json) { v._who  = json["who"].toString("");
-                                                     v._pnts = json["pnts"].toInt(1);
-                                                     v._mult = json["mult"].toInt(0);
+    Follower(const QJsonObject& json): Perks(json) { v.mWho  = json["who"].toString("");
+                                                     v.mPnts = json["pnts"].toInt(1);
+                                                     v.mMult = json["mult"].toInt(0);
     }
     ~Follower() override { }
 
@@ -499,30 +499,30 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return (v._pnts + 3) / 5 + v._mult * 5_cp; } // NOLINT
+                                                                  return (v.mPnts + 3) / 5 + v.mMult * 5_cp; } // NOLINT
     void    restore() override                                  { vars s= v;
-                                                                  who->setText(s._who);
-                                                                  pnts->setText(QString("%1").arg(s._pnts));
-                                                                  mult->setText(QString("%1").arg(s._mult));
+                                                                  who->setText(s.mWho);
+                                                                  pnts->setText(QString("%1").arg(s.mPnts));
+                                                                  mult->setText(QString("%1").arg(s.mMult));
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._who  = who->text();
-                                                                  v._pnts = pnts->text().toInt();
-                                                                  v._mult = mult->text().toInt();
+    void    store() override                                    { v.mWho  = who->text();
+                                                                  v.mPnts = pnts->text().toInt();
+                                                                  v.mMult = mult->text().toInt();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["who"]  = v._who;
-                                                                  obj["pnts"] = v._pnts;
-                                                                  obj["mult"] = v._mult;
+                                                                  obj["who"]  = v.mWho;
+                                                                  obj["pnts"] = v.mPnts;
+                                                                  obj["mult"] = v.mMult;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-    QString _who = "";
-    int     _pnts = 0;
-    int     _mult = 0;
+    QString mWho = "";
+    int     mPnts = 0;
+    int     mMult = 0;
     } v;
 
     QLineEdit* who = nullptr;
@@ -530,9 +530,9 @@ private:
     QLineEdit* mult = nullptr;
 
     QString optOut() {
-        if (v._who.isEmpty() || v._pnts == 0) return "<incomplete>";
+        if (v.mWho.isEmpty() || v.mPnts == 0) return "<incomplete>";
         // NOLINTNEXTLINE
-        return QString("%1Follower%2: ").arg(v._mult != 0 ? QString("x%1 ").arg(pow(2.0, v._mult)) : "", v._mult != 0 ? "s" : "") + v._who + QString(" (%1 points)").arg(v._pnts);
+        return QString("%1Follower%2: ").arg(v.mMult != 0 ? QString("x%1 ").arg(pow(2.0, v.mMult)) : "", v.mMult != 0 ? "s" : "") + v.mWho + QString(" (%1 points)").arg(v.mPnts);
     }
 
     void numeric(QString) override {
@@ -550,8 +550,8 @@ public:
     FringeBenefit(FringeBenefit&& s): Perks(s)          { }
     FringeBenefit(const QJsonObject& json)
         : Perks(json) {
-        v._cost = json["cost"].toInt(1);
-        v._for = json["for"].toString("");
+        v.mCost = json["cost"].toInt(1);
+        v.mFor = json["for"].toString("");
     }
     ~FringeBenefit() override { }
 
@@ -564,34 +564,34 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return Points(v._cost); }
+                                                                  return Points(v.mCost); }
     void    restore() override                                  { vars s = v;
-                                                                  cost->setText(QString("%1").arg(s._cost));
-                                                                  forwhat->setText(s._for);
+                                                                  cost->setText(QString("%1").arg(s.mCost));
+                                                                  forwhat->setText(s.mFor);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._for  = forwhat->text();
-                                                                  v._cost = cost->text().toInt(0);
+    void    store() override                                    { v.mFor  = forwhat->text();
+                                                                  v.mCost = cost->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["for"]  = v._for;
-                                                                  obj["cost"] = v._cost;
+                                                                  obj["for"]  = v.mFor;
+                                                                  obj["cost"] = v.mCost;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        QString _for  = "";
-        int     _cost = 0;
+        QString mFor  = "";
+        int     mCost = 0;
     } v;
 
     QLineEdit* forwhat = nullptr;
     QLineEdit* cost = nullptr;
 
     QString optOut() {
-        if (v._for.isEmpty()) return "<incomplete>";
-        QString res = "Fringe Benefit: " + v._for;
+        if (v.mFor.isEmpty()) return "<incomplete>";
+        QString res = "Fringe Benefit: " + v.mFor;
         return res;
     }
 
@@ -609,7 +609,7 @@ public:
     Money(Money&& s): Perks(s)                  { }
     Money(const QJsonObject& json)
         : Perks(json) {
-        v._amount = json["amount"].toInt(0);
+        v.mAmount = json["amount"].toInt(0);
     }
     ~Money() override { }
 
@@ -632,26 +632,26 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return ((v._amount < 0) ? 0_cp : ((v._amount < 10) ? (v._amount + 1) * 1_cp : 15_cp)); } // NOLINT
-    void    restore() override                                  { vars s = v; amount->setCurrentIndex(s._amount); v = s;
+                                                                  return ((v.mAmount < 0) ? 0_cp : ((v.mAmount < 10) ? (v.mAmount + 1) * 1_cp : 15_cp)); } // NOLINT
+    void    restore() override                                  { vars s = v; amount->setCurrentIndex(s.mAmount); v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._amount = amount->currentIndex();
+    void    store() override                                    { v.mAmount = amount->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["amount"] = v._amount;
+                                                                  obj["amount"] = v.mAmount;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int _amount = 0;
+        int mAmount = 0;
     } v;
 
     QComboBox* amount = nullptr;
 
     QString optOut() {
-        if (v._amount < 0) return "<incomplete>";
+        if (v.mAmount < 0) return "<incomplete>";
         QStringList amount { "Well Off ($100,000 or less)",
                              "Well Off ($200,000 or less)",
                              "Well Off ($300,000 or less)",
@@ -664,7 +664,7 @@ private:
                              "Wealthy ($6,000,000 or less)",
                              "Filthy Rich (Unlimited)"
                            };
-        return amount[v._amount];
+        return amount[v.mAmount];
     }
 };
 
@@ -673,9 +673,9 @@ public:
     PositiveReputation(): Perks("Positive Reputation")        { }
     PositiveReputation(const PositiveReputation& s): Perks(s) { }
     PositiveReputation(PositiveReputation&& s): Perks(s)      { }
-    PositiveReputation(const QJsonObject& json): Perks(json)  { v._lvl  = json["level"].toInt(1);
-                                                                v._for  = json["for"].toString("");
-                                                                v._knwn = json["known"].toInt(0);
+    PositiveReputation(const QJsonObject& json): Perks(json)  { v.mLvl  = json["level"].toInt(1);
+                                                                v.mFor  = json["for"].toString("");
+                                                                v.mKnown = json["known"].toInt(0);
     }
     ~PositiveReputation() override { }
 
@@ -691,32 +691,32 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  return (v._lvl + 1_cp) + v._knwn - 1_cp; }
+                                                                  return (v.mLvl + 1_cp) + v.mKnown - 1_cp; }
     void    restore() override                                  { vars s = v;
-                                                                  level->setCurrentIndex(s._lvl);
-                                                                  known->setCurrentIndex(s._knwn);
-                                                                  forwhat->setText(s._for);
+                                                                  level->setCurrentIndex(s.mLvl);
+                                                                  known->setCurrentIndex(s.mKnown);
+                                                                  forwhat->setText(s.mFor);
                                                                   v = s;
                                                                 }
     QString roll() override                                     { QStringList known { "8-", "11-", "14-"};
-                                                                  return known[v._knwn];
+                                                                  return known[v.mKnown];
                                                                 }
-    void    store() override                                    { v._lvl  = level->currentIndex();
-                                                                  v._for  = forwhat->text();
-                                                                  v._knwn = known->currentIndex();
+    void    store() override                                    { v.mLvl  = level->currentIndex();
+                                                                  v.mFor  = forwhat->text();
+                                                                  v.mKnown = known->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["level"] = v._lvl;
-                                                                  obj["for"]   = v._for;
-                                                                  obj["known"] = v._knwn;
+                                                                  obj["level"] = v.mLvl;
+                                                                  obj["for"]   = v.mFor;
+                                                                  obj["known"] = v.mKnown;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        int     _lvl = -1;
-        QString _for = "";
-        int     _knwn = -1;
+        int     mLvl = -1;
+        QString mFor = "";
+        int     mKnown = -1;
     } v;
 
     QComboBox* level = nullptr;
@@ -724,12 +724,12 @@ private:
     QComboBox* known = nullptr;
 
     QString optOut() {
-        if (v._lvl < 0 || v._knwn < 0 || v._for.isEmpty()) return "<incomplete>";
-        QString res = "Positive Reputation: " + v._for;
+        if (v.mLvl < 0 || v.mKnown < 0 || v.mFor.isEmpty()) return "<incomplete>";
+        QString res = "Positive Reputation: " + v.mFor;
         QStringList level { "Small to medium size group",
                             "Medium sized group",
                             "Large group" };
-        return res + " (Known to a " + level[v._lvl] + ")";
+        return res + " (Known to a " + level[v.mLvl] + ")";
     }
 };
 
@@ -738,9 +738,9 @@ public:
     VehiclesAndBases(): Perks("Vehicles And Bases")        { }
     VehiclesAndBases(const VehiclesAndBases& s): Perks(s)  { }
     VehiclesAndBases(VehiclesAndBases&& s): Perks(s)       { }
-    VehiclesAndBases(const QJsonObject& json): Perks(json) { v._what = json["what"].toString("");
-                                                             v._pnts = json["pnts"].toInt(1);
-                                                             v._mult = json["mult"].toInt(0);
+    VehiclesAndBases(const QJsonObject& json): Perks(json) { v.mWhat = json["what"].toString("");
+                                                             v.mPnts = json["pnts"].toInt(1);
+                                                             v.mMult = json["mult"].toInt(0);
     }
     ~VehiclesAndBases() override { }
 
@@ -754,30 +754,30 @@ public:
                                                                   return true;
                                                                 }
     Points  points(bool noStore = false) override               { if (!noStore) store();
-                                                                  return (v._pnts + 3) / 5 + v._mult * 5_cp; } // NOLINT
+                                                                  return (v.mPnts + 3) / 5 + v.mMult * 5_cp; } // NOLINT
     void    restore() override                                  { vars s = v;
-                                                                  what->setText(s._what);
-                                                                  pnts->setText(QString("%1").arg(s._pnts));
-                                                                  mult->setText(QString("%1").arg(s._mult));
+                                                                  what->setText(s.mWhat);
+                                                                  pnts->setText(QString("%1").arg(s.mPnts));
+                                                                  mult->setText(QString("%1").arg(s.mMult));
                                                                   v = s;
                                                                 }
     QString roll() override                                     { return ""; }
-    void    store() override                                    { v._what = what->text();
-                                                                  v._pnts = pnts->text().toInt();
-                                                                  v._mult = mult->text().toInt();
+    void    store() override                                    { v.mWhat = what->text();
+                                                                  v.mPnts = pnts->text().toInt();
+                                                                  v.mMult = mult->text().toInt();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["what"] = v._what;
-                                                                  obj["pnts"] = v._pnts;
-                                                                  obj["mult"] = v._mult;
+                                                                  obj["what"] = v.mWhat;
+                                                                  obj["pnts"] = v.mPnts;
+                                                                  obj["mult"] = v.mMult;
                                                                   return obj;
                                                                 }
 
 private:
     struct vars {
-        QString _what = "";
-        int     _pnts = 0;
-        int     _mult = 0;
+        QString mWhat = "";
+        int     mPnts = 0;
+        int     mMult = 0;
     } v;
 
     QLineEdit* what = nullptr;
@@ -785,8 +785,8 @@ private:
     QLineEdit* mult = nullptr;
 
     QString optOut() {
-        if (v._what.isEmpty() || v._pnts == 0) return "<incomplete>";
-        return QString("%1Vehicles and Bases: ").arg(v._mult != 0 ? QString("x%1 ").arg(pow(2.0, v._mult)) : "") + v._what + QString(" (%1 points)").arg(v._pnts); // NOLINT
+        if (v.mWhat.isEmpty() || v.mPnts == 0) return "<incomplete>";
+        return QString("%1Vehicles and Bases: ").arg(v.mMult != 0 ? QString("x%1 ").arg(pow(2.0, v.mMult)) : "") + v.mWhat + QString(" (%1 points)").arg(v.mPnts); // NOLINT
     }
 
     void numeric(QString) override {

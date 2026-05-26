@@ -35,10 +35,10 @@ public:
 
     void load(const QJsonObject& json, const QString& name) {
         AllPowers::load(json, name);
-        v._cost = json["cost"].toInt(0);
-        v._weight = json["weight"].toInt(0);
-        v._acting = json["acting"].toInt(0);
-        v._extraNotes = json["extraNotes"].toString("");
+        v.mCost = json["cost"].toInt(0);
+        v.mWeight = json["weight"].toInt(0);
+        v.mActing = json["acting"].toInt(0);
+        v.mExtraNotes = json["extraNotes"].toString("");
     }
 
     bool isEquipment() override { return true; }
@@ -56,34 +56,34 @@ public:
     void restore() override {
         vars s = v;
         AllPowers::restore();
-        extraNotes->setText(s._extraNotes);
+        extraNotes->setText(s.mExtraNotes);
         v = s;
     }
     void store() override {
         AllPowers::store();
-        v._extraNotes = extraNotes->text();
+        v.mExtraNotes = extraNotes->text();
     }
     QJsonObject toJson() const override {
         QJsonObject obj = AllPowers::toJson();
-        obj["cost"] = v._cost;
-        obj["weight"] = v._weight;
-        obj["acting"] = v._acting;
-        obj["extraNotes"] = v._extraNotes;
+        obj["cost"] = v.mCost;
+        obj["weight"] = v.mWeight;
+        obj["acting"] = v.mActing;
+        obj["extraNotes"] = v.mExtraNotes;
         return obj;
     }
 
     QString end() override { return "-"; }
 
-    int cost() { return v._cost; }
-    int weight() { return v._weight; }
-    int acting() { return v._acting; }
+    int cost() { return v.mCost; }
+    int weight() { return v.mWeight; }
+    int acting() { return v.mActing; }
 
 private:
     struct vars {
-        int _cost = 0;
-        int _weight = 0;
-        int _acting = 0;
-        QString _extraNotes = "";
+        int mCost = 0;
+        int mWeight = 0;
+        int mActing = 0;
+        QString mExtraNotes = "";
     } v;
 
     QLineEdit* extraNotes = nullptr;
@@ -91,12 +91,12 @@ private:
 protected:
     QString optOut(bool, double mod = 1.0, double modCost = 1.0) {
         QString res;
-        if (v._cost != 0 || v._weight != 0) res += "(";
-        if (v._cost != 0) res += QString("%1 sc").arg((int) (v._cost * modCost + 0.5)); // NOLINT
-        int wgt = (int) (v._weight * mod + 0.5); // NOLINT
-        if (v._weight != 0) res += QString("%1%2.%3 kg").arg(v._cost != 0 ? "/" : "").arg(wgt / 10).arg(wgt % 10); // NOLINT
+        if (v.mCost != 0 || v.mWeight != 0) res += "(";
+        if (v.mCost != 0) res += QString("%1 sc").arg((int) (v.mCost * modCost + 0.5)); // NOLINT
+        int wgt = (int) (v.mWeight * mod + 0.5); // NOLINT
+        if (v.mWeight != 0) res += QString("%1%2.%3 kg").arg(v.mCost != 0 ? "/" : "").arg(wgt / 10).arg(wgt % 10); // NOLINT
         if (!res.isEmpty()) res += ")";
-        if (!v._extraNotes.isEmpty()) res += v._extraNotes;
+        if (!v.mExtraNotes.isEmpty()) res += v.mExtraNotes;
         return res;
     }
 };
@@ -131,29 +131,29 @@ public:
 
     void load(const QJsonObject& json) {
         Equipment::load(json, "Weapon");
-        v._twoHanded = json["twoHanded"].toBool(false);
-        v._which = json["which"].toInt(-1);
-        v._withSTR = json["withSTR"].toBool(true);
-        v._withoutMin = json["withoutMin"].toBool(false);
-        v._killing = json["killing"].toBool(true);
-        v._rp = json["RP"].toBool(false);
-        v._ocv = json["OCV"].toInt(0);
-        v._dmgClasses = json["dmgClasses"].toInt(0);
-        v._bonusDC = json["bonusDC"].toInt(0);
-        v._bonusOCV = json["bonusOCV"].toInt(0);
-        v._strMin = json["STRMin"].toInt(0);
-        v._normalSTR = json["normalSTR"].toBool(false);
-        v._notes = json["notes"].toString("");
+        v.mTwoHanded = json["twoHanded"].toBool(false);
+        v.mWhich = json["which"].toInt(-1);
+        v.mWithSTR = json["withSTR"].toBool(true);
+        v.mWithoutMin = json["withoutMin"].toBool(false);
+        v.mKilling = json["killing"].toBool(true);
+        v.mRP = json["RP"].toBool(false);
+        v.mOCV = json["OCV"].toInt(0);
+        v.mDmgClasses = json["dmgClasses"].toInt(0);
+        v.mBonusDC = json["bonusDC"].toInt(0);
+        v.mBonusOCV = json["bonusOCV"].toInt(0);
+        v.mSTRMin = json["STRMin"].toInt(0);
+        v.mNormalSTR = json["normalSTR"].toBool(false);
+        v.mNotes = json["notes"].toString("");
     }
 
     void index(int idx) override {
-        auto keys = _weapons.keys();
-        load(_weapons[keys[idx]]);
+        auto keys = mWeapons.keys();
+        load(mWeapons[keys[idx]]);
     }
 
     QString nickname() override {
-        auto keys = _weapons.keys();
-        return keys[v._which];
+        auto keys = mWeapons.keys();
+        return keys[v.mWhich];
     }
 
     QString end() override {
@@ -169,94 +169,94 @@ public:
     QString description(bool showEND = false) override { return optOut(showEND); }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         Equipment::form(parent, layout);
-        which = createComboBox(parent, layout, "Pick a weapon", _weapons.keys(), std::mem_fn(&Power::index));
+        which = createComboBox(parent, layout, "Pick a weapon", mWeapons.keys(), std::mem_fn(&Power::index));
         bonusDC = createLineEdit(parent, layout, "Bonus Damage Classes", std::mem_fn(&Power::numeric));
         bonusOCV = createLineEdit(parent, layout, "Bonus to Hit", std::mem_fn(&Power::numeric));
     }
     void restore() override {
         vars s = v;
         Equipment::restore();
-        which->setCurrentIndex(s._which);
-        bonusDC->setText(QString("%1").arg(s._bonusDC));
-        bonusOCV->setText(QString("%1").arg(s._bonusOCV));
+        which->setCurrentIndex(s.mWhich);
+        bonusDC->setText(QString("%1").arg(s.mBonusDC));
+        bonusOCV->setText(QString("%1").arg(s.mBonusOCV));
         v = s;
     }
     void store() override {
         Equipment::store();
-        v._which = which->currentIndex();
-        v._bonusDC = bonusDC->text().toInt();
-        v._bonusOCV = bonusOCV->text().toInt();
+        v.mWhich = which->currentIndex();
+        v.mBonusDC = bonusDC->text().toInt();
+        v.mBonusOCV = bonusOCV->text().toInt();
     }
     QJsonObject toJson() const override {
         QJsonObject obj = Equipment::toJson();
-        obj["twoHanded"] = v._twoHanded;
-        obj["which"] = v._which;
-        obj["withSTR"] = v._withSTR;
-        obj["withoutMin"] = v._withoutMin;
-        obj["killing"] = v._killing;
-        obj["RP"] = v._rp;
-        obj["OCV"] = v._ocv;
-        obj["dmgClasses"] = v._dmgClasses;
-        obj["bonusDC"] = v._bonusDC;
-        obj["bonusOCV"] = v._bonusOCV;
-        obj["STRMin"] = v._strMin;
-        obj["normalSTR"] = v._normalSTR;
-        obj["notes"] = v._notes;
+        obj["twoHanded"] = v.mTwoHanded;
+        obj["which"] = v.mWhich;
+        obj["withSTR"] = v.mWithSTR;
+        obj["withoutMin"] = v.mWithoutMin;
+        obj["killing"] = v.mKilling;
+        obj["RP"] = v.mRP;
+        obj["OCV"] = v.mOCV;
+        obj["dmgClasses"] = v.mDmgClasses;
+        obj["bonusDC"] = v.mBonusDC;
+        obj["bonusOCV"] = v.mBonusOCV;
+        obj["STRMin"] = v.mSTRMin;
+        obj["normalSTR"] = v.mNormalSTR;
+        obj["notes"] = v.mNotes;
         return obj;
     }
 
-    static QMap<QString, QJsonObject>& catalog() { return _weapons; }
+    static QMap<QString, QJsonObject>& catalog() { return mWeapons; }
 
 private:
     struct vars {
-        bool _twoHanded = false;
-        bool _withSTR = true;
-        bool _withoutMin = false;
-        bool _killing = true;
-        bool _rp = false;
-        int _which = -1;
-        int _ocv = 0;
-        int _dmgClasses = 0;
-        int _bonusDC = 0;
-        int _bonusOCV = 0;
-        int _strMin = 0;
-        bool _normalSTR = false;
-        QString _notes = "";
+        bool mTwoHanded = false;
+        bool mWithSTR = true;
+        bool mWithoutMin = false;
+        bool mKilling = true;
+        bool mRP = false;
+        int mWhich = -1;
+        int mOCV = 0;
+        int mDmgClasses = 0;
+        int mBonusDC = 0;
+        int mBonusOCV = 0;
+        int mSTRMin = 0;
+        bool mNormalSTR = false;
+        QString mNotes = "";
     } v;
 
-    static QMap<QString, QJsonObject> _weapons; // NOLINT
+    static QMap<QString, QJsonObject> mWeapons; // NOLINT
 
     QComboBox* which = nullptr;
     QLineEdit* bonusDC = nullptr;
     QLineEdit* bonusOCV = nullptr;
 
     QString optOut(bool b) {
-        if (v._which < 0) return "<incomplete>";
+        if (v.mWhich < 0) return "<incomplete>";
 
         QString res = Equipment::optOut(b);
         QString sep = ", ";
-        if (v._twoHanded) res += sep + "2 Handed";
+        if (v.mTwoHanded) res += sep + "2 Handed";
         int STR = 0;
         QString dmg = "";
-        if (v._withSTR) {
+        if (v.mWithSTR) {
 #ifndef ISHSC
             STR = Sheet::ref().character().STR().base() +
                 Sheet::ref().character().STR().primary() +
                 Sheet::ref().character().STR().secondary();
 #endif
-            if (STR < v._strMin) STR = 0;
-            else if (v._withoutMin) STR -= v._strMin;
+            if (STR < v.mSTRMin) STR = 0;
+            else if (v.mWithoutMin) STR -= v.mSTRMin;
 
             if (STR < 0) STR = 0;
         }
         if (dmg.isEmpty()) {
-            int classes = (v._dmgClasses + v._bonusDC);
-            if (v._normalSTR) classes += Fraction(STR, 5).toInt(); // NOLINT
+            int classes = (v.mDmgClasses + v.mBonusDC);
+            if (v.mNormalSTR) classes += Fraction(STR, 5).toInt(); // NOLINT
             else {
-                Fraction cost(v._dmgClasses, acting());
+                Fraction cost(v.mDmgClasses, acting());
                 classes += (STR * cost).toInt(true);
             }
-            if (v._killing) {
+            if (v.mKilling) {
                 dmg += QString("%1d6").arg(classes / 3);
                 switch (classes % 3) {
                 case 0:
@@ -271,13 +271,13 @@ private:
             } else dmg += QString("%1d6 N").arg(classes);
         }
         res += sep + dmg;
-        res += sep + QString("%1 STR min").arg(v._strMin);
-        if (v._rp) res += sep + "Reduced Penetration";
-        int ocv = v._ocv + v._bonusOCV;
+        res += sep + QString("%1 STR min").arg(v.mSTRMin);
+        if (v.mRP) res += sep + "Reduced Penetration";
+        int ocv = v.mOCV + v.mBonusOCV;
         if (ocv >= 0) res += sep + QString("+%1").arg(ocv);
         else res += sep + QString("%1").arg(ocv);
         res += " OCV";
-        res += sep + v._notes;
+        res += sep + v.mNotes;
         return res;
     }
 };
@@ -308,23 +308,23 @@ public:
     }
 
     QString nickname() override {
-        auto keys = _armors.keys();
-        return keys[v._which];
+        auto keys = mArmors.keys();
+        return keys[v.mWhich];
     }
 
     QString hitLocations() {
-        return v._hitLocations;
+        return v.mHitLocations;
     }
     int DEF() {
         QList<int> value {1, 2, 2, 3, 1, 2, 3, 1, 3, 3, 3, 2, 4, 4, 4, 3, 5, 5, 5, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8}; // NOLINT
-        int def = v._bonus + value[v._type];
+        int def = v.mBonus + value[v.mType];
         if (def < 0) def = 0;
         return def;
     }
 
     void index(int idx) override {
-        auto keys = _armors.keys();
-        load(_armors[keys[idx]]);
+        auto keys = mArmors.keys();
+        load(mArmors[keys[idx]]);
     }
     QList<double> fromArray(const QJsonArray& arr) {
         QList<double> src;
@@ -333,17 +333,17 @@ public:
     }
     void load(const QJsonObject& json) {
         Equipment::load(json, "Armor");
-        v._hitLocations = json["hitLocations"].toString("3-18");
-        v._which = json["which"].toInt(-1);
-        v._type = json["type"].toInt(-1);
-        v._bonus = json["bonus"].toInt(0);
-        v._weights = fromArray(json["weights"].toArray());
+        v.mHitLocations = json["hitLocations"].toString("3-18");
+        v.mWhich = json["which"].toInt(-1);
+        v.mType = json["type"].toInt(-1);
+        v.mBonus = json["bonus"].toInt(0);
+        v.mWeights = fromArray(json["weights"].toArray());
     }
     Fraction adv() override { return Fraction(0); }
     QString description(bool showEND = false) override { return optOut(showEND); }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         Equipment::form(parent, layout);
-        which = createComboBox(parent, layout, "Pick an armor", _armors.keys(), std::mem_fn(&Power::index));
+        which = createComboBox(parent, layout, "Pick an armor", mArmors.keys(), std::mem_fn(&Power::index));
         type = createComboBox(parent, layout, "Type of armor?", {"Heavy Cloth", "Padded Cloth", "Woven Cord", "Heavy Animal Hides", "Soft Leather", "Heavy Leather", "Cuir-Bouilli", "Studded Soft Leather", "Ring Armor (Soft Leather)", "Bezainted Soft Leather", "Jazeraint Soft Leather", "Studded Heavy Leather", "Ring Armor (Heavy Leather)", "Bezainted Heavy Leather", "Jazeraint Heavy Leather", "Studded Cuir-Bouilli", "Ring Armor (Cuir-Bouilli)", "Bezainted Cuir-Bouilli", "Jazeraint Cuir-Bouilli", "Brigandine", "Lamellar (Splint Armor)", "Banded Mail", "Chainmail", "Double Mail/Bar Mail", "Reinforced Chainmail", "Plate And Chain", "Plate Armor", "Field Plate Armor", "Full Plate Armor"});
         bonus = createLineEdit(parent, layout, "Bonus DEF?", std::mem_fn(&Power::numeric));
     }
@@ -352,16 +352,16 @@ public:
     void restore() override {
         vars s = v;
         Equipment::restore();
-        which->setCurrentIndex(s._which);
-        type->setCurrentIndex(s._type);
-        bonus->setText(QString("%1").arg(s._bonus));
+        which->setCurrentIndex(s.mWhich);
+        type->setCurrentIndex(s.mType);
+        bonus->setText(QString("%1").arg(s.mBonus));
         v = s;
     }
     void store() override {
         Equipment::store();
-        v._which = which->currentIndex();
-        v._type = type->currentIndex();
-        v._bonus = bonus->text().toInt();
+        v.mWhich = which->currentIndex();
+        v.mType = type->currentIndex();
+        v.mBonus = bonus->text().toInt();
     }
     QJsonArray toArray(const QList<double>& src) const {
         QJsonArray arr;
@@ -370,44 +370,44 @@ public:
     }
     QJsonObject toJson() const override {
         QJsonObject obj = Equipment::toJson();
-        obj["hitLocations"] = v._hitLocations;
-        obj["which"] = v._which;
-        obj["type"] = v._type;
-        obj["bonus"] = v._bonus;
-        obj["weights"] = toArray(v._weights);
+        obj["hitLocations"] = v.mHitLocations;
+        obj["which"] = v.mWhich;
+        obj["type"] = v.mType;
+        obj["bonus"] = v.mBonus;
+        obj["weights"] = toArray(v.mWeights);
         return obj;
     }
 
-    static QMap<QString, QJsonObject>& catalog() { return _armors; }
+    static QMap<QString, QJsonObject>& catalog() { return mArmors; }
 
 private:
     struct vars {
-        QString _hitLocations = "3-18";
-        int _which = -1;
-        int _type = 0;
-        int _bonus = 0;
-        QList<double> _weights;
+        QString mHitLocations = "3-18";
+        int mWhich = -1;
+        int mType = 0;
+        int mBonus = 0;
+        QList<double> mWeights;
     } v;
 
-    static QMap<QString, QJsonObject> _armors; // NOLINT
+    static QMap<QString, QJsonObject> mArmors; // NOLINT
 
     QComboBox* which = nullptr;
     QComboBox* type = nullptr;
     QLineEdit* bonus = nullptr;
 
     QString optOut(bool b) {
-        if (v._type < 0 || v._which < 0) return "<incomplete>";
+        if (v.mType < 0 || v.mWhich < 0) return "<incomplete>";
         QStringList typeOf {"Heavy Cloth", "Padded Cloth", "Woven Cord", "Heavy Animal Hides", "Soft Leather", "Heavy Leather", "Cuir-Bouilli", "Studded Soft Leather", "Ring Armor (Soft Leather)", "Bezainted Soft Leather", "Jazeraint Soft Leather", "Studded Heavy Leather", "Ring Armor (Heavy Leather)", "Bezainted Heavy Leather", "Jazeraint Heavy Leather", "Studded Cuir-Bouilli", "Ring Armor (Cuir-Bouilli)", "Bezainted Cuir-Bouilli", "Jazeraint Cuir-Bouilli", "Brigandine", "Lamellar (Splint Armor)", "Banded Mail", "Chainmail", "Double Mail/Bar Mail", "Reinforced Chainmail", "Plate And Chain", "Plate Armor", "Field Plate Armor", "Full Plate Armor"};
         QList<int> price   {20,            40,             40,           50,                   30,             50,              75,             36,                     75,                          80,                       90,                       90,                      90,                           100,                       110,                       110,                    100,                         110,                      110,                      100,          125,                       150,           150,         200,                    200,                    275,               350,           500,                 800}; // NOLINT
         QList<double> mass {3.5,           5.0,            5.0,          7.0,                  3.5,            5.0,             7.0,            3.5,                    7.0,                         7.0,                      7.0,                      5.0,                     10.0,                         10.0,                      10.0,                      7.0,                    14.0,                        14.0,                     14.0,                     10.0,         14.0,                      20.0,          20.0,        28.0,                   28.0,                   28.0,              28.0,          28.0,                40.0}; // NOLINT
         QList<int> value {1, 2, 2, 3, 1, 2, 3, 1, 3, 3, 3, 2, 4, 4, 4, 3, 5, 5, 5, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8}; // NOLINT
-        QString res = Equipment::optOut(b, 10.0 * v._weights[value[v._type] - 1] * value[v._type] / 8.0, price[v._type] * v._weights[value[v._type] - 1] / mass[v._type]); // NOLINT
+        QString res = Equipment::optOut(b, 10.0 * v.mWeights[value[v.mType] - 1] * value[v.mType] / 8.0, price[v.mType] * v.mWeights[value[v.mType] - 1] / mass[v.mType]); // NOLINT
         QString sep = ", ";
-        res += sep + typeOf[v._type];
-        int def = v._bonus + value[v._type];
+        res += sep + typeOf[v.mType];
+        int def = v.mBonus + value[v.mType];
         if (def < 0) def = 0;
         res += sep + QString("%1 rDEF").arg(def);
-        res += sep + v._hitLocations + " Locations";
+        res += sep + v.mHitLocations + " Locations";
         return res;
     }
 };
@@ -438,68 +438,68 @@ public:
     }
 
     QString nickname() override {
-        auto keys = _equip.keys();
-        return keys[v._which];
+        auto keys = mEquip.keys();
+        return keys[v.mWhich];
     }
 
     void index(int idx) override {
-        auto keys = _equip.keys();
-        load(_equip[keys[idx]]);
+        auto keys = mEquip.keys();
+        load(mEquip[keys[idx]]);
     }
     void load(const QJsonObject& json) {
         Equipment::load(json, "Equipment");
-        v._which = json["which"].toInt(-1);
-        v._notes = json["notes"].toString();
-        v._strMin = json["strMin"].toInt(0);
+        v.mWhich = json["which"].toInt(-1);
+        v.mNotes = json["notes"].toString();
+        v.mSTRMin = json["strMin"].toInt(0);
     }
     Fraction adv() override { return Fraction(0); }
     QString description(bool showEND = false) override { return optOut(showEND); }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         Equipment::form(parent, layout);
-        which = createComboBox(parent, layout, "Pick some equipment", _equip.keys(), std::mem_fn(&Power::index));
+        which = createComboBox(parent, layout, "Pick some equipment", mEquip.keys(), std::mem_fn(&Power::index));
     }
     Fraction lim() override { return Fraction(0); }
     Points points(bool) override { return 0_cp; }
     void restore() override {
         vars s = v;
         Equipment::restore();
-        which->setCurrentIndex(s._which);
+        which->setCurrentIndex(s.mWhich);
         v = s;
     }
     void store() override {
         Equipment::store();
-        v._which = which->currentIndex();
+        v.mWhich = which->currentIndex();
     }
     QJsonObject toJson() const override {
         QJsonObject obj = Equipment::toJson();
-        obj["which"] = v._which;
-        obj["strMin"] = v._strMin;
-        obj["notes"] = v._notes;
+        obj["which"] = v.mWhich;
+        obj["strMin"] = v.mSTRMin;
+        obj["notes"] = v.mNotes;
         return obj;
     }
 
-    static QMap<QString, QJsonObject>& catalog() { return _equip; }
+    static QMap<QString, QJsonObject>& catalog() { return mEquip; }
 
 private:
     struct vars {
-        int _which = -1;
-        int _strMin = 0;
-        QString _notes = "";
+        int mWhich = -1;
+        int mSTRMin = 0;
+        QString mNotes = "";
     } v;
 
-    static QMap<QString, QJsonObject> _equip; // NOLINT
+    static QMap<QString, QJsonObject> mEquip; // NOLINT
 
     QComboBox* which = nullptr;
 
     QString optOut(bool b) {
-        if (v._which < 0) return "<incomplete>";
+        if (v.mWhich < 0) return "<incomplete>";
         QString res = Equipment::optOut(b);
         QString sep = " ";
-        if (v._strMin != 0) {
-            res += sep + QString("%1 STR min").arg(v._strMin);
+        if (v.mSTRMin != 0) {
+            res += sep + QString("%1 STR min").arg(v.mSTRMin);
             sep = ", ";
         }
-        if (!v._notes.isEmpty()) res += sep + v._notes;
+        if (!v.mNotes.isEmpty()) res += sep + v.mNotes;
         return res;
     }
 };

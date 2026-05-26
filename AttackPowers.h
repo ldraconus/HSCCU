@@ -11,9 +11,9 @@ public:
     Blast(): AllPowers("Blast")                     { }
     Blast(const Blast& s): AllPowers(s)             { }
     Blast(Blast&& s): AllPowers(s)                  { }
-    Blast(const QJsonObject& json): AllPowers(json) { v._dice = json["dice"].toInt(0);
-                                                      v._pded = json["pded"].toInt(0);
-                                                      v._stun = json["stun"].toBool(false);
+    Blast(const QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
+                                                      v.mPdEd = json["pded"].toInt(0);
+                                                      v.mStun = json["stun"].toBool(false);
                                                     }
     virtual Blast& operator=(const Blast& s) {
         if (this != &s) {
@@ -37,31 +37,31 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points(v._dice * 5); }
+                                                                   return Points(v.mDice * 5); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   dice->setText(QString("%1").arg(s._dice));
-                                                                   pded->setCurrentIndex(s._pded);
-                                                                   stun->setChecked(s._stun);
+                                                                   dice->setText(QString("%1").arg(s.mDice));
+                                                                   pded->setCurrentIndex(s.mPdEd);
+                                                                   stun->setChecked(s.mStun);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._dice = dice->text().toInt();
-                                                                   v._pded = pded->currentIndex();
-                                                                   v._stun = stun->isChecked();
+                                                                   v.mDice = dice->text().toInt();
+                                                                   v.mPdEd = pded->currentIndex();
+                                                                   v.mStun = stun->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v._dice;
-                                                                   obj["pded"] = v._pded;
-                                                                   obj["stun"] = v._stun;
+                                                                   obj["dice"] = v.mDice;
+                                                                   obj["pded"] = v.mPdEd;
+                                                                   obj["stun"] = v.mStun;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int  _dice = 0;
-        int  _pded = -1;
-        bool _stun = false;
+        int  mDice = 0;
+        int  mPdEd = -1;
+        bool mStun = false;
     } v;
 
     QLineEdit* dice;
@@ -69,11 +69,11 @@ private:
     QCheckBox* stun;
 
     QString optOut(bool showEND) {
-        if (v._dice < 1 || v._pded < 0) return "<incomplete>";
+        if (v.mDice < 1 || v.mPdEd < 0) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v._dice) + "d6 Blast vs " + ((v._pded == 0) ? "PD" : "ED");
-        if (v._stun) res += "; STUN Only";
+        res += QString("%1").arg(v.mDice) + "d6 Blast vs " + ((v.mPdEd == 0) ? "PD" : "ED");
+        if (v.mStun) res += "; STUN Only";
         return res;
     }
 
@@ -103,17 +103,17 @@ private:
             , widgets(wl)
             , val(v) { }
     };
-    bool _create = true;
-    bool _data   = true;
-    int  _index;
+    bool mCreate = true;
+    bool mData   = true;
+    int  mIndex;
 
 public:
     ChangeEnvironment(): AllPowers("Change Environment")        { }
     ChangeEnvironment(const ChangeEnvironment& s): AllPowers(s) { }
     ChangeEnvironment(ChangeEnvironment&& s): AllPowers(s)      { }
     ChangeEnvironment(const QJsonObject& json): AllPowers(json) { QJsonArray arr = json["effects"].toArray();
-                                                                  _create = false;
-                                                                  _data   = true;
+                                                                  mCreate = false;
+                                                                  mData   = true;
                                                                   for (int i = 0; i < arr.count(); ++i) {
                                                                       QJsonObject obj = arr[i].toObject();
                                                                       effects eff(obj["which"].toInt(0),
@@ -121,12 +121,12 @@ public:
                                                                                   obj["level"].toInt(0),
                                                                                   { },
                                                                                   obj["val"].toString(""));
-                                                                      v._effects.push_back(eff);
+                                                                      v.mEffects.push_back(eff);
                                                                   }
-                                                                  v._lasting = json["lasting"].toInt(-1);
-                                                                  v._varying = json["varying"].toBool(false);
-                                                                  v._envs    = json["envs"].toInt(-1);
-                                                                  v._what    = json["what"].toString("");
+                                                                  v.mLasting = json["lasting"].toInt(-1);
+                                                                  v.mVarying = json["varying"].toBool(false);
+                                                                  v.mEnvs    = json["envs"].toInt(-1);
+                                                                  v.mWhat    = json["what"].toString("");
                                                                 }
 
     virtual ChangeEnvironment& operator=(const ChangeEnvironment& s) {
@@ -142,7 +142,7 @@ public:
         return *this;
     }
 
-    Fraction adv() override                                      { return (v._envs + 1) * Fraction(1, 4); }
+    Fraction adv() override                                      { return (v.mEnvs + 1) * Fraction(1, 4); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    effect  = createComboBox(parent, layout, "Effects?", { "",
@@ -172,18 +172,18 @@ public:
                                                                                                                                        "Broad Group"
                                                                                                                                      });
                                                                    what    = createLineEdit(parent, layout, "What Environmets?");
-                                                                   _create = true;
-                                                                   _data   = false;
-                                                                   _index  = 0;
-                                                                   _layout = layout;
-                                                                   _parent = parent;
-                                                                   for (auto& effect: v._effects) { indexed(effect.which, NoUpdate); ++_index; }
-                                                                   _data = true;
+                                                                   mCreate = true;
+                                                                   mData   = false;
+                                                                   mIndex  = 0;
+                                                                   mLayout = layout;
+                                                                   mParent = parent;
+                                                                   for (auto& effect: v.mEffects) { indexed(effect.which, NoUpdate); ++mIndex; }
+                                                                   mData = true;
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    QJsonArray arr;
-                                                                   for (auto& effect: v._effects) {
+                                                                   for (auto& effect: v.mEffects) {
                                                                        QJsonObject eff;
                                                                        eff["which"] = effect.which;
                                                                        eff["idx"]   = effect.idx;
@@ -192,23 +192,23 @@ public:
                                                                        arr.append(eff);
                                                                    }
                                                                    obj["effects"] = arr;
-                                                                   obj["lasting"] = v._lasting;
-                                                                   obj["varying"] = v._varying;
-                                                                   obj["envs"]    = v._envs;
-                                                                   obj["what"]    = v._what;
+                                                                   obj["lasting"] = v.mLasting;
+                                                                   obj["varying"] = v.mVarying;
+                                                                   obj["envs"]    = v.mEnvs;
+                                                                   obj["what"]    = v.mWhat;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        QList<effects> _effects;
-        int            _lasting = -1;
-        bool           _varying = false;
-        int            _envs    = -1;
-        QString        _what    = "";
+        QList<effects> mEffects;
+        int            mLasting = -1;
+        bool           mVarying = false;
+        int            mEnvs    = -1;
+        QString        mWhat    = "";
     } v;
-    QVBoxLayout* _layout;
-    QWidget*     _parent;
+    QVBoxLayout* mLayout;
+    QWidget*     mParent;
 
     QComboBox*   effect;
     QComboBox*   lasting;
@@ -219,7 +219,7 @@ private:
     void restore() override {
         vars s = v;
         AllPowers::restore();
-        for (auto& effect: s._effects) {
+        for (auto& effect: s.mEffects) {
             int count = effect.widgets.count();
             for (int i = 0; i < count; ++i) {
                 QLineEdit* edit = dynamic_cast<QLineEdit*>(effect.widgets[i]);
@@ -228,18 +228,18 @@ private:
                 if (combo) combo->setCurrentIndex(effect.idx);
             }
         }
-        lasting->setCurrentIndex(s._lasting);
-        varying->setChecked(s._varying);
-        envs->setCurrentIndex(s._envs);
-        what->setText(s._what);
+        lasting->setCurrentIndex(s.mLasting);
+        varying->setChecked(s.mVarying);
+        envs->setCurrentIndex(s.mEnvs);
+        what->setText(s.mWhat);
         v = s;
-        _create = true;
-        _data   = true;
+        mCreate = true;
+        mData   = true;
     }
 
     void store() override {
         AllPowers::store();
-        for (auto& effect: v._effects) {
+        for (auto& effect: v.mEffects) {
             int count = effect.widgets.count();
             for (int i = 0; i < count - 1; ++i) {
                 QLineEdit* edit = dynamic_cast<QLineEdit*>(effect.widgets[i]);
@@ -248,25 +248,28 @@ private:
                 if (combo) effect.idx = combo->currentIndex();
             }
         }
-        v._lasting = lasting->currentIndex();
-        v._varying = varying->isChecked();
-        v._envs    = envs->currentIndex();
-        v._what    = what->text();
+        v.mLasting = lasting->currentIndex();
+        v.mVarying = varying->isChecked();
+        v.mEnvs    = envs->currentIndex();
+        v.mWhat    = what->text();
     }
 
     void deleteEffect(QWidget* w) {
-        for (auto effect = v._effects.cbegin(); effect != v._effects.cend(); ++effect) {
+        for (auto effect = v.mEffects.cbegin(); effect != v.mEffects.cend(); ++effect) {
             for (const auto& wgt: effect->widgets) if (w == wgt) {
                 for (const auto& wgt: effect->widgets) wgt->deleteLater();
-                v._effects.erase(effect);
+                v.mEffects.erase(effect);
                 return;
             }
         }
     }
 
     effects& findEffect(QWidget* w) {
-        for (auto& effect: v._effects) {
-            for (const auto& wgt: effect.widgets) if (w == wgt) return effect;
+        for (auto& effect: v.mEffects) {
+            for (int i = 0; i < effect.widgets.count(); ++i) {
+                auto& wgt = effect.widgets[i];
+                if (w == wgt) return effect;
+            }
         }
         static effects none { -1, -1, -1, { }, "" };
         return none;
@@ -274,9 +277,10 @@ private:
 
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        Points pts = (v._lasting + 1) * 2_cp;
-        if (v._varying) pts += 10_cp;
-        for (const auto& effect: v._effects) {
+        Points pts = (v.mLasting + 1) * 2_cp;
+        if (v.mVarying) pts += 10_cp;
+        for (int i = 0; i < v.mEffects.count(); ++i) {
+            auto& effect = v.mEffects[i];
             switch (effect.which) {
             case 0:                                   break;
             case 1:  pts = pts + effect.level;        break;
@@ -307,14 +311,14 @@ private:
 #else
     void indexed(int pick, bool update = DoUpdate) {
 #endif
-        int idx = _layout->indexOf(lasting);
+        int idx = mLayout->indexOf(lasting);
         QList<QWidget*> widgets { };
         switch (pick) {
         case 0:
             break;
         case 1:  // Movement
-            if (_create) {
-                widgets.emplaceBack(createComboBox(_parent, _layout, "Movement Type?", { "",
+            if (mCreate) {
+                widgets.emplaceBack(createComboBox(mParent, mLayout, "Movement Type?", { "",
                                                                                          "Running",
                                                                                          "Swimming",
                                                                                          "Jumping",
@@ -322,14 +326,14 @@ private:
                                                                                          "Teleportation",
                                                                                          "Tunneling"
                                                                                        }, idx));
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Movement Penalty?", std::mem_fn(&Power::numeric), idx + 1));
-                if (_data) v._effects.emplaceBack(0, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(0, -1, 0, widgets);
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Movement Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                if (mData) v.mEffects.emplaceBack(0, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(0, -1, 0, widgets);
             break;
         case 2:  // PER Roll for one Sense
-            if (_create) {
-                widgets.emplaceBack(createComboBox(_parent, _layout, "Sense?", { "",
+            if (mCreate) {
+                widgets.emplaceBack(createComboBox(mParent, mLayout, "Sense?", { "",
                                                                                  "Normal Hearing",
                                                                                  "Active Sonar",
                                                                                  "Ultrasonic Perception",
@@ -347,14 +351,14 @@ private:
                                                                                  "Normal Taste",
                                                                                  "Normal Touch"
                                                                                }, idx));
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "PER Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
-                if (_data) v._effects.emplaceBack(1, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(1, -1, 0, widgets);
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "PER Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                if (mData) v.mEffects.emplaceBack(1, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(1, -1, 0, widgets);
             break;
         case 3:  // PER Rolll for one Sense Group
-            if (_create) {
-                widgets.emplaceBack(createComboBox(_parent, _layout, "Sense Group?", { "",
+            if (mCreate) {
+                widgets.emplaceBack(createComboBox(mParent, mLayout, "Sense Group?", { "",
                                                                                        "Hearing",
                                                                                        "Mental",
                                                                                        "Radio",
@@ -362,14 +366,14 @@ private:
                                                                                        "Smell/Taste",
                                                                                        "Touch"
                                                                                      }, idx));
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "PER Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
-                if (_data) v._effects.emplaceBack(2, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(2, -1, 0, widgets);
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "PER Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                if (mData) v.mEffects.emplaceBack(2, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(2, -1, 0, widgets);
             break;
         case 4:  // Characteristic Roll
-            if (_create) {
-                widgets.emplaceBack(createComboBox(_parent, _layout, "Charactreristic?", { "",
+            if (mCreate) {
+                widgets.emplaceBack(createComboBox(mParent, mLayout, "Charactreristic?", { "",
                                                                                            "STR",
                                                                                            "DEX",
                                                                                            "CON",
@@ -377,51 +381,51 @@ private:
                                                                                            "EGO",
                                                                                            "PRE"
                                                                                           }, idx));
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Characteristic Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
-                if (_data) v._effects.emplaceBack(3, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(3, -1, 0, widgets);
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Characteristic Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                if (mData) v.mEffects.emplaceBack(3, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(3, -1, 0, widgets);
             break;
         case 5:  // Skill Roll
-            if (_create) {
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Skills?", idx));
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Skill Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
-                if (_data) v._effects.emplaceBack(4, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(4, -1, 0, widgets);
+            if (mCreate) {
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Skills?", idx));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Skill Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                if (mData) v.mEffects.emplaceBack(4, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(4, -1, 0, widgets);
             break;
         case 6:  // Increase Temperature
-            if (_create) {
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Temperature Levels Increase?", std::mem_fn(&Power::numeric), idx));
-                if (_data) v._effects.emplaceBack(5, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(5, -1, 0, widgets);
+            if (mCreate) {
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Temperature Levels Increase?", std::mem_fn(&Power::numeric), idx));
+                if (mData) v.mEffects.emplaceBack(5, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(5, -1, 0, widgets);
             break;
         case 7:  // Decrease Temperature
-            if (_create) {
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Temperature Levels Decrease?", std::mem_fn(&Power::numeric), idx));
-                if (_data) v._effects.emplaceBack(6, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(6, -1, 0, widgets);
+            if (mCreate) {
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Temperature Levels Decrease?", std::mem_fn(&Power::numeric), idx));
+                if (mData) v.mEffects.emplaceBack(6, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(6, -1, 0, widgets);
             break;
         case 8:  // Range Modifier
-            if (_create) {
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Range Modifier Penalty?", std::mem_fn(&Power::numeric), idx));
-                if (_data) v._effects.emplaceBack(7, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(7, -1, 0, widgets);
+            if (mCreate) {
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Range Modifier Penalty?", std::mem_fn(&Power::numeric), idx));
+                if (mData) v.mEffects.emplaceBack(7, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(7, -1, 0, widgets);
             break;
         case 9:  // Negative Combat Modifier▲
-            if (_create) {
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Combat Modifier▲?", idx));
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Penalty?", std::mem_fn(&Power::numeric), idx + 1));
-                if (_data) v._effects.emplaceBack(8, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(8, -1, 0, widgets);
+            if (mCreate) {
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Combat Modifier▲?", idx));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                if (mData) v.mEffects.emplaceBack(8, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(8, -1, 0, widgets);
             break;
         case 10:  // Characteristic Roll and all assoc. Skill Rolls
-            if (_create) {
-                widgets.emplaceBack(createComboBox(_parent, _layout, "Charactreristic?", { "",
+            if (mCreate) {
+                widgets.emplaceBack(createComboBox(mParent, mLayout, "Charactreristic?", { "",
                                                                                            "STR",
                                                                                            "DEX",
                                                                                            "CON",
@@ -429,38 +433,38 @@ private:
                                                                                            "EGO",
                                                                                            "PRE"
                                                                                           }, idx));
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Characteristicc & Skill Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
-                if (_data) v._effects.emplaceBack(9, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(9, -1, 0, widgets);
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Characteristicc & Skill Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                if (mData) v.mEffects.emplaceBack(9, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(9, -1, 0, widgets);
             break;
         case 11: // Damage
-            if (_create) {
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Damage Points?", std::mem_fn(&Power::numeric), idx));
-                if (_data) v._effects.emplaceBack(10, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(10, -1, 0, widgets);
+            if (mCreate) {
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Damage Points?", std::mem_fn(&Power::numeric), idx));
+                if (mData) v.mEffects.emplaceBack(10, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(10, -1, 0, widgets);
             break;
         case 12: // Telekinesis
-            if (_create) {
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Telekinetic STR?", std::mem_fn(&Power::numeric), idx));
-                if (_data) v._effects.emplaceBack(11, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(11, -1, 0, widgets);
+            if (mCreate) {
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Telekinetic STR?", std::mem_fn(&Power::numeric), idx));
+                if (mData) v.mEffects.emplaceBack(11, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(11, -1, 0, widgets);
             break;
         case 13: // Increase Wind Level
-            if (_create) {
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Wind Increase?", std::mem_fn(&Power::numeric), idx));
-                if (_data) v._effects.emplaceBack(12, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(12, -1, 0, widgets);
+            if (mCreate) {
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Wind Increase?", std::mem_fn(&Power::numeric), idx));
+                if (mData) v.mEffects.emplaceBack(12, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(12, -1, 0, widgets);
             break;
         case 14: // Decrease Wind Level
-            if (_create) {
-                widgets.emplaceBack(createLineEdit(_parent, _layout, "Wind Decrease?", std::mem_fn(&Power::numeric), idx));
-                if (_data) v._effects.emplaceBack(13, -1, 0, widgets);
-                else v._effects[_index].widgets = widgets;
-            } else if (_data) v._effects.emplaceBack(13, -1, 0, widgets);
+            if (mCreate) {
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Wind Decrease?", std::mem_fn(&Power::numeric), idx));
+                if (mData) v.mEffects.emplaceBack(13, -1, 0, widgets);
+                else v.mEffects[mIndex].widgets = widgets;
+            } else if (mData) v.mEffects.emplaceBack(13, -1, 0, widgets);
             break;
         }
 
@@ -528,19 +532,23 @@ private:
     }
 
     QString optOut(bool showEND) {
-        if (v._effects.isEmpty() || (v._envs > 0 && v._what.isEmpty())) return "<incomplete>";
+        if (v.mEffects.isEmpty() || (v.mEnvs > 0 && v.mWhat.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Change Environment: ";
         QString sep = "";
-        for (const auto& effect: v._effects) { res += sep + describe(effect); sep = ", "; }
+        for (int i = 0; i < v.mEffects.count(); ++ i) {
+            auto& effect = v.mEffects[i];
+            res += sep + describe(effect);
+            sep = ", ";
+        }
         sep = " (";
         QStringList lasting { "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                               "1 Hour", "6 Hours", "1 Day", "1 Week",
                               "1 Month", "1 Season", "1 Year", "5 Years" };
-        if (v._lasting != -1) { res += sep + "Long Lasting: " + lasting[v._lasting]; sep = "; "; }
-        if (v._varying) { res += sep + "Varying Combat Effects "; sep = "; "; }
-        if (v._envs > 0) { res += sep + " Varying Environments (" + v._what + ")"; sep += "; "; }
+        if (v.mLasting != -1) { res += sep + "Long Lasting: " + lasting[v.mLasting]; sep = "; "; }
+        if (v.mVarying) { res += sep + "Varying Combat Effects "; sep = "; "; }
+        if (v.mEnvs > 0) { res += sep + " Varying Environments (" + v.mWhat + ")"; sep += "; "; }
         if (sep == "; ") res += ")";
         return res;
     }
@@ -553,7 +561,7 @@ private:
             effects& effect = findEffect(line);
             if (effect.widgets.count() != 0) {
                 deleteEffect(line);
-                _layout->update();
+                mLayout->update();
                 return;
             }
         }
@@ -571,27 +579,27 @@ public:
     Entangle(): AllPowers("Entangle")                  { }
     Entangle(const Entangle& s): AllPowers(s)          { }
     Entangle(Entangle&& s): AllPowers(s)               { }
-    Entangle(const QJsonObject& json): AllPowers(json) { v._dice   = json["dice"].toInt(0);
-                                                            v._body   = json["body"].toInt(0);
-                                                            v._def    = json["def"].toInt(0);
-                                                            v._dmg    = json["dmg"].toInt(0);
-                                                            v._what   = json["what"].toString();
-                                                            v._senses = json["senses"].toString();
-                                                            v._groups = json["groups"].toString();
-                                                            v._foci   = json["foci"].toBool(false);
-                                                            v._one    = json["one"].toBool(false);
-                                                            v._nodef  = json["nodef"].toBool(false);
-                                                            v._set    = json["set"].toInt(0);
-                                                            v._susc   = json["susc"].toInt(0);
-                                                            v._suscTo = json["suscTo"].toString();
-                                                            v._vuln   = json["vuln"].toInt(0);
-                                                            v._vulnTo = json["vulnTo"].toString();
+    Entangle(const QJsonObject& json): AllPowers(json) { v.mDice   = json["dice"].toInt(0);
+                                                            v.mBody   = json["body"].toInt(0);
+                                                            v.mDef    = json["def"].toInt(0);
+                                                            v.mDmg    = json["dmg"].toInt(0);
+                                                            v.mWhat   = json["what"].toString();
+                                                            v.mSenses = json["senses"].toString();
+                                                            v.mGroups = json["groups"].toString();
+                                                            v.mFoci   = json["foci"].toBool(false);
+                                                            v.mOne    = json["one"].toBool(false);
+                                                            v.mNoDef  = json["nodef"].toBool(false);
+                                                            v.mSet    = json["set"].toInt(0);
+                                                            v.mSusc   = json["susc"].toInt(0);
+                                                            v.mSuscTo = json["suscTo"].toString();
+                                                            v.mVuln   = json["vuln"].toInt(0);
+                                                            v.mVulnTo = json["vulnTo"].toString();
                                                           }
 
-    Fraction adv() override                                      { return ((v._dmg == 0) ? Fraction(1, 4) : Fraction(0)) +
-                                                                          ((v._dmg == 1) ? Fraction(1, 4) : Fraction(0)) +
-                                                                          ((v._dmg == 2) ? Fraction(1, 2) : Fraction(0)) +
-                                                                          ((v._dmg == 3) ? Fraction(1)    : Fraction(0)); }
+    Fraction adv() override                                      { return ((v.mDmg == 0) ? Fraction(1, 4) : Fraction(0)) +
+                                                                          ((v.mDmg == 1) ? Fraction(1, 4) : Fraction(0)) +
+                                                                          ((v.mDmg == 2) ? Fraction(1, 2) : Fraction(0)) +
+                                                                          ((v.mDmg == 3) ? Fraction(1)    : Fraction(0)); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice   = createLineEdit(parent, layout, "Dice of Entangle?", std::mem_fn(&Power::numeric));
@@ -624,93 +632,93 @@ public:
                                                                                                                             "Very Common"});
                                                                    vulnTo = createLineEdit(parent, layout, "Vulnerable To?");
                                                                  }
-    Fraction lim() override                                      { return (v._foci        ? Fraction(1)                 : Fraction(0)) +
-                                                                          (v._one         ? Fraction(1, 2)              : Fraction(0)) +
-                                                                          (v._nodef       ? Fraction(1, Fraction(1, 2)) : Fraction(0)) +
-                                                                          ((v._set >= 1)  ? Fraction(1)                 : Fraction(0)) +
-                                                                          ((v._susc == 1) ? Fraction(1, 4)              : Fraction(0)) +
-                                                                          ((v._susc == 2) ? Fraction(1, 2)              : Fraction(0)) +
-                                                                          ((v._susc == 3) ? Fraction(1)                 : Fraction(0)) +
-                                                                          ((v._vuln == 1) ? Fraction(1, 4)              : Fraction(0)) +
-                                                                          ((v._vuln == 2) ? Fraction(1, 2)              : Fraction(0)) +
-                                                                          ((v._vuln == 3) ? Fraction(1)                 : Fraction(0)); }
+    Fraction lim() override                                      { return (v.mFoci        ? Fraction(1)                 : Fraction(0)) +
+                                                                          (v.mOne         ? Fraction(1, 2)              : Fraction(0)) +
+                                                                          (v.mNoDef       ? Fraction(1, Fraction(1, 2)) : Fraction(0)) +
+                                                                          ((v.mSet >= 1)  ? Fraction(1)                 : Fraction(0)) +
+                                                                          ((v.mSusc == 1) ? Fraction(1, 4)              : Fraction(0)) +
+                                                                          ((v.mSusc == 2) ? Fraction(1, 2)              : Fraction(0)) +
+                                                                          ((v.mSusc == 3) ? Fraction(1)                 : Fraction(0)) +
+                                                                          ((v.mVuln == 1) ? Fraction(1, 4)              : Fraction(0)) +
+                                                                          ((v.mVuln == 2) ? Fraction(1, 2)              : Fraction(0)) +
+                                                                          ((v.mVuln == 3) ? Fraction(1)                 : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._dice * 10_cp +
-                                                                          v._body * 5_cp +
-                                                                          ((v._def + 1) / 2) * 5_cp +
-                                                                          countCommas(v._senses) * 5_cp +
-                                                                          countCommas(v._groups) * 10_cp; }
+                                                                   return v.mDice * 10_cp +
+                                                                          v.mBody * 5_cp +
+                                                                          ((v.mDef + 1) / 2) * 5_cp +
+                                                                          countCommas(v.mSenses) * 5_cp +
+                                                                          countCommas(v.mGroups) * 10_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   dice->setText(QString("%1").arg(s._dice));
-                                                                   body->setText(QString("%1").arg(s._body));
-                                                                   def->setText(QString("%1").arg(s._def));
-                                                                   dmg->setCurrentIndex(s._dmg);
-                                                                   what->setText(s._what);
-                                                                   senses->setText(s._senses);
-                                                                   groups->setText(s._groups);
-                                                                   one->setChecked(s._one);
-                                                                   nodef->setChecked(s._nodef);
-                                                                   set->setCurrentIndex(s._set);
-                                                                   susc->setCurrentIndex(s._susc);
-                                                                   suscTo->setText(s._suscTo);
-                                                                   vuln->setCurrentIndex(s._vuln);
-                                                                   vulnTo->setText(s._vulnTo);
+                                                                   dice->setText(QString("%1").arg(s.mDice));
+                                                                   body->setText(QString("%1").arg(s.mBody));
+                                                                   def->setText(QString("%1").arg(s.mDef));
+                                                                   dmg->setCurrentIndex(s.mDmg);
+                                                                   what->setText(s.mWhat);
+                                                                   senses->setText(s.mSenses);
+                                                                   groups->setText(s.mGroups);
+                                                                   one->setChecked(s.mOne);
+                                                                   nodef->setChecked(s.mNoDef);
+                                                                   set->setCurrentIndex(s.mSet);
+                                                                   susc->setCurrentIndex(s.mSusc);
+                                                                   suscTo->setText(s.mSuscTo);
+                                                                   vuln->setCurrentIndex(s.mVuln);
+                                                                   vulnTo->setText(s.mVulnTo);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._dice   = dice->text().toInt();
-                                                                   v._body   = body->text().toInt();
-                                                                   v._def    = def->text().toInt();
-                                                                   v._dmg    = dmg->currentIndex();
-                                                                   v._what   = what->text();
-                                                                   v._senses = senses->text();
-                                                                   v._groups = groups->text();
-                                                                   v._foci   = foci->isChecked();
-                                                                   v._one    = one->isChecked();
-                                                                   v._nodef  = nodef->isChecked();
-                                                                   v._set    = set->currentIndex();
-                                                                   v._susc   = susc->currentIndex();
-                                                                   v._suscTo = suscTo->text();
-                                                                   v._vuln   = vuln->currentIndex();
-                                                                   v._vulnTo = vulnTo->text();
+                                                                   v.mDice   = dice->text().toInt();
+                                                                   v.mBody   = body->text().toInt();
+                                                                   v.mDef    = def->text().toInt();
+                                                                   v.mDmg    = dmg->currentIndex();
+                                                                   v.mWhat   = what->text();
+                                                                   v.mSenses = senses->text();
+                                                                   v.mGroups = groups->text();
+                                                                   v.mFoci   = foci->isChecked();
+                                                                   v.mOne    = one->isChecked();
+                                                                   v.mNoDef  = nodef->isChecked();
+                                                                   v.mSet    = set->currentIndex();
+                                                                   v.mSusc   = susc->currentIndex();
+                                                                   v.mSuscTo = suscTo->text();
+                                                                   v.mVuln   = vuln->currentIndex();
+                                                                   v.mVulnTo = vulnTo->text();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]   = v._dice;
-                                                                   obj["pded"]   = v._body;
-                                                                   obj["def"]    = v._def;
-                                                                   obj["dmg"]    = v._dmg;
-                                                                   obj["what"]   = v._what;
-                                                                   obj["senses"] = v._senses;
-                                                                   obj["groups"] = v._groups;
-                                                                   obj["foci"]   = v._foci;
-                                                                   obj["one"]    = v._one;
-                                                                   obj["nodef"]  = v._nodef;
-                                                                   obj["set"]    = v._set;
-                                                                   obj["susc"]   = v._susc;
-                                                                   obj["suscTo"] = v._suscTo;
-                                                                   obj["vuln"]   = v._vuln;
-                                                                   obj["vulnTo"] = v._vulnTo;
+                                                                   obj["dice"]   = v.mDice;
+                                                                   obj["pded"]   = v.mBody;
+                                                                   obj["def"]    = v.mDef;
+                                                                   obj["dmg"]    = v.mDmg;
+                                                                   obj["what"]   = v.mWhat;
+                                                                   obj["senses"] = v.mSenses;
+                                                                   obj["groups"] = v.mGroups;
+                                                                   obj["foci"]   = v.mFoci;
+                                                                   obj["one"]    = v.mOne;
+                                                                   obj["nodef"]  = v.mNoDef;
+                                                                   obj["set"]    = v.mSet;
+                                                                   obj["susc"]   = v.mSusc;
+                                                                   obj["suscTo"] = v.mSuscTo;
+                                                                   obj["vuln"]   = v.mVuln;
+                                                                   obj["vulnTo"] = v.mVulnTo;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _dice   = 0;
-        int     _body   = 0;
-        int     _def    = 0;
-        int     _dmg    = -1;
-        QString _what   = "";
-        QString _senses = "";
-        QString _groups = "";
-        bool    _foci   = false;
-        bool    _one    = false;
-        bool    _nodef  = false;
-        int     _set    = -1;
-        int     _susc   = -1;
-        QString _suscTo = "";
-        int     _vuln   = -1;
-        QString _vulnTo = "";
+        int     mDice   = 0;
+        int     mBody   = 0;
+        int     mDef    = 0;
+        int     mDmg    = -1;
+        QString mWhat   = "";
+        QString mSenses = "";
+        QString mGroups = "";
+        bool    mFoci   = false;
+        bool    mOne    = false;
+        bool    mNoDef  = false;
+        int     mSet    = -1;
+        int     mSusc   = -1;
+        QString mSuscTo = "";
+        int     mVuln   = -1;
+        QString mVulnTo = "";
     } v;
 
     QLineEdit* dice;
@@ -730,38 +738,38 @@ private:
     QLineEdit* vulnTo;
 
     QString optOut(bool showEND) {
-        if (v._dice < 1 ||
-            (v._dmg == 2 && v._what.isEmpty()) ||
-            (v._susc >= 1 && v._suscTo.isEmpty()) ||
-            (v._vuln >= 1 && v._vulnTo.isEmpty())) return "<incomplete>";
+        if (v.mDice < 1 ||
+            (v.mDmg == 2 && v.mWhat.isEmpty()) ||
+            (v.mSusc >= 1 && v.mSuscTo.isEmpty()) ||
+            (v.mVuln >= 1 && v.mVulnTo.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v._dice) + "d6 Entangle";
-        if (v._body > 0) res += " +" + QString("+%1").arg(v._body) + "d6 (Body Only)";
-        if (v._def > 0) res += " +" + QString("+%1").arg(v._def) + " DEF";
+        res += QString("+%1").arg(v.mDice) + "d6 Entangle";
+        if (v.mBody > 0) res += " +" + QString("+%1").arg(v.mBody) + "d6 (Body Only)";
+        if (v.mDef > 0) res += " +" + QString("+%1").arg(v.mDef) + " DEF";
         QStringList dmg { "",
                           "Both Take Damage",
                           "Takes No Damage From Certain Attacks",
                           "Transparent To All Attacks",
                           "Only Affected By Target" };
-        if (v._dmg > 0) {
-            res += "; " + dmg[v._dmg];
-            if (v._dmg == 2) res += " (" + v._what + ")";
+        if (v.mDmg > 0) {
+            res += "; " + dmg[v.mDmg];
+            if (v.mDmg == 2) res += " (" + v.mWhat + ")";
         }
-        if (!v._senses.isEmpty()) {
-            res += "; Blocks " + v._senses;
-            if (!v._groups.isEmpty()) res += "and " + v._groups;
-        } else if (!v._groups.isEmpty()) res += "; Blocks " + v._groups;
-        if (v._foci) res += "; Allows use of Foci";
-        if (v._one) res += "; 1 BODY";
-        if (v._nodef) res += "; No Defense";
-        if (v._set > 0) {
-            if (v._set == 1) res += "; Only Hands";
+        if (!v.mSenses.isEmpty()) {
+            res += "; Blocks " + v.mSenses;
+            if (!v.mGroups.isEmpty()) res += "and " + v.mGroups;
+        } else if (!v.mGroups.isEmpty()) res += "; Blocks " + v.mGroups;
+        if (v.mFoci) res += "; Allows use of Foci";
+        if (v.mOne) res += "; 1 BODY";
+        if (v.mNoDef) res += "; No Defense";
+        if (v.mSet > 0) {
+            if (v.mSet == 1) res += "; Only Hands";
             else res += "; Only Feet";
         }
         QStringList common { "", " (Uncommon)", " (Common)", " (Very Common)" };
-        if (v._susc > 0) res += "; Susceptible to " + v._suscTo + common[v._susc];
-        if (v._vuln > 0) res += "; Vulnerable to " + v._vulnTo + common[v._vuln];
+        if (v.mSusc > 0) res += "; Susceptible to " + v.mSuscTo + common[v.mSusc];
+        if (v.mVuln > 0) res += "; Vulnerable to " + v.mVulnTo + common[v.mVuln];
         return res;
     }
 
@@ -780,12 +788,12 @@ public:
     Flash(): AllPowers("Flash")                     { }
     Flash(const Flash& s): AllPowers(s)             { }
     Flash(Flash&& s): AllPowers(s)                  { }
-    Flash(const QJsonObject& json): AllPowers(json) { v._dice      = json["dice"].toInt(0);
-                                                      v._tgt       = json["tgt"].toString();
-                                                      v._nonTgt    = json["nonTgt"].toString();
-                                                      v._desolid   = json["stun"].toBool(false);
-                                                      v._indTgt    = json["indTgt"].toString();
-                                                      v._indNonTgt = json["indNonTgt"].toString();
+    Flash(const QJsonObject& json): AllPowers(json) { v.mDice      = json["dice"].toInt(0);
+                                                      v.mTgt       = json["tgt"].toString();
+                                                      v.mNonTgt    = json["nonTgt"].toString();
+                                                      v.mDesolid   = json["stun"].toBool(false);
+                                                      v.mIndTgt    = json["indTgt"].toString();
+                                                      v.mIndNonTgt = json["indNonTgt"].toString();
                                                     }
     virtual Flash& operator=(const Flash& s) {
         if (this != &s) {
@@ -810,49 +818,49 @@ public:
                                                                    indNonTgt = createLineEdit(parent, layout, "Non-Targeting Senses?");
                                                                    desolid   = createCheckBox(parent, layout, "Does not Effect Desolid");
                                                                  }
-    Fraction lim() override                                      { return v._desolid ? Fraction(1, 4) : Fraction(0); }
+    Fraction lim() override                                      { return v.mDesolid ? Fraction(1, 4) : Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._dice * (!v._tgt.isEmpty() ? 5_cp : 3_cp) +
-                                                                      ((countCommas(v._tgt) > 1) ? (countCommas(v._tgt) - 1) * 10_cp : 0_cp) +
-                                                                      ((countCommas(v._nonTgt) > 0) ? (countCommas(v._nonTgt) - (v._tgt.isEmpty() ? 1 : 0)) * 5_cp : 0_cp) +
-                                                                      countCommas(v._indTgt) * 5_cp + countCommas(v._indNonTgt) * 3_cp;
+                                                                   return v.mDice * (!v.mTgt.isEmpty() ? 5_cp : 3_cp) +
+                                                                      ((countCommas(v.mTgt) > 1) ? (countCommas(v.mTgt) - 1) * 10_cp : 0_cp) +
+                                                                      ((countCommas(v.mNonTgt) > 0) ? (countCommas(v.mNonTgt) - (v.mTgt.isEmpty() ? 1 : 0)) * 5_cp : 0_cp) +
+                                                                      countCommas(v.mIndTgt) * 5_cp + countCommas(v.mIndNonTgt) * 3_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   dice->setText(QString("%1").arg(s._dice));
-                                                                   tgt->setText(s._tgt);
-                                                                   nonTgt->setText(s._nonTgt);
-                                                                   desolid->setChecked(s._desolid);
-                                                                   indTgt->setText(s._indTgt);
-                                                                   indNonTgt->setText(s._indNonTgt);
+                                                                   dice->setText(QString("%1").arg(s.mDice));
+                                                                   tgt->setText(s.mTgt);
+                                                                   nonTgt->setText(s.mNonTgt);
+                                                                   desolid->setChecked(s.mDesolid);
+                                                                   indTgt->setText(s.mIndTgt);
+                                                                   indNonTgt->setText(s.mIndNonTgt);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._dice      = dice->text().toInt();
-                                                                   v._tgt       = tgt->text();
-                                                                   v._nonTgt    = nonTgt->text();
-                                                                   v._desolid   = desolid->isChecked();
-                                                                   v._indTgt    = indTgt->text();
-                                                                   v._indNonTgt = indNonTgt->text();
+                                                                   v.mDice      = dice->text().toInt();
+                                                                   v.mTgt       = tgt->text();
+                                                                   v.mNonTgt    = nonTgt->text();
+                                                                   v.mDesolid   = desolid->isChecked();
+                                                                   v.mIndTgt    = indTgt->text();
+                                                                   v.mIndNonTgt = indNonTgt->text();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]      = v._dice;
-                                                                   obj["tgt"]       = v._tgt;
-                                                                   obj["nonTgt"]    = v._nonTgt;
-                                                                   obj["desolid"]   = v._desolid;
-                                                                   obj["indTgt"]    = v._indTgt;
-                                                                   obj["indNonTgt"] = v._indNonTgt;
+                                                                   obj["dice"]      = v.mDice;
+                                                                   obj["tgt"]       = v.mTgt;
+                                                                   obj["nonTgt"]    = v.mNonTgt;
+                                                                   obj["desolid"]   = v.mDesolid;
+                                                                   obj["indTgt"]    = v.mIndTgt;
+                                                                   obj["indNonTgt"] = v.mIndNonTgt;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _dice      = 0;
-        QString _tgt       = "";
-        QString _indTgt    = "";
-        QString _nonTgt    = "";
-        QString _indNonTgt = "";
-        bool    _desolid = false;
+        int     mDice      = 0;
+        QString mTgt       = "";
+        QString mIndTgt    = "";
+        QString mNonTgt    = "";
+        QString mIndNonTgt = "";
+        bool    mDesolid = false;
     } v;
 
     QLineEdit* dice;
@@ -863,16 +871,16 @@ private:
     QCheckBox* desolid;
 
     QString optOut(bool showEND) {
-        if (v._dice < 1 || (v._tgt.isEmpty() && v._nonTgt.isEmpty())) return "<incomplete>";
+        if (v.mDice < 1 || (v.mTgt.isEmpty() && v.mNonTgt.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v._dice) + "d6 Flash vs ";
+        res += QString("+%1").arg(v.mDice) + "d6 Flash vs ";
         QString sep = "";
-        if (!v._tgt.isEmpty()) { res += sep + v._tgt; sep = ", "; }
-        if (!v._nonTgt.isEmpty()) { res += sep + v._nonTgt; sep = ", "; }
-        if (!v._indTgt.isEmpty()) { res += sep + v._indTgt; sep = ", "; }
-        if (!v._indNonTgt.isEmpty()) { res += sep + v._indNonTgt; sep = ", "; }
-        if (v._desolid) res += "; Does Not Effect Desolid";
+        if (!v.mTgt.isEmpty()) { res += sep + v.mTgt; sep = ", "; }
+        if (!v.mNonTgt.isEmpty()) { res += sep + v.mNonTgt; sep = ", "; }
+        if (!v.mIndTgt.isEmpty()) { res += sep + v.mIndTgt; sep = ", "; }
+        if (!v.mIndNonTgt.isEmpty()) { res += sep + v.mIndNonTgt; sep = ", "; }
+        if (v.mDesolid) res += "; Does Not Effect Desolid";
         return res;
     }
 
@@ -891,7 +899,7 @@ public:
     HandToHandAttack(): AllPowers("Hand-To-Hand Attack")       { }
     HandToHandAttack(const HandToHandAttack& s): AllPowers(s)  { }
     HandToHandAttack(HandToHandAttack&& s): AllPowers(s)       { }
-    HandToHandAttack(const QJsonObject& json): AllPowers(json) { v._dice = json["dice"].toInt(0);
+    HandToHandAttack(const QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
                                                                   }
     virtual HandToHandAttack& operator=(const HandToHandAttack& s) {
         if (this != &s) {
@@ -913,32 +921,32 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(1, 4); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return Points(v._dice * 5); }
+                                                                   return Points(v.mDice * 5); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   dice->setText(QString("%1").arg(s._dice));
+                                                                   dice->setText(QString("%1").arg(s.mDice));
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._dice = dice->text().toInt();
+                                                                   v.mDice = dice->text().toInt();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v._dice;
+                                                                   obj["dice"] = v.mDice;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int  _dice = 0;
+        int  mDice = 0;
     } v;
 
     QLineEdit* dice;
 
     QString optOut(bool showEND) {
-        if (v._dice < 1) return "<incomplete>";
+        if (v.mDice < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v._dice) + "d6 HA; Hand-To-Hand Attack";
+        res += QString("+%1").arg(v.mDice) + "d6 HA; Hand-To-Hand Attack";
         return res;
     }
 
@@ -957,13 +965,13 @@ public:
     KillingAttack(): AllPowers("Killing Attack")            { }
     KillingAttack(const KillingAttack& s): AllPowers(s)     { }
     KillingAttack(KillingAttack&& s): AllPowers(s)          { }
-    KillingAttack(const QJsonObject& json): AllPowers(json) { v._dice  = json["dice"].toInt(0);
-                                                              v._range = json["range"].toBool(false);
-                                                              v._extra = json["extra"].toInt(0);
-                                                              v._pded  = json["pded"].toInt(0);
-                                                              v._incr  = json["incr"].toInt(0);
-                                                              v._decr  = json["decr"].toInt(0);
-                                                              v._str   = json["str"].toBool(false);
+    KillingAttack(const QJsonObject& json): AllPowers(json) { v.mDice  = json["dice"].toInt(0);
+                                                              v.mRange = json["range"].toBool(false);
+                                                              v.mExtra = json["extra"].toInt(0);
+                                                              v.mPdEd  = json["pded"].toInt(0);
+                                                              v.mIncr  = json["incr"].toInt(0);
+                                                              v.mDecr  = json["decr"].toInt(0);
+                                                              v.mStr   = json["str"].toBool(false);
                                                             }
     virtual KillingAttack& operator=(const KillingAttack& s) {
         if (this != &s) {
@@ -978,7 +986,7 @@ public:
         return *this;
     }
 
-    Fraction adv() override                                      { return v._incr * Fraction(1, 4); }
+    Fraction adv() override                                      { return v.mIncr * Fraction(1, 4); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    range = createCheckBox(parent, layout, "Ranged");
@@ -989,49 +997,49 @@ public:
                                                                    decr  = createComboBox(parent, layout, "STUN Multiplier Decreases?", { "None", "1x", "2x" });
                                                                    str   = createCheckBox(parent, layout, "No STR Bonus");
                                                                  }
-    Fraction lim() override                                      { return (v._decr + 1) * Fraction(1, 4) + (v._str ? Fraction(1, 2) : Fraction(0)); }
+    Fraction lim() override                                      { return (v.mDecr + 1) * Fraction(1, 4) + (v.mStr ? Fraction(1, 2) : Fraction(0)); }
     Points   points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return v._dice * 15 + ((v._extra > -1) ? v._extra * 5_cp : 0_cp); }
+                                                                   return v.mDice * 15 + ((v.mExtra > -1) ? v.mExtra * 5_cp : 0_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   range->setChecked(s._range);
-                                                                   dice->setText(QString("%1").arg(s._dice));
-                                                                   extra->setCurrentIndex(s._extra);
-                                                                   pded->setCurrentIndex(s._pded);
-                                                                   incr->setText(QString("%1").arg(s._incr));
-                                                                   decr->setCurrentIndex(v._decr);
-                                                                   str->setChecked(v._str);
+                                                                   range->setChecked(s.mRange);
+                                                                   dice->setText(QString("%1").arg(s.mDice));
+                                                                   extra->setCurrentIndex(s.mExtra);
+                                                                   pded->setCurrentIndex(s.mPdEd);
+                                                                   incr->setText(QString("%1").arg(s.mIncr));
+                                                                   decr->setCurrentIndex(v.mDecr);
+                                                                   str->setChecked(v.mStr);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._range = range->isChecked();
-                                                                   v._dice  = dice->text().toInt();
-                                                                   v._extra = extra->currentIndex();
-                                                                   v._pded  = pded->currentIndex();
-                                                                   v._incr  = incr->text().toInt();
-                                                                   v._decr  = decr->currentIndex();
-                                                                   v._str   = str->isChecked();
+                                                                   v.mRange = range->isChecked();
+                                                                   v.mDice  = dice->text().toInt();
+                                                                   v.mExtra = extra->currentIndex();
+                                                                   v.mPdEd  = pded->currentIndex();
+                                                                   v.mIncr  = incr->text().toInt();
+                                                                   v.mDecr  = decr->currentIndex();
+                                                                   v.mStr   = str->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["range"] = v._range;
-                                                                   obj["dice"]  = v._dice;
-                                                                   obj["extra"] = v._extra;
-                                                                   obj["pded"]  = v._pded;
-                                                                   obj["incr"]  = v._incr;
-                                                                   obj["decr"]  = v._decr;
-                                                                   obj["str"]   = v._str;
+                                                                   obj["range"] = v.mRange;
+                                                                   obj["dice"]  = v.mDice;
+                                                                   obj["extra"] = v.mExtra;
+                                                                   obj["pded"]  = v.mPdEd;
+                                                                   obj["incr"]  = v.mIncr;
+                                                                   obj["decr"]  = v.mDecr;
+                                                                   obj["str"]   = v.mStr;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        bool _range = false;
-        int  _dice  = 0;
-        int  _extra = -1;
-        int  _pded  = -1;
-        int  _incr  = 0;
-        int  _decr  = 0;
-        bool _str   = false;
+        bool mRange = false;
+        int  mDice  = 0;
+        int  mExtra = -1;
+        int  mPdEd  = -1;
+        int  mIncr  = 0;
+        int  mDecr  = 0;
+        bool mStr   = false;
     } v;
 
     QCheckBox* range;
@@ -1050,14 +1058,14 @@ private:
 #else
         int STR = 0;
 #endif
-        int dice = v._dice + STR / 15;
+        int dice = v.mDice + STR / 15;
         int rem = STR % 15;
         int extra = rem / 10 + 1;
         if (extra == 1) {
             if (rem >= 5) extra = 1;
             else extra = 0;
         }
-        switch (v._extra) {
+        switch (v.mExtra) {
         case 0: break;
         case 1:
             switch (extra) {
@@ -1078,14 +1086,14 @@ private:
     }
 
     QString optOut(bool showEND) {
-        if ((v._dice < 1 && v._extra < 1) || v._pded == -1) return "<incomplete>";
+        if ((v.mDice < 1 && v.mExtra < 1) || v.mPdEd == -1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1%2d6%3 %4").arg(v._dice).arg((v._extra == 2) ? Fraction(1, 2).toString() : "", (v._extra == 1) ? "+1" : "", v._range ? "R" : "H") + "KA vs " +
-               ((v._pded == 0) ? "PD" : "ED") + ((v._range || v._str) ? "" : ", " + KAwSTR() + " w/STR");
-        if (v._incr > 0) res += "; " + QString("+%1 Increased STUN Multiplier").arg(v._incr);
-        if (v._decr > 0) res += "; "+ QString("-%1 Decreased STUN Multipier").arg(v._decr + 1);
-        if (v._str) res += "; No STR Bonus";
+        res += QString("+%1%2d6%3 %4").arg(v.mDice).arg((v.mExtra == 2) ? Fraction(1, 2).toString() : "", (v.mExtra == 1) ? "+1" : "", v.mRange ? "R" : "H") + "KA vs " +
+               ((v.mPdEd == 0) ? "PD" : "ED") + ((v.mRange || v.mStr) ? "" : ", " + KAwSTR() + " w/STR");
+        if (v.mIncr > 0) res += "; " + QString("+%1 Increased STUN Multiplier").arg(v.mIncr);
+        if (v.mDecr > 0) res += "; "+ QString("-%1 Decreased STUN Multipier").arg(v.mDecr + 1);
+        if (v.mStr) res += "; No STR Bonus";
         return res;
     }
 
@@ -1104,9 +1112,9 @@ public:
     Reflection(): AllPowers("Reflection")                { }
     Reflection(const Reflection& s): AllPowers(s)        { }
     Reflection(Reflection&& s): AllPowers(s)             { }
-    Reflection(const QJsonObject& json): AllPowers(json) { v._points   = json["points"].toInt(0);
-                                                              v._any      = json["any"].toBool(false);
-                                                              v._feedback = json["feedback"].toBool(false);
+    Reflection(const QJsonObject& json): AllPowers(json) { v.mPoints   = json["points"].toInt(0);
+                                                              v.mAny      = json["any"].toBool(false);
+                                                              v.mFeedback = json["feedback"].toBool(false);
                                                             }
     virtual Reflection& operator=(const Reflection& s) {
         if (this != &s) {
@@ -1121,40 +1129,40 @@ public:
         return *this;
     }
 
-    Fraction adv() override                                      { return v._any ? Fraction(1, 2) : Fraction(0); }
+    Fraction adv() override                                      { return v.mAny ? Fraction(1, 2) : Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    point    = createLineEdit(parent, layout, "Active Points Reflected?", std::mem_fn(&Power::numeric));
                                                                    any      = createCheckBox(parent, layout, "Any Target");
                                                                    feedback = createCheckBox(parent, layout, "Feedback");
                                                                  }
-    Fraction lim() override                                      { return v._feedback ? Fraction(1) : Fraction(0); }
+    Fraction lim() override                                      { return v.mFeedback ? Fraction(1) : Fraction(0); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return (v._points + 2_cp) / 3_cp * 2_cp; }
+                                                                   return (v.mPoints + 2_cp) / 3_cp * 2_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   point->setText(QString("%1").arg(s._points));
-                                                                   any->setChecked(s._any);
-                                                                   feedback->setChecked(s._feedback);
+                                                                   point->setText(QString("%1").arg(s.mPoints));
+                                                                   any->setChecked(s.mAny);
+                                                                   feedback->setChecked(s.mFeedback);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._points   = point->text().toInt();
-                                                                   v._any      = any->isChecked();
-                                                                   v._feedback = feedback->isChecked();
+                                                                   v.mPoints   = point->text().toInt();
+                                                                   v.mAny      = any->isChecked();
+                                                                   v.mFeedback = feedback->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["points"]   = v._points;
-                                                                   obj["any"]      = v._any;
-                                                                   obj["feedback"] = v._feedback;
+                                                                   obj["points"]   = v.mPoints;
+                                                                   obj["any"]      = v.mAny;
+                                                                   obj["feedback"] = v.mFeedback;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int  _points   = 0;
-        bool _any      = false;
-        bool _feedback = false;
+        int  mPoints   = 0;
+        bool mAny      = false;
+        bool mFeedback = false;
     } v;
 
     QLineEdit* point;
@@ -1162,12 +1170,12 @@ private:
     QCheckBox* feedback;
 
     QString optOut(bool showEND) {
-        if (v._points < 1) return "<incomplete>";
+        if (v.mPoints < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v._points) + " CP Reflection";
-        if (v._any) res += "; Any Target";
-        if (v._feedback) res += "; Feedback";
+        res += QString("%1").arg(v.mPoints) + " CP Reflection";
+        if (v.mAny) res += "; Any Target";
+        if (v.mFeedback) res += "; Feedback";
         return res;
     }
 
@@ -1186,10 +1194,10 @@ public:
     Telekinesis(): AllPowers("Telekinesis")               { }
     Telekinesis(const Telekinesis& s): AllPowers(s)       { }
     Telekinesis(Telekinesis&& s): AllPowers(s)            { }
-    Telekinesis(const QJsonObject& json): AllPowers(json) { v._str   = json["str"].toInt(0);
-                                                            v._fine  = json["fine"].toBool(false);
-                                                            v._whole = json["whole"].toBool(false);
-                                                            v._limit = json["limit"].toInt(0);
+    Telekinesis(const QJsonObject& json): AllPowers(json) { v.mStr   = json["str"].toInt(0);
+                                                            v.mFine  = json["fine"].toBool(false);
+                                                            v.mWhole = json["whole"].toBool(false);
+                                                            v.mLimit = json["limit"].toInt(0);
                                                             v._what  = json["what"].toString();
                                                           }
     virtual Telekinesis& operator=(const Telekinesis& s) {
@@ -1214,41 +1222,41 @@ public:
                                                                    limit = createComboBox(parent, layout, "Only Works On?", { "Everything", "Limited Group", "Very Limited Group" });
                                                                    what  = createLineEdit(parent, layout, "What?");
                                                                  }
-    Fraction lim() override                                      { return (v._whole ? Fraction(1, 4) : Fraction(0)) +
-                                                                          ((v._limit > 0) ? v._limit * Fraction(1, 2) : Fraction(0)); }
+    Fraction lim() override                                      { return (v.mWhole ? Fraction(1, 4) : Fraction(0)) +
+                                                                          ((v.mLimit > 0) ? v.mLimit * Fraction(1, 2) : Fraction(0)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   return 3_cp * ((v._str + 1) / 2) + (v._fine ? 10_cp : 0_cp); }
+                                                                   return 3_cp * ((v.mStr + 1) / 2) + (v.mFine ? 10_cp : 0_cp); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   STR->setText(QString("%1").arg(s._str));
-                                                                   fine->setChecked(s._fine);
-                                                                   whole->setChecked(s._whole);
-                                                                   limit->setCurrentIndex(s._limit);
+                                                                   STR->setText(QString("%1").arg(s.mStr));
+                                                                   fine->setChecked(s.mFine);
+                                                                   whole->setChecked(s.mWhole);
+                                                                   limit->setCurrentIndex(s.mLimit);
                                                                    what->setText(s._what);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._str   = STR->text().toInt();
-                                                                   v._fine  = fine->isChecked();
-                                                                   v._whole = whole->isChecked();
-                                                                   v._limit = limit->currentIndex();
+                                                                   v.mStr   = STR->text().toInt();
+                                                                   v.mFine  = fine->isChecked();
+                                                                   v.mWhole = whole->isChecked();
+                                                                   v.mLimit = limit->currentIndex();
                                                                    v._what  = what->text();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["str"]   = v._str;
-                                                                   obj["fine"]  = v._fine;
-                                                                   obj["whole"] = v._whole;
-                                                                   obj["limit"] = v._limit;
+                                                                   obj["str"]   = v.mStr;
+                                                                   obj["fine"]  = v.mFine;
+                                                                   obj["whole"] = v.mWhole;
+                                                                   obj["limit"] = v.mLimit;
                                                                    obj["what"]  = v._what;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _str   = 0;
-        bool    _fine  = false;
-        bool    _whole = false;
-        int     _limit = -1;
+        int     mStr   = 0;
+        bool    mFine  = false;
+        bool    mWhole = false;
+        int     mLimit = -1;
         QString _what = "";
     } v;
 
@@ -1259,13 +1267,13 @@ private:
     QLineEdit* what;
 
     QString optOut(bool showEND) {
-        if (v._str < 1 || (v._limit >= 1 && v._what.isEmpty())) return "<incomplete>";
+        if (v.mStr < 1 || (v.mLimit >= 1 && v._what.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v._str) + " STR Telekinesis";
-        if (v._limit > 0) res += " with " + v._what;
-        if (v._fine) res += "; Fine Manipulation";
-        if (v._whole) res += "; Affects Whole Object";
+        res += QString("%1").arg(v.mStr) + " STR Telekinesis";
+        if (v.mLimit > 0) res += " with " + v._what;
+        if (v.mFine) res += "; Fine Manipulation";
+        if (v.mWhole) res += "; Affects Whole Object";
         return res;
     }
 
@@ -1284,18 +1292,18 @@ public:
     Transform(): AllPowers("Transformϴ")                { }
     Transform(const Transform& s): AllPowers(s)         { }
     Transform(Transform&& s): AllPowers(s)              { }
-    Transform(const QJsonObject& json): AllPowers(json) { v._dice    = json["dice"].toInt(0);
-                                                          v._into    = json["into"].toString();
-                                                          v._degree  = json["degree"].toInt(0);
-                                                          v._result  = json["result"].toInt(0);
-                                                          v._group   = json["group"].toString();
-                                                          v._partial = json["partial"].toBool(false);
-                                                          v._heal    = json["heal"].toBool(false);
-                                                          v._method  = json["method"].toString();
-                                                          v._all     = json["all"].toBool(false);
-                                                          v._target  = json["target"].toInt(0);
-                                                          v._what    = json["what"].toString();
-                                                          v._rapid   = json["rapid"].toInt(0);
+    Transform(const QJsonObject& json): AllPowers(json) { v.mDice    = json["dice"].toInt(0);
+                                                          v.mInto    = json["into"].toString();
+                                                          v.mDegree  = json["degree"].toInt(0);
+                                                          v.mResult  = json["result"].toInt(0);
+                                                          v.mGroup   = json["group"].toString();
+                                                          v.mPartial = json["partial"].toBool(false);
+                                                          v.mHeal    = json["heal"].toBool(false);
+                                                          v.mMethod  = json["method"].toString();
+                                                          v.mAll     = json["all"].toBool(false);
+                                                          v.mTarget  = json["target"].toInt(0);
+                                                          v.mWhat    = json["what"].toString();
+                                                          v.mRapid   = json["rapid"].toInt(0);
                                                         }
     virtual Transform& operator=(const Transform& s) {
         if (this != &s) {
@@ -1310,10 +1318,10 @@ public:
         return *this;
     }
 
-    Fraction adv() override                                      { return ((v._result == 0) ? Fraction(1, 4) : Fraction(0)) +
-                                                                          ((v._result == 1) ? Fraction(1)    : Fraction(0)) +
-                                                                          (v._partial       ? Fraction(1, 2) : Fraction(0)) +
-                                                                          (v._heal          ? Fraction(1, 4) : Fraction(0));
+    Fraction adv() override                                      { return ((v.mResult == 0) ? Fraction(1, 4) : Fraction(0)) +
+                                                                          ((v.mResult == 1) ? Fraction(1)    : Fraction(0)) +
+                                                                          (v.mPartial       ? Fraction(1, 2) : Fraction(0)) +
+                                                                          (v.mHeal          ? Fraction(1, 4) : Fraction(0));
                                                                  }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -1335,75 +1343,75 @@ public:
                                                                                                                                 "20 Minutes", "5 Minutes", "1 Minute",
                                                                                                                                 "1 Turn" });
                                                                  }
-    Fraction lim() override                                      { return (v._all           ? Fraction(1, 2) : Fraction(0)) +
-                                                                          ((v._target == 1) ? Fraction(1, 4) : Fraction(0)) +
-                                                                          ((v._target == 2) ? Fraction(1, 2) : Fraction(0)) +
-                                                                          ((v._target == 3) ? Fraction(1)    : Fraction(0)) +
-                                                                          (v._rapid) * Fraction(1, 4);
+    Fraction lim() override                                      { return (v.mAll           ? Fraction(1, 2) : Fraction(0)) +
+                                                                          ((v.mTarget == 1) ? Fraction(1, 4) : Fraction(0)) +
+                                                                          ((v.mTarget == 2) ? Fraction(1, 2) : Fraction(0)) +
+                                                                          ((v.mTarget == 3) ? Fraction(1)    : Fraction(0)) +
+                                                                          (v.mRapid) * Fraction(1, 4);
                                                                  }
     Points points(bool noStore = false) override               { if (!noStore) store();
                                                                    QList<Points> cost { 0_cp, 3_cp, 5_cp, 10_cp, 15_cp };
-                                                                   return v._dice * cost[v._degree + 1]; }
+                                                                   return v.mDice * cost[v.mDegree + 1]; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   dice->setText(QString("%1").arg(s._dice));
-                                                                   into->setText(v._into);
-                                                                   degree->setCurrentIndex(s._degree);
-                                                                   partial->setChecked(s._partial);
-                                                                   result->setCurrentIndex(v._result);
-                                                                   group->setText(v._group);
-                                                                   heal->setChecked(v._heal);
-                                                                   method->setText(v._method);
-                                                                   all->setChecked(v._all);
-                                                                   what->setText(v._what);
-                                                                   target->setCurrentIndex(v._target);
-                                                                   rapid->setCurrentIndex(v._rapid);
+                                                                   dice->setText(QString("%1").arg(s.mDice));
+                                                                   into->setText(v.mInto);
+                                                                   degree->setCurrentIndex(s.mDegree);
+                                                                   partial->setChecked(s.mPartial);
+                                                                   result->setCurrentIndex(v.mResult);
+                                                                   group->setText(v.mGroup);
+                                                                   heal->setChecked(v.mHeal);
+                                                                   method->setText(v.mMethod);
+                                                                   all->setChecked(v.mAll);
+                                                                   what->setText(v.mWhat);
+                                                                   target->setCurrentIndex(v.mTarget);
+                                                                   rapid->setCurrentIndex(v.mRapid);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._dice    = dice->text().toInt();
-                                                                   v._into    = into->text();
-                                                                   v._degree  = degree->currentIndex();
-                                                                   v._partial = partial->isChecked();
-                                                                   v._result  = result->currentIndex();
-                                                                   v._group   = group->text();
-                                                                   v._heal    = heal->isChecked();
-                                                                   v._method  = method->text();
-                                                                   v._all     = all->isChecked();
-                                                                   v._target  = target->currentIndex();
-                                                                   v._what    = what->text();
-                                                                   v._rapid   = rapid->currentIndex();
+                                                                   v.mDice    = dice->text().toInt();
+                                                                   v.mInto    = into->text();
+                                                                   v.mDegree  = degree->currentIndex();
+                                                                   v.mPartial = partial->isChecked();
+                                                                   v.mResult  = result->currentIndex();
+                                                                   v.mGroup   = group->text();
+                                                                   v.mHeal    = heal->isChecked();
+                                                                   v.mMethod  = method->text();
+                                                                   v.mAll     = all->isChecked();
+                                                                   v.mTarget  = target->currentIndex();
+                                                                   v.mWhat    = what->text();
+                                                                   v.mRapid   = rapid->currentIndex();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]    = v._dice;
-                                                                   obj["into"]    = v._into;
-                                                                   obj["degree"]  = v._degree;
-                                                                   obj["result"]  = v._result;
-                                                                   obj["group"]   = v._group;
-                                                                   obj["partial"] = v._partial;
-                                                                   obj["heal"]    = v._heal;
-                                                                   obj["method"]  = v._method;
-                                                                   obj["all"]     = v._all;
-                                                                   obj["target"]  = v._target;
-                                                                   obj["what"]    = v._what;
-                                                                   obj["rapid"]   = v._rapid;
+                                                                   obj["dice"]    = v.mDice;
+                                                                   obj["into"]    = v.mInto;
+                                                                   obj["degree"]  = v.mDegree;
+                                                                   obj["result"]  = v.mResult;
+                                                                   obj["group"]   = v.mGroup;
+                                                                   obj["partial"] = v.mPartial;
+                                                                   obj["heal"]    = v.mHeal;
+                                                                   obj["method"]  = v.mMethod;
+                                                                   obj["all"]     = v.mAll;
+                                                                   obj["target"]  = v.mTarget;
+                                                                   obj["what"]    = v.mWhat;
+                                                                   obj["rapid"]   = v.mRapid;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        int     _dice    = 0;
-        QString _into    = "";
-        int     _degree  = -1;
-        int     _result  = -1;
-        QString _group   = "";
-        bool    _partial = false;
-        bool    _heal    = false;
-        QString _method  = "";
-        bool    _all     = false;
-        int     _target  = -1;
-        QString _what    = "";
-        int     _rapid   = -1;
+        int     mDice    = 0;
+        QString mInto    = "";
+        int     mDegree  = -1;
+        int     mResult  = -1;
+        QString mGroup   = "";
+        bool    mPartial = false;
+        bool    mHeal    = false;
+        QString mMethod  = "";
+        bool    mAll     = false;
+        int     mTarget  = -1;
+        QString mWhat    = "";
+        int     mRapid   = -1;
     } v;
 
     QLineEdit* dice;
@@ -1420,30 +1428,30 @@ private:
     QComboBox* rapid;
 
     QString optOut(bool showEND) {
-        if (v._dice < 1 ||
-            v._into.isEmpty() ||
-            v._degree == -1 ||
-            (v._result == 1 && v._group.isEmpty()) ||
-            (v._heal && v._method.isEmpty()) ||
-            (v._target >= 1 && v._what.isEmpty())) return "<incomplete>";
+        if (v.mDice < 1 ||
+            v.mInto.isEmpty() ||
+            v.mDegree == -1 ||
+            (v.mResult == 1 && v.mGroup.isEmpty()) ||
+            (v.mHeal && v.mMethod.isEmpty()) ||
+            (v.mTarget >= 1 && v.mWhat.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         QStringList degree { "Cosmetic", "Minor", "Major", "Severe" };
-        res += QString("%1").arg(v._dice) + "d6 " + degree[v._degree] + " Transformϴ";
-        if (v._result >= 1) {
-            if (v._result == 2) res += "; To Anything";
-            else res += "; To " + v._into + ", from " + v._group;
-        } else res += "; To " + v._into;
-        if (v._partial) res += "; Partial Transform";
-        if (v._heal) res += "; Alternative Healing (" + v._method + ")";
-        if (v._all) res += "; All or nothing";
-        if (v._target == 1) res += "; Slightly Limited Target (" + v._what + ")";
-        if (v._target == 2) res += "; Limited Target (" + v._what + ")";
-        if (v._target == 3) res += "; Very Limited Target (" + v._what + ")";
+        res += QString("%1").arg(v.mDice) + "d6 " + degree[v.mDegree] + " Transformϴ";
+        if (v.mResult >= 1) {
+            if (v.mResult == 2) res += "; To Anything";
+            else res += "; To " + v.mInto + ", from " + v.mGroup;
+        } else res += "; To " + v.mInto;
+        if (v.mPartial) res += "; Partial Transform";
+        if (v.mHeal) res += "; Alternative Healing (" + v.mMethod + ")";
+        if (v.mAll) res += "; All or nothing";
+        if (v.mTarget == 1) res += "; Slightly Limited Target (" + v.mWhat + ")";
+        if (v.mTarget == 2) res += "; Limited Target (" + v.mWhat + ")";
+        if (v.mTarget == 3) res += "; Very Limited Target (" + v.mWhat + ")";
         QStringList rapid { "", "1 Week", "1 Day", "6 Hours", "1 Hour",
                             "20 Minutes", "5 Minutes", "1 Minute",
                             "1 Turn" };
-        if (v._rapid >= 1) res += "; Rapid Healing (" + rapid[v._rapid] + ")";
+        if (v.mRapid >= 1) res += "; Rapid Healing (" + rapid[v.mRapid] + ")";
         return res;
     }
 

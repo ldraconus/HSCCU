@@ -39,7 +39,7 @@ QT_END_NAMESPACE
 class Sheet: public QMainWindow {
     Q_OBJECT
 
-    shared_ptr<class optionDialog> _optionDlg;
+    shared_ptr<class optionDialog> mOptionDlg;
 
     static Sheet* sSheet; // NOLINT
 

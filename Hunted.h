@@ -41,21 +41,21 @@ public:
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
         static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
         static QList<QString> mtvn     { "Watching", "Mildly Punish", "Harsly Punish" };
-        if (v._frequency < 0 || v._capabilities < 0 || v._motivation  < 0 || v._who.isEmpty()) return "<incomplete>";
-        QString result = QString("Hunted: %1 (%2; %3").arg(v._who, capa[v._capabilities],
+        if (v.mFrequency < 0 || v.mCapabilities < 0 || v.mMotivation  < 0 || v.mWho.isEmpty()) return "<incomplete>";
+        QString result = QString("Hunted: %1 (%2; %3").arg(v.mWho, capa[v.mCapabilities],
 #ifndef ISHSC
                                                            Sheet::ref().getOption().showFrequencyRolls()
 #else
                                                            true
 #endif
-                                                               ? freq[v._frequency] : freqSans[v._frequency]);
-        if (v._nci) result += "; NCI";
-        if (v._limited) result += "; Limited geographical area";
-        return result + "; " + mtvn[v._motivation] + ")";
+                                                               ? freq[v.mFrequency] : freqSans[v.mFrequency]);
+        if (v.mNCI) result += "; NCI";
+        if (v.mLimited) result += "; Limited geographical area";
+        return result + "; " + mtvn[v.mMotivation] + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         who           = createLineEdit(parent, layout, "Who is hunting you?");
-        capabilities  = createComboBox(parent, layout, "Hunter's Capabilities", { "Less Powerful than PC", "As Powerful as PC", "More Powerful than PC" });        
+        capabilities  = createComboBox(parent, layout, "Hunter's Capabilities", { "Less Powerful than PC", "As Powerful as PC", "More Powerful than PC" });
 #ifndef ISHSC
         if (Sheet::ref().getOption().showFrequencyRolls())
 #endif
@@ -71,50 +71,50 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._capabilities + 1) * 5_cp + v._frequency * 5_cp + (v._easy ? 5_cp : 0_cp) + (v._nci ? 5_cp : 0_cp) - (v._limited ? 5_cp : 0_cp) - (2 - v._motivation) * 5_cp; // NOLINT
+        return (v.mCapabilities + 1) * 5_cp + v.mFrequency * 5_cp + (v.mEasy ? 5_cp : 0_cp) + (v.mNCI ? 5_cp : 0_cp) - (v.mLimited ? 5_cp : 0_cp) - (2 - v.mMotivation) * 5_cp; // NOLINT
     }
     void restore() override {
         vars s = v;
-        who->setText(s._who);
-        capabilities->setCurrentIndex(s._capabilities);
-        easy->setChecked(s._easy);
-        frequency->setCurrentIndex(s._frequency);
-        limited->setChecked(s._limited);
-        motivation->setCurrentIndex(s._motivation);
-        nci->setChecked(s._nci);
+        who->setText(s.mWho);
+        capabilities->setCurrentIndex(s.mCapabilities);
+        easy->setChecked(s.mEasy);
+        frequency->setCurrentIndex(s.mFrequency);
+        limited->setChecked(s.mLimited);
+        motivation->setCurrentIndex(s.mMotivation);
+        nci->setChecked(s.mNCI);
         v = s;
     }
     void store() override {
-        v._who          = who->text();
-        v._capabilities = capabilities->currentIndex();
-        v._easy         = easy->isChecked();
-        v._frequency    = frequency->currentIndex();
-        v._limited      = limited->isChecked();
-        v._motivation   = motivation->currentIndex();
-        v._nci          = nci->isChecked();
+        v.mWho          = who->text();
+        v.mCapabilities = capabilities->currentIndex();
+        v.mEasy         = easy->isChecked();
+        v.mFrequency    = frequency->currentIndex();
+        v.mLimited      = limited->isChecked();
+        v.mMotivation   = motivation->currentIndex();
+        v.mNCI          = nci->isChecked();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]         = "Hunted";
-        obj["capabilities"] = v._capabilities;
-        obj["easy"]         = v._easy;
-        obj["frequency"]    = v._frequency;
-        obj["limited"]      = v._limited;
-        obj["motivation"]   = v._motivation;
-        obj["nci"]          = v._nci;
-        obj["who"]          = v._who;
+        obj["capabilities"] = v.mCapabilities;
+        obj["easy"]         = v.mEasy;
+        obj["frequency"]    = v.mFrequency;
+        obj["limited"]      = v.mLimited;
+        obj["motivation"]   = v.mMotivation;
+        obj["nci"]          = v.mNCI;
+        obj["who"]          = v.mWho;
         return obj;
     }
 
 private:
     struct vars {
-        int     _capabilities = -1;
-        bool    _easy = false;
-        int     _frequency = -1;
-        bool    _limited = false;
-        int     _motivation = -1;
-        bool    _nci = false;
-        QString _who = "";
+        int     mCapabilities = -1;
+        bool    mEasy = false;
+        int     mFrequency = -1;
+        bool    mLimited = false;
+        int     mMotivation = -1;
+        bool    mNCI = false;
+        QString mWho = "";
     } v;
 
     gsl::owner<QComboBox*> capabilities = nullptr;

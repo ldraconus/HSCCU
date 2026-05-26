@@ -41,19 +41,19 @@ public:
         static QList<QString> comp     { "Incompetent", "Normal", "Slightly Less Powerful Then The PC", "As Powerful As The PC" };
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
         static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
-        if (v._frequency < 0 || v._competence < 0 || v._who.isEmpty()) return "<incomplete>";
-        QString result = "Dependent NPC: " + v._who + " (";
+        if (v.mFrequency < 0 || v.mCompetence < 0 || v.mWho.isEmpty()) return "<incomplete>";
+        QString result = "Dependent NPC: " + v.mWho + " (";
 #ifndef ISHSC
         if (Sheet::ref().getOption().showFrequencyRolls())
 #endif
-            result += freq[v._frequency];
+            result += freq[v.mFrequency];
 #ifndef ISHSC
-        else result += freqSans[v._frequency];
+        else result += freqSans[v.mFrequency];
 #endif
-        result += "); " + comp[v._competence];
-        if (v._unaware) result += "; DNPC is unaware of character's adventuring";
-        if (v._useful) result += "; DNPC has useful noncombat position or skills";
-        if (v._multiples > 1) result += QString("; %1 people").arg(v._multiples);
+        result += "); " + comp[v.mCompetence];
+        if (v.mUnaware) result += "; DNPC is unaware of character's adventuring";
+        if (v.mUseful) result += "; DNPC has useful noncombat position or skills";
+        if (v.mMultiples > 1) result += QString("; %1 people").arg(v.mMultiples);
         return result + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
@@ -74,48 +74,48 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        int mult = (int) (log((double) v._multiples) / log(2.0)); // NOLINT
+        int mult = (int) (log((double) v.mMultiples) / log(2.0)); // NOLINT
         if (mult < 0) mult = 0;
-        return 10_cp - (v._competence < 0 ? 0 : v._competence) * 5_cp + (v._useful ? 5_cp : 0_cp) + 5_cp * (v._frequency + 1) + (v._unaware ? 5_cp : 0_cp) + mult * 5_cp; // NOLINT
+        return 10_cp - (v.mCompetence < 0 ? 0 : v.mCompetence) * 5_cp + (v.mUseful ? 5_cp : 0_cp) + 5_cp * (v.mFrequency + 1) + (v.mUnaware ? 5_cp : 0_cp) + mult * 5_cp; // NOLINT
     }
     void restore() override {
         vars s = v;
-        who->setText(s._who);
-        competence->setCurrentIndex(s._competence);
-        frequency->setCurrentIndex(s._frequency);
-        multiples->setText(QString("%1").arg(s._multiples));
-        unaware->setChecked(s._unaware);
-        useful->setChecked(s._useful);
+        who->setText(s.mWho);
+        competence->setCurrentIndex(s.mCompetence);
+        frequency->setCurrentIndex(s.mFrequency);
+        multiples->setText(QString("%1").arg(s.mMultiples));
+        unaware->setChecked(s.mUnaware);
+        useful->setChecked(s.mUseful);
         v = s;
     }
     void store() override {
-        v._who        = who->text();
-        v._competence = competence->currentIndex();
-        v._frequency  = frequency->currentIndex();
-        v._multiples  = multiples->text().toInt(0);
-        v._unaware    = unaware->isChecked();
-        v._useful     = useful->isChecked();
+        v.mWho        = who->text();
+        v.mCompetence = competence->currentIndex();
+        v.mFrequency  = frequency->currentIndex();
+        v.mMultiples  = multiples->text().toInt(0);
+        v.mUnaware    = unaware->isChecked();
+        v.mUseful     = useful->isChecked();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]       = "Dependent NPC";
-        obj["competence"] = v._competence;
-        obj["frequency"]  = v._frequency;
-        obj["multiples"]  = v._multiples;
-        obj["unaware"]    = v._unaware;
-        obj["useful"]     = v._useful;
-        obj["who"]        = v._who;
+        obj["competence"] = v.mCompetence;
+        obj["frequency"]  = v.mFrequency;
+        obj["multiples"]  = v.mMultiples;
+        obj["unaware"]    = v.mUnaware;
+        obj["useful"]     = v.mUseful;
+        obj["who"]        = v.mWho;
         return obj;
     }
 
 private:
     struct vars {
-        int     _competence = -1;
-        int     _frequency = -1;
-        int     _multiples = 0;
-        bool    _unaware = false;
-        bool    _useful = false;
-        QString _who = "";
+        int     mCompetence = -1;
+        int     mFrequency = -1;
+        int     mMultiples = 0;
+        bool    mUnaware = false;
+        bool    mUseful = false;
+        QString mWho = "";
     } v;
 
     gsl::owner<QComboBox*> competence = nullptr;

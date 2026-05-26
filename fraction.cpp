@@ -8,9 +8,9 @@ static long gcd(long a, long b) {
 }
 
 void Fraction::reduce() {
-    long g = gcd(::abs(_numerator) % ::abs(_denominator), std::abs(_denominator));
-    _numerator /= g;
-    _denominator /= g;
+    long g = gcd(::abs(mNumerator) % ::abs(mDenominator), std::abs(mDenominator));
+    mNumerator /= g;
+    mDenominator /= g;
 }
 
 static QString toSuper(const QString& n) {
@@ -28,15 +28,15 @@ static QString toSub(const QString& n) {
 }
 
 Fraction Fraction::abs() {
-    Fraction n(::abs(_numerator), _denominator);
+    Fraction n(::abs(mNumerator), mDenominator);
     return n;
 }
 
 QString Fraction::toString() {
-    QString w = QString("%1").arg(::abs(_numerator / _denominator));
-    QString n = QString("%1").arg(::abs(_numerator % _denominator));
-    QString d = QString("%1").arg(::abs(_denominator));
-    return ((_numerator < 0) ? "-" : "") + ((w != "0") ? w : "") + ((n != "0") ? toSuper(n) + "⁄" + toSub(d) : ((w == "0") ? "0" : ""));
+    QString w = QString("%1").arg(::abs(mNumerator / mDenominator));
+    QString n = QString("%1").arg(::abs(mNumerator % mDenominator));
+    QString d = QString("%1").arg(::abs(mDenominator));
+    return ((mNumerator < 0) ? "-" : "") + ((w != "0") ? w : "") + ((n != "0") ? toSuper(n) + "⁄" + toSub(d) : ((w == "0") ? "0" : ""));
 }
 
 long&    operator+=(long& x, const Fraction f) { x += f.toInt(); return x; }

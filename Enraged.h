@@ -35,8 +35,8 @@ public:
         static QList<QString> freq { "Uncommon", "Common", "Very Common" };
         static QList<QString> chnc { "8-", "11-", "14-" };
         static QList<QString> regn { "14-", "11-", "8-" };
-        if (v._frequency < 0 || v._chance < 0 || v._regain < 0 || v._what.isEmpty()) return "<incomplete>";
-        return QString("%1: %2 (%3 Go: %4; Recover: %5)").arg(v._type ? "Berserk" : "Enraged", v._what, freq[v._frequency], chnc[v._chance], regn[v._regain]);
+        if (v.mRrequency < 0 || v.mChance < 0 || v.mRegain < 0 || v.mWhat.isEmpty()) return "<incomplete>";
+        return QString("%1: %2 (%3 Go: %4; Recover: %5)").arg(v.mType ? "Berserk" : "Enraged", v.mWhat, freq[v.mRrequency], chnc[v.mChance], regn[v.mRegain]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what      = createLineEdit(parent, layout, "What sets you off?");
@@ -47,42 +47,42 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return (v._frequency + 1) * 5_cp + v._chance * 5_cp + v._regain * 5_cp + (v._type ? 10_cp : 0_cp); // NOLINT
+        return (v.mRrequency + 1) * 5_cp + v.mChance * 5_cp + v.mRegain * 5_cp + (v.mType ? 10_cp : 0_cp); // NOLINT
     }
     void restore() override {
         vars s = v;
-        what->setText(s._what);
-        chance->setCurrentIndex(s._chance);
-        frequency->setCurrentIndex(s._frequency);
-        regain->setCurrentIndex(s._regain);
-        type->setChecked(s._type);
+        what->setText(s.mWhat);
+        chance->setCurrentIndex(s.mChance);
+        frequency->setCurrentIndex(s.mRrequency);
+        regain->setCurrentIndex(s.mRegain);
+        type->setChecked(s.mType);
         v = s;
     }
     void store() override {
-        v._what      = what->text();
-        v._chance    = chance->currentIndex();
-        v._frequency = frequency->currentIndex();
-        v._regain    = regain->currentIndex();
-        v._type      = type->isChecked();
+        v.mWhat      = what->text();
+        v.mChance    = chance->currentIndex();
+        v.mRrequency = frequency->currentIndex();
+        v.mRegain    = regain->currentIndex();
+        v.mType      = type->isChecked();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]      = "Enraged/Berserk";
-        obj["chance"]    = v._chance;
-        obj["frequency"] = v._frequency;
-        obj["regain"]    = v._regain;
-        obj["type"]      = v._type;
-        obj["what"]      = v._what;
+        obj["chance"]    = v.mChance;
+        obj["frequency"] = v.mRrequency;
+        obj["regain"]    = v.mRegain;
+        obj["type"]      = v.mType;
+        obj["what"]      = v.mWhat;
         return obj;
     }
 
 private:
     struct vars {
-        int     _chance = -1;
-        int     _frequency = -1;
-        int     _regain = -1;
-        bool    _type = false;
-        QString _what = "";
+        int     mChance = -1;
+        int     mRrequency = -1;
+        int     mRegain = -1;
+        bool    mType = false;
+        QString mWhat = "";
     } v;
 
     gsl::owner<QComboBox*> chance = nullptr;

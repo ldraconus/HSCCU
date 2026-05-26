@@ -38,9 +38,9 @@ public:
                                       "Unusual Senses and/or by a Small Group and/or Only By Technology or Major Effort" };
         static QList<QString> rctn { "Noticed and Recognizable", "Always Noticed and Causes Major Reaction or Prejudice",
                                      "Causes Extreme Reaction" };
-        if (v._what.isEmpty() || v._reaction < 0 || v._detectable < 0 || v._concealability < 0) return "<incomplete>";
-        return "Distinctive Feature: " + v._what + " (" + conc[v._concealability] + "; " + rctn[v._reaction] + "; " + dtct[v._detectable] +
-                (v._notDistinctive ? "; Not Distictive in Some Cultures" : "") + ")";
+        if (v.mWhat.isEmpty() || v.mReaction < 0 || v.mDetectable < 0 || v.mConcealability < 0) return "<incomplete>";
+        return "Distinctive Feature: " + v.mWhat + " (" + conc[v.mConcealability] + "; " + rctn[v.mReaction] + "; " + dtct[v.mDetectable] +
+                (v.mNotDistinctive ? "; Not Distictive in Some Cultures" : "") + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what           = createLineEdit(parent, layout, "What is distinctive?");
@@ -54,42 +54,42 @@ public:
     }
     Points points(bool noStore = false) override {
         if (!noStore) store();
-        return 5_cp * (v._concealability + 1) + v._reaction * 5_cp - v._detectable * 5_cp - (v._notDistinctive ? 5_cp : 0_cp); // NOLINT
+        return 5_cp * (v.mConcealability + 1) + v.mReaction * 5_cp - v.mDetectable * 5_cp - (v.mNotDistinctive ? 5_cp : 0_cp); // NOLINT
     }
     void restore() override {
         vars s = v;
-        what->setText(s._what);
-        concealability->setCurrentIndex(s._concealability);
-        detectable->setCurrentIndex(s._detectable);
-        notDistinctive->setChecked(s._notDistinctive);
-        reaction->setCurrentIndex(s._reaction);
+        what->setText(s.mWhat);
+        concealability->setCurrentIndex(s.mConcealability);
+        detectable->setCurrentIndex(s.mDetectable);
+        notDistinctive->setChecked(s.mNotDistinctive);
+        reaction->setCurrentIndex(s.mReaction);
         v = s;
     }
     void store() override {
-        v._what           = what->text();
-        v._concealability = concealability->currentIndex();
-        v._detectable     = detectable->currentIndex();
-        v._notDistinctive = notDistinctive->isChecked();
-        v._reaction       = reaction->currentIndex();
+        v.mWhat           = what->text();
+        v.mConcealability = concealability->currentIndex();
+        v.mDetectable     = detectable->currentIndex();
+        v.mNotDistinctive = notDistinctive->isChecked();
+        v.mReaction       = reaction->currentIndex();
     }
     QJsonObject toJson() override {
         QJsonObject obj;
         obj["name"]           = "Distinctive Feature";
-        obj["concealability"] = v._concealability;
-        obj["detectable"]     = v._detectable;
-        obj["notDistinctive"] = v._notDistinctive;
-        obj["reaction"]       = v._reaction;
-        obj["what"]           = v._what;
+        obj["concealability"] = v.mConcealability;
+        obj["detectable"]     = v.mDetectable;
+        obj["notDistinctive"] = v.mNotDistinctive;
+        obj["reaction"]       = v.mReaction;
+        obj["what"]           = v.mWhat;
         return obj;
     }
 
 private:
     struct vars {
-        int     _concealability = -1;
-        int     _detectable = -1;
-        bool    _notDistinctive = false;
-        int     _reaction = -1;
-        QString _what = "";
+        int     mConcealability = -1;
+        int     mDetectable = -1;
+        bool    mNotDistinctive = false;
+        int     mReaction = -1;
+        QString mWhat = "";
     } v;
 
     gsl::owner<QComboBox*> concealability = nullptr;

@@ -1,8 +1,8 @@
 #include "Equipment.h"
 
-QMap<QString, QJsonObject> Armor::_armors;   // NOLINT
-QMap<QString, QJsonObject> Weapon::_weapons; // NOLINT
-QMap<QString, QJsonObject> Equip::_equip;    // NOLINT
+QMap<QString, QJsonObject> Armor::mArmors;   // NOLINT
+QMap<QString, QJsonObject> Weapon::mWeapons; // NOLINT
+QMap<QString, QJsonObject> Equip::mEquip;    // NOLINT
 
 Equipment::Equipment(const QJsonObject& json) {
     QString type;

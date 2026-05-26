@@ -134,7 +134,7 @@ public:
     TakesNoSTUN(): AllPowers("Takes No STUNϴ")            { }
     TakesNoSTUN(const TakesNoSTUN& s): AllPowers(s)       { }
     TakesNoSTUN(TakesNoSTUN&& s): AllPowers(s)            { }
-    TakesNoSTUN(const QJsonObject& json): AllPowers(json) { v._damage = json["damage"].toBool(false);
+    TakesNoSTUN(const QJsonObject& json): AllPowers(json) { v.mDamage = json["damage"].toBool(false);
                                                           }
     ~TakesNoSTUN() override { }
 
@@ -159,23 +159,23 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     Points points(bool noStore = false) override                 { if (!noStore) store();
-                                                                   return (v._damage ? 45_cp : 60_cp); } // NOLINT
+                                                                   return (v.mDamage ? 45_cp : 60_cp); } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
-                                                                   damage->setChecked(s._damage);
+                                                                   damage->setChecked(s.mDamage);
                                                                    v = s;
                                                                  }
     void     store() override                                    { AllPowers::store();
-                                                                   v._damage = damage->isChecked();
+                                                                   v.mDamage = damage->isChecked();
                                                                  }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["damage"] = v._damage;
+                                                                   obj["damage"] = v.mDamage;
                                                                    return obj;
                                                                  }
 
 private:
     struct vars {
-        bool _damage = false;
+        bool mDamage = false;
     } v;
 
     QCheckBox* damage = nullptr;
@@ -184,7 +184,7 @@ private:
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Takes No STUNϴ";
-        if (v._damage) res += "; Loses powers on BODY damage";
+        if (v.mDamage) res += "; Loses powers on BODY damage";
         return res;
     }
 };

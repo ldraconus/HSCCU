@@ -15,13 +15,13 @@
 #include <QScrollBar>
 #include <QTimer>
 
-PowerDialog*      PowerDialog::_ptr = nullptr; // NOLINT
+PowerDialog*      PowerDialog::mPtr = nullptr; // NOLINT
 shared_ptr<Power> PowerDialog::_dummy = nullptr; // NOLINT
 
 PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
     : QDialog(parent)
     , ui(new Ui::PowerDialog)
-    , _saved(save)
+    , mSaved(save)
 {
     QFont font({ QString("Segoe UIHS") });
     setFont(font);
@@ -46,22 +46,22 @@ PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
     ui->powerTypeComboBox->addItem("Groups & Pools");
     if (Sheet::ref().option().equipmentFree()) ui->powerTypeComboBox->addItem("Equipment");
 
-    _ptr = this;
-    _inMultipower = false;
+    mPtr = this;
+    mInMultipower = false;
 
     connect(ui->powerTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickType(int)));
     connect(ui->availableComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickOne(int)));
 
     Sheet::ref().fixButtonBox(ui->buttonBox);
-    _accepted = false;
+    mAccepted = false;
 
-    _ok = ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
-    _cancel = ui->buttonBox->button(QDialogButtonBox::StandardButton::Cancel);
+    mOk = ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
+    mCancel = ui->buttonBox->button(QDialogButtonBox::StandardButton::Cancel);
 
-    _ok->setEnabled(false);
+    mOk->setEnabled(false);
 
-    connect(_ok,     SIGNAL(clicked()), this, SLOT(ok()));
-    connect(_cancel, SIGNAL(clicked()), this, SLOT(cancel()));
+    connect(mOk,     SIGNAL(clicked()), this, SLOT(ok()));
+    connect(mCancel, SIGNAL(clicked()), this, SLOT(cancel()));
 
     QTimer::singleShot(100, this, &PowerDialog::doUpdate);
 }
@@ -140,35 +140,35 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
 }
 
 QTableWidget* PowerDialog::createAdvantages(QWidget* parent, QVBoxLayout* layout) {
-    if (_equipment) return nullptr;
-    _advantages = createTableWidget(parent, layout, { 15, 200 }, "Power Advantages", 75); // NOLINT
+    if (mEquipment) return nullptr;
+    mAdvantages = createTableWidget(parent, layout, { 15, 200 }, "Power Advantages", 75); // NOLINT
 #ifndef __wasm__
-    _advantagesMenu = createMenu(_advantages, _advantages->font(), { { "New",       &_newAdvantage },
-                                                                     { "Edit",      &_editAdvantage },
-                                                                     { "Delete",    &_deleteAdvantage },
+    mAdvantagesMenu = createMenu(mAdvantages, mAdvantages->font(), { { "New",       &mNewAdvantage },
+                                                                     { "Edit",      &mEditAdvantage },
+                                                                     { "Delete",    &mDeleteAdvantage },
                                                                      { "-",         },
-                                                                     { "Cut",       &_cutAdvantage },
-                                                                     { "Copy",      &_copyAdvantage },
-                                                                     { "Paste",     &_pasteAdvantage },
+                                                                     { "Cut",       &mCutAdvantage },
+                                                                     { "Copy",      &mCopyAdvantage },
+                                                                     { "Paste",     &mPasteAdvantage },
                                                                      { "-",         },
-                                                                     { "Move Up",   &_moveAdvantageUp },
-                                                                     { "Move Down", &_moveAdvantageDown } } );
-    connect(_advantages,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(advantageDoubleClicked(QTableWidgetItem*)));
-    connect(_advantages,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(advantagesMenu(QPoint)));
-    connect(_advantagesMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowAdvantagesMenu()));
-    connect(_newAdvantage,      SIGNAL(triggered()),                          this, SLOT(newAdvantage()));
-    connect(_editAdvantage,     SIGNAL(triggered()),                          this, SLOT(editAdvantage()));
-    connect(_deleteAdvantage,   SIGNAL(triggered()),                          this, SLOT(deleteAdvantage()));
-    connect(_cutAdvantage,      SIGNAL(triggered()),                          this, SLOT(cutAdvantage()));
-    connect(_copyAdvantage,     SIGNAL(triggered()),                          this, SLOT(copyAdvantage()));
-    connect(_pasteAdvantage,    SIGNAL(triggered()),                          this, SLOT(pasteAdvantage()));
-    connect(_moveAdvantageUp,   SIGNAL(triggered()),                          this, SLOT(moveAdvantageUp()));
-    connect(_moveAdvantageDown, SIGNAL(triggered()),                          this, SLOT(moveAdvantageDown()));
+                                                                     { "Move Up",   &mMoveAdvantageUp },
+                                                                     { "Move Down", &mMoveAdvantageDown } } );
+    connect(mAdvantages,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(advantageDoubleClicked(QTableWidgetItem*)));
+    connect(mAdvantages,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(advantagesMenu(QPoint)));
+    connect(mAdvantagesMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowAdvantagesMenu()));
+    connect(mNewAdvantage,      SIGNAL(triggered()),                          this, SLOT(newAdvantage()));
+    connect(mEditAdvantage,     SIGNAL(triggered()),                          this, SLOT(editAdvantage()));
+    connect(mDeleteAdvantage,   SIGNAL(triggered()),                          this, SLOT(deleteAdvantage()));
+    connect(mCutAdvantage,      SIGNAL(triggered()),                          this, SLOT(cutAdvantage()));
+    connect(mCopyAdvantage,     SIGNAL(triggered()),                          this, SLOT(copyAdvantage()));
+    connect(mPasteAdvantage,    SIGNAL(triggered()),                          this, SLOT(pasteAdvantage()));
+    connect(mMoveAdvantageUp,   SIGNAL(triggered()),                          this, SLOT(moveAdvantageUp()));
+    connect(mMoveAdvantageDown, SIGNAL(triggered()),                          this, SLOT(moveAdvantageDown()));
 #else
-    connect(_advantages,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(advantageDoubleClicked(QTableWidgetItem*)));
+    connect(mAdvantages,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(advantageDoubleClicked(QTableWidgetItem*)));
 #endif
 
-    return _advantages;
+    return mAdvantages;
 }
 
 #ifdef __wasm__
@@ -294,34 +294,34 @@ QLabel* PowerDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWra
 }
 
 QTableWidget* PowerDialog::createLimitations(QWidget* parent, QVBoxLayout* layout) {
-    if (_equipment) return nullptr;
-    _limitations = createTableWidget(parent, layout, { 15, 200 }, "Power Limitations", 75);
+    if (mEquipment) return nullptr;
+    mLimitations = createTableWidget(parent, layout, { 15, 200 }, "Power Limitations", 75);
 #ifndef __wasm__
-    _limitationsMenu = createMenu(_limitations, _limitations->font(), { { "New",       &_newLimitation },
-                                                                        { "Edit",      &_editLimitation },
-                                                                        { "Delete",    &_deleteLimitation },
+    mLimitationsMenu = createMenu(mLimitations, mLimitations->font(), { { "New",       &mNewLimitation },
+                                                                        { "Edit",      &mEditLimitation },
+                                                                        { "Delete",    &mDeleteLimitation },
                                                                         { "-",         },
-                                                                        { "Cut",       &_cutLimitation },
-                                                                        { "Copy",      &_copyLimitation },
-                                                                        { "Paste",     &_pasteLimitation },
+                                                                        { "Cut",       &mCutLimitation },
+                                                                        { "Copy",      &mCopyLimitation },
+                                                                        { "Paste",     &mPasteLimitation },
                                                                         { "-",         },
-                                                                        { "Move Up",   &_moveLimitationUp },
-                                                                        { "Move Down", &_moveLimitationDown } } );
-    connect(_limitations,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(limitationDoubleClicked(QTableWidgetItem*)));
-    connect(_limitations,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(limitationsMenu(QPoint)));
-    connect(_limitationsMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowLimitationsMenu()));
-    connect(_newLimitation,      SIGNAL(triggered()),                          this, SLOT(newLimitation()));
-    connect(_editLimitation,     SIGNAL(triggered()),                          this, SLOT(editLimitation()));
-    connect(_deleteLimitation,   SIGNAL(triggered()),                          this, SLOT(deleteLimitation()));
-    connect(_cutLimitation,      SIGNAL(triggered()),                          this, SLOT(cutLimitation()));
-    connect(_copyLimitation,     SIGNAL(triggered()),                          this, SLOT(copyLimitation()));
-    connect(_pasteLimitation,    SIGNAL(triggered()),                          this, SLOT(pasteLimitation()));
-    connect(_moveLimitationUp,   SIGNAL(triggered()),                          this, SLOT(moveLimitationUp()));
-    connect(_moveLimitationDown, SIGNAL(triggered()),                          this, SLOT(moveLimitationDown()));
+                                                                        { "Move Up",   &mMoveLimitationUp },
+                                                                        { "Move Down", &mMoveLimitationDown } } );
+    connect(mLimitations,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(limitationDoubleClicked(QTableWidgetItem*)));
+    connect(mLimitations,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(limitationsMenu(QPoint)));
+    connect(mLimitationsMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowLimitationsMenu()));
+    connect(mNewLimitation,      SIGNAL(triggered()),                          this, SLOT(newLimitation()));
+    connect(mEditLimitation,     SIGNAL(triggered()),                          this, SLOT(editLimitation()));
+    connect(mDeleteLimitation,   SIGNAL(triggered()),                          this, SLOT(deleteLimitation()));
+    connect(mCutLimitation,      SIGNAL(triggered()),                          this, SLOT(cutLimitation()));
+    connect(mCopyLimitation,     SIGNAL(triggered()),                          this, SLOT(copyLimitation()));
+    connect(mPasteLimitation,    SIGNAL(triggered()),                          this, SLOT(pasteLimitation()));
+    connect(mMoveLimitationUp,   SIGNAL(triggered()),                          this, SLOT(moveLimitationUp()));
+    connect(mMoveLimitationDown, SIGNAL(triggered()),                          this, SLOT(moveLimitationDown()));
 #else
-    connect(_limitations,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(limitationDoubleClicked(QTableWidgetItem*)));
+    connect(mLimitations,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(limitationDoubleClicked(QTableWidgetItem*)));
 #endif
-    return _limitations;
+    return mLimitations;
 }
 
 void PowerDialog::setCellLabel(QTableWidget* tbl, int row, int col, QString str, QFont&) {
@@ -332,62 +332,62 @@ void PowerDialog::setCellLabel(QTableWidget* tbl, int row, int col, QString str,
 }
 
 void PowerDialog::aboutToShowAdvantagesMenu() {
-    if (_equipment) return;
-    const auto selection = _advantages->selectedRanges();
+    if (mEquipment) return;
+    const auto selection = mAdvantages->selectedRanges();
     bool show = !selection.isEmpty();
     int row = -1;
     if (show) row = selection[0].topRow();
-    _editAdvantage->setEnabled(show);
-    _deleteAdvantage->setEnabled(show);
-    _cutAdvantage->setEnabled(show);
-    _copyAdvantage->setEnabled(show);
-    _moveAdvantageUp->setEnabled(show && row != 0);
-    _moveAdvantageDown->setEnabled(show && row != _advantages->rowCount() - 1);
+    mEditAdvantage->setEnabled(show);
+    mDeleteAdvantage->setEnabled(show);
+    mCutAdvantage->setEnabled(show);
+    mCopyAdvantage->setEnabled(show);
+    mMoveAdvantageUp->setEnabled(show && row != 0);
+    mMoveAdvantageDown->setEnabled(show && row != mAdvantages->rowCount() - 1);
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
     bool canPaste = clip->hasFormat("application/advantage");
-    _pasteAdvantage->setEnabled(canPaste);
+    mPasteAdvantage->setEnabled(canPaste);
 }
 
 void PowerDialog::aboutToShowLimitationsMenu() {
-    if (_equipment) return;
-    const auto selection = _limitations->selectedRanges();
+    if (mEquipment) return;
+    const auto selection = mLimitations->selectedRanges();
     bool show = !selection.isEmpty();
     int row = -1;
     if (show) row = selection[0].topRow();
-    _editLimitation->setEnabled(show);
-    _deleteLimitation->setEnabled(show);
-    _cutLimitation->setEnabled(show);
-    _copyLimitation->setEnabled(show);
-    _moveLimitationUp->setEnabled(show && row != 0);
-    _moveLimitationDown->setEnabled(show && row != _limitations->rowCount() - 1);
+    mEditLimitation->setEnabled(show);
+    mDeleteLimitation->setEnabled(show);
+    mCutLimitation->setEnabled(show);
+    mCopyLimitation->setEnabled(show);
+    mMoveLimitationUp->setEnabled(show && row != 0);
+    mMoveLimitationDown->setEnabled(show && row != mLimitations->rowCount() - 1);
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
     bool canPaste = clip->hasFormat("application/limitation");
-    _pasteLimitation->setEnabled(canPaste);
+    mPasteLimitation->setEnabled(canPaste);
 }
 
 void PowerDialog::advantagesMenu(QPoint pos) {
-    _advantagesMenu->exec(mapToGlobal(pos
-                                      + _advantages->pos()
+    mAdvantagesMenu->exec(mapToGlobal(pos
+                                      + mAdvantages->pos()
                                       - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
 }
 
 void PowerDialog::cancel() {
-    _accepted = false;
-    _done = true;
+    mAccepted = false;
+    mDone = true;
     reject();
 }
 
 void PowerDialog::copyAdvantage() {
-    if (_equipment) return;
-    auto selection = _advantages->selectedRanges();
+    if (mEquipment) return;
+    auto selection = mAdvantages->selectedRanges();
     if (selection.empty()) return;
 
     QClipboard* clip = QGuiApplication::clipboard();
     QMimeData* data = new QMimeData();
     int row = selection[0].topRow();
-    shared_ptr<Modifier> advantage = _power->advantagesList()[row];
+    shared_ptr<Modifier> advantage = mPower->advantagesList()[row];
     QJsonObject obj = advantage->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
@@ -398,14 +398,14 @@ void PowerDialog::copyAdvantage() {
 }
 
 void PowerDialog::copyLimitation() {
-    if (_equipment) return;
-    auto selection = _limitations->selectedRanges();
+    if (mEquipment) return;
+    auto selection = mLimitations->selectedRanges();
     if (selection.empty()) return;
 
     QClipboard* clip = QGuiApplication::clipboard();
     QMimeData* data = new QMimeData();
     int row = selection[0].topRow();
-    shared_ptr<Modifier> limitation = _power->limitationsList()[row];
+    shared_ptr<Modifier> limitation = mPower->limitationsList()[row];
     QJsonObject obj = limitation->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
@@ -416,91 +416,91 @@ void PowerDialog::copyLimitation() {
 }
 
 void PowerDialog::cutAdvantage() {
-    if (_equipment) return;
+    if (mEquipment) return;
     copyAdvantage();
     deleteAdvantage();
 }
 
 void PowerDialog::cutLimitation() {
-    if (_equipment) return;
+    if (mEquipment) return;
     copyLimitation();
     deleteLimitation();
 }
 
 void PowerDialog::deleteAdvantage() {
-    if (_equipment) return;
-    auto selection = _advantages->selectedRanges();
+    if (mEquipment) return;
+    auto selection = mAdvantages->selectedRanges();
     if (selection.empty()) return;
 
     int row = selection[0].topRow();
-    shared_ptr<Modifier> advantage = _power->advantagesList().takeAt(row);
-    _advantages->removeRow(row);
+    shared_ptr<Modifier> advantage = mPower->advantagesList().takeAt(row);
+    mAdvantages->removeRow(row);
     updateForm();
 }
 
 void PowerDialog::deleteLimitation() {
-    if (_equipment) return;
-    auto selection = _limitations->selectedRanges();
+    if (mEquipment) return;
+    auto selection = mLimitations->selectedRanges();
     if (selection.empty()) return;
 
     int row = selection[0].topRow();
-    shared_ptr<Modifier> limitation = _power->limitationsList().takeAt(row);
-    _limitations->removeRow(row);
+    shared_ptr<Modifier> limitation = mPower->limitationsList().takeAt(row);
+    mLimitations->removeRow(row);
     updateForm();
 }
 
 void PowerDialog::editAdvantage() {
-    if (_equipment) return;
-    auto selection = _advantages->selectedRanges();
+    if (mEquipment) return;
+    auto selection = mAdvantages->selectedRanges();
     if (selection.empty()) return;
 
     int row = selection[0].topRow();
-    shared_ptr<Modifier> advantage = _power->advantagesList()[row];
-    _mod = make_shared<ModifiersDialog>(ModifiersDialog::Advantage);
-    bool res = _mod->modifier(advantage);
+    shared_ptr<Modifier> advantage = mPower->advantagesList()[row];
+    mMod = make_shared<ModifiersDialog>(ModifiersDialog::Advantage);
+    bool res = mMod->modifier(advantage);
     if (!res) return;
-    _mod->open();
+    mMod->open();
 }
 
 void PowerDialog::editLimitation() {
-    if (_equipment) return;
-    auto selection = _limitations->selectedRanges();
+    if (mEquipment) return;
+    auto selection = mLimitations->selectedRanges();
     if (selection.empty()) return;
 
     int row = selection[0].topRow();
-    shared_ptr<Modifier> limitation = _power->limitationsList()[row];
-    _mod = make_shared<ModifiersDialog>(ModifiersDialog::Limitation);
-    if (!_mod->modifier(limitation)) return;
-    _mod->open();
+    shared_ptr<Modifier> limitation = mPower->limitationsList()[row];
+    mMod = make_shared<ModifiersDialog>(ModifiersDialog::Limitation);
+    if (!mMod->modifier(limitation)) return;
+    mMod->open();
 }
 
 void PowerDialog::limitationsMenu(QPoint pos) {
-    _limitationsMenu->exec(mapToGlobal(pos
-                                       + _limitations->pos()
+    mLimitationsMenu->exec(mapToGlobal(pos
+                                       + mLimitations->pos()
                                        - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
 
 }
 
 void PowerDialog::moveAdvantageDown() {
-    if (_equipment) return;
-    auto selection = _advantages->selectedRanges();
+    if (mEquipment) return;
+    auto selection = mAdvantages->selectedRanges();
     if (selection.empty()) return;
 
     int row = selection[0].topRow();
-    if (row >= _power->advantagesList().count() - 1) return;
+    if (row >= mPower->advantagesList().count() - 1) return;
 
-    shared_ptr<Modifier> advantage = _power->advantagesList().takeAt(row);
-    _power->advantagesList().insert(row + 1, advantage);
+    shared_ptr<Modifier> advantage = mPower->advantagesList().takeAt(row);
+    mPower->advantagesList().insert(row + 1, advantage);
     updateForm();
 }
 
 void PowerDialog::moveLimitationDown() {
-    if (_equipment) return;
-    auto selection = _limitations->selectedRanges();
+    if (mEquipment) return;
+    auto selection = mLimitations->selectedRanges();
     if (selection.empty()) return;
 
     int row = selection[0].topRow();
-    auto& limitations = _power->limitationsList();
+    auto& limitations = mPower->limitationsList();
     if (row >= limitations.count() - 1) return;
 
     shared_ptr<Modifier> limitation = limitations.takeAt(row);
@@ -509,48 +509,48 @@ void PowerDialog::moveLimitationDown() {
 }
 
 void PowerDialog::moveAdvantageUp() {
-    if (_equipment) return;
-    auto selection = _advantages->selectedRanges();
+    if (mEquipment) return;
+    auto selection = mAdvantages->selectedRanges();
     if (selection.empty()) return;
 
     int row = selection[0].topRow();
     if (row < 1) return;
 
-    auto& advantages = _power->advantagesList();
+    auto& advantages = mPower->advantagesList();
     shared_ptr<Modifier> advantage = advantages.takeAt(row);
     advantages.insert(row - 1, advantage);
     updateForm();
 }
 
 void PowerDialog::moveLimitationUp() {
-    if (_equipment) return;
-    auto selection = _limitations->selectedRanges();
+    if (mEquipment) return;
+    auto selection = mLimitations->selectedRanges();
     if (selection.empty()) return;
 
     int row = selection[0].topRow();
     if (row < 1) return;
 
-    auto& limitations = _power->limitationsList();
+    auto& limitations = mPower->limitationsList();
     shared_ptr<Modifier> limitation = limitations.takeAt(row);
     limitations.insert(row - 1, limitation);
     updateForm();
 }
 
 void PowerDialog::newAdvantage() {
-    if (_equipment) return;
-    _mod = make_shared<ModifiersDialog>(ModifiersDialog::Advantage);
-    _mod->open();
+    if (mEquipment) return;
+    mMod = make_shared<ModifiersDialog>(ModifiersDialog::Advantage);
+    mMod->open();
 }
 
 void PowerDialog::newLimitation() {
-    if (_equipment) return;
-    _mod = make_shared<ModifiersDialog>(ModifiersDialog::Limitation);
-    _mod->open();
+    if (mEquipment) return;
+    mMod = make_shared<ModifiersDialog>(ModifiersDialog::Limitation);
+    mMod->open();
 }
 
 void PowerDialog::setupPower(shared_ptr<Power>& power) {
-    power = Power::FromJson(_power->name(), _power->toJson());
-    if (_equipment) return;
+    power = Power::FromJson(mPower->name(), mPower->toJson());
+    if (mEquipment) return;
     power->modifiers().clear();
     for (const auto& mod: power->advantagesList()) {
         if (mod == nullptr) continue;
@@ -565,24 +565,24 @@ void PowerDialog::setupPower(shared_ptr<Power>& power) {
 }
 
 void PowerDialog::ok() {
-    _accepted = _done = true;
+    mAccepted = mDone = true;
     Sheet& s = Sheet::ref();
 
-    if (_saved != nullptr && _saved->parent() != nullptr) {
-        Power* group = _saved->parent();
-        if (!group->isValid(_power)) {
-            _errorMsg->setText("Invalid power. Too manny points to fit into group or not valid for pool");
+    if (mSaved != nullptr && mSaved->parent() != nullptr) {
+        Power* group = mSaved->parent();
+        if (!group->isValid(mPower)) {
+            mErrorMsg->setText("Invalid power. Too manny points to fit into group or not valid for pool");
             return;
         }
     }
 
-    bool add = (_saved == nullptr);
+    bool add = (mSaved == nullptr);
     if (add) {
         shared_ptr<Power> work;
         setupPower(work);
         s.addPower(work);
     } else {
-        setupPower(_saved);
+        setupPower(mSaved);
         _dummy.reset(new Power);
         _dummy = nullptr;
     }
@@ -593,7 +593,7 @@ void PowerDialog::ok() {
 }
 
 void PowerDialog::pasteAdvantage() {
-    if (_equipment) return;
+    if (mEquipment) return;
     QClipboard* clip = QGuiApplication::clipboard();
     const QMimeData* data = clip->mimeData();
     QByteArray byteArray = data->data("application/advantage");
@@ -602,13 +602,13 @@ void PowerDialog::pasteAdvantage() {
     QJsonObject obj = json.object();
     QString name = obj["name"].toString();
     shared_ptr<Modifier> advantage = Modifiers::ByName(name)->create(obj);
-    _power->advantagesList().append(advantage);
+    mPower->advantagesList().append(advantage);
 
     updateForm();
 }
 
 void PowerDialog::pasteLimitation() {
-    if (_equipment) return;
+    if (mEquipment) return;
     QClipboard* clip = QGuiApplication::clipboard();
     const QMimeData* data = clip->mimeData();
     QByteArray byteArray = data->data("application/limitation");
@@ -617,14 +617,14 @@ void PowerDialog::pasteLimitation() {
     QJsonObject obj = json.object();
     QString name = obj["name"].toString();
     shared_ptr<Modifier> limitation = Modifiers::ByName(name)->create(obj);
-    _power->limitationsList().append(limitation);
+    mPower->limitationsList().append(limitation);
 
     updateForm();
 }
 
 void PowerDialog::pickOne(int) {
-    if (_skipUpdate) {
-        _skipUpdate = false;
+    if (mSkipUpdate) {
+        mSkipUpdate = false;
         return;
     }
 
@@ -637,12 +637,12 @@ void PowerDialog::pickOne(int) {
     QString text = ui->availableComboBox->currentText();
     if (text == "") return;
 
-    _power = Power::ByName(text);
-    if (_inMultipower) _power->inMultipower();
-    try { _power->createForm(this, layout); } catch (...) { accept(); }
+    mPower = Power::ByName(text);
+    if (mInMultipower) mPower->inMultipower();
+    try { mPower->createForm(this, layout); } catch (...) { accept(); }
 
     createLabel(layout, "");
-    if (!_equipment) {
+    if (!mEquipment) {
         createLabel(layout, "Advantages");
         createAdvantages(this, layout);
         createEditButton(this, layout, {SLOT(newAdvantage()), SLOT(editAdvantage()), SLOT(deleteAdvantage()), SLOT(cutAdvantage()), SLOT(copyAdvantage()), SLOT(pasteAdvantage()), SLOT(moveAdvantageUp()), SLOT(moveAdvantageDown())});
@@ -652,10 +652,10 @@ void PowerDialog::pickOne(int) {
         createEditButton(this, layout, {SLOT(newLimitation()), SLOT(editLimitation()), SLOT(deleteLimitation()), SLOT(cutLimitation()), SLOT(copyLimitation()), SLOT(pasteLimitation()), SLOT(moveLimitationUp()), SLOT(moveLimitationDown())});
     }
     createLabel(layout, "");
-    if (!_equipment) _points = createLabel(layout, "-1 Points");
-    else _points = nullptr;
-    _description = createLabel(layout, "<incomplete>", WordWrap);
-    _errorMsg = createLabel(layout, "", WordWrap);
+    if (!mEquipment) mPoints = createLabel(layout, "-1 Points");
+    else mPoints = nullptr;
+    mDescription = createLabel(layout, "<incomplete>", WordWrap);
+    mErrorMsg = createLabel(layout, "", WordWrap);
 
     layout->addStretch(1);
     updateForm();
@@ -685,8 +685,8 @@ void PowerDialog::pickType(int type) {
     for (const auto& power: available) ui->availableComboBox->addItem(power);
     ui->availableComboBox->setEnabled(available.isEmpty() ? false : true);
 
-    if (_skipUpdate) {
-        _skipUpdate = false;
+    if (mSkipUpdate) {
+        mSkipUpdate = false;
         return;
     }
 
@@ -696,7 +696,7 @@ void PowerDialog::pickType(int type) {
         ui->form->setLayout(layout);
     }
 
-    _power = nullptr;
+    mPower = nullptr;
 
     Power::ClearForm(layout);
 }
@@ -724,10 +724,10 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
     else if ((idx = Power::Equipment().indexOf(name)) != -1)            type = 12;
     else return *this;
 
-    _skipUpdate = true;
+    mSkipUpdate = true;
     ui->powerTypeComboBox->setCurrentIndex(type);
     ui->powerTypeComboBox->setEnabled(false);
-    _skipUpdate = true;
+    mSkipUpdate = true;
     ui->availableComboBox->setCurrentIndex(idx);
     ui->availableComboBox->setEnabled(false);
 
@@ -737,8 +737,8 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
         ui->form->setLayout(layout);
     }
 
-    _power = s;
-    try { _power->createForm(this, layout); } catch (...) { accept(); return *this; }
+    mPower = s;
+    try { mPower->createForm(this, layout); } catch (...) { accept(); return *this; }
     if (type != 12) {
         createLabel(layout, "");
         createLabel(layout, "Advantages");
@@ -765,55 +765,55 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
     }
 
     createLabel(layout, "");
-    if (type != 12) _points = createLabel(layout, "-1 Points");
-    _description = createLabel(layout, "<incomplete>", WordWrap);
+    if (type != 12) mPoints = createLabel(layout, "-1 Points");
+    mDescription = createLabel(layout, "<incomplete>", WordWrap);
 
     layout->addStretch(1);
-    _power = s;
-    _power->restore();
+    mPower = s;
+    mPower->restore();
     updateForm();
     return *this;
 }
 
 void PowerDialog::activated(int) {
     QComboBox* comboBox = dynamic_cast<QComboBox*>(sender());
-    _power->callback(comboBox, true);
+    mPower->callback(comboBox, true);
     updateForm();
 }
 
 void PowerDialog::buttonPressed(bool) {
     QPushButton* button = dynamic_cast<QPushButton*>(sender());
-    _power->callback(button);
+    mPower->callback(button);
     updateForm();
 }
 
 void PowerDialog::itemChanged(QTreeWidgetItem* itm, int) {
     QTreeWidget* tree = itm->treeWidget();
-    _power->callback(tree);
+    mPower->callback(tree);
     updateForm();
 }
 
 void PowerDialog::currentIndexChanged(int) {
     QComboBox* comboBox = dynamic_cast<QComboBox*>(sender());
-    _power->callback(comboBox);
+    mPower->callback(comboBox);
     updateForm();
 }
 
 void PowerDialog::itemSelectionChanged() {
     QTreeWidget* tree = dynamic_cast<QTreeWidget*>(sender());
-    _power->callback(tree);
+    mPower->callback(tree);
     updateForm();
 }
 
 void PowerDialog::stateChanged(int) {
     QCheckBox* checkBox = dynamic_cast<QCheckBox*>(sender());
-    _power->callback(checkBox);
+    mPower->callback(checkBox);
     updateForm();
 }
 
 void PowerDialog::textChanged(QString) {
     QLineEdit* text = dynamic_cast<QLineEdit*>(sender());
-    _power->callback(text);
+    mPower->callback(text);
     updateForm();
 }
 
@@ -842,45 +842,45 @@ void PowerDialog::setColumns(QTableWidget* tablewidget) {
 }
 
 void PowerDialog::updateForm() {
-    if (_power == nullptr) return;
+    if (mPower == nullptr) return;
 
-    _power->store();
-    Points pts = _power->real();
-    if (!_equipment) {
-        if ((!_power->isFramework() || _power->isVPP() || _power->isMultipower()) && pts.points == 0) pts = 1_cp;
-        if (_power->isVPP()) pts += _power->pool();
-        _points->setText(QString("%1 points").arg(pts.points));
+    mPower->store();
+    Points pts = mPower->real();
+    if (!mEquipment) {
+        if ((!mPower->isFramework() || mPower->isVPP() || mPower->isMultipower()) && pts.points == 0) pts = 1_cp;
+        if (mPower->isVPP()) pts += mPower->pool();
+        mPoints->setText(QString("%1 points").arg(pts.points));
     }
-    QString descr = _power->description(Power::ShowEND);
-    if (!_power->isEquipment()) {
-        QFont font = _advantages->font();
-        _advantages->setRowCount(0);
-        _advantages->update();
+    QString descr = mPower->description(Power::ShowEND);
+    if (!mPower->isEquipment()) {
+        QFont font = mAdvantages->font();
+        mAdvantages->setRowCount(0);
+        mAdvantages->update();
         int row = 0;
-        for (const auto& mod: _power->advantagesList()) {
+        for (const auto& mod: mPower->advantagesList()) {
             QString val;
             if (mod->isAdder()) val = QString("%1").arg(mod->points(Modifier::NoStore).points);
             else val = mod->fraction(Modifier::NoStore).toString();
             descr += "; (+" + val + ") " + mod->description();
-            setCellLabel(_advantages, row, 0, "+" + val, font);
-            setCellLabel(_advantages, row, 1, mod->description(), font);
+            setCellLabel(mAdvantages, row, 0, "+" + val, font);
+            setCellLabel(mAdvantages, row, 1, mod->description(), font);
             row++;
         }
-        setColumns(_advantages);
+        setColumns(mAdvantages);
 
-        _limitations->setRowCount(0);
-        _limitations->update();
+        mLimitations->setRowCount(0);
+        mLimitations->update();
         row = 0;
-        for (const auto& lim: _power->limitationsList()) {
+        for (const auto& lim: mPower->limitationsList()) {
             descr += "; (" + lim->fraction(Modifier::NoStore).toString() + ") " + lim->description();
-            setCellLabel(_limitations, row, 0, lim->fraction(Modifier::NoStore).toString(), font);
-            setCellLabel(_limitations, row, 1, lim->description(), font);
+            setCellLabel(mLimitations, row, 0, lim->fraction(Modifier::NoStore).toString(), font);
+            setCellLabel(mLimitations, row, 1, lim->description(), font);
             row++;
         }
-        setColumns(_limitations);
+        setColumns(mLimitations);
     }
 
-    _description->setText(descr);
-    _errorMsg->setText("");
-    _ok->setEnabled(_power->description() != "<incomplete>");
+    mDescription->setText(descr);
+    mErrorMsg->setText("");
+    mOk->setEnabled(mPower->description() != "<incomplete>");
 }

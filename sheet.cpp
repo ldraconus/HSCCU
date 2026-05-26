@@ -463,7 +463,7 @@ Sheet::Sheet(QWidget *parent)
 #ifndef __wasm__
     QStringList args = qApp->arguments(); // NOLINT
     if (args.count() > 1) {
-        _filename = QDir::fromNativeSeparators(args[1]);
+        mFilename = QDir::fromNativeSeparators(args[1]);
         fileOpen();
         QProcess subfile;
         subfile.setProgram(args[0]);
@@ -508,7 +508,7 @@ void Sheet::closeDialogs(QMouseEvent* me) {
     if (mSkillMenuDialog         != nullptr) closeDialog(mSkillMenuDialog,         me);
     if (mPowerMenuDialog         != nullptr) closeDialog(mPowerMenuDialog,         me);
 #endif
-    if (_optionDlg != nullptr) closeDialog(_optionDlg, me);
+    if (mOptionDlg != nullptr) closeDialog(mOptionDlg, me);
     if (mCompDlg   != nullptr) closeDialog(mCompDlg,   me);
     if (mPowerDlg  != nullptr) closeDialog(mPowerDlg,  me);
     if (mSkillDlg  != nullptr) closeDialog(mSkillDlg,  me);
@@ -815,20 +815,19 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
 
 #ifndef __wasm__
 void Sheet::doLoadImage() {
-    loadImage(_character.image());
-    _saveChanged = _changed;
+    loadImage(mCharacter.image());
+    mSaveChanged = mChanged;
     skipLoadImage();
 }
 
 void Sheet::skipLoadImage() {
-    Ui->notes->setPlainText(_character.notes());
+    Ui->notes->setPlainText(mCharacter.notes());
     updateDisplay();
-    _changed = _saveChanged;
+    mChanged = mSaveChanged;
 }
 #endif
 
-void Sheet::updateBanner()
-{
+void Sheet::updateBanner() {
     QPixmap pixmap(mOption.banner());
     pixmap = pixmap.scaled(293, 109, Qt::KeepAspectRatio, Qt::SmoothTransformation); // NOLINT
     Ui->banner1->setPixmap(pixmap);
@@ -855,22 +854,22 @@ void Sheet::fileOpen(const QByteArray& data, QString filename) {
 void Sheet::fileOpen() {
     Power::Equipment(); // pre-load equipment if needed
 
-    auto ext = _filename.lastIndexOf(".hsccu");
-    if (ext != -1) _filename = _filename.left(ext);
+    auto ext = mFilename.lastIndexOf(".hsccu");
+    if (ext != -1) mFilename = mFilename.left(ext);
 
-    auto sep = _filename.lastIndexOf("/");
+    auto sep = mFilename.lastIndexOf("/");
     if (sep != -1) {
-        _dir = _filename.left(sep);
-        _filename = _filename.mid(sep + 1);
+        mDir = mFilename.left(sep);
+        mFilename = mFilename.mid(sep + 1);
     }
 
-    if (!_character.load(_option, _dir + "/" + _filename))
-        OK("Can't load \"" + _filename + ".hsccu\" from the \"" + _dir + "\" folder.", std::bind(&Sheet::doNothing, this));
+    if (!mCharacter.load(mOption, mDir + "/" + mFilename))
+        OK("Can't load \"" + mFilename + ".hsccu\" from the \"" + mDir + "\" folder.", std::bind(&Sheet::doNothing, this));
     else {
-        _saveChanged = false;
-        QFileInfo imageFile(_character.image());
+        mSaveChanged = false;
+        QFileInfo imageFile(mCharacter.image());
         if (imageFile.exists()) {
-            qulonglong then(_character.imageDate());
+            qulonglong then(mCharacter.imageDate());
             qulonglong file(imageFile.lastModified().toSecsSinceEpoch());
             if (file > then) YesNo("Character image on disk has changed.\n\n"
                                    "Do you want to update the image in\n"
@@ -1266,16 +1265,16 @@ void Sheet::rebuildCharFromPowers(QList<shared_ptr<Power>>& list) {
             }
         } else if (power->name() == "Growth") {
             auto& sm = power->growthStats();
-            mCharacter.STR().secondary(mCharacter.STR().secondary() + sm._STR);
-            mCharacter.CON().secondary(mCharacter.CON().secondary() + sm._CON);
-            mCharacter.PRE().secondary(mCharacter.PRE().secondary() + sm._PRE);
-            mCharacter.PD().secondary(mCharacter.PD().secondary() + sm._PD);
-            mCharacter.ED().secondary(mCharacter.ED().secondary() + sm._ED);
-            mCharacter.BODY().secondary(mCharacter.BODY().secondary() + sm._BODY);
-            mCharacter.STUN().secondary(mCharacter.STUN().secondary() + sm._STUN);
+            mCharacter.STR().secondary(mCharacter.STR().secondary() + sm.mSTR);
+            mCharacter.CON().secondary(mCharacter.CON().secondary() + sm.mCON);
+            mCharacter.PRE().secondary(mCharacter.PRE().secondary() + sm.mPRE);
+            mCharacter.PD().secondary(mCharacter.PD().secondary() + sm.mPD);
+            mCharacter.ED().secondary(mCharacter.ED().secondary() + sm.mED);
+            mCharacter.BODY().secondary(mCharacter.BODY().secondary() + sm.mBODY);
+            mCharacter.STUN().secondary(mCharacter.STUN().secondary() + sm.mSTUN);
             if (power->hasModifier("Resistant")) {
-                mCharacter.rPD() += sm._PD;
-                mCharacter.rED() += sm._ED;
+                mCharacter.rPD() += sm.mPD;
+                mCharacter.rED() += sm.mED;
             }
         } else if (power->name() == "Characteristics") {
             int put = power->characteristic(-1);
@@ -1591,7 +1590,7 @@ void Sheet::rebuildMoveFromPowers(QList<shared_ptr<Power>>& list,
 
         if (power->name() == "Growth") {
             auto& sm = power->growthStats();
-            mCharacter.running() += sm._running;
+            mCharacter.running() += sm.mRunning;
         } else if (power->name() == "Running") {
             mCharacter.running() += power->move();
         } else if (power->name() == "Leaping") {
@@ -2142,7 +2141,7 @@ void Sheet::aboutToShowComplicationsMenu() {
     Ui->cutComplication->setEnabled(show);
     Ui->copyComplication->setEnabled(show);
     Ui->moveComplicationUp->setEnabled(show && row != 0);
-    Ui->moveComplicationDown->setEnabled(show && row != _character.complications().count() - 1);
+    Ui->moveComplicationDown->setEnabled(show && row != mCharacter.complications().count() - 1);
     Ui->pasteComplication->setEnabled(canPaste);
 #else
     bool canPaste = false;
@@ -2165,7 +2164,7 @@ void Sheet::aboutToShowEditMenu() {
 }
 
 void Sheet::aboutToShowFileMenu() {
-    ui->action_Save->setEnabled(_changed);
+    ui->action_Save->setEnabled(mChanged);
 }
 #endif
 
@@ -2189,7 +2188,7 @@ void Sheet::aboutToShowPowersAndEquipmentMenu() {
     Ui->cutPowerOrEquipment->setEnabled(show);
     Ui->copyPowerOrEquipment->setEnabled(show);
     Ui->movePowerOrEquipmentUp->setEnabled(show && row != 0);
-    auto power = getPower(row, _character.powersOrEquipment());
+    auto power = getPower(row, mCharacter.powersOrEquipment());
     Ui->movePowerOrEquipmentDown->setEnabled(show && (row != Ui->powersandequipment->rowCount() - 1 || power->parent() != nullptr));
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
@@ -2223,7 +2222,7 @@ void Sheet::aboutToShowSkillsPerksAndTalentsMenu() {
     Ui->copySkillTalentOrPerk->setEnabled(show);
     Ui->pasteSkillTalentOrPerk->setEnabled(canPaste);
     Ui->moveSkillTalentOrPerkUp->setEnabled(show && row != 0);
-    Ui->moveSkillTalentOrPerkDown->setEnabled(show && row != _character.skillsTalentsOrPerks().count() - 1);
+    Ui->moveSkillTalentOrPerkDown->setEnabled(show && row != mCharacter.skillsTalentsOrPerks().count() - 1);
 #endif
 }
 
@@ -2664,7 +2663,7 @@ void Sheet::newImage() {
         loadImage(fileContent, fileName);
     });
 #else
-    QString filename = QFileDialog::getOpenFileName(this, "New Image", _dir, "Images (*.png *.xpm *jpg)");
+    QString filename = QFileDialog::getOpenFileName(this, "New Image", mDir, "Images (*.png *.xpm *jpg)");
     if (filename.isEmpty()) return;
     loadImage(filename);
 #endif
@@ -2715,9 +2714,9 @@ void Sheet::doOpen() {
         fileOpen(fileContent, fileName);
     });
 #else
-    QString filename = QFileDialog::getOpenFileName(this, "Open File", _dir, "Characters (*.hsccu)");
+    QString filename = QFileDialog::getOpenFileName(this, "Open File", mDir, "Characters (*.hsccu)");
     if (filename.isEmpty()) return;
-    _filename = filename;
+    mFilename = filename;
 
     fileOpen();
 #endif
@@ -2746,16 +2745,16 @@ void Sheet::outsideImageArea() {
 #endif
 
 void Sheet::options() {
-    _optionDlg = make_shared<optionDialog>();
-    _optionDlg->setBanner(mOption.banner());
-    _optionDlg->setComplications(mOption.complications().points);
-    _optionDlg->setShowFrequencyRolls(mOption.showFrequencyRolls());
-    _optionDlg->setShowNotesPage(mOption.showNotesPage());
-    _optionDlg->setNormalHumanMaxima(mOption.normalHumanMaxima());
-    _optionDlg->setActivePointsPerEND(mOption.activePerEND().points);
-    _optionDlg->setEquipmentFree(mOption.equipmentFree());
-    _optionDlg->setTotalPoints(mOption.totalPoints().points);
-    _optionDlg->open();
+    mOptionDlg = make_shared<optionDialog>();
+    mOptionDlg->setBanner(mOption.banner());
+    mOptionDlg->setComplications(mOption.complications().points);
+    mOptionDlg->setShowFrequencyRolls(mOption.showFrequencyRolls());
+    mOptionDlg->setShowNotesPage(mOption.showNotesPage());
+    mOptionDlg->setNormalHumanMaxima(mOption.normalHumanMaxima());
+    mOptionDlg->setActivePointsPerEND(mOption.activePerEND().points);
+    mOptionDlg->setEquipmentFree(mOption.equipmentFree());
+    mOptionDlg->setTotalPoints(mOption.totalPoints().points);
+    mOptionDlg->open();
 }
 
 void Sheet::paste() {
@@ -2977,17 +2976,17 @@ void Sheet::save() {
     mCharacter.notes() = Ui->notes->toPlainText();
 
 #ifndef __wasm__
-    if (_filename.isEmpty()) {
-        QString oldname = _filename;
-        _filename = Ui->charactername->text();
+    if (mFilename.isEmpty()) {
+        QString oldname = mFilename;
+        mFilename = Ui->charactername->text();
         saveAs();
-        if (_filename.isEmpty()) _filename = oldname;
+        if (mFilename.isEmpty()) mFilename = oldname;
         return;
     }
 
-    if (!_character.store(_option, _dir + "/" + _filename))
-        OK("Can't save to \"" + _filename + ".hsccu\" in the \"" + _dir + "\" folder.", std::bind(&Sheet::doNothing, this));
-    else _changed = false;
+    if (!mCharacter.store(mOption, mDir + "/" + mFilename))
+        OK("Can't save to \"" + mFilename + ".hsccu\" in the \"" + mDir + "\" folder.", std::bind(&Sheet::doNothing, this));
+    else mChanged = false;
 #else
     if (mFilename.isEmpty()) mFilename = Ui->charactername->text();
     if (!mCharacter.store(mOption, mFilename)) {
