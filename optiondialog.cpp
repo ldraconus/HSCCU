@@ -8,7 +8,7 @@
 #endif
 
 optionDialog::optionDialog(QWidget *parent) :
-    QDialog(parent),
+    Dialog(parent),
     ui(new Ui::optionDialog) {
     QFont font({ QString("Segoe UIHS") });
     setFont(font);

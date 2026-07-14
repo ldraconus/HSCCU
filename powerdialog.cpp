@@ -19,7 +19,7 @@ PowerDialog*      PowerDialog::mPtr = nullptr; // NOLINT
 shared_ptr<Power> PowerDialog::_dummy = nullptr; // NOLINT
 
 PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
-    : QDialog(parent)
+    : Dialog(parent)
     , ui(new Ui::PowerDialog)
     , mSaved(save) {
     QFont font({ QString("Segoe UIHS") });

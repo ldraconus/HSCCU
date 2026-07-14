@@ -4,14 +4,14 @@
 #include "shared.h"
 #include "skilltalentorperk.h"
 
-#include <QDialog>
+#include "dialog.h"
 #include <QPushButton>
 
 namespace Ui {
 class SkillDialog;
 }
 
-class SkillDialog : public QDialog {
+class SkillDialog : public Dialog {
     Q_OBJECT
 
 public:

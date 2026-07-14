@@ -2,13 +2,13 @@
 #define OPTIONDIALOG_H
 
 #include "ui_optiondialog.h"
-#include <QDialog>
+#include "dialog.h"
 
 namespace Ui {
 class optionDialog;
 }
 
-class optionDialog : public QDialog {
+class optionDialog : public Dialog {
     Q_OBJECT
 
 public:

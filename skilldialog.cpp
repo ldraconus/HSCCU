@@ -6,7 +6,7 @@
 #include <QVBoxLayout>
 
 SkillDialog::SkillDialog(QWidget *parent) :
-    QDialog(parent),
+    Dialog(parent),
     ui(new Ui::SkillDialog) {
     QFont font({ QString("Segoe UIHS") });
     setFont(font);

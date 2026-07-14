@@ -1,7 +1,8 @@
 #ifndef MODIFIERSDIALOG_H
 #define MODIFIERSDIALOG_H
 
-#include <QDialog>
+#include "dialog.h"
+
 #include <QLabel>
 #include <QPushButton>
 #include <QTimer>
@@ -18,7 +19,7 @@ class ModifiersDialog;
 
 using std::shared_ptr;
 
-class ModifiersDialog : public QDialog {
+class ModifiersDialog: public Dialog {
     Q_OBJECT
 
 public:

@@ -114,6 +114,8 @@ qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
     ${source_files}
     ${header_files}
     ${form_files}
+    resizenotifier.h resizenotifier.cpp
+    dialog.h dialog.cpp
 )
 
 # Resources:

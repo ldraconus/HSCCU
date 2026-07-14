@@ -1,7 +1,7 @@
 #ifndef POWERDIALOG_H
 #define POWERDIALOG_H
 
-#include <QDialog>
+#include "dialog.h"
 #include <QLabel>
 #include <QTableWidget>
 #include <QTreeWidgetItem>
@@ -15,7 +15,7 @@ namespace Ui {
 class PowerDialog;
 }
 
-class PowerDialog : public QDialog {
+class PowerDialog : public Dialog {
     Q_OBJECT
 
 public:

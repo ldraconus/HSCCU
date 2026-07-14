@@ -2,15 +2,15 @@
 #define COMPLICATIONSDIALOG_H
 
 #include "complication.h"
+#include "dialog.h"
 
-#include <QDialog>
 #include <QPushButton>
 
 namespace Ui {
 class ComplicationsDialog;
 }
 
-class ComplicationsDialog : public QDialog {
+class ComplicationsDialog: public Dialog {
     Q_OBJECT
 
 public:

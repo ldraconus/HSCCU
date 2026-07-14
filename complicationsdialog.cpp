@@ -7,7 +7,7 @@
 #include <QVBoxLayout>
 
 ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
-    QDialog(parent),
+    Dialog(parent),
     ui(new Ui::ComplicationsDialog),
     mDescription(nullptr),
     mOk(nullptr),
