@@ -18,7 +18,12 @@ void Dialog::showEvent(QShowEvent *event) {
 
 void Dialog::adjustForAvailableSpace() {
     const QRect avail = screen()->availableGeometry();
-    if (sizeHint().height() > avail.height()) resize(width(), avail.height());
+    if (sizeHint().height() > avail.height()) {
+        resize(width(), avail.height());
+        move(pos().x(), 0);
+        return;
+    }
+    if (pos().y() + sizeHint().height() > avail.height()) move(pos().x(), (avail.height() - sizeHint().height()) / 2);
 }
 
 bool Dialog::eventFilter(QObject* watched, QEvent* event) {
