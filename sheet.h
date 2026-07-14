@@ -54,7 +54,6 @@ public:
     ~Sheet() override;
 
     static Sheet& ref() { return* sSheet; }
-    static
 
     void       changed()   { mChanged = true; }
     Character& character() { return mCharacter; }
