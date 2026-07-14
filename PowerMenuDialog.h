@@ -25,8 +25,8 @@ public:
     void showEvent(QShowEvent*) override;
 
 private:
-    Ui::PowerMenuDialog *ui;
-    QPoint mPos;
+    Ui::PowerMenuDialog* mUi;
+    QPoint               mPos;
 
     bool mShowEdit     = false;
     bool mShowDelete   = false;

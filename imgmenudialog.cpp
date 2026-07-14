@@ -5,22 +5,24 @@
 
 ImgMenuDialog::ImgMenuDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ImgMenuDialog)
+    mUi(new Ui::ImgMenuDialog)
 {
-    ui->setupUi(this);
+    mUi->setupUi(this);
 
-    connect(ui->clearImageButton, SIGNAL(clicked()), this, SLOT(clearImage()));
-    connect(ui->loadImageButton,  SIGNAL(clicked()), this, SLOT(newImage()));
+    connect(mUi->clearImageButton, SIGNAL(clicked()), this, SLOT(clearImage()));
+    connect(mUi->loadImageButton,  SIGNAL(clicked()), this, SLOT(newImage()));
 }
 
 ImgMenuDialog::~ImgMenuDialog()
 {
-    delete ui;
+    delete mUi;
 }
 
 void ImgMenuDialog::showEvent(QShowEvent*) {
     QRect dlg = geometry();
-    dlg.setTopLeft(_pos);
+    QSize sz = dlg.size();
+    dlg.setTopLeft(mPos);
+    dlg.setSize(sz);
     setGeometry(dlg);
 }
 

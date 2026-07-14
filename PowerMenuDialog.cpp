@@ -5,37 +5,39 @@
 
 PowerMenuDialog::PowerMenuDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::PowerMenuDialog)
+    mUi(new Ui::PowerMenuDialog)
 {
-    ui->setupUi(this);
+    mUi->setupUi(this);
 
-    connect(ui->newButton,      SIGNAL(clicked()), this, SLOT(newButton()));
-    connect(ui->editButton,     SIGNAL(clicked()), this, SLOT(editButton()));
-    connect(ui->deleteButton,   SIGNAL(clicked()), this, SLOT(deleteButton()));
-    connect(ui->cutButton,      SIGNAL(clicked()), this, SLOT(cutButton()));
-    connect(ui->copyButton,     SIGNAL(clicked()), this, SLOT(copyButton()));
-    connect(ui->pasteButton,    SIGNAL(clicked()), this, SLOT(pasteButton()));
-    connect(ui->moveUpButton,   SIGNAL(clicked()), this, SLOT(moveUpButton()));
-    connect(ui->moveDownButton, SIGNAL(clicked()), this, SLOT(moveDownButton()));
+    connect(mUi->newButton,      SIGNAL(clicked()), this, SLOT(newButton()));
+    connect(mUi->editButton,     SIGNAL(clicked()), this, SLOT(editButton()));
+    connect(mUi->deleteButton,   SIGNAL(clicked()), this, SLOT(deleteButton()));
+    connect(mUi->cutButton,      SIGNAL(clicked()), this, SLOT(cutButton()));
+    connect(mUi->copyButton,     SIGNAL(clicked()), this, SLOT(copyButton()));
+    connect(mUi->pasteButton,    SIGNAL(clicked()), this, SLOT(pasteButton()));
+    connect(mUi->moveUpButton,   SIGNAL(clicked()), this, SLOT(moveUpButton()));
+    connect(mUi->moveDownButton, SIGNAL(clicked()), this, SLOT(moveDownButton()));
 }
 
 PowerMenuDialog::~PowerMenuDialog()
 {
-    delete ui;
+    delete mUi;
 }
 
 void PowerMenuDialog::showEvent(QShowEvent*) {
     QRect dlg = geometry();
+    QSize sz = dlg.size();
     dlg.setTopLeft(mPos);
+    dlg.setSize(sz);
     setGeometry(dlg);
 
-    ui->copyButton->setEnabled(mShowCopy);
-    ui->cutButton->setEnabled(mShowCut);
-    ui->deleteButton->setEnabled(mShowDelete);
-    ui->editButton->setEnabled(mShowEdit);
-    ui->moveDownButton->setEnabled(mShowMoveDown);
-    ui->moveUpButton->setEnabled(mShowMoveUp);
-    ui->pasteButton->setEnabled(mShowPaste);
+    mUi->copyButton->setEnabled(mShowCopy);
+    mUi->cutButton->setEnabled(mShowCut);
+    mUi->deleteButton->setEnabled(mShowDelete);
+    mUi->editButton->setEnabled(mShowEdit);
+    mUi->moveDownButton->setEnabled(mShowMoveDown);
+    mUi->moveUpButton->setEnabled(mShowMoveUp);
+    mUi->pasteButton->setEnabled(mShowPaste);
 }
 
 void PowerMenuDialog::newButton() {

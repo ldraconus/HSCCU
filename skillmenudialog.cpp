@@ -5,37 +5,39 @@
 
 SkillMenuDialog::SkillMenuDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SkillMenuDialog)
+    mUi(new Ui::SkillMenuDialog)
 {
-    ui->setupUi(this);
+    mUi->setupUi(this);
 
-    connect(ui->newButton,      SIGNAL(clicked()), this, SLOT(newButton()));
-    connect(ui->editButton,     SIGNAL(clicked()), this, SLOT(editButton()));
-    connect(ui->deleteButton,   SIGNAL(clicked()), this, SLOT(deleteButton()));
-    connect(ui->cutButton,      SIGNAL(clicked()), this, SLOT(cutButton()));
-    connect(ui->copyButton,     SIGNAL(clicked()), this, SLOT(copyButton()));
-    connect(ui->pasteButton,    SIGNAL(clicked()), this, SLOT(pasteButton()));
-    connect(ui->muveUpButton,   SIGNAL(clicked()), this, SLOT(moveUpButton()));
-    connect(ui->moveDownButton, SIGNAL(clicked()), this, SLOT(moveDownButton()));
+    connect(mUi->newButton,      SIGNAL(clicked()), this, SLOT(newButton()));
+    connect(mUi->editButton,     SIGNAL(clicked()), this, SLOT(editButton()));
+    connect(mUi->deleteButton,   SIGNAL(clicked()), this, SLOT(deleteButton()));
+    connect(mUi->cutButton,      SIGNAL(clicked()), this, SLOT(cutButton()));
+    connect(mUi->copyButton,     SIGNAL(clicked()), this, SLOT(copyButton()));
+    connect(mUi->pasteButton,    SIGNAL(clicked()), this, SLOT(pasteButton()));
+    connect(mUi->muveUpButton,   SIGNAL(clicked()), this, SLOT(moveUpButton()));
+    connect(mUi->moveDownButton, SIGNAL(clicked()), this, SLOT(moveDownButton()));
 }
 
 SkillMenuDialog::~SkillMenuDialog()
 {
-    delete ui;
+    delete mUi;
 }
 
 void SkillMenuDialog::showEvent(QShowEvent*) {
     QRect dlg = geometry();
-    dlg.setTopLeft(_pos);
+    QSize sz = dlg.size();
+    dlg.setTopLeft(mPos);
+    dlg.setSize(sz);
     setGeometry(dlg);
 
-    ui->copyButton->setEnabled(_showCopy);
-    ui->cutButton->setEnabled(_showCut);
-    ui->deleteButton->setEnabled(_showDelete);
-    ui->editButton->setEnabled(_showEdit);
-    ui->moveDownButton->setEnabled(_showMoveDown);
-    ui->muveUpButton->setEnabled(_showMoveUp);
-    ui->pasteButton->setEnabled(_showPaste);
+    mUi->copyButton->setEnabled(mShowCopy);
+    mUi->cutButton->setEnabled(mShowCut);
+    mUi->deleteButton->setEnabled(mShowDelete);
+    mUi->editButton->setEnabled(mShowEdit);
+    mUi->moveDownButton->setEnabled(mShowMoveDown);
+    mUi->muveUpButton->setEnabled(mShowMoveUp);
+    mUi->pasteButton->setEnabled(mShowPaste);
 }
 
 void SkillMenuDialog::newButton() {

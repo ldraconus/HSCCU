@@ -3,7 +3,7 @@
  <class>ComplicationsDialog</class>
  <widget class="QDialog" name="ComplicationsDialog">
   <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
+   <enum>Qt::WindowModality::ApplicationModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -17,7 +17,7 @@
    <string>Pick A Complication</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="res.qrc">
+   <iconset resource="build/QT_WA_ST_Release/.qt/rcc/res.qrc">
     <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
   </property>
   <property name="styleSheet">
@@ -88,17 +88,17 @@ QComboBox QAbstractItemView:disabled {
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <resources>
-  <include location="res.qrc"/>
+  <include location="build/QT_WA_ST_Release/.qt/rcc/res.qrc"/>
  </resources>
  <connections>
   <connection>

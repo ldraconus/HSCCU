@@ -13,13 +13,13 @@ public:
     explicit ImgMenuDialog(QWidget *parent = nullptr);
     ~ImgMenuDialog();
 
-    void setPos(QPoint pos) { _pos = pos; }
+    void setPos(QPoint pos) { mPos = pos; }
 
     void showEvent(QShowEvent* se);
 
 private:
-    Ui::ImgMenuDialog *ui;
-    QPoint _pos;
+    Ui::ImgMenuDialog* mUi;
+    QPoint             mPos;
 
 public slots:
     void clearImage();

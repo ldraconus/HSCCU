@@ -26,9 +26,8 @@ public:
     void showEvent(QShowEvent*) override;
 
 private:
-    Ui::ComplicationsMenuDialog *ui;
-
-    QPoint mPos;
+    Ui::ComplicationsMenuDialog* mUi;
+    QPoint                       mPos;
 
     bool mShowEdit     = false;
     bool mShowDelete   = false;

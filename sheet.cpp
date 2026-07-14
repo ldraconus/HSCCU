@@ -2143,13 +2143,14 @@ void Sheet::aboutToShowComplicationsMenu() {
     Ui->pasteComplication->setEnabled(canPaste);
 #else
     bool canPaste = false;
+    // see if anything is under the mouse pointer: select it if there is
     mComplicationsMenuDialog->setEdit(show);
     mComplicationsMenuDialog->setDelete(show);
     mComplicationsMenuDialog->setCut(show);
     mComplicationsMenuDialog->setCopy(show);
     mComplicationsMenuDialog->setPaste(canPaste);
     mComplicationsMenuDialog->setMoveUp(show && row != 0);
-    mComplicationsMenuDialog->setMoveDown(show && row != mCharacter.complications().count() - 1);
+    mComplicationsMenuDialog->setMoveDown(show && mCharacter.complications().count() != 0 && row != mCharacter.complications().count() - 1);
 #endif
 }
 
@@ -2307,6 +2308,8 @@ void Sheet::copySkillTalentOrPerk() {
 
 void Sheet::complicationsMenu(QPoint pos) {
 #ifdef __wasm__
+    int row = Ui->complications->rowAt(pos.y());
+    Ui->complications->selectRow(row);
     closeDialogs(nullptr);
     mComplicationsMenuDialog = make_shared<ComplicationsMenuDialog>();
     mComplicationsMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -2852,6 +2855,8 @@ void Sheet::playerNameChanged(QString txt) {
 
 void Sheet::powersandequipmentMenu(QPoint pos) {
 #ifdef __wasm__
+    int row = Ui->powersandequipment->rowAt(pos.y());
+    Ui->powersandequipment->selectRow(row);
     closeDialogs(nullptr);
     mPowerMenuDialog = make_shared<PowerMenuDialog>();
     mPowerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -3013,6 +3018,8 @@ void Sheet::saveAs() {
 
 void Sheet::skillstalentsandperksMenu(QPoint pos) {
 #ifdef __wasm__
+    int row = Ui->skillstalentsandperks->rowAt(pos.y());
+    Ui->skillstalentsandperks->selectRow(row);
     closeDialogs(nullptr);
     mSkillMenuDialog = make_shared<SkillMenuDialog>();
     mSkillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
