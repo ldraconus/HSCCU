@@ -238,7 +238,12 @@ private:
                                  "   color: #000;"
 #endif
                                  "   border-style: none;"
-                                 " }";
+                                 " }"
+                        "QToolTip { border: 1px solid #555555;"
+                        "           padding: 3px;"
+                        "           background-color: #333333;"
+                        "           color: #ffffff;"
+                        "}";
         return createLineEdit(parent, font, style, val, p, s, w);
     }
 
@@ -269,7 +274,12 @@ private:
                                  "   color: #000;"
 #endif
                                  "   border-style: none;"
-                                 " }";
+                                 " }"
+                        "QToolTip { border: 1px solid #555555;"
+                        "           padding: 3px;"
+                        "           background-color: #333333;"
+                        "           color: #ffffff;"
+                        "}";
         return createNumEdit(parent, font, style, val, p, s, w);
     }
 
@@ -386,7 +396,12 @@ private:
                                                            "   border-style: none;"
                                                            "   color: black;" +
                                                    QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
-                                                           " }");
+                                                           " }"
+                                       "QToolTip { border: 1px solid #555555;"
+                                       "           padding: 3px;"
+                                       "           background-color: #333333;"
+                                       "           color: #ffffff;"
+                                       "}");
         else
             tablewidget->setStyleSheet("QTableWidget { selection-color: transparent;"
                                                    "   selection-background-color: transparent;"
@@ -400,7 +415,12 @@ private:
                                                            "   border-style: none;"
                                                            "   color: black;" +
                                                    QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
-                                                           " }");
+                                                           " }"
+                                       "QToolTip { border: 1px solid #555555;"
+                                       "           padding: 3px;"
+                                       "           background-color: #333333;"
+                                       "           color: #ffffff;"
+                                       "}");
         tablewidget->setColumnCount(int(headers.size()));
         tablewidget->setRowCount(int(vals.size()));
         tablewidget->setHorizontalHeaderLabels(headers);
@@ -456,6 +476,11 @@ private:
                                 "  background: #fff;"
                                 "  color: #000;"
 #endif
+                                "}"
+                                "QToolTip { border: 1px solid #555555;"
+                                "           padding: 3px;"
+                                "           background-color: #333333;"
+                                "           color: #ffffff;"
                                 "}");
         textedit->setReadOnly(true);
         textedit->setToolTip(w);
@@ -476,7 +501,12 @@ private:
                                                 "   background-color: cyan;"
                                                 "   border-style: none;"
                                                 "   color: black;"
-                                                " }");
+                                                " }"
+                                  "QToolTip { border: 1px solid #555555;"
+                                  "           padding: 3px;"
+                                  "           background-color: #333333;"
+                                  "           color: #ffffff;"
+                                  "}");
         editwidget->setToolTip(w);
         moveTo(editwidget, p, s);
         hiddenWidgets.append(editwidget);
@@ -747,8 +777,8 @@ public:
         alternateids  = createLineEdit(widget, largeFont,     { 225, 104 }, { 403, 27 }, "Characters secret id, typically"); // NOLINT
         playername    = createLineEdit(widget, largeFont,     { 170, 134 }, { 458, 27 }, "The players name"); // NOLINT
 #else
-        alternateids  = createLineEdit(widget, largeFont,     { 210, 104 }, { 418, 27 }, "Characters secret id, typically"); // NOLINT
-        playername    = createLineEdit(widget, largeFont,     { 162, 134 }, { 466, 27 }, "The players name"); // NOLINT
+        alternateids  = createLineEdit(widget, largeFont,     { 215, 104 }, { 413, 27 }, "Characters secret id, typically"); // NOLINT
+        playername    = createLineEdit(widget, largeFont,     { 167, 134 }, { 461, 27 }, "The players name"); // NOLINT
 #endif
 
         banner1 = createImage(widget, { 654, 76 } , { 293, 109 }, ":/gfx/HeroSystem-Banner.png", false); // NOLINT
@@ -842,7 +872,12 @@ public:
                                  "   color: #000;"
 #endif
                                  "   border-style: none;"
-                                 " }";
+                                 " }"
+                        "QToolTip { border: 1px solid #555555;"
+                        "           padding: 3px;"
+                        "           background-color: #333333;"
+                        "           color: #ffffff;"
+                        "}";
 
         maximumend  = createLabel(widget, font, "20", { 454, 247 }, 20); // NOLINT
         maximumbody = createLabel(widget, font, "10", { 454, 272 }, 20); // NOLINT
