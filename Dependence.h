@@ -125,14 +125,14 @@ private:
         QString mWhat = "";
     } v;
 
-    gsl::owner<QCheckBox*> addiction = nullptr;
-    gsl::owner<QCheckBox*> competence = nullptr;
-    gsl::owner<QComboBox*> damage = nullptr;
-    gsl::owner<QComboBox*> rarity = nullptr;
-    gsl::owner<QComboBox*> roll = nullptr;
-    gsl::owner<QComboBox*> timeStep = nullptr;
-    gsl::owner<QCheckBox*> weakness = nullptr;
-    gsl::owner<QLineEdit*> what = nullptr;
+    QCheckBox* addiction = nullptr;
+    QCheckBox* competence = nullptr;
+    QComboBox* damage = nullptr;
+    QComboBox* rarity = nullptr;
+    QComboBox* roll = nullptr;
+    QComboBox* timeStep = nullptr;
+    QCheckBox* weakness = nullptr;
+    QLineEdit* what = nullptr;
 
     void checked(bool on) override { timeStep->setEnabled(!on); }
 };

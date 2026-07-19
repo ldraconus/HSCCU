@@ -308,7 +308,7 @@ protected:
     int countCommas(QString x) {
         if (x.isEmpty()) return 0;
         QStringList words = x.split(",");
-        return gsl::narrow<int>(words.count());
+        return int(words.count());
     }
 
     QJsonArray toArray(const QStringList& list) const {

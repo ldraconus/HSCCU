@@ -4,8 +4,6 @@
 #include <QString>
 #include <cmath>
 
-#include <gsl/gsl>
-
 class Fraction {
 public:
     Fraction()
@@ -70,7 +68,7 @@ public:
         long long d1 = mDenominator;
         long long n2 = f.mNumerator;
         long long d2 = f.mDenominator;
-        Fraction fr(gsl::narrow<long>(n1 * d2 + n2 * d1), gsl::narrow<long>(d1 * d2));
+        Fraction fr(long(n1 * d2 + n2 * d1), long(d1 * d2));
         fr.reduce();
         return fr;
     }
@@ -80,7 +78,7 @@ public:
         long long d1 = mDenominator;
         long long n2 = f.mNumerator;
         long long d2 = f.mDenominator;
-        Fraction fr(gsl::narrow<long>(n1 * d2 - n2 * d1), gsl::narrow<long>(d1 * d2));
+        Fraction fr(long(n1 * d2 - n2 * d1), long(d1 * d2));
         fr.reduce();
         return fr;
     }
@@ -90,7 +88,7 @@ public:
         long long d1 = mDenominator;
         long long n2 = f.mNumerator;
         long long d2 = f.mDenominator;
-        Fraction fr(gsl::narrow<long>(n1 * n2), gsl::narrow<long>(d1 * d2));
+        Fraction fr(long(n1 * n2), long(d1 * d2));
         fr.reduce();
         return fr;
     }
@@ -100,7 +98,7 @@ public:
         long long d1 = mDenominator;
         long long n2 = f.mNumerator;
         long long d2 = f.mDenominator;
-        Fraction fr(gsl::narrow<long>(n1 * d2), ::abs(gsl::narrow<long>(d1 * n2)));
+        Fraction fr(long(n1 * d2), ::abs(long(d1 * n2)));
         fr.reduce();
         return fr;
     }

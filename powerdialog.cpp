@@ -70,14 +70,14 @@ PowerDialog::~PowerDialog() {
 }
 
 QMenu* PowerDialog::createMenu(QWidget* parent, const QFont& font, QList<menuItems> items) {
-    gsl::owner<QMenu*> menu = new QMenu(parent);
+    QMenu* menu = new QMenu(parent);
     menu->setFont(font);
     for (auto& item: items) {
         if (item.action == nullptr) {
             menu->addSeparator();
             continue;
         }
-        gsl::owner<QAction*>& action = *item.action;
+        QAction*& action = *item.action;
         action = new QAction(item.text);
         action->setFont(font);
         menu->addAction(action);
@@ -86,7 +86,7 @@ QMenu* PowerDialog::createMenu(QWidget* parent, const QFont& font, QList<menuIte
 }
 
 QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layout, QList<int> columns, QString w, int h) {
-    gsl::owner<QTableWidget*> tablewidget = new QTableWidget(parent);
+    QTableWidget* tablewidget = new QTableWidget(parent);
     tablewidget->setContextMenuPolicy(Qt::CustomContextMenu);
     tablewidget->setWordWrap(true);
     auto verticalHeader = tablewidget->verticalHeader();
@@ -120,7 +120,7 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
                                                  " }"
                                "QTableWidget::item:selected { background-color: cyan;"
                                                           " }");
-    tablewidget->setColumnCount(gsl::narrow<int>(columns.count()));
+    tablewidget->setColumnCount(int(columns.count()));
     tablewidget->setRowCount(0);
 
     tablewidget->setToolTip(w);
@@ -129,7 +129,7 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
 
     int total = 0;
     for (int i = 1; i < tablewidget->columnCount(); ++i) total += tablewidget->columnWidth(i - 1);
-    tablewidget->setColumnWidth(gsl::narrow<int>(columns.count()) - 1, gsl::narrow<int>(r.width()) - total);
+    tablewidget->setColumnWidth(int(columns.count()) - 1, int(r.width()) - total);
 
     tablewidget->setGeometry(r);
     layout->addWidget(tablewidget);
@@ -680,7 +680,7 @@ void PowerDialog::pickType(int type) {
     default: available = { };                           break;
     }
 
-    for (const auto& power: available) ui->availableComboBox->addItem(power);
+    for (const auto& power: std::as_const(available)) ui->availableComboBox->addItem(power);
     ui->availableComboBox->setEnabled(available.isEmpty() ? false : true);
 
     if (mSkipUpdate) {

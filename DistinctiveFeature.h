@@ -91,11 +91,11 @@ private:
         QString mWhat = "";
     } v;
 
-    gsl::owner<QComboBox*> concealability = nullptr;
-    gsl::owner<QComboBox*> detectable = nullptr;
-    gsl::owner<QCheckBox*> notDistinctive = nullptr;
-    gsl::owner<QComboBox*> reaction = nullptr;
-    gsl::owner<QLineEdit*> what = nullptr;
+    QComboBox* concealability = nullptr;
+    QComboBox* detectable = nullptr;
+    QCheckBox* notDistinctive = nullptr;
+    QComboBox* reaction = nullptr;
+    QLineEdit* what = nullptr;
 };
 
 #endif // DISTINCTIVEFEATURE_H

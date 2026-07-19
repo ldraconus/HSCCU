@@ -61,7 +61,7 @@ private:
         int mAmount = -1;
     } v;
 
-    gsl::owner<QComboBox*> amount = nullptr;
+    QComboBox* amount = nullptr;
 };
 
 #endif // MONEY_H

@@ -146,15 +146,15 @@ public:
 
 class Modifier: public ModifierBase {
 protected:
-    gsl::owner<QCheckBox*>   createCheckBox(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (ModifierBase::*)(bool)>);
-    gsl::owner<QCheckBox*>   createCheckBox(QWidget*, QVBoxLayout*, QString);
-    gsl::owner<QComboBox*>   createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, std::_Mem_fn<void (ModifierBase::*)(int)>);
-    gsl::owner<QComboBox*>   createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
-    gsl::owner<QLabel*>      createLabel(QWidget*, QVBoxLayout*, QString);
-    gsl::owner<QLineEdit*>   createLineEdit(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (ModifierBase::*)(QString)>);
-    gsl::owner<QLineEdit*>   createLineEdit(QWidget*, QVBoxLayout*, QString);
-    gsl::owner<QTreeWidget*> createTreeWidget(QWidget*, QVBoxLayout*, QMap<QString, QStringList>, std::_Mem_fn<void (ModifierBase::*)(int, int, bool)>);
-    gsl::owner<QTreeWidget*> createTreeWidget(QWidget*, QVBoxLayout*, QMap<QString, QStringList>);
+    QCheckBox*   createCheckBox(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (ModifierBase::*)(bool)>);
+    QCheckBox*   createCheckBox(QWidget*, QVBoxLayout*, QString);
+    QComboBox*   createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, std::_Mem_fn<void (ModifierBase::*)(int)>);
+    QComboBox*   createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
+    QLabel*      createLabel(QWidget*, QVBoxLayout*, QString);
+    QLineEdit*   createLineEdit(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (ModifierBase::*)(QString)>);
+    QLineEdit*   createLineEdit(QWidget*, QVBoxLayout*, QString);
+    QTreeWidget* createTreeWidget(QWidget*, QVBoxLayout*, QMap<QString, QStringList>, std::_Mem_fn<void (ModifierBase::*)(int, int, bool)>);
+    QTreeWidget* createTreeWidget(QWidget*, QVBoxLayout*, QMap<QString, QStringList>);
 
     QJsonArray toArray(QStringList list) {
         QJsonArray array;
@@ -409,7 +409,7 @@ private:
         bool _aquiresRoll = false;
     } v;
 
-    gsl::owner<QCheckBox*> aquiresRoll = nullptr;
+    QCheckBox* aquiresRoll = nullptr;
 
     QString optOut(bool show) {
         Fraction half(1, 2);
@@ -464,7 +464,7 @@ private:
         int mSense = 0;
     } v;
 
-    gsl::owner<QComboBox*> sense = nullptr;
+    QComboBox* sense = nullptr;
 
     QString optOut(bool show) {
         Fraction quarter(1, 4);
@@ -526,8 +526,8 @@ private:
         QString mSenses = "";
     } v;
 
-    gsl::owner<QCheckBox*> veryUncommon = nullptr;
-    gsl::owner<QLineEdit*> senses = nullptr;
+    QCheckBox* veryUncommon = nullptr;
+    QLineEdit* senses = nullptr;
 
     QString optOut(bool show) {
         Fraction quarter(1, 4);
@@ -590,8 +590,8 @@ private:
         QString mWhat = "";
     } v;
 
-    gsl::owner<QCheckBox*> limited = nullptr;
-    gsl::owner<QLineEdit*> what = nullptr;
+    QCheckBox* limited = nullptr;
+    QLineEdit* what = nullptr;
 
     QString optOut(bool show) {
         Fraction quarter(1, 4);
@@ -735,7 +735,7 @@ private:
         int    mIs = 0;
     } v;
 
-    gsl::owner<QComboBox*> is = nullptr;
+    QComboBox* is = nullptr;
 
     QString optOut(bool show) {
         QStringList is = {
@@ -914,17 +914,17 @@ private:
         int     mMultiplier = 0;
     } v;
 
-    gsl::owner<QComboBox*> kind = nullptr;
-    gsl::owner<QCheckBox*> fixedShape = nullptr;
-    gsl::owner<QLineEdit*> shape = nullptr;
-    gsl::owner<QCheckBox*> explosion = nullptr;
-    gsl::owner<QCheckBox*> nonselective = nullptr;
-    gsl::owner<QCheckBox*> selective = nullptr;
-    gsl::owner<QCheckBox*> mobile = nullptr;
-    gsl::owner<QCheckBox*> accurate = nullptr;
-    gsl::owner<QCheckBox*> thinCone = nullptr;
-    gsl::owner<QCheckBox*> damageShield = nullptr;
-    gsl::owner<QLineEdit*> multiplier = nullptr;
+    QComboBox* kind = nullptr;
+    QCheckBox* fixedShape = nullptr;
+    QLineEdit* shape = nullptr;
+    QCheckBox* explosion = nullptr;
+    QCheckBox* nonselective = nullptr;
+    QCheckBox* selective = nullptr;
+    QCheckBox* mobile = nullptr;
+    QCheckBox* accurate = nullptr;
+    QCheckBox* thinCone = nullptr;
+    QCheckBox* damageShield = nullptr;
+    QLineEdit* multiplier = nullptr;
 
     void changed(QString) override {
         QString txt = multiplier->text();
@@ -1162,10 +1162,10 @@ private:
         bool mNND = false;
     } v;
 
-    gsl::owner<QComboBox*> original = nullptr;
-    gsl::owner<QComboBox*> newone = nullptr;
-    gsl::owner<QLineEdit*> versus = nullptr;
-    gsl::owner<QCheckBox*> nnd = nullptr;
+    QComboBox* original = nullptr;
+    QComboBox* newone = nullptr;
+    QLineEdit* versus = nullptr;
+    QCheckBox* nnd = nullptr;
 
     QString optOut(bool show) {
         if (v._original < 1 || v.mNewOne < 1 || v.mVersus.isEmpty()) return "<incomplete>";
@@ -1248,9 +1248,9 @@ private:
         bool mByPass = false;
     } v;
 
-    gsl::owner<QCheckBox*> five = nullptr;
-    gsl::owner<QLineEdit*> doubling = nullptr;
-    gsl::owner<QCheckBox*> bypass = nullptr;
+    QCheckBox* five = nullptr;
+    QLineEdit* doubling = nullptr;
+    QCheckBox* bypass = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -1473,7 +1473,7 @@ private:
         int mValue = 0;
     } v;
 
-    gsl::owner<QComboBox*> value = nullptr;
+    QComboBox* value = nullptr;
 
     QString optOut(bool show) {
         static QStringList values { "", "¹⁄₄⁄", "¹⁄₂⁄", "³⁄₄", "1", "1¹⁄₄⁄", "1¹⁄₂⁄", "1³⁄₄", "2" };
@@ -1576,8 +1576,8 @@ private:
         QString mManeuver = "";
     } v;
 
-    gsl::owner<QCheckBox*> veryEffective = nullptr;
-    gsl::owner<QLineEdit*> maneuver = nullptr;
+    QCheckBox* veryEffective = nullptr;
+    QLineEdit* maneuver = nullptr;
 
     QString optOut(bool show) {
         Fraction quarter(1, 4);
@@ -1741,15 +1741,15 @@ private:
         int  mReload = 0;
     } v;
 
-    gsl::owner<QLineEdit*> charges = nullptr;
-    gsl::owner<QLineEdit*> clips = nullptr;
-    gsl::owner<QCheckBox*> boostable = nullptr;
-    gsl::owner<QComboBox*> continuing = nullptr;
-    gsl::owner<QCheckBox*> fuelCharge = nullptr;
-    gsl::owner<QCheckBox*> recoverable = nullptr;
-    gsl::owner<QComboBox*> recoveryTime = nullptr;
-    gsl::owner<QCheckBox*> expensive = nullptr;
-    gsl::owner<QComboBox*> reload = nullptr;
+    QLineEdit* charges = nullptr;
+    QLineEdit* clips = nullptr;
+    QCheckBox* boostable = nullptr;
+    QComboBox* continuing = nullptr;
+    QCheckBox* fuelCharge = nullptr;
+    QCheckBox* recoverable = nullptr;
+    QComboBox* recoveryTime = nullptr;
+    QCheckBox* expensive = nullptr;
+    QComboBox* reload = nullptr;
 
     void numeric(QString) override {
         QLineEdit* text = dynamic_cast<QLineEdit*>(sender());
@@ -1886,9 +1886,9 @@ private:
         bool mConstant = false;
     } v;
 
-    gsl::owner<QCheckBox*> zeroDCV = nullptr;
-    gsl::owner<QCheckBox*> unaware = nullptr;
-    gsl::owner<QCheckBox*> constant = nullptr;
+    QCheckBox* zeroDCV = nullptr;
+    QCheckBox* unaware = nullptr;
+    QCheckBox* constant = nullptr;
 
     QString optOut(bool show) {
         Fraction mod = fraction(Modifier::NoStore);
@@ -1978,7 +1978,7 @@ private:
         int  mHowMuch = 0;
     } v;
 
-    gsl::owner<QComboBox*> howMuch = nullptr;
+    QComboBox* howMuch = nullptr;
 
     QString optOut(bool show) {
         if (v.mHowMuch < 1) return "<incomplete>";
@@ -2064,7 +2064,7 @@ public:
         int  mHowMuch = 0;
     } v;
 
-    gsl::owner<QComboBox*> howMuch = nullptr;
+    QComboBox* howMuch = nullptr;
 
     QString optOut(bool show) {
         if (v.mHowMuch < 1) return "<incomplete>";
@@ -2207,10 +2207,10 @@ private:
         bool _oneUse = false;
     } v;
 
-    gsl::owner<QLineEdit*> times = nullptr;
-    gsl::owner<QComboBox*> duration = nullptr;
-    gsl::owner<QCheckBox*> once = nullptr;
-    gsl::owner<QCheckBox*> oneUse = nullptr;
+    QLineEdit* times = nullptr;
+    QComboBox* duration = nullptr;
+    QCheckBox* once = nullptr;
+    QCheckBox* oneUse = nullptr;
 
     QString optOut(bool show) {
         static QStringList duration { "", "Every Segment", "Every Other Segement",
@@ -2285,7 +2285,7 @@ private:
         int  _howMuch = 0;
     } v;
 
-    gsl::owner<QComboBox*> howMuch = nullptr;
+    QComboBox* howMuch = nullptr;
 
     QString optOut(bool show) {
         static QStringList by { "", "4m per m", "3m per m", "2m per m", "1m per m" };
@@ -2354,7 +2354,7 @@ private:
         int mDoubling = 0;
     } v;
 
-    gsl::owner<QLineEdit*> doubling = nullptr;
+    QLineEdit* doubling = nullptr;
 
     QString optOut(bool show) {
         if (v.mDoubling == 0) return "<incomplete>";
@@ -2419,7 +2419,7 @@ public:
         int  _duration = 0;
     } v;
 
-    gsl::owner<QComboBox*> duration = nullptr;
+    QComboBox* duration = nullptr;
 
     QString optOut(bool show) {
         static QStringList duration { "", "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
@@ -2488,7 +2488,7 @@ private:
         int mDoubling = 0;
     } v;
 
-    gsl::owner<QLineEdit*> doubling = nullptr;
+    QLineEdit* doubling = nullptr;
 
     QString optOut(bool show) {
         if (v.mDoubling == 0) return "<incomplete>";
@@ -2636,8 +2636,8 @@ private:
         int     mHowCommon = 0;
     } v;
 
-    gsl::owner<QLineEdit*> doesnt = nullptr;
-    gsl::owner<QComboBox*> howCommon = nullptr;
+    QLineEdit* doesnt = nullptr;
+    QComboBox* howCommon = nullptr;
 
     QString optOut(bool show) {
         if (v.mDoesnt.isEmpty() || v.mHowCommon < 1) return "<incomplete>";
@@ -2747,8 +2747,8 @@ private:
         int     mHowMany = 0;
     } v;
 
-    gsl::owner<QLineEdit*> effects = nullptr;
-    gsl::owner<QComboBox*> howMany = nullptr;
+    QLineEdit* effects = nullptr;
+    QComboBox* howMany = nullptr;
 
     QString optOut(bool show) {
         if (v.mEffects.isEmpty() || v.mHowMany < 1) return "<incomplete>";
@@ -2837,9 +2837,9 @@ private:
         int mActivate = 0;
     } v;
 
-    gsl::owner<QComboBox*> time = nullptr;
-    gsl::owner<QCheckBox*> lockout = nullptr;
-    gsl::owner<QCheckBox*> activate = nullptr;
+    QComboBox* time = nullptr;
+    QCheckBox* lockout = nullptr;
+    QCheckBox* activate = nullptr;
 
     QString optOut(bool show) {
         static QStringList extra { "", "Delayed Phase", "Extra Segment", "Full Phase", "Extra Phase",
@@ -2913,7 +2913,7 @@ private:
         bool mThroughout = false;
     } v;
 
-    gsl::owner<QCheckBox*> throughout = nullptr;
+    QCheckBox* throughout = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -3019,12 +3019,12 @@ private:
         bool    mUniversal;
     } v {};
 
-    gsl::owner<QLineEdit*> what = nullptr;
-    gsl::owner<QComboBox*> ntype = nullptr;
-    gsl::owner<QComboBox*> mobility = nullptr;
-    gsl::owner<QComboBox*> expendability = nullptr;
-    gsl::owner<QComboBox*> durability = nullptr;
-    gsl::owner<QCheckBox*> universal = nullptr;
+    QLineEdit* what = nullptr;
+    QComboBox* ntype = nullptr;
+    QComboBox* mobility = nullptr;
+    QComboBox* expendability = nullptr;
+    QComboBox* durability = nullptr;
+    QCheckBox* universal = nullptr;
 
     QString optOut(bool show) {
         if (v.mWhat.isEmpty() || v.mType < 0) return "<incomplete>";
@@ -3108,8 +3108,8 @@ private:
         bool mThroughout;
     } v {};
 
-    gsl::owner<QCheckBox*> bothHands = nullptr;
-    gsl::owner<QCheckBox*> throughout = nullptr;
+    QCheckBox* bothHands = nullptr;
+    QCheckBox* throughout = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -3203,8 +3203,8 @@ private:
         QString mShape;
     } v {};
 
-    gsl::owner<QCheckBox*> changeable = nullptr;
-    gsl::owner<QLineEdit*> shape = nullptr;
+    QCheckBox* changeable = nullptr;
+    QLineEdit* shape = nullptr;
 
     QString optOut(bool show) {
         if (!v.mChangeable && v.mShape.isEmpty()) return "<incomplete>";
@@ -3298,7 +3298,7 @@ private:
         int mDoubling;
     } v {};
 
-    gsl::owner<QLineEdit*> dbling = nullptr;
+    QLineEdit* dbling = nullptr;
 
     QString optOut(bool show) {
         Points p(points(Modifier::NoStore));
@@ -3364,7 +3364,7 @@ private:
         bool mZero;
     } v {};
 
-    gsl::owner<QCheckBox*> zero = nullptr;
+    QCheckBox* zero = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -3432,7 +3432,7 @@ private:
         bool mThroughout;
     } v {};
 
-    gsl::owner<QCheckBox*> throughout = nullptr;
+    QCheckBox* throughout = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -3519,9 +3519,9 @@ private:
         QString mWhat;
     } v {};
 
-    gsl::owner<QComboBox*> amount = nullptr;
-    gsl::owner<QComboBox*> circumstances = nullptr;
-    gsl::owner<QLineEdit*> what = nullptr;
+    QComboBox* amount = nullptr;
+    QComboBox* circumstances = nullptr;
+    QLineEdit* what = nullptr;
 
     QString optOut(bool show) {
         if (v.mAmount < 1) return "<incomplete>";
@@ -3595,7 +3595,7 @@ private:
         int mDoubling;
     } v {};
 
-    gsl::owner<QLineEdit*> doubling = nullptr;
+    QLineEdit* doubling = nullptr;
 
     QString optOut(bool show) {
         Points p(points(Modifier::NoStore));
@@ -3659,7 +3659,7 @@ private:
         int mDoubling;
     } v {};
 
-    gsl::owner<QLineEdit*> doubling = nullptr;
+    QLineEdit* doubling = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -3723,7 +3723,7 @@ private:
         int mDoubling;
     } v {};
 
-    gsl::owner<QLineEdit*> doubling = nullptr;
+    QLineEdit* doubling = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -3805,9 +3805,9 @@ private:
         int     mDirection;
     } v {};
 
-    gsl::owner<QComboBox*> location = nullptr;
-    gsl::owner<QLineEdit*> locAndDir = nullptr;
-    gsl::owner<QComboBox*> direction = nullptr;
+    QComboBox* location = nullptr;
+    QLineEdit* locAndDir = nullptr;
+    QComboBox* direction = nullptr;
 
     QString optOut(bool show) {
         if (v.mPowerSource < 0 || v.mDirection < 0 || ((v.mPowerSource == 2 || v.mDirection == 2) && v.mLocAndDir.isEmpty())) return "<incomplete>";
@@ -3951,10 +3951,10 @@ private:
         int     mEffect;
     } v {};
 
-    gsl::owner<QCheckBox*> inobvious = nullptr;
-    gsl::owner<QComboBox*> how = nullptr;
-    gsl::owner<QLineEdit*> sense = nullptr;
-    gsl::owner<QComboBox*> effect = nullptr;
+    QCheckBox* inobvious = nullptr;
+    QComboBox* how = nullptr;
+    QLineEdit* sense = nullptr;
+    QComboBox* effect = nullptr;
 
     QString optOut(bool show) {
         if (v.mHow < 1 || v.mEffect < 1) return "<incomplete>";
@@ -4057,7 +4057,7 @@ private:
         QString mSense;
     } v {};
 
-    gsl::owner<QLineEdit*> sense = nullptr;
+    QLineEdit* sense = nullptr;
 
     QString optOut(bool show) {
         if (v.mSense.isEmpty()) return "<incomplete>";
@@ -4167,9 +4167,9 @@ private:
         QString mWhat;
     } v {};
 
-    gsl::owner<QCheckBox*> conditional = nullptr;
-    gsl::owner<QComboBox*> how = nullptr;
-    gsl::owner<QLineEdit*> what = nullptr;
+    QCheckBox* conditional = nullptr;
+    QComboBox* how = nullptr;
+    QLineEdit* what = nullptr;
 
     QString optOut(bool show) {
         if (v.mHow < 1 || v.mWhat.isEmpty()) return "<incomplete>";
@@ -4254,7 +4254,7 @@ private:
         bool mNoRange;
     } v {};
 
-    gsl::owner<QCheckBox*> noRange = nullptr;
+    QCheckBox* noRange = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -4330,8 +4330,8 @@ private:
         QString mWhat;
     } v {};
 
-    gsl::owner<QComboBox*> how = nullptr;
-    gsl::owner<QLineEdit*> what = nullptr;
+    QComboBox* how = nullptr;
+    QLineEdit* what = nullptr;
 
     QString optOut(bool show) {
         if (v.mHow < 1 || v.mWhat.isEmpty()) return "<incomplete>";
@@ -4460,13 +4460,13 @@ private:
         QString mTarget;
     } v {};
 
-    gsl::owner<QCheckBox*> greater = nullptr;
-    gsl::owner<QCheckBox*> both = nullptr;
-    gsl::owner<QCheckBox*> prop = nullptr;
-    gsl::owner<QCheckBox*> full = nullptr;
-    gsl::owner<QCheckBox*> constant = nullptr;
-    gsl::owner<QCheckBox*> instant = nullptr;
-    gsl::owner<QLineEdit*> target = nullptr;
+    QCheckBox* greater = nullptr;
+    QCheckBox* both = nullptr;
+    QCheckBox* prop = nullptr;
+    QCheckBox* full = nullptr;
+    QCheckBox* constant = nullptr;
+    QCheckBox* instant = nullptr;
+    QLineEdit* target = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -4570,8 +4570,8 @@ private:
         QString mOther;
     } v {};
 
-    gsl::owner<QComboBox*> effect = nullptr;
-    gsl::owner<QLineEdit*> other = nullptr;
+    QComboBox* effect = nullptr;
+    QLineEdit* other = nullptr;
 
     QString optOut(bool show) {
         if (v.mEffect < 1) return "<incomplete>";
@@ -4644,7 +4644,7 @@ private:
         int mMass;
     } v {};
 
-    gsl::owner<QComboBox*> mass = nullptr;
+    QComboBox* mass = nullptr;
 
     QString optOut(bool show) {
         if (v.mMass < 1) return "<incomplete>";
@@ -4727,8 +4727,8 @@ private:
         bool mInvariant;
     } v {};
 
-    gsl::owner<QComboBox*> scale = nullptr;
-    gsl::owner<QCheckBox*> invariant = nullptr;
+    QComboBox* scale = nullptr;
+    QCheckBox* invariant = nullptr;
 
     QString optOut(bool show) {
         if (v.mScale == -1) return "<incomplete>";
@@ -4826,8 +4826,8 @@ private:
         bool mEffects;
     } v {};
 
-    gsl::owner<QCheckBox*> activation = nullptr;
-    gsl::owner<QCheckBox*> effects = nullptr;
+    QCheckBox* activation = nullptr;
+    QCheckBox* effects = nullptr;
 
     QString optOut(bool show) {
         if (!v.mActivation && !v.mEffects) return "<incomplete>";
@@ -5067,7 +5067,7 @@ private:
         QString mIdentity;
     } v {};
 
-    gsl::owner<QLineEdit*> identity = nullptr;
+    QLineEdit* identity = nullptr;
 
     QString optOut(bool show) {
         if (v.mIdentity.isEmpty()) return "<incomplete>";
@@ -5177,8 +5177,8 @@ private:
         int     mHowCommon;
     } v {};
 
-    gsl::owner<QLineEdit*> against = nullptr;
-    gsl::owner<QComboBox*> howCommon = nullptr;
+    QLineEdit* against = nullptr;
+    QComboBox* howCommon = nullptr;
 
     QString optOut(bool show) {
         if (v.mAgainst.isEmpty() || v.mHowCommon < 0) return "<incomplete>";
@@ -5267,7 +5267,7 @@ private:
         QStringList mWhat;
     } v {};
 
-    gsl::owner<QTreeWidget*> what = nullptr;
+    QTreeWidget* what = nullptr;
 
     QString optOut(bool show) {
         if (v.mWhat.isEmpty()) return "<incomplete>";
@@ -5365,7 +5365,7 @@ private:
         bool mImperceptable;
     } v {};
 
-    gsl::owner<QCheckBox*> imperceptable = nullptr;
+    QCheckBox* imperceptable = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -5507,7 +5507,7 @@ private:
         bool mNoRange;
     } v {};
 
-    gsl::owner<QCheckBox*> noRange = nullptr;
+    QCheckBox* noRange = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -5689,7 +5689,7 @@ private:
         bool mNoEND;
     } v {};
 
-    gsl::owner<QCheckBox*> noEND = nullptr;
+    QCheckBox* noEND = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -5753,7 +5753,7 @@ private:
         int mReduced;
     } v {};
 
-    gsl::owner<QLineEdit*> reduced = nullptr;
+    QLineEdit* reduced = nullptr;
 
     QString optOut(bool show) {
         if (v.mReduced < 1) return "<incomplete>";
@@ -5838,7 +5838,7 @@ private:
         bool mNoRangeMod;
     } v {};
 
-    gsl::owner<QCheckBox*> noRangeMod = nullptr;
+    QCheckBox* noRangeMod = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -5903,7 +5903,7 @@ private:
         int mHands;
     } v {};
 
-    gsl::owner<QComboBox*> hands = nullptr;
+    QComboBox* hands = nullptr;
 
     QString optOut(bool show) {
         if (v.mHands < 1) return "<incomplete>";
@@ -6027,14 +6027,14 @@ private:
         int     mFails;
     } v {};
 
-    gsl::owner<QCheckBox*> rType = nullptr;
-    gsl::owner<QCheckBox*> when = nullptr;
-    gsl::owner<QComboBox*> roll = nullptr;
-    gsl::owner<QLineEdit*> skill = nullptr;
-    gsl::owner<QCheckBox*> isa = nullptr;
-    gsl::owner<QCheckBox*> two = nullptr;
-    gsl::owner<QComboBox*> per = nullptr;
-    gsl::owner<QComboBox*> fails = nullptr;
+    QCheckBox* rType = nullptr;
+    QCheckBox* when = nullptr;
+    QComboBox* roll = nullptr;
+    QLineEdit* skill = nullptr;
+    QCheckBox* isa = nullptr;
+    QCheckBox* two = nullptr;
+    QComboBox* per = nullptr;
+    QComboBox* fails = nullptr;
 
     QString optOut(bool show) {
         QStringList per { "20 Active points", "10 Active Points", "5 Active Points" };
@@ -6142,8 +6142,8 @@ private:
         int mNeeds;
     } v {};
 
-    gsl::owner<QLineEdit*> max = nullptr;
-    gsl::owner<QLineEdit*> needs = nullptr;
+    QLineEdit* max = nullptr;
+    QLineEdit* needs = nullptr;
 
     QString optOut(bool show) {
         if (v.mMax < 1 || v.mNeeds < 2) return "<incomplete>";
@@ -6215,7 +6215,7 @@ private:
         int mNeeds;
     } v {};
 
-    gsl::owner<QLineEdit*> needs = nullptr;
+    QLineEdit* needs = nullptr;
 
     QString optOut(bool show) {
         if (v.mNeeds < 2) return "<incomplete>";
@@ -6307,8 +6307,8 @@ private:
         QString mRestraint;
     } v {};
 
-    gsl::owner<QCheckBox*> nonStandard = nullptr;
-    gsl::owner<QLineEdit*> restraint = nullptr;
+    QCheckBox* nonStandard = nullptr;
+    QLineEdit* restraint = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -6399,7 +6399,7 @@ private:
         bool mRegen;
     } v {};
 
-    gsl::owner<QCheckBox*> regen = nullptr;
+    QCheckBox* regen = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -6537,12 +6537,12 @@ private:
         bool    mPre;
     } v {};
 
-    gsl::owner<QComboBox*> level = nullptr;
-    gsl::owner<QLineEdit*> effect = nullptr;
-    gsl::owner<QComboBox*> when = nullptr;
-    gsl::owner<QComboBox*> affects = nullptr;
-    gsl::owner<QCheckBox*> constant = nullptr;
-    gsl::owner<QCheckBox*> pre = nullptr;
+    QComboBox* level = nullptr;
+    QLineEdit* effect = nullptr;
+    QComboBox* when = nullptr;
+    QComboBox* affects = nullptr;
+    QCheckBox* constant = nullptr;
+    QCheckBox* pre = nullptr;
 
     QString optOut(bool show) {
         QStringList affects { "", "Character", "Aropund Character", "Recipient", "Character And Recipient" };
@@ -6634,7 +6634,7 @@ private:
         bool mRMod;
     } v {};
 
-    gsl::owner<QCheckBox*> rmod = nullptr;
+    QCheckBox* rmod = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
@@ -6700,7 +6700,7 @@ private:
         bool mStunned;
     } v {};
 
-    gsl::owner<QCheckBox*> stunned = nullptr;
+    QCheckBox* stunned = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(NoStore));
@@ -6758,7 +6758,7 @@ private:
         bool mAll;
     } v {};
 
-    gsl::owner<QCheckBox*> all = nullptr;
+    QCheckBox* all = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(NoStore));
@@ -6824,7 +6824,7 @@ private:
         int mMin;
     } v {};
 
-    gsl::owner<QLineEdit*> min = nullptr;
+    QLineEdit* min = nullptr;
 
     void numeric(QString) override {
         QString txt = min->text();
@@ -6954,8 +6954,8 @@ private:
         int mTime;
     } v {};
 
-    gsl::owner<QComboBox*> lType = nullptr;
-    gsl::owner<QComboBox*> time = nullptr;
+    QComboBox* lType = nullptr;
+    QComboBox* time = nullptr;
 
     QString optOut(bool show) {
         if (v.mType < 1 || v.mTime < 1) return "<incomplete>";
@@ -7071,8 +7071,8 @@ private:
         QString mWhich;
     } v {};
 
-    gsl::owner<QComboBox*> lType = nullptr;
-    gsl::owner<QLineEdit*> which = nullptr;
+    QComboBox* lType = nullptr;
+    QLineEdit* which = nullptr;
 
     QString optOut(bool show) {
         if (v.mType < 1 || (v.mType != 3 && v.mWhich.isEmpty())) return "<incomplete>";
@@ -7187,13 +7187,13 @@ private:
         bool    mMisfire;
     } v {};
 
-    gsl::owner<QCheckBox*> change = nullptr;
-    gsl::owner<QLineEdit*> cond = nullptr;
-    gsl::owner<QCheckBox*> active = nullptr;
-    gsl::owner<QComboBox*> act = nullptr;
-    gsl::owner<QComboBox*> reset = nullptr;
-    gsl::owner<QCheckBox*> expire = nullptr;
-    gsl::owner<QCheckBox*> misfire = nullptr;
+    QCheckBox* change = nullptr;
+    QLineEdit* cond = nullptr;
+    QCheckBox* active = nullptr;
+    QComboBox* act = nullptr;
+    QComboBox* reset = nullptr;
+    QCheckBox* expire = nullptr;
+    QCheckBox* misfire = nullptr;
 
     QString optOut(bool show) {
         if (v.mCond.isEmpty() || v.mAct < 1 || v.mReset < 1) return "<incomplete>";
@@ -7279,7 +7279,7 @@ private:
         QString mUntil;
     } v {};
 
-    gsl::owner<QLineEdit*> until = nullptr;
+    QLineEdit* until = nullptr;
 
     QString optOut(bool show) {
         if (v.mUntil.isEmpty()) return "<incomplete>";
@@ -7368,8 +7368,8 @@ private:
         QString mWhich;
     } v {};
 
-    gsl::owner<QLineEdit*> num = nullptr;
-    gsl::owner<QLineEdit*> which = nullptr;
+    QLineEdit* num = nullptr;
+    QLineEdit* which = nullptr;
 
     QString optOut(bool show) {
         if (v.mNum < 1 || v.mWhich.isEmpty()) return "<incomplete>";
@@ -7485,14 +7485,14 @@ private:
         int  mStay;
     } v {};
 
-    gsl::owner<QLineEdit*> doubles = nullptr;
-    gsl::owner<QCheckBox*> ten = nullptr;
-    gsl::owner<QCheckBox*> one = nullptr;
-    gsl::owner<QCheckBox*> force = nullptr;
-    gsl::owner<QComboBox*> control = nullptr;
-    gsl::owner<QCheckBox*> pays = nullptr;
-    gsl::owner<QComboBox*> range = nullptr;
-    gsl::owner<QComboBox*> stay = nullptr;
+    QLineEdit* doubles = nullptr;
+    QCheckBox* ten = nullptr;
+    QCheckBox* one = nullptr;
+    QCheckBox* force = nullptr;
+    QComboBox* control = nullptr;
+    QCheckBox* pays = nullptr;
+    QComboBox* range = nullptr;
+    QComboBox* stay = nullptr;
 
     void numeric(QString) override {
         QString txt = doubles->text();
@@ -7617,11 +7617,11 @@ private:
         QString mAdvs;
     } v {};
 
-    gsl::owner<QLineEdit*> whole = nullptr;
-    gsl::owner<QCheckBox*> half = nullptr;
-    gsl::owner<QCheckBox*> quarter = nullptr;
-    gsl::owner<QCheckBox*> limit = nullptr;
-    gsl::owner<QLineEdit*> advs = nullptr;
+    QLineEdit* whole = nullptr;
+    QCheckBox* half = nullptr;
+    QCheckBox* quarter = nullptr;
+    QCheckBox* limit = nullptr;
+    QLineEdit* advs = nullptr;
 
     QString optOut(bool show) {
         if (v.mWhole < 0 || (v.mLimit && v.mAdvs.isEmpty())) return "<incomplete>";
@@ -7683,7 +7683,7 @@ private:
         QString mEffect;
     } v {};
 
-    gsl::owner<QLineEdit*> effect = nullptr;
+    QLineEdit* effect = nullptr;
 
     QString optOut(bool show) {
         if (v.mEffect.isEmpty()) return "<incomplete>";
@@ -7759,9 +7759,9 @@ private:
         bool    mQuarter;
     } v {};
 
-    gsl::owner<QLineEdit*> whole = nullptr;
-    gsl::owner<QCheckBox*> half = nullptr;
-    gsl::owner<QCheckBox*> quarter = nullptr;
+    QLineEdit* whole = nullptr;
+    QCheckBox* half = nullptr;
+    QCheckBox* quarter = nullptr;
 
     QString optOut(bool show) {
         if (v.mWhole < 0) return "<incomplete>";
@@ -7827,7 +7827,7 @@ private:
         QString mEffect;
     } v {};
 
-    gsl::owner<QLineEdit*> effect = nullptr;
+    QLineEdit* effect = nullptr;
 
     QString optOut(bool show) {
         Fraction f(fraction(NoStore));
@@ -7893,7 +7893,7 @@ private:
         int mCharacteristic;
     } v {};
 
-    gsl::owner<QComboBox*> characteristic = nullptr;
+    QComboBox* characteristic = nullptr;
 
     QString optOut(bool show) {
         if (v.mCharacteristic < 1) return "<incomplete>";

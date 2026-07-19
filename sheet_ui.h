@@ -19,15 +19,13 @@
 #include <QTableWidget>
 #include <QTextEdit>
 
-#include<gsl/gsl>
-
 #include "shared.h"
 
 class ClickableLabel : public QLabel {
     Q_OBJECT
 
 public:
-    explicit ClickableLabel(gsl::owner<QWidget*> parent = Q_NULLPTR)
+    explicit ClickableLabel(QWidget* parent = Q_NULLPTR)
         : QLabel(parent) {
 #ifdef __wasm__
         this->setAttribute(Qt::WA_AcceptTouchEvents);
@@ -110,10 +108,10 @@ protected:
 class Sheet_UI {
 public:
 #ifdef __EMSCRIPTEN__
-    gsl::owner<ClickableTable*> createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
+    ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
                                                   bool selectable = false, bool label = true) {
 #else
-    gsl::owner<QTableWidget*> createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
+    QTableWidget* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
                                                 bool selectable = false, bool label = true) {
 #endif
         return createTableWidget(parent, font, headers, vals, p, s, "", selectable, label);
@@ -126,13 +124,11 @@ public:
         QFont narrowTableFont = narrow;
         narrowTableFont.setPointSize(TinyFontSize);
 
-        tablewidget->setColumnCount(gsl::narrow<int>(headers.size()));
-        tablewidget->setRowCount(gsl::narrow<int>(vals.size()));
+        tablewidget->setColumnCount(int(headers.size()));
+        tablewidget->setRowCount(int(vals.size()));
         tablewidget->setHorizontalHeaderLabels(headers);
-        int pnt = narrowTableFont.pointSize();
-        auto dpiy = tablewidget->screen()->physicalDotsPerInchY();
-        int sz = (pnt * Fraction(static_cast<long>(dpiy), Points)).toInt();
 #ifdef __EMSCRIPTEN__
+        int pnt = narrowTableFont.pointSize();
         QFont temp = font;
         temp.setPointSize(pnt * 8 + 0.5); // NOLINT
         tablewidget->setFont(temp);
@@ -144,14 +140,14 @@ public:
         for (i = 0; i < vals.size(); ++i) {
             for (int j = 0; j < vals[i].size(); ++j) {
                 if (label) {
-                    gsl::owner<QLabel*> cell = new QLabel(vals[i][j]);
+                    QLabel* cell = new QLabel(vals[i][j]);
                     cell->setFont(narrowTableFont);
 #ifdef unix
                     cell->setStyleSheet("color: #000;");
 #endif
                     tablewidget->setCellWidget(i, j, cell);
                 } else {
-                    gsl::owner<QTableWidgetItem*> lbl = new QTableWidgetItem(vals[i][j]);
+                    QTableWidgetItem* lbl = new QTableWidgetItem(vals[i][j]);
                     lbl->setFont(narrowTableFont);
                     lbl->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
                     if (selectable) lbl->setFlags(Qt::ItemIsSelectable);
@@ -169,7 +165,7 @@ public:
             tablewidget->resizeColumnToContents(i - 1);
             total += tablewidget->columnWidth(i - 1);
         }
-        tablewidget->setColumnWidth(gsl::narrow<int>(headers.size()) - 1, tablewidget->geometry().size().width() - total);
+        tablewidget->setColumnWidth(int(headers.size()) - 1, tablewidget->geometry().size().width() - total);
 #endif
     }
 
@@ -182,8 +178,8 @@ private:
         w->setGeometry(r);
     }
 
-    gsl::owner<QLabel*> createLabel(QWidget* parent, QFont& font, QString val, At p, Size s, bool header = false) {
-        gsl::owner<QLabel*> label = new QLabel(parent);
+    QLabel* createLabel(QWidget* parent, QFont& font, QString val, At p, Size s, bool header = false) {
+        QLabel* label = new QLabel(parent);
         label->setFont(font);
         label->setText(val);
 #ifdef unix
@@ -198,11 +194,11 @@ private:
     }
 
 #ifndef __EMSCRIPTEN__
-    gsl::owner<QLabel*> createImage(QWidget* parent, At p, Size s, const QString& image, bool selectable = false) {
-        gsl::owner<QLabel*> label = createImage(parent, p, s, selectable);
+    QLabel* createImage(QWidget* parent, At p, Size s, const QString& image, bool selectable = false) {
+        QLabel* label = createImage(parent, p, s, selectable);
 #else
-    gsl::owner<ClickableLabel*> createImage(QWidget* parent, At p, Size s, const QString image, bool selectable = false) {
-        gsl::owner<ClickableLabel*> label = createImage(parent, p, s);
+    ClickableLabel* createImage(QWidget* parent, At p, Size s, const QString image, bool selectable = false) {
+        ClickableLabel* label = createImage(parent, p, s);
 #endif
         QPixmap pixmap(image);
         pixmap = pixmap.scaled(s.l(), s.h(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -212,11 +208,11 @@ private:
     }
 
 #ifndef __EMSCRIPTEN__
-    gsl::owner<QLabel*> createImage(QWidget* parent, At p, Size s, bool selectable = false) {
-        gsl::owner<QLabel*> label = new QLabel(parent);
+    QLabel* createImage(QWidget* parent, At p, Size s, bool selectable = false) {
+        QLabel* label = new QLabel(parent);
 #else
-    gsl::owner<ClickableLabel*> createImage(QWidget* parent, At p, Size s, bool selectable = false) {
-        gsl::owner<ClickableLabel*> label = new ClickableLabel(parent);
+    ClickableLabel* createImage(QWidget* parent, At p, Size s, bool selectable = false) {
+        ClickableLabel* label = new ClickableLabel(parent);
 #endif
         QString style = "QLabel { background: cyan;"
                               "   border-style: none;"
@@ -232,11 +228,11 @@ private:
         return label;
     }
 
-    gsl::owner<QLineEdit*> createLineEdit(QWidget* parent, QFont& font, At p, Size s, QString w = "") {
+    QLineEdit* createLineEdit(QWidget* parent, QFont& font, At p, Size s, QString w = "") {
         return createLineEdit(parent, font, "", p, s, w);
     }
 
-    gsl::owner<QLineEdit*> createLineEdit(QWidget* parent, QFont& font, QString val, At p, Size s, QString w = "") {
+    QLineEdit* createLineEdit(QWidget* parent, QFont& font, QString val, At p, Size s, QString w = "") {
         QString style = "QLineEdit { background: cyan;"
 #ifdef unix
                                  "   color: #000;"
@@ -246,15 +242,15 @@ private:
         return createLineEdit(parent, font, style, val, p, s, w);
     }
 
-    gsl::owner<QLineEdit*> createLineEdit(QWidget* parent, QFont& font, QString style, QString val, At p, Size s, QString w = "") {
-        gsl::owner<QLineEdit*> lineedit = new QLineEdit(parent);
+    QLineEdit* createLineEdit(QWidget* parent, QFont& font, QString style, QString val, At p, Size s, QString w = "") {
+        QLineEdit* lineedit = new QLineEdit(parent);
         lineedit->setFont(font);
         lineedit->setText(val);
         lineedit->setStyleSheet(style);
         lineedit->setToolTip(w);
         moveTo(lineedit, p, s);
         widgets.append(lineedit);
-        gsl::owner<QFrame*> line = new QFrame(parent);
+        QFrame* line = new QFrame(parent);
         line->setLineWidth(1);
         line->setFrameShape(QFrame::HLine);
         QFont f = lineedit->font();
@@ -263,11 +259,11 @@ private:
         return lineedit;
     }
 
-    gsl::owner<QLineEdit*> createNumEdit(QWidget* parent, QFont& font, At p, Size s, QString w = "") {
+    QLineEdit* createNumEdit(QWidget* parent, QFont& font, At p, Size s, QString w = "") {
         return createNumEdit(parent, font, "", p, s, w);
     }
 
-    gsl::owner<QLineEdit*> createNumEdit(QWidget* parent, QFont& font, QString val, At p, Size s, QString w = "") {
+    QLineEdit* createNumEdit(QWidget* parent, QFont& font, QString val, At p, Size s, QString w = "") {
         QString style = "QLineEdit { background: cyan;"
 #ifdef unix
                                  "   color: #000;"
@@ -277,8 +273,8 @@ private:
         return createNumEdit(parent, font, style, val, p, s, w);
     }
 
-    gsl::owner<QLineEdit*> createNumEdit(QWidget* parent, QFont& font, QString style, QString val, At p, Size s, QString w = "") {
-        gsl::owner<QLineEdit*> lineedit = new QLineEdit(parent);
+    QLineEdit* createNumEdit(QWidget* parent, QFont& font, QString style, QString val, At p, Size s, QString w = "") {
+        QLineEdit* lineedit = new QLineEdit(parent);
         lineedit->setFont(font);
         lineedit->setText(val);
         lineedit->setStyleSheet(style);
@@ -286,7 +282,7 @@ private:
         lineedit->setAlignment(Qt::AlignCenter);
         moveTo(lineedit, p, s);
         widgets.append(lineedit);
-        gsl::owner<QFrame*> line = new QFrame(parent);
+        QFrame* line = new QFrame(parent);
         line->setLineWidth(1);
         line->setFrameShape(QFrame::HLine);
         QFont f = lineedit->font();
@@ -302,15 +298,15 @@ private:
         menuItems(QString x)
             : text(x)
             , action(nullptr) { }
-        menuItems(QString x, gsl::owner<QAction*>* y)
+        menuItems(QString x, QAction** y)
             : text(x)
             , action(y) { }
         QString text;
-        gsl::owner<QAction*>* action;
+        QAction** action;
     };
 
-    gsl::owner<QMenu*> createMenu(QWidget* parent, QFont& font, QList<menuItems> items) {
-        gsl::owner<QMenu*> menu = new QMenu(parent);
+    QMenu* createMenu(QWidget* parent, QFont& font, QList<menuItems> items) {
+        QMenu* menu = new QMenu(parent);
 #ifdef unix
         menu->setStyleSheet("QMenu { color: #000; background: #fff; }");
 #endif
@@ -320,7 +316,7 @@ private:
                 menu->addSeparator();
                 continue;
             }
-            gsl::owner<QAction*>& action = *item.action;
+            QAction*& action = *item.action;
             action = new QAction(item.text);
             action->setFont(font);
             menu->addAction(action);
@@ -336,13 +332,13 @@ private:
     static constexpr double Half   = 0.5;
 
 #ifdef __EMSCRIPTEN__
-    gsl::owner<ClickableTable*> createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
+    ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
                                       QString w, bool selectable = false, bool label = true) {
-        gsl::owner<ClickableTable*> tablewidget = new ClickableTable(parent);
+        ClickableTable* tablewidget = new ClickableTable(parent);
 #else
-    gsl::owner<QTableWidget*> createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
+    QTableWidget* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
                                                 QString w, bool selectable = false, bool label = true) {
-        gsl::owner<QTableWidget*> tablewidget = new QTableWidget(parent);
+        QTableWidget* tablewidget = new QTableWidget(parent);
         tablewidget->setContextMenuPolicy(Qt::CustomContextMenu);
 #endif
         tablewidget->setWordWrap(true);
@@ -405,21 +401,21 @@ private:
                                                            "   color: black;" +
                                                    QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
                                                            " }");
-        tablewidget->setColumnCount(gsl::narrow<int>(headers.size()));
-        tablewidget->setRowCount(gsl::narrow<int>(vals.size()));
+        tablewidget->setColumnCount(int(headers.size()));
+        tablewidget->setRowCount(int(vals.size()));
         tablewidget->setHorizontalHeaderLabels(headers);
         int i = 0;
         for (i = 0; i < vals.size(); ++i) {
             for (int j = 0; j < vals[i].size(); ++j) {
                 if (label) {
-                    gsl::owner<QLabel*> cell = new QLabel(vals[i][j]);
+                    QLabel* cell = new QLabel(vals[i][j]);
                     cell->setFont(font);
 #ifdef unix
                     cell->setStyleSheet("color: #000;");
 #endif
                     tablewidget->setCellWidget(i, j, cell);
                 } else {
-                    gsl::owner<QTableWidgetItem*> lbl = new QTableWidgetItem(vals[i][j]);
+                    QTableWidgetItem* lbl = new QTableWidgetItem(vals[i][j]);
                     lbl->setFont(font);
                     lbl->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
                     if (selectable) lbl->setFlags(Qt::ItemIsSelectable);
@@ -439,19 +435,19 @@ private:
             tablewidget->resizeColumnToContents(i - 1);
             total += tablewidget->columnWidth(i - 1);
         }
-        tablewidget->setColumnWidth(gsl::narrow<int>(headers.size()) - 1, s.l() - total);
+        tablewidget->setColumnWidth(int(headers.size()) - 1, s.l() - total);
 #endif
         widgets.append(tablewidget);
 
         return tablewidget;
     }
 
-    gsl::owner<QTextEdit*> createTextEdit(QWidget* parent, QFont& font, QString val, At p, Size s) {
+    QTextEdit* createTextEdit(QWidget* parent, QFont& font, QString val, At p, Size s) {
         return createTextEdit(parent, font, val, p, s, "");
     }
 
-    gsl::owner<QTextEdit*> createTextEdit(QWidget* parent, QFont& font, QString val, At p, Size s, QString w) {
-        gsl::owner<QTextEdit*> textedit = new QTextEdit(parent);
+    QTextEdit* createTextEdit(QWidget* parent, QFont& font, QString val, At p, Size s, QString w) {
+        QTextEdit* textedit = new QTextEdit(parent);
         textedit->setFont(font);
         textedit->setHtml(val);
         textedit->setStyleSheet("QTextEdit { "
@@ -468,8 +464,8 @@ private:
         return textedit;
     }
 
-    gsl::owner<QPlainTextEdit*> createTextEditor(QWidget* parent, QFont& font, At p, Size s, QString w) {
-        gsl::owner<QPlainTextEdit*> editwidget = new QPlainTextEdit(parent);
+    QPlainTextEdit* createTextEditor(QWidget* parent, QFont& font, At p, Size s, QString w) {
+        QPlainTextEdit* editwidget = new QPlainTextEdit(parent);
         editwidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         editwidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         editwidget->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
@@ -490,160 +486,160 @@ private:
 
 
 public:
-    gsl::owner<QLineEdit*> alternateids  = nullptr;
-    gsl::owner<QLineEdit*> charactername = nullptr;
-    gsl::owner<QLineEdit*> playername    = nullptr;
+    QLineEdit* alternateids  = nullptr;
+    QLineEdit* charactername = nullptr;
+    QLineEdit* playername    = nullptr;
 
-    gsl::owner<QLineEdit*> strval     = nullptr;
-    gsl::owner<QLineEdit*> dexval     = nullptr;
-    gsl::owner<QLineEdit*> conval     = nullptr;
-    gsl::owner<QLineEdit*> intval     = nullptr;
-    gsl::owner<QLineEdit*> egoval     = nullptr;
-    gsl::owner<QLineEdit*> preval     = nullptr;
-    gsl::owner<QLineEdit*> ocvval     = nullptr;
-    gsl::owner<QLineEdit*> dcvval     = nullptr;
-    gsl::owner<QLineEdit*> omcvval    = nullptr;
-    gsl::owner<QLineEdit*> dmcvval    = nullptr;
-    gsl::owner<QLineEdit*> spdval     = nullptr;
-    gsl::owner<QLineEdit*> pdval      = nullptr;
-    gsl::owner<QLineEdit*> edval      = nullptr;
-    gsl::owner<QLineEdit*> recval     = nullptr;
-    gsl::owner<QLineEdit*> endval     = nullptr;
-    gsl::owner<QLineEdit*> bodyval    = nullptr;
-    gsl::owner<QLineEdit*> stunval    = nullptr;
-    gsl::owner<QLabel*>    strpoints  = nullptr;
-    gsl::owner<QLabel*>    dexpoints  = nullptr;
-    gsl::owner<QLabel*>    conpoints  = nullptr;
-    gsl::owner<QLabel*>    intpoints  = nullptr;
-    gsl::owner<QLabel*>    egopoints  = nullptr;
-    gsl::owner<QLabel*>    prepoints  = nullptr;
-    gsl::owner<QLabel*>    ocvpoints  = nullptr;
-    gsl::owner<QLabel*>    dcvpoints  = nullptr;
-    gsl::owner<QLabel*>    omcvpoints = nullptr;
-    gsl::owner<QLabel*>    dmcvpoints = nullptr;
-    gsl::owner<QLabel*>    spdpoints  = nullptr;
-    gsl::owner<QLabel*>    pdpoints   = nullptr;
-    gsl::owner<QLabel*>    edpoints   = nullptr;
-    gsl::owner<QLabel*>    recpoints  = nullptr;
-    gsl::owner<QLabel*>    endpoints  = nullptr;
-    gsl::owner<QLabel*>    bodypoints = nullptr;
-    gsl::owner<QLabel*>    stunpoints = nullptr;
-    gsl::owner<QLabel*>    strroll    = nullptr;
-    gsl::owner<QLabel*>    dexroll    = nullptr;
-    gsl::owner<QLabel*>    conroll    = nullptr;
-    gsl::owner<QLabel*>    introll    = nullptr;
-    gsl::owner<QLabel*>    egoroll    = nullptr;
-    gsl::owner<QLabel*>    preroll    = nullptr;
-    gsl::owner<QLabel*>    totalcost  = nullptr;
+    QLineEdit* strval     = nullptr;
+    QLineEdit* dexval     = nullptr;
+    QLineEdit* conval     = nullptr;
+    QLineEdit* intval     = nullptr;
+    QLineEdit* egoval     = nullptr;
+    QLineEdit* preval     = nullptr;
+    QLineEdit* ocvval     = nullptr;
+    QLineEdit* dcvval     = nullptr;
+    QLineEdit* omcvval    = nullptr;
+    QLineEdit* dmcvval    = nullptr;
+    QLineEdit* spdval     = nullptr;
+    QLineEdit* pdval      = nullptr;
+    QLineEdit* edval      = nullptr;
+    QLineEdit* recval     = nullptr;
+    QLineEdit* endval     = nullptr;
+    QLineEdit* bodyval    = nullptr;
+    QLineEdit* stunval    = nullptr;
+    QLabel*    strpoints  = nullptr;
+    QLabel*    dexpoints  = nullptr;
+    QLabel*    conpoints  = nullptr;
+    QLabel*    intpoints  = nullptr;
+    QLabel*    egopoints  = nullptr;
+    QLabel*    prepoints  = nullptr;
+    QLabel*    ocvpoints  = nullptr;
+    QLabel*    dcvpoints  = nullptr;
+    QLabel*    omcvpoints = nullptr;
+    QLabel*    dmcvpoints = nullptr;
+    QLabel*    spdpoints  = nullptr;
+    QLabel*    pdpoints   = nullptr;
+    QLabel*    edpoints   = nullptr;
+    QLabel*    recpoints  = nullptr;
+    QLabel*    endpoints  = nullptr;
+    QLabel*    bodypoints = nullptr;
+    QLabel*    stunpoints = nullptr;
+    QLabel*    strroll    = nullptr;
+    QLabel*    dexroll    = nullptr;
+    QLabel*    conroll    = nullptr;
+    QLabel*    introll    = nullptr;
+    QLabel*    egoroll    = nullptr;
+    QLabel*    preroll    = nullptr;
+    QLabel*    totalcost  = nullptr;
 
-    gsl::owner<QLabel*>    maximumend  = nullptr;
-    gsl::owner<QLabel*>    maximumbody = nullptr;
-    gsl::owner<QLabel*>    maximumstun = nullptr;
-    gsl::owner<QLineEdit*> currentend  = nullptr;
-    gsl::owner<QLineEdit*> currentbody = nullptr;
-    gsl::owner<QLineEdit*> currentstun = nullptr;
+    QLabel*    maximumend  = nullptr;
+    QLabel*    maximumbody = nullptr;
+    QLabel*    maximumstun = nullptr;
+    QLineEdit* currentend  = nullptr;
+    QLineEdit* currentbody = nullptr;
+    QLineEdit* currentstun = nullptr;
 
-    gsl::owner<QLabel*>        hthdamage         = nullptr;
-    gsl::owner<QLabel*>        lift              = nullptr;
-    gsl::owner<QLabel*>        strendcost        = nullptr;
-    QList<gsl::owner<QLabel*>> phases            = { };
-    gsl::owner<QLabel*>        baseocv           = nullptr;
-    gsl::owner<QLabel*>        basedcv           = nullptr;
-    gsl::owner<QLabel*>        baseomcv          = nullptr;
-    gsl::owner<QLabel*>        basedmcv          = nullptr;
-    gsl::owner<QTextEdit*>     combatskilllevels = nullptr;
-    gsl::owner<QLabel*>        presenceattack    = nullptr;
+    QLabel*        hthdamage         = nullptr;
+    QLabel*        lift              = nullptr;
+    QLabel*        strendcost        = nullptr;
+    QList<QLabel*> phases            = { };
+    QLabel*        baseocv           = nullptr;
+    QLabel*        basedcv           = nullptr;
+    QLabel*        baseomcv          = nullptr;
+    QLabel*        basedmcv          = nullptr;
+    QTextEdit*     combatskilllevels = nullptr;
+    QLabel*        presenceattack    = nullptr;
 
-    gsl::owner<QTableWidget*> movement    = nullptr;
-    gsl::owner<QLabel*>       movementsfx = nullptr;
+    QTableWidget* movement    = nullptr;
+    QLabel*       movementsfx = nullptr;
 
-    gsl::owner<QLabel*>  image      = nullptr;
-    gsl::owner<QMenu*>   imageMenu  = nullptr;
-    gsl::owner<QAction*> newImage   = nullptr;
-    gsl::owner<QAction*> clearImage = nullptr;
+    QLabel*  image      = nullptr;
+    QMenu*   imageMenu  = nullptr;
+    QAction* newImage   = nullptr;
+    QAction* clearImage = nullptr;
 
-    gsl::owner<QLabel*> banner1 = nullptr;
-    gsl::owner<QLabel*> banner2 = nullptr;
-    gsl::owner<QLabel*> banner3 = nullptr;
+    QLabel* banner1 = nullptr;
+    QLabel* banner2 = nullptr;
+    QLabel* banner3 = nullptr;
 
-    gsl::owner<QTableWidget*> attacksandmaneuvers = nullptr;
+    QTableWidget* attacksandmaneuvers = nullptr;
 
-    gsl::owner<QTableWidget*> defenses = nullptr;
+    QTableWidget* defenses = nullptr;
 
-    gsl::owner<QLabel*>    perceptionroll           = nullptr;
-    gsl::owner<QTextEdit*> enhancedandunusualsenses = nullptr;
+    QLabel*    perceptionroll           = nullptr;
+    QTextEdit* enhancedandunusualsenses = nullptr;
 
-    gsl::owner<QLabel*>    totalpoints           = nullptr;
-    gsl::owner<QLineEdit*> totalexperienceearned = nullptr;
-    gsl::owner<QLabel*>    experiencespent       = nullptr;
-    gsl::owner<QLabel*>    experienceunspent     = nullptr;
+    QLabel*    totalpoints           = nullptr;
+    QLineEdit* totalexperienceearned = nullptr;
+    QLabel*    experiencespent       = nullptr;
+    QLabel*    experienceunspent     = nullptr;
 
-    gsl::owner<QLabel*>    charactername2 = nullptr;
-    gsl::owner<QLineEdit*> height         = nullptr;
-    gsl::owner<QLineEdit*> weight         = nullptr;
-    gsl::owner<QLineEdit*> haircolor      = nullptr;
-    gsl::owner<QLineEdit*> eyecolor       = nullptr;
+    QLabel*    charactername2 = nullptr;
+    QLineEdit* height         = nullptr;
+    QLineEdit* weight         = nullptr;
+    QLineEdit* haircolor      = nullptr;
+    QLineEdit* eyecolor       = nullptr;
 
-    gsl::owner<QLineEdit*> campaignname = nullptr;
-    gsl::owner<QLineEdit*> genre        = nullptr;
-    gsl::owner<QLineEdit*> gamemaster   = nullptr;
+    QLineEdit* campaignname = nullptr;
+    QLineEdit* genre        = nullptr;
+    QLineEdit* gamemaster   = nullptr;
 
-    gsl::owner<QTableWidget*> skillstalentsandperks          = nullptr;
-    gsl::owner<QLabel*>       totalskillstalentsandperkscost = nullptr;
-    gsl::owner<QMenu*>        skillstalentsandperksMenu      = nullptr;
-    gsl::owner<QAction*>      newSkillTalentOrPerk           = nullptr;
-    gsl::owner<QAction*>      editSkillTalentOrPerk          = nullptr;
-    gsl::owner<QAction*>      deleteSkillTalentOrPerk        = nullptr;
-    gsl::owner<QAction*>      cutSkillTalentOrPerk           = nullptr;
-    gsl::owner<QAction*>      copySkillTalentOrPerk          = nullptr;
-    gsl::owner<QAction*>      pasteSkillTalentOrPerk         = nullptr;
-    gsl::owner<QAction*>      moveSkillTalentOrPerkUp        = nullptr;
-    gsl::owner<QAction*>      moveSkillTalentOrPerkDown      = nullptr;
+    QTableWidget* skillstalentsandperks          = nullptr;
+    QLabel*       totalskillstalentsandperkscost = nullptr;
+    QMenu*        skillstalentsandperksMenu      = nullptr;
+    QAction*      newSkillTalentOrPerk           = nullptr;
+    QAction*      editSkillTalentOrPerk          = nullptr;
+    QAction*      deleteSkillTalentOrPerk        = nullptr;
+    QAction*      cutSkillTalentOrPerk           = nullptr;
+    QAction*      copySkillTalentOrPerk          = nullptr;
+    QAction*      pasteSkillTalentOrPerk         = nullptr;
+    QAction*      moveSkillTalentOrPerkUp        = nullptr;
+    QAction*      moveSkillTalentOrPerkDown      = nullptr;
 
-    gsl::owner<QTableWidget*> complications        = nullptr;
-    gsl::owner<QLabel*>       totalcomplicationpts = nullptr;
-    gsl::owner<QMenu*>        complicationsMenu    = nullptr;
-    gsl::owner<QAction*>      newComplication      = nullptr;
-    gsl::owner<QAction*>      editComplication     = nullptr;
-    gsl::owner<QAction*>      deleteComplication   = nullptr;
-    gsl::owner<QAction*>      cutComplication      = nullptr;
-    gsl::owner<QAction*>      copyComplication     = nullptr;
-    gsl::owner<QAction*>      pasteComplication    = nullptr;
-    gsl::owner<QAction*>      moveComplicationUp   = nullptr;
-    gsl::owner<QAction*>      moveComplicationDown = nullptr;
+    QTableWidget* complications        = nullptr;
+    QLabel*       totalcomplicationpts = nullptr;
+    QMenu*        complicationsMenu    = nullptr;
+    QAction*      newComplication      = nullptr;
+    QAction*      editComplication     = nullptr;
+    QAction*      deleteComplication   = nullptr;
+    QAction*      cutComplication      = nullptr;
+    QAction*      copyComplication     = nullptr;
+    QAction*      pasteComplication    = nullptr;
+    QAction*      moveComplicationUp   = nullptr;
+    QAction*      moveComplicationDown = nullptr;
 
-    gsl::owner<QTableWidget*> powersandequipment          = nullptr;
-    gsl::owner<QLabel*>       totalpowersandequipmentcost = nullptr;
-    gsl::owner<QMenu*>        powersandequipmentMenu      = nullptr;
-    gsl::owner<QAction*>      newPowerOrEquipment         = nullptr;
-    gsl::owner<QAction*>      editPowerOrEquipment        = nullptr;
-    gsl::owner<QAction*>      deletePowerOrEquipment      = nullptr;
-    gsl::owner<QAction*>      cutPowerOrEquipment         = nullptr;
-    gsl::owner<QAction*>      copyPowerOrEquipment        = nullptr;
-    gsl::owner<QAction*>      pastePowerOrEquipment       = nullptr;
-    gsl::owner<QAction*>      movePowerOrEquipmentUp      = nullptr;
-    gsl::owner<QAction*>      movePowerOrEquipmentDown    = nullptr;
-    gsl::owner<QGridLayout*>  layout                      = nullptr;
+    QTableWidget* powersandequipment          = nullptr;
+    QLabel*       totalpowersandequipmentcost = nullptr;
+    QMenu*        powersandequipmentMenu      = nullptr;
+    QAction*      newPowerOrEquipment         = nullptr;
+    QAction*      editPowerOrEquipment        = nullptr;
+    QAction*      deletePowerOrEquipment      = nullptr;
+    QAction*      cutPowerOrEquipment         = nullptr;
+    QAction*      copyPowerOrEquipment        = nullptr;
+    QAction*      pastePowerOrEquipment       = nullptr;
+    QAction*      movePowerOrEquipmentUp      = nullptr;
+    QAction*      movePowerOrEquipmentDown    = nullptr;
+    QGridLayout*  layout                      = nullptr;
 
-    gsl::owner<QPlainTextEdit*> notes      = nullptr;
-    gsl::owner<QWidget*>        page3      = nullptr;
-    gsl::owner<QLabel*>         head       = nullptr;
-    gsl::owner<QLabel*>         hands      = nullptr;
-    gsl::owner<QLabel*>         arms       = nullptr;
-    gsl::owner<QLabel*>         shoulders  = nullptr;
-    gsl::owner<QLabel*>         chest      = nullptr;
-    gsl::owner<QLabel*>         stomach    = nullptr;
-    gsl::owner<QLabel*>         vitals     = nullptr;
-    gsl::owner<QLabel*>         thighs     = nullptr;
-    gsl::owner<QLabel*>         legs       = nullptr;
-    gsl::owner<QLabel*>         feet       = nullptr;
-    gsl::owner<QLabel*>         averageDEF = nullptr;
-    gsl::owner<QLabel*>         DCVmod     = nullptr;
-    gsl::owner<QLabel*>         armorNotes = nullptr;
+    QPlainTextEdit* notes      = nullptr;
+    QWidget*        page3      = nullptr;
+    QLabel*         head       = nullptr;
+    QLabel*         hands      = nullptr;
+    QLabel*         arms       = nullptr;
+    QLabel*         shoulders  = nullptr;
+    QLabel*         chest      = nullptr;
+    QLabel*         stomach    = nullptr;
+    QLabel*         vitals     = nullptr;
+    QLabel*         thighs     = nullptr;
+    QLabel*         legs       = nullptr;
+    QLabel*         feet       = nullptr;
+    QLabel*         averageDEF = nullptr;
+    QLabel*         DCVmod     = nullptr;
+    QLabel*         armorNotes = nullptr;
 
-    QList<gsl::owner<QWidget*>> widgets;
-    QList<gsl::owner<QWidget*>> hiddenWidgets;
-    QList<gsl::owner<QWidget*>> headerWidgets;
+    QList<QWidget*> widgets;
+    QList<QWidget*> hiddenWidgets;
+    QList<QWidget*> headerWidgets;
 
     QFont font;
     QFont smallfont;
@@ -671,7 +667,7 @@ public:
     static constexpr int HeaderFontSize    = 14;
 #endif
 
-    void setupUi(gsl::owner<QWidget*> widget, gsl::owner<QWidget*> hidden) {
+    void setupUi(QWidget* widget, QWidget* hidden) {
         layout = new QGridLayout();
         widget->setLayout(layout);
 

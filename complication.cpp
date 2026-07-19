@@ -37,8 +37,8 @@ void Complication::callback(QLineEdit* edit) {
     function(this, edit->text());
 }
 
-gsl::owner<QCheckBox*> Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt) {
-    gsl::owner<QCheckBox*> checkBox = new QCheckBox(layout->parentWidget());
+QCheckBox* Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt) {
+    QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
 #ifdef unix
@@ -50,20 +50,20 @@ gsl::owner<QCheckBox*> Complication::createCheckBox(QWidget* parent, QVBoxLayout
     return checkBox;
 }
 
-gsl::owner<QCheckBox*> Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(bool)> callback) {
-    gsl::owner<QCheckBox*> checkBox = createCheckBox(parent, layout, prompt);
+QCheckBox* Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(bool)> callback) {
+    QCheckBox* checkBox = createCheckBox(parent, layout, prompt);
     mCallbacksCB.insert(mCallbacksCB.cend(), checkBox, callback);
     return checkBox;
 }
 
-gsl::owner<QComboBox*> Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (Complication::*)(int)> callback) {
-    gsl::owner<QComboBox*> comboBox = createComboBox(parent, layout, prompt, options);
+QComboBox* Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (Complication::*)(int)> callback) {
+    QComboBox* comboBox = createComboBox(parent, layout, prompt, options);
     mCallbacksCBox.insert(mCallbacksCBox.cend(), comboBox, callback);
     return comboBox;
 }
 
-gsl::owner<QComboBox*> Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options) {
-    gsl::owner<QComboBox*> comboBox = new QComboBox(layout->parentWidget());
+QComboBox* Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options) {
+    QComboBox* comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setPlaceholderText(prompt);
     comboBox->setCurrentIndex(-1);
@@ -76,8 +76,8 @@ gsl::owner<QComboBox*> Complication::createComboBox(QWidget* parent, QVBoxLayout
     return comboBox;
 }
 
-gsl::owner<QLabel*> Complication::createLabel(QWidget*, QVBoxLayout* layout, QString text) {
-    gsl::owner<QLabel*> label = new QLabel(layout->parentWidget());
+QLabel* Complication::createLabel(QWidget*, QVBoxLayout* layout, QString text) {
+    QLabel* label = new QLabel(layout->parentWidget());
     label->setText(text);
 #ifdef unix
     QString style = "color: #000; background: #fff;";
@@ -87,14 +87,14 @@ gsl::owner<QLabel*> Complication::createLabel(QWidget*, QVBoxLayout* layout, QSt
     return label;
 }
 
-gsl::owner<QLineEdit*> Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(QString)> callback) {
-    gsl::owner<QLineEdit*> lineEdit = createLineEdit(parent, layout, prompt);
+QLineEdit* Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(QString)> callback) {
+    QLineEdit* lineEdit = createLineEdit(parent, layout, prompt);
     mCallbacksEdit.insert(mCallbacksEdit.cend(), lineEdit, callback);
     return lineEdit;
 }
 
-gsl::owner<QLineEdit*> Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt) {
-    gsl::owner<QLineEdit*> lineEdit = new QLineEdit(layout->parentWidget());
+QLineEdit* Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt) {
+    QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
 #ifdef unix
     QString style = "color: #000; background: #fff;";
@@ -106,7 +106,7 @@ gsl::owner<QLineEdit*> Complication::createLineEdit(QWidget* parent, QVBoxLayout
 }
 
 void Complication::createForm(QWidget* parent, QVBoxLayout* layout) {
-    gsl::owner<QLayoutItem*> item = nullptr;
+    QLayoutItem* item = nullptr;
     while ((item = layout->takeAt(0)) != NULL) {
         delete item->widget();
         delete item;

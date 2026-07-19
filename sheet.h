@@ -93,43 +93,43 @@ public:
         QLabel*         mRoll           = nullptr;
     };
 
-    gsl::owner<Sheet_UI*> getUi() { return Ui; }
+    Sheet_UI* getUi() { return Ui; }
 
     static const bool WordWrap = true;
 
 #ifdef __wasm__
-    gsl::owner<Ui::wasm*> UI() { return ui; }
+    Ui::wasm* UI() { return ui; }
 #else
-    gsl::owner<Ui::Sheet*> UI() { return ui; }
+    Ui::Sheet* UI() { return ui; }
 #endif
 
     Option& option() { return mOption; }
 
 private:
 #ifndef __wasm__
-    gsl::owner<Ui::Sheet*> ui = nullptr;
+    Ui::Sheet* ui = nullptr;
 #else
-    gsl::owner<Ui::wasm*> ui = nullptr;
-    gsl::owner<QWidget*> editButton = nullptr;
-    gsl::owner<QWidget*> fileButton = nullptr;
-    gsl::owner<QWidget*> newButton = nullptr;
-    gsl::owner<QWidget*> openButton = nullptr;
-    gsl::owner<QWidget*> saveButton = nullptr;
-    gsl::owner<QWidget*> cutButton = nullptr;
-    gsl::owner<QWidget*> copyButton = nullptr;
-    gsl::owner<QWidget*> pasteButton = nullptr;
-    gsl::owner<QWidget*> optionButton = nullptr;
+    Ui::wasm* ui = nullptr;
+    QWidget* editButton = nullptr;
+    QWidget* fileButton = nullptr;
+    QWidget* newButton = nullptr;
+    QWidget* openButton = nullptr;
+    QWidget* saveButton = nullptr;
+    QWidget* cutButton = nullptr;
+    QWidget* copyButton = nullptr;
+    QWidget* pasteButton = nullptr;
+    QWidget* optionButton = nullptr;
 
 public:
-    gsl::owner<QAction*> action_File = nullptr;
-    gsl::owner<QAction*> action_New = nullptr;
-    gsl::owner<QAction*> action_Open = nullptr;
-    gsl::owner<QAction*> action_Save = nullptr;
-    gsl::owner<QAction*> action_Edit = nullptr;
-    gsl::owner<QAction*> action_Cut = nullptr;
-    gsl::owner<QAction*> actionC_opy = nullptr;
-    gsl::owner<QAction*> action_Paste = nullptr;
-    gsl::owner<QAction*> actionOptions = nullptr;
+    QAction* action_File = nullptr;
+    QAction* action_New = nullptr;
+    QAction* action_Open = nullptr;
+    QAction* action_Save = nullptr;
+    QAction* action_Edit = nullptr;
+    QAction* action_Cut = nullptr;
+    QAction* actionC_opy = nullptr;
+    QAction* action_Paste = nullptr;
+    QAction* actionOptions = nullptr;
 
 private:
     shared_ptr<ComplicationsMenuDialog>  mComplicationsMenuDialog = nullptr;
@@ -140,8 +140,8 @@ private:
     shared_ptr<SkillMenuDialog>          mSkillMenuDialog         = nullptr;
 
 #endif
-    gsl::owner<Sheet_UI*>  Ui = nullptr;
-    gsl::owner<QPrinter*>  printer = nullptr;
+    Sheet_UI*  Ui = nullptr;
+    QPrinter*  printer = nullptr;
 
     static const bool DontUpdateTotal = false;
     static const bool noD6            = false;

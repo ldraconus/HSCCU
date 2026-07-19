@@ -361,8 +361,8 @@ bool Modifier::createForm(QWidget* parent, QVBoxLayout* layout) {
     return form(parent, layout);
 }
 
-gsl::owner<QCheckBox*> Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt) {
-    gsl::owner<QCheckBox*> checkBox = new QCheckBox(layout->parentWidget());
+QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt) {
+    QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
     layout->addWidget(checkBox);
@@ -370,8 +370,8 @@ gsl::owner<QCheckBox*> Modifier::createCheckBox(QWidget* parent, QVBoxLayout* la
     return checkBox;
 }
 
-gsl::owner<QCheckBox*> Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (ModifierBase::*)(bool)> callback) {
-    gsl::owner<QCheckBox*> checkBox = new QCheckBox(layout->parentWidget());
+QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (ModifierBase::*)(bool)> callback) {
+    QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
     layout->addWidget(checkBox);
@@ -380,8 +380,8 @@ gsl::owner<QCheckBox*> Modifier::createCheckBox(QWidget* parent, QVBoxLayout* la
     return checkBox;
 }
 
-gsl::owner<QComboBox*> Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (ModifierBase::*)(int)> callback) {
-    gsl::owner<QComboBox*> comboBox = new QComboBox(layout->parentWidget());
+QComboBox* Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (ModifierBase::*)(int)> callback) {
+    QComboBox* comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setPlaceholderText(prompt);
     comboBox->setToolTip(prompt);
@@ -392,8 +392,8 @@ gsl::owner<QComboBox*> Modifier::createComboBox(QWidget* parent, QVBoxLayout* la
     return comboBox;
 }
 
-gsl::owner<QComboBox*> Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options) {
-    gsl::owner<QComboBox*> comboBox = new QComboBox(layout->parentWidget());
+QComboBox* Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options) {
+    QComboBox* comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setPlaceholderText(prompt);
     comboBox->setToolTip(prompt);
@@ -403,15 +403,15 @@ gsl::owner<QComboBox*> Modifier::createComboBox(QWidget* parent, QVBoxLayout* la
     return comboBox;
 }
 
-gsl::owner<QLabel*> Modifier::createLabel(QWidget*, QVBoxLayout* layout, QString text) {
-    gsl::owner<QLabel*> label = new QLabel(layout->parentWidget());
+QLabel* Modifier::createLabel(QWidget*, QVBoxLayout* layout, QString text) {
+    QLabel* label = new QLabel(layout->parentWidget());
     label->setText(text);
     layout->addWidget(label);
     return label;
 }
 
-gsl::owner<QLineEdit*> Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (ModifierBase::*)(QString)> callback) {
-    gsl::owner<QLineEdit*> lineEdit = new QLineEdit(layout->parentWidget());
+QLineEdit* Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (ModifierBase::*)(QString)> callback) {
+    QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);
     lineEdit->setText("");
@@ -421,8 +421,8 @@ gsl::owner<QLineEdit*> Modifier::createLineEdit(QWidget* parent, QVBoxLayout* la
     return lineEdit;
 }
 
-gsl::owner<QLineEdit*> Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt) {
-    gsl::owner<QLineEdit*> lineEdit = new QLineEdit(layout->parentWidget());
+QLineEdit* Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt) {
+    QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);
     layout->addWidget(lineEdit);
@@ -437,8 +437,8 @@ static QTreeWidgetItem* createTWItem(QString str) {
     return item;
 }
 
-gsl::owner<QTreeWidget*> Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<QString, QStringList> options, std::_Mem_fn<void (ModifierBase::*)(int, int, bool)> callback) {
-    gsl::owner<QTreeWidget*> tree = new QTreeWidget(layout->parentWidget());
+QTreeWidget* Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<QString, QStringList> options, std::_Mem_fn<void (ModifierBase::*)(int, int, bool)> callback) {
+    QTreeWidget* tree = new QTreeWidget(layout->parentWidget());
     QStringList keys = options.keys();
     double height = 0.0;
     QFont font;
@@ -469,8 +469,8 @@ gsl::owner<QTreeWidget*> Modifier::createTreeWidget(QWidget* parent, QVBoxLayout
     return tree;
 }
 
-gsl::owner<QTreeWidget*> Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<QString, QStringList> options) {
-    gsl::owner<QTreeWidget*> tree = new QTreeWidget(layout->parentWidget());
+QTreeWidget* Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<QString, QStringList> options) {
+    QTreeWidget* tree = new QTreeWidget(layout->parentWidget());
     QStringList keys = options.keys();
     double height = 0.0;
     QFont font;

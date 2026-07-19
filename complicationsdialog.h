@@ -32,12 +32,12 @@ private:
     static const bool WordWrap = true;
 
     shared_ptr<Complication> mComplication = nullptr;
-    gsl::owner<QLabel*>      mDescription = nullptr;
-    gsl::owner<QPushButton*> mOk = nullptr;
-    gsl::owner<QLabel*>      mPoints = nullptr;
+    QLabel*      mDescription = nullptr;
+    QPushButton* mOk = nullptr;
+    QLabel*      mPoints = nullptr;
     bool                     mSkipUpdate = false;
 
-    gsl::owner<QLabel*> createLabel(QVBoxLayout*, QString, bool wordWrap = false);
+    QLabel* createLabel(QVBoxLayout*, QString, bool wordWrap = false);
     void                updateForm();
 
 public slots:

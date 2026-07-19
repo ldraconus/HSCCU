@@ -53,7 +53,7 @@ struct Points {
     bool Max(const Points& p) const { return p.Min(*this); }
 };
 
-inline constexpr auto operator"" _cp(unsigned long long p) { return Points{ (long) p }; } // NOLINT
+inline constexpr auto operator""_cp(unsigned long long p) { return Points{ (long) p }; } // NOLINT
 
 inline Points operator*(long a, Points b)   { return Points(a * b.points); }
 inline Points operator*(Points a, long b)   { return Points(a.points * b); }

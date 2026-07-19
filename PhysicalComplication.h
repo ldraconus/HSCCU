@@ -63,9 +63,9 @@ private:
         QString mWhat = "";
     } v;
 
-    gsl::owner<QComboBox*> frequency = nullptr;
-    gsl::owner<QComboBox*> impairs = nullptr;
-    gsl::owner<QLineEdit*> what = nullptr;
+    QComboBox* frequency = nullptr;
+    QComboBox* impairs = nullptr;
+    QLineEdit* what = nullptr;
 };
 
 #endif // PHYSICALCOMPLICATION_H

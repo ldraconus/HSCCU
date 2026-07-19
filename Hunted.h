@@ -116,13 +116,13 @@ private:
         QString mWho = "";
     } v;
 
-    gsl::owner<QComboBox*> capabilities = nullptr;
-    gsl::owner<QComboBox*> frequency = nullptr;
-    gsl::owner<QCheckBox*> easy = nullptr;
-    gsl::owner<QCheckBox*> limited = nullptr;
-    gsl::owner<QComboBox*> motivation = nullptr;
-    gsl::owner<QCheckBox*> nci = nullptr;
-    gsl::owner<QLineEdit*> who = nullptr;
+    QComboBox* capabilities = nullptr;
+    QComboBox* frequency = nullptr;
+    QCheckBox* easy = nullptr;
+    QCheckBox* limited = nullptr;
+    QComboBox* motivation = nullptr;
+    QCheckBox* nci = nullptr;
+    QLineEdit* who = nullptr;
 };
 
 #endif // HUNTED_H

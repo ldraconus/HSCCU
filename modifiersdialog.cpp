@@ -40,8 +40,8 @@ ModifiersDialog::~ModifiersDialog() {
     delete ui;
 }
 
-gsl::owner<QLabel*> ModifiersDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap) {
-    gsl::owner<QLabel*> label = new QLabel();
+QLabel* ModifiersDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap) {
+    QLabel* label = new QLabel();
     if (label != nullptr) {
         label->setText(text);
         label->setWordWrap(wordWrap);

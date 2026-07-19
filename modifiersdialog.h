@@ -11,8 +11,6 @@
 
 #include "shared.h"
 
-#include <gsl/gsl>
-
 namespace Ui {
 class ModifiersDialog;
 }
@@ -56,12 +54,12 @@ private:
 
     bool                 mAccepted = false;
     bool                 mAdd = false;
-    gsl::owner<QLabel*>  mDescription = nullptr;
+    QLabel*  mDescription = nullptr;
     bool                 mJustAccept = false;
     QPushButton*         mOk = nullptr;
     bool                 mSkipUpdate = false;
 
-    gsl::owner<QLabel*> createLabel(QVBoxLayout*, QString, bool wrap = false);
+    QLabel* createLabel(QVBoxLayout*, QString, bool wrap = false);
     void                setModifiers(bool);
 
 public slots:

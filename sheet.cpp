@@ -1788,7 +1788,7 @@ void Sheet::setCell(QTableWidget* tbl, int row, int col, QString str, const QFon
 }
 
 void Sheet::setCellLabel(QTableWidget* tbl, int row, int col, QString str, const QFont& font) {
-    gsl::owner<QLabel*> lbl = new QLabel(str);
+    QLabel* lbl = new QLabel(str);
 #ifdef unix
     lbl->setStyleSheet("color: #000;");
 #endif
@@ -1798,7 +1798,7 @@ void Sheet::setCellLabel(QTableWidget* tbl, int row, int col, QString str, const
 }
 
 void Sheet::setCellLabel(QTableWidget* tbl, int row, int col, QString str) {
-    gsl::owner<QLabel*> lbl = new QLabel(str);
+    QLabel* lbl = new QLabel(str);
     if (row >= tbl->rowCount()) tbl->setRowCount(row + 1);
     QLabel* cell = dynamic_cast<QLabel*>(tbl->cellWidget(row, col));
     lbl->setFont(cell->font());
@@ -2253,7 +2253,7 @@ void Sheet::copyCharacter() {
 
     QJsonDocument doc = mCharacter.copy(mOption);
     QClipboard* clip = QGuiApplication::clipboard();
-    gsl::owner<QMimeData*> data = new QMimeData();
+    QMimeData* data = new QMimeData();
     data->setData("application/complication", doc.toJson());
     QString text = getCharacter();
     data->setData("text/plain", text.toUtf8());
@@ -2262,7 +2262,7 @@ void Sheet::copyCharacter() {
 
 void Sheet::copyComplication() {
     QClipboard* clip = QGuiApplication::clipboard();
-    gsl::owner<QMimeData*> data = new QMimeData();
+    QMimeData* data = new QMimeData();
     auto selection = Ui->complications->selectedItems();
     int row = selection[0]->row();
     shared_ptr<Complication> complication = mCharacter.complications()[row];
@@ -2277,7 +2277,7 @@ void Sheet::copyComplication() {
 
 void Sheet::copyPowerOrEquipment() {
     QClipboard* clip = QGuiApplication::clipboard();
-    gsl::owner<QMimeData*> data = new QMimeData();
+    QMimeData* data = new QMimeData();
     auto selection = Ui->powersandequipment->selectedItems();
     int row = selection[0]->row();
     shared_ptr<Power> power = getPower(row, mCharacter.powersOrEquipment());
@@ -2292,7 +2292,7 @@ void Sheet::copyPowerOrEquipment() {
 
 void Sheet::copySkillTalentOrPerk() {
     QClipboard* clip = QGuiApplication::clipboard();
-    gsl::owner<QMimeData*> data = new QMimeData();
+    QMimeData* data = new QMimeData();
     auto selection = Ui->skillstalentsandperks->selectedItems();
     int row = selection[0]->row();
     shared_ptr<SkillTalentOrPerk> skilltalentorperk = mCharacter.skillsTalentsOrPerks()[row];

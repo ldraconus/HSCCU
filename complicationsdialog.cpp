@@ -45,10 +45,10 @@ ComplicationsDialog& ComplicationsDialog::complication(shared_ptr<Complication>&
     qsizetype idx = Complication::Available().indexOf(name);
     if (idx == -1) return *this;
     mSkipUpdate = true;
-    ui->comboBox->setCurrentIndex(gsl::narrow<int>(idx));
+    ui->comboBox->setCurrentIndex(int(idx));
     mComplication = c;
     ui->comboBox->setEnabled(false);
-    gsl::owner<QVBoxLayout*> layout = new QVBoxLayout(ui->form);
+    QVBoxLayout* layout = new QVBoxLayout(ui->form);
     try { mComplication->createForm(this, layout); } catch (...) { accept(); return *this; }
     createLabel(layout, "");
     mPoints      = createLabel(layout, "-1 Points");
@@ -60,8 +60,8 @@ ComplicationsDialog& ComplicationsDialog::complication(shared_ptr<Complication>&
     return *this;
 }
 
-gsl::owner<QLabel*> ComplicationsDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap) {
-    gsl::owner<QLabel*> label = new QLabel();
+QLabel* ComplicationsDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap) {
+    QLabel* label = new QLabel();
     if (label != nullptr) {
         label->setText(text);
 #ifdef unix
@@ -79,7 +79,7 @@ void ComplicationsDialog::pickComplication(int idx) {
         return;
     }
 
-    gsl::owner<QVBoxLayout*> layout = dynamic_cast<gsl::owner<QVBoxLayout*>>(ui->form->layout());
+    QVBoxLayout* layout = dynamic_cast<QVBoxLayout*>(ui->form->layout());
     if (layout == nullptr) {
         layout = new QVBoxLayout(ui->form);
         ui->form->setLayout(layout);

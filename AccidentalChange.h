@@ -86,9 +86,9 @@ private:
         QString mWhat = "";
     } v;
 
-    gsl::owner<QComboBox*> circumstance = nullptr;
-    gsl::owner<QComboBox*> frequency = nullptr;
-    gsl::owner<QLineEdit*> what = nullptr;
+    QComboBox* circumstance = nullptr;
+    QComboBox* frequency = nullptr;
+    QLineEdit* what = nullptr;
 };
 
 #endif // ACCIDENTALCHANGE_H

@@ -43,7 +43,7 @@ public:
     }
 
     bool isFramework() override                      { return true; }
-    int  count() override                            { return gsl::narrow<int>(v.mPowers.count()); }
+    int  count() override                            { return int(v.mPowers.count()); }
     void append(shared_ptr<Power> p) override        { v.mPowers.append(p);    p->parent(this); }
     void insert(int n, shared_ptr<Power> p) override { v.mPowers.insert(n, p); p->parent(this); }
     void remove(int n) override                      { v.mPowers[n]->parent(nullptr); v.mPowers.removeAt(n); }

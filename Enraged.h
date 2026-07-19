@@ -84,11 +84,11 @@ private:
         QString mWhat = "";
     } v;
 
-    gsl::owner<QComboBox*> chance = nullptr;
-    gsl::owner<QComboBox*> frequency = nullptr;
-    gsl::owner<QComboBox*> regain = nullptr;
-    gsl::owner<QCheckBox*> type = nullptr;
-    gsl::owner<QLineEdit*> what = nullptr;
+    QComboBox* chance = nullptr;
+    QComboBox* frequency = nullptr;
+    QComboBox* regain = nullptr;
+    QCheckBox* type = nullptr;
+    QLineEdit* what = nullptr;
 };
 
 #endif // ENRAGED_H

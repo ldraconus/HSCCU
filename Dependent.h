@@ -117,12 +117,12 @@ private:
         QString mWho = "";
     } v;
 
-    gsl::owner<QComboBox*> competence = nullptr;
-    gsl::owner<QComboBox*> frequency = nullptr;
-    gsl::owner<QLineEdit*> multiples = nullptr;
-    gsl::owner<QCheckBox*> unaware = nullptr;
-    gsl::owner<QCheckBox*> useful = nullptr;
-    gsl::owner<QLineEdit*> who = nullptr;
+    QComboBox* competence = nullptr;
+    QComboBox* frequency = nullptr;
+    QLineEdit* multiples = nullptr;
+    QCheckBox* unaware = nullptr;
+    QCheckBox* useful = nullptr;
+    QLineEdit* who = nullptr;
 
     void numeric(QString) override {
         QString txt = multiples->text();

@@ -83,10 +83,10 @@ private:
         QString mWhat = "";
     } v;
 
-    gsl::owner<QCheckBox*> extreme = nullptr;
-    gsl::owner<QComboBox*> frequency = nullptr;
-    gsl::owner<QCheckBox*> limited = nullptr;
-    gsl::owner<QLineEdit*> what = nullptr;
+    QCheckBox* extreme = nullptr;
+    QComboBox* frequency = nullptr;
+    QCheckBox* limited = nullptr;
+    QLineEdit* what = nullptr;
 };
 
 #endif // NEGATIVEREPUTATION_H
