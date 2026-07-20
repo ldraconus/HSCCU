@@ -250,14 +250,14 @@ qt_generate_deploy_app_script(
 install(SCRIPT ${deploy_script})
 
 find_program(BASH_EXECUTABLE bash)
-if (UNIX)
-        find_program(BINARY_CREATOR
-                     NAMES binarycreator
-                     PATHS "/home/chris//Qt/Tools/QtInstallerFramework/4.11/bin"
-        )
-        set(WINDEPLOY "echo")
-elseif(EMSCRIPTEN)
-    set(BINARY_CREATOR "")
+if (EMSCRIPTEN)
+    set(BINARY_CREATOR "echo")
+    set(WINDEPLOY "echo")
+elseif(UNIX)
+    find_program(BINARY_CREATOR
+                 NAMES binarycreator
+                 PATHS "/home/chris//Qt/Tools/QtInstallerFramework/4.11/bin"
+    )
     set(WINDEPLOY "echo")
 else()
     find_program(BASH_EXECUTABLE bash)

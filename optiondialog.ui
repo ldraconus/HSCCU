@@ -14,7 +14,7 @@
    <string>Options</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="build/QT_WA_ST_Release/.qt/rcc/res.qrc">
+   <iconset resource="build/QT_Release/.qt/rcc/res.qrc">
     <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
   </property>
   <property name="styleSheet">
@@ -109,7 +109,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="build/QT_WA_ST_Release/.qt/rcc/res.qrc">:/gfx/HeroSystem-Banner.png</pixmap>
+             <pixmap resource="build/QT_Release/.qt/rcc/res.qrc">:/gfx/HeroSystem-Banner.png</pixmap>
             </property>
             <property name="scaledContents">
              <bool>false</bool>
@@ -156,11 +156,20 @@
              </size>
             </property>
             <property name="styleSheet">
-             <string notr="true">QComboBox { color: #000; background: #fff; }
+             <string notr="true">QComboBox { color: black; background: cyan; }
 QComboBox QAbstractItemView {
-    color: #000;
-    background-color: #fff;
-}</string>
+    color: black;
+    background-color: cyan;
+}
+QComboBox QAbstractItemView::item:selected {
+    color: black;
+    background-color: white;
+}
+QComboBox QAbstractItemView:disabled {
+    color: gray;
+    background-color: black;
+}
+</string>
             </property>
             <property name="currentIndex">
              <number>7</number>
@@ -243,7 +252,7 @@ QComboBox QAbstractItemView {
           <item row="5" column="1">
            <widget class="QLineEdit" name="totalPointsLineEdit">
             <property name="styleSheet">
-             <string notr="true">QLineEdit { color: #000; background: #fff; }</string>
+             <string notr="true">QLineEdit { color: balck; background: cyan; }</string>
             </property>
             <property name="text">
              <string>400</string>
@@ -263,7 +272,7 @@ QComboBox QAbstractItemView {
           <item row="6" column="1">
            <widget class="QLineEdit" name="complicationsLineEdit">
             <property name="styleSheet">
-             <string notr="true">QLineEdit { color: #000; background: #fff; }</string>
+             <string notr="true">QLineEdit { color: black; background: cyan; }</string>
             </property>
             <property name="text">
              <string>75</string>
@@ -283,7 +292,7 @@ QComboBox QAbstractItemView {
           <item row="7" column="1">
            <widget class="QLineEdit" name="activePointsPerEND">
             <property name="styleSheet">
-             <string notr="true">QLineEdit { color: #000; background: #fff; }</string>
+             <string notr="true">QLineEdit { color: black; background: cyan; }</string>
             </property>
             <property name="text">
              <string>10</string>
@@ -293,7 +302,22 @@ QComboBox QAbstractItemView {
           <item row="8" column="1">
            <widget class="QCheckBox" name="showFrequencyRolls">
             <property name="styleSheet">
-             <string notr="true">QCheckBox { color: #000; background: #fff; }</string>
+             <string notr="true">QCheckBox {
+                      color: black; 
+                      background: white; 
+                    } 
+                    QCheckBox::indicator {
+                      width: 13px;
+                      height: 13px;
+                      border: 1px solid gray; 
+                      color: black;
+                      background: cyan;
+                    } 
+                    QCheckBox::indicator:checked {
+                      border: 1px solid gray; 
+                      image: url(:/icons/Check.png); 
+                      background: cyan;
+                    }</string>
             </property>
             <property name="text">
              <string>Show Frequency Rolls</string>
@@ -303,7 +327,22 @@ QComboBox QAbstractItemView {
           <item row="9" column="1">
            <widget class="QCheckBox" name="normalHumanMaxima">
             <property name="styleSheet">
-             <string notr="true">QCheckBox { color: #000; background: #fff; }</string>
+             <string notr="true">QCheckBox {
+                      color: black; 
+                      background: white; 
+                    } 
+                    QCheckBox::indicator {
+                      width: 13px;
+                      height: 13px;
+                      border: 1px solid gray; 
+                      color: black;
+                      background: cyan;
+                    } 
+                    QCheckBox::indicator:checked {
+                      border: 1px solid gray; 
+                      image: url(:/icons/Check.png); 
+                      background: cyan;
+                    }</string>
             </property>
             <property name="text">
              <string>Normal Human Maxima</string>
@@ -313,7 +352,22 @@ QComboBox QAbstractItemView {
           <item row="10" column="1">
            <widget class="QCheckBox" name="equipmentFree">
             <property name="styleSheet">
-             <string notr="true">QCheckBox { color: #000; background: #fff; }</string>
+             <string notr="true">QCheckBox {
+                      color: black; 
+                      background: white; 
+                    } 
+                    QCheckBox::indicator {
+                      width: 13px;
+                      height: 13px;
+                      border: 1px solid gray; 
+                      color: black;
+                      background: cyan;
+                    } 
+                    QCheckBox::indicator:checked {
+                      border: 1px solid gray; 
+                      image: url(:/icons/Check.png); 
+                      background: cyan;
+                    }</string>
             </property>
             <property name="text">
              <string>Normal Equipment Free</string>
@@ -323,7 +377,22 @@ QComboBox QAbstractItemView {
           <item row="11" column="1">
            <widget class="QCheckBox" name="notePageShown">
             <property name="styleSheet">
-             <string notr="true">QCheckBox { color: #000; background: #fff; }</string>
+             <string notr="true">QCheckBox {
+                      color: black; 
+                      background: white; 
+                    } 
+                    QCheckBox::indicator {
+                      width: 13px;
+                      height: 13px;
+                      border: 1px solid gray; 
+                      color: black;
+                      background: cyan;
+                    } 
+                    QCheckBox::indicator:checked {
+                      border: 1px solid gray; 
+                      image: url(:/icons/Check.png); 
+                      background: cyan;
+                    }</string>
             </property>
             <property name="text">
              <string>Note Page Shown</string>
@@ -353,7 +422,13 @@ QComboBox QAbstractItemView {
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="styleSheet">
-      <string notr="true">color: #000; background: #fff;</string>
+      <string notr="true">QDialogButtonBox QPushButton {
+   color: black;
+   background: cyan;
+}
+QDialogButtonBox QPushButton:disabled {
+   color: gray;
+}</string>
      </property>
      <property name="orientation">
       <enum>Qt::Orientation::Horizontal</enum>
@@ -366,7 +441,7 @@ QComboBox QAbstractItemView {
   </layout>
  </widget>
  <resources>
-  <include location="build/QT_WA_ST_Release/.qt/rcc/res.qrc"/>
+  <include location="build/QT_Release/.qt/rcc/res.qrc"/>
  </resources>
  <connections>
   <connection>

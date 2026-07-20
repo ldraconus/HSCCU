@@ -14,7 +14,7 @@
    <string>Pick A Power</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="res.qrc">
+   <iconset resource="build/QT_Release/.qt/rcc/res.qrc">
     <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
   </property>
   <property name="styleSheet">
@@ -24,11 +24,20 @@
    <item>
     <widget class="QComboBox" name="powerTypeComboBox">
      <property name="styleSheet">
-      <string notr="true">QComboBox { color: #000; background: #fff; }
+      <string notr="true">QComboBox { color: black; background: cyan; }
 QComboBox QAbstractItemView {
-    color: #000;
-    background-color: #fff;
-}</string>
+    color: black;
+    background-color: cyan;
+}
+QComboBox QAbstractItemView::item:selected {
+    color: black;
+    background-color: white;
+}
+QComboBox QAbstractItemView:disabled {
+    color: gray;
+    background-color: black;
+}
+</string>
      </property>
      <property name="currentIndex">
       <number>-1</number>
@@ -47,11 +56,20 @@ QComboBox QAbstractItemView {
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QComboBox { color: #000; background: #fff; }
+      <string notr="true">QComboBox { color: black; background: cyan; }
 QComboBox QAbstractItemView {
-    color: #000;
-    background-color: #fff;
-}</string>
+    color: black;
+    background-color: cyan;
+}
+QComboBox QAbstractItemView::item:selected {
+    color: black;
+    background-color: white;
+}
+QComboBox QAbstractItemView:disabled {
+    color: gray;
+    background-color: black;
+}
+</string>
      </property>
      <property name="maxVisibleItems">
       <number>25</number>
@@ -111,20 +129,26 @@ QComboBox QAbstractItemView {
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="styleSheet">
-      <string notr="true">color: #000; background: #fff;</string>
+      <string notr="true">QDialogButtonBox QPushButton {
+   color: black;
+   background: cyan;
+}
+QDialogButtonBox QPushButton:disabled {
+   color: gray;
+}</string>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QFrame" name="frame">
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
+      <enum>QFrame::Shadow::Plain</enum>
      </property>
      <property name="lineWidth">
       <number>0</number>
@@ -148,7 +172,7 @@ QComboBox QAbstractItemView {
   </layout>
  </widget>
  <resources>
-  <include location="res.qrc"/>
+  <include location="build/QT_Release/.qt/rcc/res.qrc"/>
  </resources>
  <connections/>
 </ui>

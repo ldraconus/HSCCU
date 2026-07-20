@@ -623,8 +623,20 @@ void Sheet::fixButtonBox(QDialogButtonBox *bb)
     QList<QAbstractButton*> buttons = bb->buttons();
     for (auto i = 0 ; i < buttons.count(); ++i) {
         auto* button = buttons[i];
-        button->setStyleSheet("QPushButton:disabled { border-color: #000; color: #888; } "
-                              "QPushButton:enabled { border-color: #000; color: #000; } "
+        button->setStyleSheet("QPushButton { "
+                              "  background-color: cyan; "
+                              "  color: black; "
+                              "  border: 1px solid gray; "
+                              "  height: 23; "
+                              "  width: 75; "
+                              "  border-radius: 6px; "
+                              "} "
+                              "QPushButton:default { "
+                              "  border: 3px solid gray; "
+                              "}"
+                              "QPushButton:disabled { "
+                              "  color: gray; "
+                              "}"
                               );
     }
 }

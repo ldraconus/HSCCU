@@ -17,9 +17,7 @@ ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
 
     ui->setupUi(this);
 
-#ifdef unix
     setStyleSheet("color: #000; background: #fff;");
-#endif
 
     connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickComplication(int)));
 

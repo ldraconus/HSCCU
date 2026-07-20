@@ -17,7 +17,7 @@
    <string>Pick A Complication</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="build/QT_WA_ST_Release/.qt/rcc/res.qrc">
+   <iconset resource="build/QT_Release/.qt/rcc/res.qrc">
     <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
   </property>
   <property name="styleSheet">
@@ -33,17 +33,20 @@
    <item>
     <widget class="QComboBox" name="comboBox">
      <property name="styleSheet">
-      <string notr="true">QComboBox { color: #000; background: #fff; }
+      <string notr="true">QComboBox { color: black; background: cyan; }
 QComboBox QAbstractItemView {
-    color: #000;
-    background-color: #fff;
-    selection-background-color: #888;
+    color: black;
+    background-color: cyan;
+}
+QComboBox QAbstractItemView::item:selected {
+    color: black;
+    background-color: white;
 }
 QComboBox QAbstractItemView:disabled {
-    color: #888;
-    background-color: #fff;
-    selection-background-color: #888;
-}</string>
+    color: gray;
+    background-color: black;
+}
+</string>
      </property>
      <property name="maxVisibleItems">
       <number>15</number>
@@ -67,7 +70,7 @@ QComboBox QAbstractItemView:disabled {
         <x>0</x>
         <y>0</y>
         <width>380</width>
-        <height>520</height>
+        <height>519</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -87,6 +90,15 @@ QComboBox QAbstractItemView:disabled {
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="styleSheet">
+      <string notr="true">QDialogButtonBox QPushButton {
+   background: cyan;
+   color: black;
+   border: 1px solid gray;
+   width: 75;
+   height: 23;
+}</string>
+     </property>
      <property name="orientation">
       <enum>Qt::Orientation::Horizontal</enum>
      </property>
@@ -98,7 +110,7 @@ QComboBox QAbstractItemView:disabled {
   </layout>
  </widget>
  <resources>
-  <include location="build/QT_WA_ST_Release/.qt/rcc/res.qrc"/>
+  <include location="build/QT_Release/.qt/rcc/res.qrc"/>
  </resources>
  <connections>
   <connection>
