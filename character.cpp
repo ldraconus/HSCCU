@@ -133,7 +133,7 @@ void Character::erase() {
     QList<Characteristic*> characteristics {
         &mSTR, &mDEX, &mCON, &mINT, &mEGO, &mPRE, &mOCV, &mOMCV, &mDCV, &mDMCV, &mSPD, &mPD, &mED, &mREC, &mEND, &mBODY, &mSTUN
     };
-    for (auto [i, characteristic]: enumerate(characteristics)) {
+    for (auto [i, characteristic]: enumerate(std::as_const(characteristics))) { // NOLINT
         characteristic->base(characteristic->init());
         characteristic->primary(0);
         characteristic->secondary(0);

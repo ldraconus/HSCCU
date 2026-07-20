@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>HSCCU</Name>
+    <Version>1.1</Version>
+    <Title>Hero System Character Creator (Unlicensed) Installer</Title>
+    <Publisher>SoftwareOnHand</Publisher>
+    <InstallerWindowIcon>Installer</InstallerWindowIcon>
+    <InstallerApplicationIcon>Installer</InstallerApplicationIcon>
+    <StartMenuDir>HSCCU</StartMenuDir>
+    <MaintenanceToolName>Uninstall</MaintenanceToolName>
+    <TargetDir>@ApplicationsDirX64@/HSCCU</TargetDir>
+    <RunProgram>@TargetDir@/HSCCU</RunProgram>
+    <RunProgramDescription>Run Hero System Character Creator (Unlicensed)</RunProgramDescription>
+    <WizardStyle>Modern</WizardStyle>
+    <WizardShowPageList>true</WizardShowPageList>
+    <StyleSheet>style.css</StyleSheet>
+    <Background>Background.png</Background>
+    <ControlScript>controller.qs</ControlScript>
+</Installer>

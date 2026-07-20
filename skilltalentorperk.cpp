@@ -287,9 +287,25 @@ QCheckBox* SkillTalentOrPerk::createCheckBox(QWidget* parent, QVBoxLayout* layou
     QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
-    checkBox->setStyleSheet("QCheckBox { color: #000; background: #fff; }");
+    QString style = "QCheckBox {"
+                    "  color: black; "
+                    "  background: white; "
+                    "} "
+                    "QCheckBox::indicator {"
+                    "  width: 13px;"
+                    "  height: 13px;"
+                    "  border: 1px solid gray; "
+                    "  color: black;"
+                    "  background: cyan;"
+                    "} "
+                    "QCheckBox::indicator:checked {"
+                    "  border: 1px solid gray; "
+                    "  image: url(:/icons/Check.png); "
+                    "  background: cyan;"
+                    "}";
+    checkBox->setStyleSheet(style);
     layout->addWidget(checkBox);
-    parent->connect(checkBox, SIGNAL(stateChanged(int)), parent, SLOT(stateChanged(int)));
+    parent->connect(checkBox, SIGNAL(clicked(bool)), parent, SLOT(stateChanged(bool)));
     return checkBox;
 }
 
@@ -297,9 +313,25 @@ QCheckBox* SkillTalentOrPerk::createCheckBox(QWidget* parent, QVBoxLayout* layou
     QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
-    checkBox->setStyleSheet("QCheckBox { color: #000; background: #fff; }");
+    QString style = "QCheckBox {"
+                    "  color: black; "
+                    "  background: white; "
+                    "} "
+                    "QCheckBox::indicator {"
+                    "  width: 13px;"
+                    "  height: 13px;"
+                    "  border: 1px solid gray; "
+                    "  color: black;"
+                    "  background: cyan;"
+                    "} "
+                    "QCheckBox::indicator:checked {"
+                    "  border: 1px solid gray; "
+                    "  image: url(:/icons/Check.png); "
+                    "  background: cyan;"
+                    "}";
+    checkBox->setStyleSheet(style);
     layout->addWidget(checkBox);
-    parent->connect(checkBox, SIGNAL(stateChanged(int)), parent, SLOT(stateChanged(int)));
+    parent->connect(checkBox, SIGNAL(clicked(bool)), parent, SLOT(stateChanged(bool)));
     mCallbacksCB.insert(mCallbacksCB.cend(), checkBox, callback);
     return checkBox;
 }
@@ -311,7 +343,26 @@ QComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layou
     comboBox->setPlaceholderText(prompt);
     comboBox->setToolTip(prompt);
     comboBox->setCurrentIndex(-1);
-    layout->addWidget(comboBox);
+    QString style = "QComboBox {"
+                    "  border: 1px solid gray;"
+                    "  color: #000;"
+                    "  background: cyan; "
+                    "}"
+                    "QComboBox QAbstractItemView {"
+                    "  border: 1px solid gray"
+                    "  color: #000;"
+                    "  background-color: lightgray; "
+                    "}"
+                    "QComboBox::indicator {"
+                    "  color: black;"
+                    "  background: white;"
+                    "  border: 1px solid gray;"
+                    "}"
+                    "QComboBox::down-arrow {"
+                    "  color: black;"
+                    "  background: white;"
+                    "}";
+    comboBox->setStyleSheet(style);    layout->addWidget(comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
     mCallbacksCBox.insert(mCallbacksCBox.cend(), comboBox, callback);
     return comboBox;
@@ -324,7 +375,26 @@ QComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layou
     comboBox->setPlaceholderText(prompt);
     comboBox->setToolTip(prompt);
     comboBox->setCurrentIndex(-1);
-    layout->addWidget(comboBox);
+    QString style = "QComboBox {"
+                    "  border: 1px solid gray;"
+                    "  color: #000;"
+                    "  background: cyan; "
+                    "}"
+                    "QComboBox QAbstractItemView {"
+                    "  border: 1px solid gray"
+                    "  color: #000;"
+                    "  background-color: lightgray; "
+                    "}"
+                    "QComboBox::indicator {"
+                    "  color: black;"
+                    "  background: white;"
+                    "  border: 1px solid gray;"
+                    "}"
+                    "QComboBox::down-arrow {"
+                    "  color: black;"
+                    "  background: white;"
+                    "}";
+    comboBox->setStyleSheet(style);    layout->addWidget(comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
     return comboBox;
 }
@@ -342,7 +412,8 @@ QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layou
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);
     lineEdit->setText("");
-    lineEdit->setStyleSheet("QLineEdit { color: #000; background: #fff; }");
+    QString style = "color: #000; background: cyan;";
+    lineEdit->setStyleSheet(style);
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
     mCallbacksEdit.insert(mCallbacksEdit.cend(), lineEdit, callback);
@@ -353,7 +424,8 @@ QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layou
     QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);
-    lineEdit->setStyleSheet("QLineEdit { color: #000; background: #fff; }");
+    QString style = "color: #000; background: cyan;";
+    lineEdit->setStyleSheet(style);
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
     return lineEdit;

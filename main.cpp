@@ -28,8 +28,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 #else
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     a.setStyleSheet("QMenu { color: #ffffff;"
                     "        background-color: #2b2b2b;"

@@ -69,6 +69,7 @@ public:
     void        updatePower(shared_ptr<Power>);
 
     void closeEvent(QCloseEvent*) override;
+    bool event(QEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
 
     void doNothing() { }
@@ -140,8 +141,13 @@ private:
     shared_ptr<SkillMenuDialog>          mSkillMenuDialog         = nullptr;
 
 #endif
-    Sheet_UI*  Ui = nullptr;
-    QPrinter*  printer = nullptr;
+    Sheet_UI*    Ui = nullptr;
+    QPrinter*    printer = nullptr;
+    bool         mExpired = true;
+    bool         mRunning = false;
+    QPointF      mTouchStart;
+    QTimer       mLongPressTimer;
+    QMouseEvent* mSyntheticEvent = nullptr;
 
     static const bool DontUpdateTotal = false;
     static const bool noD6            = false;

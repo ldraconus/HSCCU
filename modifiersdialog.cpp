@@ -104,7 +104,7 @@ bool ModifiersDialog::modifier(shared_ptr<Modifier>& mod) {
 void ModifiersDialog::setModifiers(bool advantage) {
     QList<shared_ptr<Modifier>> modifiers = (*mModifiers)(advantage ? Modifier::isAdvantage : Modifier::isLimitation);
     ui->comboBox->clear();
-    for (const auto& modifier: modifiers) ui->comboBox->addItem(modifier->name());
+    for (const auto& modifier: std::as_const(modifiers)) ui->comboBox->addItem(modifier->name());
 }
 
 void ModifiersDialog::pickOne(int) {
@@ -138,7 +138,7 @@ void ModifiersDialog::updateForm() {
     mOk->setEnabled(mModifier->description() != "<incomplete>");
 }
 
-void ModifiersDialog::stateChanged(int) {
+void ModifiersDialog::stateChanged(bool) {
     QCheckBox* checkBox = static_cast<QCheckBox*>(sender());
     mModifier->callback(checkBox);
     updateForm();

@@ -41,12 +41,24 @@ QCheckBox* Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QS
     QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
-#ifdef unix
-    QString style = "color: #000; background: #fff;";
-    checkBox->setStyleSheet(style);
-#endif
-    layout->addWidget(checkBox);
-    parent->connect(checkBox, SIGNAL(stateChanged(int)), parent, SLOT(stateChanged(int)));
+    QString style = "QCheckBox {"
+                    "  color: black; "
+                    "  background: white; "
+                    "} "
+                    "QCheckBox::indicator {"
+                    "  width: 13px;"
+                    "  height: 13px;"
+                    "  border: 1px solid gray; "
+                    "  color: black;"
+                    "  background: cyan;"
+                    "} "
+                    "QCheckBox::indicator:checked {"
+                    "  border: 1px solid gray; "
+                    "  image: url(:/icons/Check.png); "
+                    "  background: cyan;"
+                    "}";
+    checkBox->setStyleSheet(style);    layout->addWidget(checkBox);
+    parent->connect(checkBox, SIGNAL(clicked(bool)), parent, SLOT(stateChanged(bool)));
     return checkBox;
 }
 
@@ -67,10 +79,26 @@ QComboBox* Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QS
     comboBox->addItems(options);
     comboBox->setPlaceholderText(prompt);
     comboBox->setCurrentIndex(-1);
-#ifdef unix
-    QString style = "QComboBox { color: #000; background: #fff; } QComboBox QAbstractItemView { color: #000; background-color: #fff; }";
+    QString style = "QComboBox {"
+                    "  border: 1px solid gray;"
+                    "  color: #000;"
+                    "  background: cyan; "
+                    "}"
+                    "QComboBox QAbstractItemView {"
+                    "  border: 1px solid gray"
+                    "  color: #000;"
+                    "  background-color: lightgray; "
+                    "}"
+                    "QComboBox::indicator {"
+                    "  color: black;"
+                    "  background: white;"
+                    "  border: 1px solid gray;"
+                    "}"
+                    "QComboBox::down-arrow {"
+                    "  color: black;"
+                    "  background: white;"
+                    "}";
     comboBox->setStyleSheet(style);
-#endif
     layout->addWidget(comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
     return comboBox;
@@ -79,10 +107,8 @@ QComboBox* Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QS
 QLabel* Complication::createLabel(QWidget*, QVBoxLayout* layout, QString text) {
     QLabel* label = new QLabel(layout->parentWidget());
     label->setText(text);
-#ifdef unix
     QString style = "color: #000; background: #fff;";
     label->setStyleSheet(style);
-#endif
     layout->addWidget(label);
     return label;
 }
@@ -96,10 +122,8 @@ QLineEdit* Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QS
 QLineEdit* Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt) {
     QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
-#ifdef unix
-    QString style = "color: #000; background: #fff;";
+    QString style = "color: #000; background: cyan;";
     lineEdit->setStyleSheet(style);
-#endif
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
     return lineEdit;

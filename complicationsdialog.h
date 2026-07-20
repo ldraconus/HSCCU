@@ -44,7 +44,7 @@ public slots:
     void currentIndexChanged(int) { updateForm(); }
 
     void pickComplication(int);
-    void stateChanged(int state);
+    void stateChanged(bool state);
     void textChanged(QString);
 };
 

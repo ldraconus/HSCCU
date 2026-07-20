@@ -160,7 +160,7 @@ public slots:
     void pasteLimitation();
     void pickOne(int);
     void pickType(int);
-    void stateChanged(int state);
+    void stateChanged(bool state);
     void textChanged(QString);
 };
 

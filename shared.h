@@ -323,7 +323,7 @@ private:
 public:
     Denominations() = delete;
     explicit Denominations(const std::vector<std::pair<QString, long>>& v) {
-        for (const auto& ref: v) {
+        for (const auto& ref: std::as_const(v)) {
             mValuesByName[ref.first] = ref.second;
             mNamesByValue[ref.second] = ref.first;
         }
@@ -339,7 +339,7 @@ public:
     }
     QStringList keys() {
         QStringList lst;
-        for (const auto& x: mValuesByName) lst << x.first;
+        for (const auto& x: std::as_const(mValuesByName)) lst << x.first;
         return lst;
     }
 

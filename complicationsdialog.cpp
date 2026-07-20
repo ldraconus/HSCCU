@@ -95,7 +95,7 @@ void ComplicationsDialog::pickComplication(int idx) {
     updateForm();
 }
 
-void ComplicationsDialog::stateChanged(int) {
+void ComplicationsDialog::stateChanged(bool) {
     QCheckBox* checkBox = dynamic_cast<QCheckBox*>(sender());
     mComplication->callback(checkBox);
     updateForm();

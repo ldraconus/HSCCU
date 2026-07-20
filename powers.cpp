@@ -312,7 +312,7 @@ Power::Power() {
 
 int Power::doubling() {
     int dbl = 1;
-    for (const auto& mod: mModifiers) {
+    for (const auto& mod: std::as_const(mModifiers)) {
         if (!mod->isAdder() || mod->name() != "Improved Noncombat Movement") continue;
         dbl += mod->doubling();
     }
@@ -377,13 +377,26 @@ QCheckBox* Power::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString p
     QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
-#ifdef unix
-    QString style = "color: #000; background: #fff;";
+    QString style = "QCheckBox {"
+                    "  color: black; "
+                    "  background: white; "
+                    "} "
+                    "QCheckBox::indicator {"
+                    "  width: 13px;"
+                    "  height: 13px;"
+                    "  border: 1px solid gray; "
+                    "  color: black;"
+                    "  background: cyan;"
+                    "} "
+                    "QCheckBox::indicator:checked {"
+                    "  border: 1px solid gray; "
+                    "  image: url(:/icons/Check.png); "
+                    "  background: cyan;"
+                    "}";
     checkBox->setStyleSheet(style);
-#endif
     if (before == -1) layout->addWidget(checkBox);
     else layout->insertWidget(before, checkBox);
-    parent->connect(checkBox, SIGNAL(stateChanged(int)), parent, SLOT(stateChanged(int)));
+    parent->connect(checkBox, SIGNAL(clicked(bool)), parent, SLOT(stateChanged(bool)));
     return checkBox;
 }
 
@@ -413,10 +426,26 @@ QComboBox* Power::createComboBox(QWidget* parent, QVBoxLayout* layout, QString p
     comboBox->setPlaceholderText(prompt);
     comboBox->setToolTip(prompt);
     comboBox->setCurrentIndex(-1);
-#ifdef unix
-    QString style = "QComboBox { color: #000; background: #fff; } QComboBox QAbstractItemView { color: #000; background-color: #fff; }";
+    QString style = "QComboBox {"
+                    "  border: 1px solid gray;"
+                    "  color: #000;"
+                    "  background: cyan; "
+                    "}"
+                    "QComboBox QAbstractItemView {"
+                    "  border: 1px solid gray"
+                    "  color: #000;"
+                    "  background-color: lightgray; "
+                    "}"
+                    "QComboBox::indicator {"
+                    "  color: black;"
+                    "  background: white;"
+                    "  border: 1px solid gray;"
+                    "}"
+                    "QComboBox::down-arrow {"
+                    "  color: black;"
+                    "  background: white;"
+                    "}";
     comboBox->setStyleSheet(style);
-#endif
     if (before == -1) layout->addWidget(comboBox);
     else layout->insertWidget(before, comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
@@ -427,10 +456,8 @@ QComboBox* Power::createComboBox(QWidget* parent, QVBoxLayout* layout, QString p
 QLabel* Power::createLabel(QWidget*, QVBoxLayout* layout, QString text, int before) {
     QLabel* label = new QLabel(layout->parentWidget());
     label->setText(text);
-#ifdef unix
     QString style = "color: #000; background: #fff;";
     label->setStyleSheet(style);
-#endif
     if (before == -1) layout->addWidget(label);
     else layout->insertWidget(before, label);
     return label;
@@ -466,9 +493,7 @@ QPushButton* Power::createPushButton(QWidget* parent, QVBoxLayout* layout, QStri
     QPushButton* btn = new QPushButton(layout->parentWidget());
     btn->setText(prompt);
     btn->setToolTip(prompt);
-#ifdef unix
     btn->setStyleSheet("color: #000; background: #fff");
-#endif
     if (before == -1) layout->addWidget(btn);
     else layout->insertWidget(before, btn);
     parent->connect(btn, SIGNAL(clicked(bool)), parent, SLOT(buttonPressed(bool)));
@@ -493,11 +518,11 @@ QTreeWidget* Power::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<
     QStringList keys = options.keys();
     double height = 0.0;
     QFont font;
-    for (const auto& key: keys) {
+    for (const auto& key: std::as_const(keys)) {
         auto* twitem = createTWItem(key);
         font = twitem->font(0);
         height += font.pointSizeF() + 4.0;
-        for (const auto& child: options[key]) {
+        for (const auto& child: std::as_const(options[key])) {
             auto* twchild = createTWItem(child);
             twitem->addChild(twchild);
             font = twchild->font(0);
@@ -510,9 +535,7 @@ QTreeWidget* Power::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<
     int hgt = height * screen->physicalDotsPerInchY() / 72.0;
     tree->setMinimumHeight(hgt);
     tree->setStyleSheet("border-style: none;"
-#ifdef unix
                         "background: #fff; color: #000;"
-#endif
                         );
     if (before == -1) layout->addWidget(tree);
     else layout->insertWidget(before, tree);
@@ -536,9 +559,7 @@ QWidget* Power::createLabeledEdit(QWidget* parent, QVBoxLayout* layout, QString 
     labledEdit->setFrameShape(QFrame::NoFrame);
     labledEdit->setFrameShadow(QFrame::Plain);
     labledEdit->setLineWidth(0);
-#ifdef unix
     labledEdit->setStyleSheet("color: #000; background: #fff");
-#endif
 
     QHBoxLayout* horizontalLayout = new QHBoxLayout(labledEdit);
     horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -546,9 +567,7 @@ QWidget* Power::createLabeledEdit(QWidget* parent, QVBoxLayout* layout, QString 
 
     QLabel* lbl = new QLabel(labledEdit);
     lbl->setText(label);
-#ifdef unix
     lbl->setStyleSheet("color: #000; background: #fff");
-#endif
     horizontalLayout->addWidget(lbl);
 
     QLineEdit* lineEdit = new QLineEdit(labledEdit);
@@ -712,7 +731,7 @@ shared_ptr<Power> Power::FromJson(QString name, const QJsonObject& json) {
 
     QJsonObject obj = json["modifiers"].toObject();
     QStringList keys = obj.keys();
-    for (const auto& key: keys) {
+    for (const auto& key: std::as_const(keys)) {
         const auto& base = Modifiers::ByName(key);
         shared_ptr<Modifier> mod = base->create(obj[key].toObject());
         power->mModifiers.append(mod);
@@ -726,13 +745,13 @@ shared_ptr<Power> Power::FromJson(QString name, const QJsonObject& json) {
 Fraction Power::endLessActing() {
     Fraction advantages(1);
     advantages += adv();
-    for (const auto& mod: advantagesList()) {
+    for (const auto& mod: std::as_const(advantagesList())) {
         if (mod->name() == "Reduced Endurance") continue;
         advantages += mod->fraction(NoStore);
     }
     Power* parent = mParent;
     if (parent != nullptr) {
-        for (const auto& mod: parent->advantagesList())
+        for (const auto& mod: std::as_const(parent->advantagesList()))
             if (!mod->isAdder()) {
                 if (mod->name() == "Reduced Endurance") continue;
                 advantages += mod->fraction(Power::NoStore);
@@ -743,7 +762,7 @@ Fraction Power::endLessActing() {
 
 QString Power::end() {
     Points active(points(NoStore));
-    for (const auto& mod: advantagesList()) {
+    for (const auto& mod: std::as_const(advantagesList())) {
         if (mod->name() == "Reduced Endurance") continue;
         else if (mod->isAdder()) active += mod->points(Modifier::NoStore);
     }
@@ -862,7 +881,7 @@ Points Power::real(Fraction add, Points mod, Fraction sub) {
     Fraction limits(0);
     if (sub == 0) limits = Fraction(1);
     limits += lim() + sub;
-    for (const auto& mod: limitationsList()) limits += mod->fraction(NoStore).abs();
+    for (const auto& mod: std::as_const(limitationsList())) limits += mod->fraction(NoStore).abs();
     pnts = pnts / limits;
     return Points(pnts.toInt(true));
 }
@@ -874,7 +893,7 @@ Points Power::acting(Fraction add, Points mod) {
     if (add == 0) advantages = Fraction(1);
     advantages += adv() + add;
     pnts += Fraction(mod.points);
-    for (const auto& mod: advantagesList())
+    for (const auto& mod: std::as_const(advantagesList()))
         if (mod->isAdder()) pnts += mod->points(NoStore).points;
         else advantages += mod->fraction(NoStore);
     pnts = pnts * advantages;

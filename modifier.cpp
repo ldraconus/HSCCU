@@ -365,8 +365,25 @@ QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QStrin
     QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
+    QString style = "QCheckBox {"
+                    "  color: black; "
+                    "  background: white; "
+                    "} "
+                    "QCheckBox::indicator {"
+                    "  width: 13px;"
+                    "  height: 13px;"
+                    "  border: 1px solid gray; "
+                    "  color: black;"
+                    "  background: cyan;"
+                    "} "
+                    "QCheckBox::indicator:checked {"
+                    "  border: 1px solid gray; "
+                    "  image: url(:/icons/Check.png); "
+                    "  background: cyan;"
+                    "}";
+    checkBox->setStyleSheet(style);
     layout->addWidget(checkBox);
-    parent->connect(checkBox, SIGNAL(stateChanged(int)), parent, SLOT(stateChanged(int)));
+    parent->connect(checkBox, SIGNAL(clicked(bool)), parent, SLOT(stateChanged(bool)));
     return checkBox;
 }
 
@@ -374,8 +391,25 @@ QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QStrin
     QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
+    QString style = "QCheckBox {"
+                    "  color: black; "
+                    "  background: white; "
+                    "} "
+                    "QCheckBox::indicator {"
+                    "  width: 13px;"
+                    "  height: 13px;"
+                    "  border: 1px solid gray; "
+                    "  color: black;"
+                    "  background: cyan;"
+                    "} "
+                    "QCheckBox::indicator:checked {"
+                    "  border: 1px solid gray; "
+                    "  image: url(:/icons/Check.png); "
+                    "  background: cyan;"
+                    "}";
+    checkBox->setStyleSheet(style);
     layout->addWidget(checkBox);
-    parent->connect(checkBox, SIGNAL(stateChanged(int)), parent, SLOT(stateChanged(int)));
+    parent->connect(checkBox, SIGNAL(clicked(bool)), parent, SLOT(stateChanged(bool)));
     mCallbacksCB.insert(mCallbacksCB.cend(), checkBox, callback);
     return checkBox;
 }
@@ -386,6 +420,26 @@ QComboBox* Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QStrin
     comboBox->setPlaceholderText(prompt);
     comboBox->setToolTip(prompt);
     comboBox->setCurrentIndex(-1);
+    QString style = "QComboBox {"
+                    "  border: 1px solid gray;"
+                    "  color: #000;"
+                    "  background: cyan; "
+                    "}"
+                    "QComboBox QAbstractItemView {"
+                    "  border: 1px solid gray"
+                    "  color: #000;"
+                    "  background-color: lightgray; "
+                    "}"
+                    "QComboBox::indicator {"
+                    "  color: black;"
+                    "  background: white;"
+                    "  border: 1px solid gray;"
+                    "}"
+                    "QComboBox::down-arrow {"
+                    "  color: black;"
+                    "  background: white;"
+                    "}";
+    comboBox->setStyleSheet(style);
     layout->addWidget(comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
     mCallbacksCBox.insert(mCallbacksCBox.cend(), comboBox, callback);
@@ -398,6 +452,26 @@ QComboBox* Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QStrin
     comboBox->setPlaceholderText(prompt);
     comboBox->setToolTip(prompt);
     comboBox->setCurrentIndex(-1);
+    QString style = "QComboBox {"
+                    "  border: 1px solid gray;"
+                    "  color: #000;"
+                    "  background: cyan; "
+                    "}"
+                    "QComboBox QAbstractItemView {"
+                    "  border: 1px solid gray"
+                    "  color: #000;"
+                    "  background-color: lightgray; "
+                    "}"
+                    "QComboBox::indicator {"
+                    "  color: black;"
+                    "  background: white;"
+                    "  border: 1px solid gray;"
+                    "}"
+                    "QComboBox::down-arrow {"
+                    "  color: black;"
+                    "  background: white;"
+                    "}";
+    comboBox->setStyleSheet(style);
     layout->addWidget(comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
     return comboBox;
@@ -415,6 +489,8 @@ QLineEdit* Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QStrin
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);
     lineEdit->setText("");
+    QString style = "color: #000; background: cyan;";
+    lineEdit->setStyleSheet(style);
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
     mCallbacksEdit.insert(mCallbacksEdit.cend(), lineEdit, callback);
@@ -425,6 +501,8 @@ QLineEdit* Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QStrin
     QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);
+    QString style = "color: #000; background: cyan;";
+    lineEdit->setStyleSheet(style);
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
     return lineEdit;
@@ -447,7 +525,7 @@ QTreeWidget* Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QM
         auto* twitem = createTWItem(key);
         font = twitem->font(0);
         height += font.pointSizeF() + 4.0; // NOLINT
-        for (const auto& child: options[key]) {
+        for (const auto& child: std::as_const(options[key])) {
             auto* twchild = createTWItem(child);
             twitem->addChild(twchild);
             font = twchild->font(0);
@@ -479,7 +557,7 @@ QTreeWidget* Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QM
         auto* twitem = createTWItem(key);
         font = twitem->font(0);
         height += font.pointSizeF() + 4.0; // NOLINT
-        for (const auto& child: options[key]) {
+        for (const auto& child: std::as_const(options[key])) {
             auto* twchild = createTWItem(child);
             twitem->addChild(twchild);
             font = twchild->font(0);

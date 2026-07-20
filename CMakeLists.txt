@@ -116,6 +116,19 @@ qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
     ${form_files}
     resizenotifier.h resizenotifier.cpp
     dialog.h dialog.cpp
+    packages/com.vendor.product/meta/installScripts.qs
+    packages/com.vendor.product/meta/installScripts.qs.linux
+    packages/com.vendor.product/meta/license.txt
+    packages/com.vendor.product/meta/package.xml
+    installer.sh
+    config/Background.png
+    config/config.xml
+    config/controller.qs
+    config/style.css
+    HSCCU.html
+    Background.png Installer.ico
+    appicon.rc
+    data.qrc
 )
 
 # Resources:
@@ -235,3 +248,35 @@ qt_generate_deploy_app_script(
     NO_UNSUPPORTED_PLATFORM_ERROR
 )
 install(SCRIPT ${deploy_script})
+
+find_program(BASH_EXECUTABLE bash)
+if (UNIX)
+        find_program(BINARY_CREATOR
+                     NAMES binarycreator
+                     PATHS "/home/chris//Qt/Tools/QtInstallerFramework/4.11/bin"
+        )
+        set(WINDEPLOY "echo")
+elseif(EMSCRIPTEN)
+    set(BINARY_CREATOR "")
+    set(WINDEPLOY "echo")
+else()
+    find_program(BASH_EXECUTABLE bash)
+    find_program(BINARY_CREATOR
+                 NAMES binarycreator
+                 PATHS "D:/ProgramFiles/Qt/Tools/QtInstallerFramework/4.11/bin"
+    )
+    set(WINDEPLOY "D:/ProgramFiles/Qt/6.12.0/msvc2022_64/bin/windeployqt6.exe")
+endif()
+
+# 2. Call bash, passing the script as an argument
+add_custom_target(InstallerCreator
+                  COMMAND "${BASH_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/installer.sh"
+                          "${CMAKE_CURRENT_BINARY_DIR}"
+                          "${BINARY_CREATOR}"
+                          "B-D"
+                          "${WINDEPLOY}"
+                          "HSCCU"
+                          "HSCCU"
+                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                  DEPENDS HSCCU
+)

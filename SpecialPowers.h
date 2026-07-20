@@ -159,7 +159,7 @@ private:
 #ifndef ISHSC
         auto list = Sheet::ref().character().powersOrEquipment();
         pow << "";
-        for (const auto& power: list) {
+        for (const auto& power: std::as_const(list)) {
             if (power->nickname().isEmpty()) pow << power->description();
             else pow << power->nickname();
         }
@@ -183,7 +183,7 @@ private:
     int powerLookup(shared_ptr<Power> pow) {
         int idx = 0;
         auto list = Sheet::ref().character().powersOrEquipment();
-        for (const auto& power: list) {
+        for (const auto& power: std::as_const(list)) {
             idx++;
             if (power == pow) return idx;
         }

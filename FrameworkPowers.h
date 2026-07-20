@@ -36,7 +36,7 @@ public:
     Points  points(bool noStore = false) override   { return noStore ? 0_cp : 0_cp; }
 
     void loadPowers(QJsonArray powers) {
-        for (const auto& power: powers) {
+        for (const auto& power: std::as_const(powers)) {
             QJsonObject obj = power.toObject();
             v.mPowers.append(Power::FromJson(obj["name"].toString(), obj));
         }
@@ -79,21 +79,21 @@ public:
     Fraction limitations() {
         Fraction limits(1);
         limits += lim();
-        for (const auto& mod: limitationsList()) limits += mod->fraction(Power::NoStore).abs();
+        for (const auto& mod: std::as_const(limitationsList())) limits += mod->fraction(Power::NoStore).abs();
         return limits;
     }
 
     Fraction advantages() {
         Fraction advants(1);
         advants += adv();
-        for (const auto& mod: advantagesList())
+        for (const auto& mod: std::as_const(advantagesList()))
             if (!mod->isAdder()) advants += mod->fraction(Power::NoStore);
         return advants;
     }
 
     Points modifiers() {
         Points pts(0);
-        for (const auto& mod: advantagesList())
+        for (const auto& mod: std::as_const(advantagesList()))
             if (mod->isAdder()) pts += mod->points();
         return pts;
     }
@@ -165,12 +165,12 @@ public:
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
-            for (const auto& mod: pe->advantagesList()) {
+            for (const auto& mod: std::as_const(pe->advantagesList())) {
                 if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                 else descr += "; (+" + mod->fraction(true).toString() + ") ";
                 descr += mod->description(false);
             }
-            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
+            for (const auto& mod: std::as_const(pe->limitationsList())) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pts.toInt() == 0 && !pe->isEquipment()) pts = Fraction(1);
             Sheet::ref().setCell(tbl, row, 0, descr.isEmpty() ? "" : QString("%1").arg(pts.toInt()), font);
@@ -200,12 +200,12 @@ public:
             if (descr == "-") descr = "";
             if (!descr.isEmpty()) {
                 pe->parent(this);
-                for (const auto& mod: pe->advantagesList()) {
+                for (const auto& mod: std::as_const(pe->advantagesList())) {
                     if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                     else descr += "; (+" + mod->fraction(true).toString() + ") ";
                     descr += mod->description(false);
                 }
-                for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
+                for (const auto& mod: std::as_const(pe->limitationsList())) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
                 Fraction pts(pe->real(advtg, modif, limit).points);
                 if (pts.toInt() == 0 && !pe->isEquipment()) pts = Fraction(1);
                 out += QString("%1\t").arg(pts.toInt(), 3);
@@ -291,12 +291,12 @@ public:
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
-            for (const auto& mod: pe->advantagesList()) {
+            for (const auto& mod: std::as_const(pe->advantagesList())) {
                 if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                 else descr += "; (+" + mod->fraction(true).toString() + ") ";
                 descr += mod->description(false);
             }
-            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
+            for (const auto& mod: std::as_const(pe->limitationsList())) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Fraction cost(pe->real().points);
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pe->varying()) pts = pts / 5; // NOLINT
@@ -331,12 +331,12 @@ public:
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
-            for (const auto& mod: pe->advantagesList()) {
+            for (const auto& mod: std::as_const(pe->advantagesList())) {
                 if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                 else descr += "; (+" + mod->fraction(true).toString() + ") ";
                 descr += mod->description(false);
             }
-            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
+            for (const auto& mod: std::as_const(pe->limitationsList())) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Points pnts(pe->real());
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pe->varying()) pts = pts / 5;  // NOLINT
@@ -519,12 +519,12 @@ public:
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
-            for (const auto& mod: pe->advantagesList()) {
+            for (const auto& mod: std::as_const(pe->advantagesList())) {
                 if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                 else descr += "; (+" + mod->fraction(true).toString() + ") ";
                 descr += mod->description(false);
             }
-            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
+            for (const auto& mod: std::as_const(pe->limitationsList())) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pts.toInt() == 0 && !descr.isEmpty()) pts = Fraction(1);
 #ifndef ISHSC
@@ -556,12 +556,12 @@ public:
             QString descr = pe->description();
             if (descr == "-") descr = "";
             pe->parent(this);
-            for (const auto& mod: pe->advantagesList()) {
+            for (const auto& mod: std::as_const(pe->advantagesList())) {
                 if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Modifier::NoStore).points) + " pts) ";
                 else descr += "; (+" + mod->fraction(true).toString() + ") ";
                 descr += mod->description(false);
             }
-            for (const auto& mod: pe->limitationsList()) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
+            for (const auto& mod: std::as_const(pe->limitationsList())) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
             Fraction pts(0);
             if (!descr.isEmpty()) {
                 pts = Fraction(pe->real(advtg, modif, limit).points);

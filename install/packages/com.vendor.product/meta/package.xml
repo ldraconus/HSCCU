@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>Hero System Character Creator (Unlicensed</DisplayName>
+    <Description>Install the editor</Description>
+    <Version>1.1</Version>
+    <ReleaseDate>2026-07-20</ReleaseDate>
+    <Licenses>
+        <License name="MIT Public License Agreement" file="license.txt" />
+    </Licenses>
+    <Default>true</Default>
+    <InstallScript>installScript.js</InstallScript>
+</Package>

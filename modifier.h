@@ -158,12 +158,12 @@ protected:
 
     QJsonArray toArray(QStringList list) {
         QJsonArray array;
-        for (const auto& str: list) array.append(str);
+        for (const auto& str: std::as_const(list)) array.append(str);
         return array;
     }
     QStringList toStringList(QJsonArray array) {
         QStringList list;
-        for (const auto& str: array) list.append(str.toString());
+        for (const auto& str: std::as_const(array)) list.append(str.toString());
         return list;
     }
     void setTreeWidget(QTreeWidget* tree, QStringList list) {
@@ -177,7 +177,7 @@ protected:
                 child->setCheckState(0, Qt::Unchecked);
             }
         }
-        for (const auto& str: list) {
+        for (const auto& str: std::as_const(list)) {
             for (int i = 0; i < count; ++i) {
                 auto item = tree->topLevelItem(i);
                 if (item->text(0) == str) {
@@ -6403,7 +6403,7 @@ private:
 
     QString optOut(bool show) {
         Fraction f(fraction(Modifier::NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Ressurection Only";
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "-") + f.toString() + ") " : "") + "Ressurection Only";
         return desc;
     }
 };
@@ -6549,7 +6549,7 @@ private:
         QStringList when { "", "Required Roll Fails", "A Thing Happens", "When Power Used",
                            "When Power Stops Being Used" };
         Fraction f(fraction(Modifier::NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "-") + f.toString() + ") " : "");
         if (v.mAffects < 1 || v.mWhen < 1 || v.mLevel < 1 || v.mEffect.isEmpty()) return "<incomplete>";
         desc += "Side Effect (" + v.mEffect;
         desc += " On " + affects[v.mAffects];

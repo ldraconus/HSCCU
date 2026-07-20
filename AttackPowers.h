@@ -177,13 +177,13 @@ public:
                                                                    mIndex  = 0;
                                                                    mLayout = layout;
                                                                    mParent = parent;
-                                                                   for (auto& effect: v.mEffects) { indexed(effect.which, NoUpdate); ++mIndex; }
+                                                                   for (auto& effect: std::as_const(v.mEffects)) { indexed(effect.which, NoUpdate); ++mIndex; }
                                                                    mData = true;
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    QJsonArray arr;
-                                                                   for (auto& effect: v.mEffects) {
+                                                                   for (auto& effect: std::as_const(v.mEffects)) {
                                                                        QJsonObject eff;
                                                                        eff["which"] = effect.which;
                                                                        eff["idx"]   = effect.idx;
@@ -219,7 +219,7 @@ private:
     void restore() override {
         vars s = v;
         AllPowers::restore();
-        for (auto& effect: s.mEffects) {
+        for (auto& effect: std::as_const(s.mEffects)) {
             int count = effect.widgets.count();
             for (int i = 0; i < count; ++i) {
                 QLineEdit* edit = dynamic_cast<QLineEdit*>(effect.widgets[i]);
@@ -256,7 +256,7 @@ private:
 
     void deleteEffect(QWidget* w) {
         for (auto effect = v.mEffects.cbegin(); effect != v.mEffects.cend(); ++effect) {
-            for (const auto& wgt: effect->widgets) if (w == wgt) {
+            for (const auto& wgt: std::as_const(effect->widgets)) if (w == wgt) {
                 for (const auto& wgt: effect->widgets) wgt->deleteLater();
                 v.mEffects.erase(effect);
                 return;

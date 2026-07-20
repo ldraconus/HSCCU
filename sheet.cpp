@@ -265,6 +265,7 @@ Sheet::Sheet(QWidget *parent)
     Ui->setupUi(ui->label, ui->optLabel);
     setupIcons();
     setUnifiedTitleAndToolBarOnMac(true);
+    setAttribute(Qt::WA_AcceptTouchEvents);
 
     Modifiers mods;
 
@@ -521,6 +522,53 @@ void Sheet::closeEvent(QCloseEvent* event) {
     else event->ignore();
 }
 
+bool Sheet::event(QEvent* e) {
+    auto type = e->type();
+    if (type == QEvent::TouchBegin ||
+        type == QEvent::TouchUpdate ||
+        type == QEvent::TouchEnd) {
+        auto *te = static_cast<QTouchEvent *>(e);
+        const auto &pts = te->points();
+
+        // just single finger events at this time
+        if (pts.size() == 1) {
+            auto pos = pts[0];
+
+            // only handle menu press at this time
+            if (type == QEvent::TouchBegin) {
+                mTouchStart = pos.globalPosition();
+                QPoint pnt = pos.position().toPoint();
+                bool powers = Ui->powersandequipment->geometry().contains(pnt);
+                bool skills = Ui->skillstalentsandperks->geometry().contains(pnt);
+                bool complications = Ui->complications->geometry().contains(pnt);
+                if (powers || skills || complications) {
+                    mExpired = false;
+                    mRunning = true;
+                    mLongPressTimer.singleShot(500, [this, pnt, powers, skills, complications]() {
+                        mExpired = true;
+                        mRunning = false;
+                        if (powers) powersandequipmentMenu(pnt);
+                        else if (skills) skillstalentsandperksMenu(pnt);
+                        else if (complications) complicationsMenu(pnt);
+                    });
+                }
+            } else if (type == QEvent::TouchUpdate) {
+                if ((mTouchStart - pos.globalGrabPosition()).manhattanLength() > 15) {
+                    mLongPressTimer.stop();
+                    mExpired = true;
+                    mRunning = false;
+                }
+            } else if (type == QEvent::TouchEnd) {
+                mLongPressTimer.stop();
+                mExpired = true;
+                mRunning = false;
+            }
+        }
+    }
+
+    return QMainWindow::event(e);
+}
+
 // --- [WORK] -------------------------------------------------------------------------------------------
 
 QList<QList<int>> phases {                    // NOLINT
@@ -550,8 +598,8 @@ void Sheet::addPower(shared_ptr<Power> power) {
     } else mCharacter.powersOrEquipment().append(power);
 
     power->modifiers().clear();
-    for (const auto& mod: power->advantagesList()) power->modifiers().append(mod);
-    for (const auto& mod: power->limitationsList()) power->modifiers().append(mod);
+    for (const auto& mod: std::as_const(power->advantagesList())) power->modifiers().append(mod);
+    for (const auto& mod: std::as_const(power->limitationsList())) power->modifiers().append(mod);
 
     updatePower(power);
     updateDisplay();
@@ -584,7 +632,7 @@ void Sheet::fixButtonBox(QDialogButtonBox *bb)
 Points Sheet::characteristicsCost() {
     Points total = 0_cp;
     const auto keys = mWidget2Def.keys();
-    for (const auto& key: keys) total += mWidget2Def[key].characteristic()->points();
+    for (const auto& key: std::as_const(keys)) total += mWidget2Def[key].characteristic()->points();
     Ui->totalcost->setText(QString("%1").arg(total.points));
     return total;
 }
@@ -630,7 +678,7 @@ void Sheet::characteristicChanged(QLineEdit* val, QString txt, bool update) {
         } else if (val == Ui->spdval) {
             if (def.characteristic()->base() < 1) return;
             QList<int> chart = phases[secondary];
-            for (auto& x: Ui->phases) x->setText("");
+            for (auto& x: std::as_const(Ui->phases)) x->setText("");
             for (const auto& x: chart) Ui->phases[x - 1]->setText("X");
         } else if (val == Ui->ocvval) setCVs(def, Ui->baseocv);
           else if (val == Ui->omcvval) setCVs(def, Ui->baseomcv);
@@ -783,14 +831,14 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
     if (pe->isEquipment() && pe->name() == "Armor") hitLocations(pe);
 
     if (descr == "-") descr = "";
-    for (const auto& mod: pe->advantagesList()) {
+    for (const auto& mod: std::as_const(pe->advantagesList())) {
         if (mod == nullptr) continue;
 
         if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Power::NoStore).points) + " pts) ";
         else descr += "; (+" + mod->fraction(Power::NoStore).toString() + ") ";
         descr += mod->description(false);
     }
-    for (const auto& mod: pe->limitationsList()) {
+    for (const auto& mod: std::as_const(pe->limitationsList())) {
         if (mod == nullptr) continue;
 
         descr += "; (-" + mod->fraction(Power::NoStore).abs().toString() + ") " + mod->description(false);
@@ -947,7 +995,7 @@ QString Sheet::getCharacter() {
     out += "\n";
 
     out += "Skills, Talents, and Perks\n";
-    for (const auto& skill: mCharacter.skillsTalentsOrPerks()) {
+    for (const auto& skill: std::as_const(mCharacter.skillsTalentsOrPerks())) {
         if (skill == nullptr) continue;
 
         out += QString("%1\t%2\n").arg(skill->points(SkillTalentOrPerk::NoStore).points).arg(skill->description());
@@ -955,7 +1003,7 @@ QString Sheet::getCharacter() {
     out += QString("%1\tTotal Skills, Talents, and Perks\n\n").arg(Ui->totalskillstalentsandperkscost->text());
 
     out += "Powers and Equipment\n";
-    for (const auto& power: mCharacter.powersOrEquipment()) {
+    for (const auto& power: std::as_const(mCharacter.powersOrEquipment())) {
         if (power == nullptr) continue;
 
         QString end = power->end();
@@ -966,7 +1014,7 @@ QString Sheet::getCharacter() {
     out += QString("%1\tTotal Powers and Equipment\n\n").arg(Ui->totalpowersandequipmentcost->text());
 
     out += "Complications\n";
-    for (const auto& complication: mCharacter.complications()) {
+    for (const auto& complication: std::as_const(mCharacter.complications())) {
         if (complication == nullptr) continue;
 
         out += QString("%1\t%2\n").arg(complication->points(Complication::NoStore).points).arg(complication->description());
@@ -1074,7 +1122,7 @@ void Sheet::hitLocations(std::shared_ptr<Power>& pe) {
     QList<int> locations = expandHitLocations(arm->hitLocations());
     int baseDEF = mCharacter.rPD();
     int def = baseDEF + arm->DEF();
-    for (const auto& x: locations) if (def > mHitLocations[x]) mHitLocations[x] = def; // NOLINT
+    for (const auto& x: std::as_const(locations)) if (def > mHitLocations[x]) mHitLocations[x] = def; // NOLINT
 }
 
 void Sheet::loadImage(QPixmap& pixmap, QString filename) {
@@ -1218,7 +1266,7 @@ void Sheet::putPower(int row, shared_ptr<Power> power) {
 }
 
 void Sheet::rebuildCharFromPowers(QList<shared_ptr<Power>>& list) {
-    for (const auto& power: list) {
+    for (const auto& power: std::as_const(list)) {
         if (power == nullptr) continue;
 
         if (power->name() == "Skill" && power->skill()->name() == "Combat Luck") {
@@ -1316,7 +1364,7 @@ QString Sheet::rebuildCombatSkillLevel(shared_ptr<SkillTalentOrPerk> stp) {
 }
 
 void Sheet::rebuildCSLPower(QList<shared_ptr<Power>>& list, bool& first, QString& csl) {
-    for (const auto& pow: list) {
+    for (const auto& pow: std::as_const(list)) {
         if (pow == nullptr) continue;
 
         pow->points(Power::NoStore);
@@ -1335,7 +1383,7 @@ void Sheet::rebuildCSLPower(QList<shared_ptr<Power>>& list, bool& first, QString
 void Sheet::rebuildCombatSkillLevels() {
     bool first = true;
     QString csl = "<b>Combat Skill Levels</b> ";
-    for (const auto& stp: mCharacter.skillsTalentsOrPerks()) {
+    for (const auto& stp: std::as_const(mCharacter.skillsTalentsOrPerks())) {
         if (stp == nullptr) continue;
 
         QString d = rebuildCombatSkillLevel(stp);
@@ -1360,7 +1408,7 @@ void Sheet::rebuildDefenses() {
     mCharacter.FD() = 0;
     mCharacter.MD() = 0;
 
-    for (const auto& skill: mCharacter.skillsTalentsOrPerks()) {
+    for (const auto& skill: std::as_const(mCharacter.skillsTalentsOrPerks())) {
         if (skill == nullptr) continue;
 
         if (skill->name() == "Combat Luck") {
@@ -1538,7 +1586,7 @@ void Sheet::rebuildBasicManeuvers(QFont& font) {
     int row = 0;
     int STR = mCharacter.STR().base() + mCharacter.STR().primary();
     int OCV = Ui->ocvval->text().toInt();
-    for (const auto& m: maneuvers) {
+    for (const auto& m: std::as_const(maneuvers)) {
         for (int i = 0; i < 5; i++) { // NOLINT
             QString x = m[i];
             if (i == 4) x = QString(x)
@@ -1560,13 +1608,13 @@ void Sheet::rebuildMartialArts() {
     QFont font = Ui->smallfont;
     rebuildBasicManeuvers(font);
 
-    for (const auto& stp: mCharacter.skillsTalentsOrPerks()) {
+    for (const auto& stp: std::as_const(mCharacter.skillsTalentsOrPerks())) {
         if (stp == nullptr) continue;
 
         stp->points(SkillTalentOrPerk::NoStore);
         if (stp->name() == "Martial Arts") rebuildMartialArt(stp, font);
     }
-    for (const auto& power: mCharacter.powersOrEquipment()) {
+    for (const auto& power: std::as_const(mCharacter.powersOrEquipment())) {
         if (power == nullptr) continue;
 
         power->points(Power::NoStore);
@@ -1583,7 +1631,7 @@ void Sheet::rebuildMoveFromPowers(QList<shared_ptr<Power>>& list,
                                   QMap<QString, int>& movements,
                                   QMap<QString, QString>& units,
                                   QMap<QString, int>& doubles) {
-    for (const auto& power: list) {
+    for (const auto& power: std::as_const(list)) {
         if (power == nullptr) continue;
 
         if (power->name() == "Growth") {
@@ -1645,7 +1693,7 @@ void Sheet::rebuildMovement() {
     const auto keys = movements.keys();
     int row = 4;
     QFont font = Ui->movement->cellWidget(0, 1)->font();
-    for (const auto& name: keys) {
+    for (const auto& name: std::as_const(keys)) {
         setCellLabel(Ui->movement, row, 0, name,                                                                  font);
         setCellLabel(Ui->movement, row, 1, QString("%1%2").arg(movements[name]).arg(units[name]),                 font);
         setCellLabel(Ui->movement, row, 2, QString("%1%2").arg(doubles[name] * movements[name]).arg(units[name]), font);
@@ -1660,7 +1708,7 @@ void Sheet::rebuildPowers(bool addTakesNoSTUN) {
     if (addTakesNoSTUN) mCharacter.hasTakesNoSTUN() = true;
     else {
         mCharacter.hasTakesNoSTUN() = false;
-        for (const auto& power: mCharacter.powersOrEquipment()) {
+        for (const auto& power: std::as_const(mCharacter.powersOrEquipment())) {
             if (power == nullptr) continue;
 
             if (power->name() == "Takes No STUNϴ") {
@@ -1668,7 +1716,7 @@ void Sheet::rebuildPowers(bool addTakesNoSTUN) {
                 break;
             }
             if (power->isFramework()) {
-                for (const auto& pwr: power->list()) {
+                for (const auto& pwr: std::as_const(power->list())) {
                     if (pwr == nullptr) continue;
 
                     if (pwr->name() == "Takes No STUNϴ") {
@@ -1845,7 +1893,7 @@ void Sheet::setMaximum(cCharacteristicDef& def, QLabel* set, QLineEdit* cur) {
 void Sheet::updateCharacteristics() {
     const auto keys = mWidget2Def.keys();
     mCharactersticPoints = 0_cp;
-    for (const auto& key: keys) {
+    for (const auto& key: std::as_const(keys)) {
         auto& def = mWidget2Def[key];
         QLineEdit* characteristic = dynamic_cast<QLineEdit*>(key);
         QString value = def.characteristic()->value();
@@ -1877,7 +1925,7 @@ void Sheet::updateComplications() {
     mComplicationPoints = 0_cp;
     QFont font = Ui->complications->font();
     int row = 0;
-    for (const auto& complication: mCharacter.complications()) {
+    for (const auto& complication: std::as_const(mCharacter.complications())) {
         if (complication == nullptr) continue;
 
         QString descr = complication->description();
@@ -1903,7 +1951,7 @@ static QString hit2String(const QList<int>& loc, std::array<int, 19>& hitLoc) { 
     bool same = true;
     bool first = true;
     int comp = 0;
-    for (const auto& x: loc) {
+    for (const auto& x: std::as_const(loc)) {
         if (first) {
             first = false;
             comp = hitLoc[x]; // NOLINT
@@ -1916,7 +1964,7 @@ static QString hit2String(const QList<int>& loc, std::array<int, 19>& hitLoc) { 
     if (same) return QString("%1").arg(hitLoc[loc[0]]); // NOLINT
     else {
         first = true;
-        for (const auto x: loc) {
+        for (const auto x: std::as_const(loc)) {
             if (first) first = false;
             else res += "/";
             res += QString("%1").arg(hitLoc[x]); // NOLINT
@@ -1939,7 +1987,7 @@ void Sheet::updateHitLocations() {
         {     Ui->feet,  {17, 18}}  // NOLINT
     };
 
-    for (const auto& x: mapping) x.lbl->setText(hit2String(x.loc, mHitLocations));
+    for (const auto& x: std::as_const(mapping)) x.lbl->setText(hit2String(x.loc, mHitLocations));
 
     int def = 0;
     int baseDEF = mCharacter.rPD();
@@ -2014,7 +2062,7 @@ void Sheet::updatePowersAndEquipment() {
     mPowersOrEquipmentPoints = 0_cp;
     int row = 0;
     clearHitLocations();
-    for (const auto& pe: mCharacter.powersOrEquipment()) {
+    for (const auto& pe: std::as_const(mCharacter.powersOrEquipment())) {
         if (pe == nullptr) continue;
 
         mPowersOrEquipmentPoints += Points(displayPowerAndEquipment(row, pe));
@@ -2028,7 +2076,7 @@ void Sheet::updatePowersAndEquipment() {
 void Sheet::updateSkillRolls() {
     QFont font = Ui->skillstalentsandperks->font();
     int row = 0;
-    for (const auto& stp: mCharacter.skillsTalentsOrPerks()) {
+    for (const auto& stp: std::as_const(mCharacter.skillsTalentsOrPerks())) {
         if (stp == nullptr) continue;
 
         stp->points(Complication::NoStore);
@@ -2042,7 +2090,7 @@ void Sheet::updateSkillsTalentsAndPerks(){
     Ui->skillstalentsandperks->setRowCount(0);
     Ui->skillstalentsandperks->update();
     mCharacter.clearEnhancers();
-    for (const auto& stp: mCharacter.skillsTalentsOrPerks()) {
+    for (const auto& stp: std::as_const(mCharacter.skillsTalentsOrPerks())) {
         if (stp == nullptr) continue;
 
         if (stp->name() == "Combat Skill Levels" ||
@@ -2061,7 +2109,7 @@ void Sheet::updateSkillsTalentsAndPerks(){
     mSkillsTalentsOrPerksPoints = 0_cp;
     QFont font = Ui->skillstalentsandperks->font();
     int row = 0;
-    for (const auto& stp: mCharacter.skillsTalentsOrPerks()) {
+    for (const auto& stp: std::as_const(mCharacter.skillsTalentsOrPerks())) {
         if (stp == nullptr) continue;
         QString descr = stp->description();
         if (descr == "-") descr = "";

@@ -27,9 +27,7 @@ PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
 
     ui->setupUi(this);
 
-#ifdef unix
     setStyleSheet("color: #000; background: #fff;");
-#endif
 
     ui->powerTypeComboBox->addItem("Adjustment Powers");
     ui->powerTypeComboBox->addItem("Attack Powers");
@@ -550,12 +548,12 @@ void PowerDialog::setupPower(shared_ptr<Power>& power) {
     power = Power::FromJson(mPower->name(), mPower->toJson());
     if (mEquipment) return;
     power->modifiers().clear();
-    for (const auto& mod: power->advantagesList()) {
+    for (const auto& mod: std::as_const(power->advantagesList())) {
         if (mod == nullptr) continue;
 
         power->modifiers().append(mod);
     }
-    for (const auto& mod: power->limitationsList()) {
+    for (const auto& mod: std::as_const(power->limitationsList())) {
         if (mod == nullptr) continue;
 
         power->modifiers().append(mod);
@@ -569,7 +567,7 @@ void PowerDialog::ok() {
     if (mSaved != nullptr && mSaved->parent() != nullptr) {
         Power* group = mSaved->parent();
         if (!group->isValid(mPower)) {
-            mErrorMsg->setText("Invalid power. Too manny points to fit into group or not valid for pool");
+            if (mErrorMsg) mErrorMsg->setText("Invalid power. Too many points to fit into group or not valid for pool");
             return;
         }
     }
@@ -803,7 +801,7 @@ void PowerDialog::itemSelectionChanged() {
     updateForm();
 }
 
-void PowerDialog::stateChanged(int) {
+void PowerDialog::stateChanged(bool) {
     QCheckBox* checkBox = dynamic_cast<QCheckBox*>(sender());
     mPower->callback(checkBox);
     updateForm();
@@ -855,7 +853,7 @@ void PowerDialog::updateForm() {
         mAdvantages->setRowCount(0);
         mAdvantages->update();
         int row = 0;
-        for (const auto& mod: mPower->advantagesList()) {
+        for (const auto& mod: std::as_const(mPower->advantagesList())) {
             QString val;
             if (mod->isAdder()) val = QString("%1").arg(mod->points(Modifier::NoStore).points);
             else val = mod->fraction(Modifier::NoStore).toString();
@@ -869,7 +867,7 @@ void PowerDialog::updateForm() {
         mLimitations->setRowCount(0);
         mLimitations->update();
         row = 0;
-        for (const auto& lim: mPower->limitationsList()) {
+        for (const auto& lim: std::as_const(mPower->limitationsList())) {
             descr += "; (" + lim->fraction(Modifier::NoStore).toString() + ") " + lim->description();
             setCellLabel(mLimitations, row, 0, lim->fraction(Modifier::NoStore).toString(), font);
             setCellLabel(mLimitations, row, 1, lim->description(), font);
@@ -879,6 +877,6 @@ void PowerDialog::updateForm() {
     }
 
     mDescription->setText(descr);
-    mErrorMsg->setText("");
+    if (mErrorMsg) mErrorMsg->setText("");
     mOk->setEnabled(mPower->description() != "<incomplete>");
 }

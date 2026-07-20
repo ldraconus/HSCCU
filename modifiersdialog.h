@@ -69,7 +69,7 @@ public slots:
     void itemSelectionChanged();
     void justAccept() { accept(); }
     void pickOne(int);
-    void stateChanged(int state);
+    void stateChanged(bool state);
     void textChanged(QString);
 };
 

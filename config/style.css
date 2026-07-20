@@ -1,0 +1,10 @@
+QWizard {
+    background-image: url("Background.png");   /* or relative path */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;   /* or cover */
+}
+
+QWizard QFrame#Banner, QWizard QFrame#Watermark {
+    background: transparent;
+}

@@ -171,8 +171,8 @@ public:
 
     virtual QJsonObject toJson() const           { QJsonObject obj;
                                                    QJsonObject mods;
-                                                   for (const auto& mod: mAdvantagesList)  mods[mod->name()] = mod->toJson();
-                                                   for (const auto& mod: mLimitationsList) mods[mod->name()] = mod->toJson();
+                                                   for (const auto& mod: std::as_const(mAdvantagesList))  mods[mod->name()] = mod->toJson();
+                                                   for (const auto& mod: std::as_const(mLimitationsList)) mods[mod->name()] = mod->toJson();
                                                    obj["modifiers"] = mods;
                                                    return obj;
                                                  }
@@ -313,13 +313,13 @@ protected:
 
     QJsonArray toArray(const QStringList& list) const {
         QJsonArray array;
-        for (const auto& str: list) array.append(str);
+        for (const auto& str: std::as_const(list)) array.append(str);
         return array;
     }
 
     QStringList toStringList(const QJsonArray& array) const {
         QStringList list;
-        for (const auto& str: array) list.append(str.toString());
+        for (const auto& str: std::as_const(array)) list.append(str.toString());
         return list;
     }
 

@@ -81,7 +81,7 @@ void SkillDialog::pickType(int type) {
     }
 
     ui->availableComboBox->clear();
-    for (const auto& skilltalentorperk: available) ui->availableComboBox->addItem(skilltalentorperk);
+    for (const auto& skilltalentorperk: std::as_const(available)) ui->availableComboBox->addItem(skilltalentorperk);
     ui->availableComboBox->setEnabled(true);
 
     if (mSkipUpdate) {
@@ -141,7 +141,7 @@ SkillDialog& SkillDialog::skilltalentorperk(shared_ptr<SkillTalentOrPerk> s) {
     return *this;
 }
 
-void SkillDialog::stateChanged(int) {
+void SkillDialog::stateChanged(bool) {
     QCheckBox* checkBox = static_cast<QCheckBox*>(sender());
     mSkillTalentOrPerk->callback(checkBox);
     updateForm();

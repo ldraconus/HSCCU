@@ -16,14 +16,14 @@ void Fraction::reduce() {
 static QString toSuper(const QString& n) {
     static QString super = "⁰¹²³⁴⁵⁶⁷⁸⁹";
     QString res;
-    for (const auto x: n) res += super[x.toLatin1() - '0'];
+    for (const auto x: std::as_const(n)) res += super[x.toLatin1() - '0'];
     return res;
 }
 
 static QString toSub(const QString& n) {
     static QString sub = "₀₁₂₃₄₅₆₇₈₉";
     QString res;
-    for (const auto x: n) res += sub[x.toLatin1() - '0'];
+    for (const auto x: std::as_const(n)) res += sub[x.toLatin1() - '0'];
     return res;
 }
 

@@ -42,7 +42,7 @@ public slots:
 
     void pickOne(int);
     void pickType(int);
-    void stateChanged(int state);
+    void stateChanged(bool state);
     void textChanged(QString);
 };
 

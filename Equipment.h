@@ -328,7 +328,7 @@ public:
     }
     QList<double> fromArray(const QJsonArray& arr) {
         QList<double> src;
-        for (const auto x: arr) src.push_back(x.toDouble());
+        for (const auto x: std::as_const(arr)) src.push_back(x.toDouble());
         return src;
     }
     void load(const QJsonObject& json) {
@@ -365,7 +365,7 @@ public:
     }
     QJsonArray toArray(const QList<double>& src) const {
         QJsonArray arr;
-        for (const auto& x: src) arr.push_back(x);
+        for (const auto& x: std::as_const(src)) arr.push_back(x);
         return arr;
     }
     QJsonObject toJson() const override {
