@@ -6,11 +6,15 @@
 
 #include <QApplication>
 
+#include <QDebug>
+
 #ifdef __wasm__
 QApplication* g_app = nullptr;
 Sheet* g_sheet = nullptr;
 
 int main(int argc, char* argv[]) {
+    qDebug() << "Starting";
+
     g_app = new QApplication(argc, argv);
     g_app->setStyleSheet("QMenu::item { background-color: #ccc;"
                          "              selection-background-color: #aaa;"

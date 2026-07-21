@@ -1,5 +1,4 @@
-#ifndef EQUIPMENT_H
-#define EQUIPMENT_H
+#pragma once
 
 #include "powers.h"
 #include "shared.h"
@@ -503,5 +502,3 @@ private:
         return res;
     }
 };
-
-#endif

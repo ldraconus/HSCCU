@@ -4,6 +4,7 @@
 
 #include <QPushButton>
 #include <QSpacerItem>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
@@ -26,10 +27,6 @@ ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
         auto& complication = complications[i];
         ui->comboBox->addItem(complication);
     }
-
-    Sheet::ref().fixButtonBox(ui->buttonBox);
-    mOk = ui->buttonBox->button(QDialogButtonBox::Ok); // NOLINT
-    mOk->setEnabled(false);
 }
 
 ComplicationsDialog::~ComplicationsDialog() {

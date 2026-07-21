@@ -3,7 +3,7 @@
 #include <QDialog>
 
 namespace Ui {
-class PowerMenuDialog;
+class powerMenuDialog;
 }
 
 class PowerMenuDialog : public QDialog {
@@ -25,7 +25,7 @@ public:
     void showEvent(QShowEvent*) override;
 
 private:
-    Ui::PowerMenuDialog* mUi;
+    Ui::powerMenuDialog* mUi;
     QPoint               mPos;
 
     bool mShowEdit     = false;

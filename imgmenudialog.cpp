@@ -1,4 +1,7 @@
 #ifdef __wasm__
+
+#include <QToolButton>
+
 #include "imgmenudialog.h"
 #include "ui_imgmenudialog.h"
 #include "sheet.h"
@@ -13,17 +16,18 @@ ImgMenuDialog::ImgMenuDialog(QWidget *parent) :
     connect(mUi->loadImageButton,  SIGNAL(clicked()), this, SLOT(newImage()));
 }
 
-ImgMenuDialog::~ImgMenuDialog()
-{
+ImgMenuDialog::~ImgMenuDialog() {
     delete mUi;
 }
 
 void ImgMenuDialog::showEvent(QShowEvent*) {
-    QRect dlg = geometry();
-    QSize sz = dlg.size();
-    dlg.setTopLeft(mPos);
-    dlg.setSize(sz);
-    setGeometry(dlg);
+    QRect dialogPos = geometry();
+    QRect menuPos = Sheet::ref().imageButton->geometry();
+    dialogPos.setLeft(menuPos.left());
+    dialogPos.setTop(menuPos.height());
+    dialogPos.setWidth(80);
+    dialogPos.setHeight(48);
+    setGeometry(dialogPos);
 }
 
 void ImgMenuDialog::newImage() {

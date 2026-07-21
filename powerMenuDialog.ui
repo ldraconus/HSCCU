@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PowerMenuDialog</class>
- <widget class="QDialog" name="PowerMenuDialog">
+ <class>powerMenuDialog</class>
+ <widget class="QDialog" name="powerMenuDialog">
   <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
+   <enum>Qt::WindowModality::ApplicationModal</enum>
   </property>
   <property name="geometry">
    <rect>

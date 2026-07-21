@@ -262,6 +262,7 @@ Sheet::Sheet(QWidget *parent)
 #else
     ui->scrollArea->setStyleSheet("color: #000;");
 #endif
+
     Ui->setupUi(ui->label, ui->optLabel);
     setupIcons();
     setUnifiedTitleAndToolBarOnMac(true);
@@ -295,24 +296,30 @@ Sheet::Sheet(QWidget *parent)
     connect(ui->action_Paste,  SIGNAL(triggered()),   this, SLOT(pasteCharacter()));
     connect(ui->actionOptions, SIGNAL(triggered()),   this, SLOT(options()));
 #else
-    fileButton = createToolBarItem(ui->menuBar, "File", "File menu", action_File, SLOT(fileMenu()));
+    fileButton = createToolBarItem(ui->menuBar, "File", "File menu");
+    connect(fileButton, &QToolButton::clicked, this, &Sheet::fileMenu);
     createMenuItem(action_New, "action_New", SLOT(newchar()));
     createMenuItem(action_Open, "action_Open",  SLOT(open()));
     createMenuItem(action_Save, "action_Save", SLOT(save()));
 
-    editButton = createToolBarItem(ui->menuBar, "Edit", "Edit menu", action_Edit, SLOT(editMenu()));
+    editButton = createToolBarItem(ui->menuBar, "Edit", "Edit menu");
+    connect(editButton, &QToolButton::clicked, this, &Sheet::editMenu);
     createMenuItem(action_Cut, "action_Cut", SLOT(cutCharacter()));
     createMenuItem(actionC_opy, "actionC_opy", SLOT(copyCharacter()));
     createMenuItem(action_Paste,  "action_Paste", SLOT(pasteCharacter()));
     createMenuItem(actionOptions, "actionOptions", SLOT(options()));
 
-    imageButton = createToolBarItem(ui->menuBar, "Image", "Image menu", action_Image, SLOT(imageMenu()));
+    imageButton = createToolBarItem(ui->menuBar, "Image", "Image menu");
+    connect(imageButton, &QToolButton::clicked, this, &Sheet::imgMenu);
 
-    skillsTalentsAndPerksButton = createToolBarItem(ui->menuBar, "Skills", "Skills, Talents, & Perks menu", action_STP, SLOT(stpMenu()));
+    skillsTalentsAndPerksButton = createToolBarItem(ui->menuBar, "Skills", "Skills, Talents, & Perks menu");
+    connect(skillsTalentsAndPerksButton, &QToolButton::clicked, this, &Sheet::stpMenu);
 
-    complicationsButton = createToolBarItem(ui->menuBar, "Complications", "Complicatioss menu", action_Complications, SLOT(complicationsMenu()));
+    complicationsButton = createToolBarItem(ui->menuBar, "Complications", "Complications menu");
+    connect(complicationsButton, &QToolButton::clicked, this, &Sheet::compMenu);
 
-    powersAndEquipmentButton = createToolBarItem(ui->menuBar, "Power", "Power & Equipment menu", action_Powers, SLOT(powerMenu()));
+    powersAndEquipmentButton = createToolBarItem(ui->menuBar, "Power", "Power & Equipment menu");
+    connect(powersAndEquipmentButton, &QToolButton::clicked, this, &Sheet::powerMenu);
 #endif
 
     connect(Ui->alternateids,          SIGNAL(textEdited(QString)), this, SLOT(alternateIdsChanged(QString)));
@@ -738,19 +745,13 @@ void Sheet::clearHitLocations() {
 }
 
 #ifdef __wasm__
-QWidget* Sheet::createToolBarItem(QToolBar* sb, const QString name, const QString tip, QAction*& action, const char* slot) {
-    QToolButton *tb = new QToolButton();
+QToolButton* Sheet::createToolBarItem(QToolBar* sb, const QString name, const QString tip) {
+    QToolButton *tb = new QToolButton(sb);
     tb->setText(name);
     tb->setObjectName(name);
     tb->setToolTip(tip);
-    tb->setDefaultAction(action);
     tb->setToolButtonStyle(Qt::ToolButtonTextOnly);
-    action->setText(name);
-    action->setToolTip(tip);
     sb->addWidget(tb);
-    action = new QAction(this);
-    action->setObjectName("action_" + name);
-    connect(action, SIGNAL(triggered()), this, slot);
     return tb;
 }
 
@@ -2201,13 +2202,13 @@ void Sheet::aboutToShowComplicationsMenu() {
 #else
     bool canPaste = false;
     // see if anything is under the mouse pointer: select it if there is
-    mComplicationsMenuDialog->setEdit(show);
-    mComplicationsMenuDialog->setDelete(show);
-    mComplicationsMenuDialog->setCut(show);
-    mComplicationsMenuDialog->setCopy(show);
-    mComplicationsMenuDialog->setPaste(canPaste);
-    mComplicationsMenuDialog->setMoveUp(show && row != 0);
-    mComplicationsMenuDialog->setMoveDown(show && mCharacter.complications().count() != 0 && row != mCharacter.complications().count() - 1);
+    mCompMenuDialog->setEdit(show);
+    mCompMenuDialog->setDelete(show);
+    mCompMenuDialog->setCut(show);
+    mCompMenuDialog->setCopy(show);
+    mCompMenuDialog->setPaste(canPaste);
+    mCompMenuDialog->setMoveUp(show && row != 0);
+    mCompMenuDialog->setMoveDown(show && mCharacter.complications().count() != 0 && row != mCharacter.complications().count() - 1);
 #endif
 }
 
@@ -2368,11 +2369,11 @@ void Sheet::complicationsMenu(QPoint pos) {
     int row = Ui->complications->rowAt(pos.y());
     Ui->complications->selectRow(row);
     closeDialogs(nullptr);
-    mComplicationsMenuDialog = make_shared<ComplicationsMenuDialog>();
-    mComplicationsMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mComplicationsMenuDialog->setPos(mapToGlobal(pos + Ui->complications->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    mCompMenuDialog = make_shared<ComplicationsMenuDialog>();
+    mCompMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    mCompMenuDialog->setPos(mapToGlobal(pos + Ui->complications->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
     aboutToShowComplicationsMenu();
-    mComplicationsMenuDialog->open();
+    mCompMenuDialog->open();
 #else
     Ui->complicationsMenu->exec(mapToGlobal(pos + Ui->complications->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
 #endif
@@ -2546,14 +2547,14 @@ void Sheet::eyeColorChanged(QString txt) {
 }
 
 #ifdef __wasm__
-void Sheet::editMenu() {
+void Sheet::editMenu(bool) {
     closeDialogs(nullptr);
     mEditMenuDialog = make_shared<EditMenuDialog>();
     mEditMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mEditMenuDialog->open();
 }
 
-void Sheet::fileMenu() {
+void Sheet::fileMenu(bool) {
     closeDialogs(nullptr);
     mFileMenuDialog = make_shared<FileMenuDialog>();
     mFileMenuDialog->setSave(mChanged);
@@ -2561,28 +2562,28 @@ void Sheet::fileMenu() {
     mFileMenuDialog->open();
 }
 
-void Sheet::imageMenu() {
+void Sheet::imgMenu(bool) {
     closeDialogs(nullptr);
     mImgMenuDialog = make_shared<ImgMenuDialog>();
     mImgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mImgMenuDialog->open();
 }
 
-void Sheet::powerMenu() {
+void Sheet::powerMenu(bool) {
     closeDialogs(nullptr);
     mPowerMenuDialog = make_shared<PowerMenuDialog>();
     mPowerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mPowerMenuDialog->open();
 }
 
-void Sheet::stpMenu() {
+void Sheet::stpMenu(bool) {
     closeDialogs(nullptr);
     mSkillMenuDialog = make_shared<SkillMenuDialog>();
     mSkillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mSkillMenuDialog->open();
 }
 
-void Sheet::complicationsMenu() {
+void Sheet::compMenu(bool) {
     closeDialogs(nullptr);
     mCompMenuDialog = make_shared<ComplicationsMenuDialog>();
     mCompMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);

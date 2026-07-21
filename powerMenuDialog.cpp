@@ -1,12 +1,13 @@
-#include "PowerMenuDialog.h"
-#include "ui_PowerMenuDialog.h"
+#include "powerMenuDialog.h"
+#include "ui_powerMenuDialog.h"
 #include "sheet.h"
 #include "sheet_ui.h"
 
+#include <QToolButton>
+
 PowerMenuDialog::PowerMenuDialog(QWidget *parent) :
     QDialog(parent),
-    mUi(new Ui::PowerMenuDialog)
-{
+    mUi(new Ui::powerMenuDialog) {
     mUi->setupUi(this);
 
     connect(mUi->newButton,      SIGNAL(clicked()), this, SLOT(newButton()));
@@ -19,17 +20,18 @@ PowerMenuDialog::PowerMenuDialog(QWidget *parent) :
     connect(mUi->moveDownButton, SIGNAL(clicked()), this, SLOT(moveDownButton()));
 }
 
-PowerMenuDialog::~PowerMenuDialog()
-{
+PowerMenuDialog::~PowerMenuDialog() {
     delete mUi;
 }
 
 void PowerMenuDialog::showEvent(QShowEvent*) {
-    QRect dlg = geometry();
-    QSize sz = dlg.size();
-    dlg.setTopLeft(mPos);
-    dlg.setSize(sz);
-    setGeometry(dlg);
+    QRect dialogPos = geometry();
+    QRect menuPos = Sheet::ref().powersAndEquipmentButton->geometry();
+    dialogPos.setLeft(menuPos.left());
+    dialogPos.setTop(menuPos.height());
+    dialogPos.setWidth(82);
+    dialogPos.setHeight(194);
+    setGeometry(dialogPos);
 
     mUi->copyButton->setEnabled(mShowCopy);
     mUi->cutButton->setEnabled(mShowCut);

@@ -1,6 +1,7 @@
 #ifdef __wasm__
 #include <QClipboard>
 #include <QMimeData>
+#include <QToolButton>
 
 #include "editmenudialog.h"
 #include "sheet.h"
@@ -24,8 +25,9 @@ void EditMenuDialog::mousePressEvent(QMouseEvent* me) {
 
 void EditMenuDialog::showEvent(QShowEvent*) {
     QRect dialogPos = geometry();
-    dialogPos.setLeft(ui->CopyButton->geometry().width() / 2 + 10);
-    dialogPos.setTop(ui->CopyButton->geometry().height());
+    QRect menuPos = Sheet::ref().editButton->geometry();
+    dialogPos.setLeft(menuPos.left());
+    dialogPos.setTop(menuPos.height());
     setGeometry(dialogPos);
 }
 

@@ -7,6 +7,7 @@ FROM_PROG=$5
 TO_PROG=$6
 
 if [[ "$BINARY_CREATOR" == "echo" ]]; then
+
     echo "Preparing WASM directory"
     rm -rf ${TO_PROG}
     mkdir -p ${TO_PROG}

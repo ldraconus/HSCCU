@@ -110,26 +110,48 @@ set(form_files
     skilldialog.ui
    )
 
-qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
-    ${source_files}
-    ${header_files}
-    ${form_files}
-    resizenotifier.h resizenotifier.cpp
-    dialog.h dialog.cpp
-    packages/com.vendor.product/meta/installScripts.qs
-    packages/com.vendor.product/meta/installScripts.qs.linux
-    packages/com.vendor.product/meta/license.txt
-    packages/com.vendor.product/meta/package.xml
-    installer.sh
-    config/Background.png
-    config/config.xml
-    config/controller.qs
-    config/style.css
-    HSCCU.html
-    Background.png Installer.ico
-#    appicon.rc
-    data.qrc
+if(EMSCRIPTEN)
+    qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
+            ${source_files}
+            ${header_files}
+            ${form_files}
+            resizenotifier.h resizenotifier.cpp
+            dialog.h dialog.cpp
+            packages/com.vendor.product/meta/installScripts.qs
+            packages/com.vendor.product/meta/installScripts.qs.linux
+            packages/com.vendor.product/meta/license.txt
+            packages/com.vendor.product/meta/package.xml
+            installer.sh
+            config/Background.png
+            config/config.xml
+            config/controller.qs
+            config/style.css
+            HSCCU.html
+            Background.png Installer.ico
+            data.qrc
+    )
+else()
+    qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
+        ${source_files}
+        ${header_files}
+        ${form_files}
+        resizenotifier.h resizenotifier.cpp
+        dialog.h dialog.cpp
+        packages/com.vendor.product/meta/installScripts.qs
+        packages/com.vendor.product/meta/installScripts.qs.linux
+        packages/com.vendor.product/meta/license.txt
+        packages/com.vendor.product/meta/package.xml
+        installer.sh
+        config/Background.png
+        config/config.xml
+        config/controller.qs
+        config/style.css
+        HSCCU.html
+        Background.png Installer.ico
+        appicon.rc
+        data.qrc
 )
+endif()
 
 # Resources:
 set(res_resource_files
@@ -197,9 +219,9 @@ endif()
 if(EMSCRIPTEN)
     target_compile_options(HSCCU PRIVATE -Wno-deprecated-literal-operator)
     target_sources(HSCCU PUBLIC
-        PowerMenuDialog.cpp
-        PowerMenuDialog.h
-        PowerMenuDialog.ui
+        powerMenuDialog.cpp
+        powerMenuDialog.h
+        powerMenuDialog.ui
         complicationsmenudialog.cpp
         complicationsmenudialog.h
         complicationsmenudialog.ui

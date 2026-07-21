@@ -107,7 +107,7 @@ protected:
 
 class Sheet_UI {
 public:
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
     ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
                                                   bool selectable = false, bool label = true) {
 #else
@@ -127,7 +127,7 @@ public:
         tablewidget->setColumnCount(int(headers.size()));
         tablewidget->setRowCount(int(vals.size()));
         tablewidget->setHorizontalHeaderLabels(headers);
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
         int pnt = narrowTableFont.pointSize();
         QFont temp = font;
         temp.setPointSize(pnt * 8 + 0.5); // NOLINT
@@ -157,7 +157,7 @@ public:
             }
         }
         for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
         for (i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
 #else
         int total = 0;
@@ -193,7 +193,7 @@ private:
         return label;
     }
 
-#ifndef __EMSCRIPTEN__
+#ifndef __wasm__
     QLabel* createImage(QWidget* parent, At p, Size s, const QString& image, bool selectable = false) {
         QLabel* label = createImage(parent, p, s, selectable);
 #else
@@ -207,7 +207,7 @@ private:
         return label;
     }
 
-#ifndef __EMSCRIPTEN__
+#ifndef __wasm__
     QLabel* createImage(QWidget* parent, At p, Size s, bool selectable = false) {
         QLabel* label = new QLabel(parent);
 #else
@@ -217,7 +217,7 @@ private:
         QString style = "QLabel { background: cyan;"
                               "   border-style: none;"
                               " }";
-#ifndef __EMSCRIPTEN__
+#ifndef __wasm__
         if (selectable) label->setContextMenuPolicy(Qt::CustomContextMenu);
 #endif
         if (selectable) label->setStyleSheet(style);
@@ -341,7 +341,7 @@ private:
     static constexpr double Points = 72.0;
     static constexpr double Half   = 0.5;
 
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
     ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
                                       QString w, bool selectable = false, bool label = true) {
         ClickableTable* tablewidget = new ClickableTable(parent);
@@ -357,7 +357,7 @@ private:
         int pnt = font.pointSize();
         auto dpiy = parent->screen()->physicalDotsPerInchY();
         int sz = (pnt * Fraction(static_cast<long>(dpiy), Points)).toInt();
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
         QFont temp = font;
         temp.setPointSize(pnt * 8 + 0.5); // NOLINT
         tablewidget->setFont(temp);
@@ -375,7 +375,7 @@ private:
         horizontalHeader->setMaximumSectionSize(s.l());
         horizontalHeader->setDefaultSectionSize(10); // NOLINT
         horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
         horizontalHeader->setMaximumSize(s.l(), sz + 2);
 #else
         horizontalHeader->setMaximumSize(s.l(), sz * 2);
@@ -447,7 +447,7 @@ private:
         tablewidget->setToolTip(w);
         moveTo(tablewidget, p, s);
         for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
         for (i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
 #else
         int total = 0;
@@ -701,7 +701,7 @@ public:
         layout = new QGridLayout();
         widget->setLayout(layout);
 
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
         QFile fontResource(":/font/SegoeUIHS.ttf");
         (void) fontResource.open(QIODevice::ReadOnly);
         QByteArray data = fontResource.readAll();
@@ -773,7 +773,7 @@ public:
         createLabel(widget, largeNarrowFont,     "Player Name",          { 61, 135 }, { 175, 27 }); // NOLINT
 
         charactername = createLineEdit(widget, largeBoldFont, { 190,  75 }, { 438, 27 }, "Characters superhero name"); // NOLINT
-#if defined(__EMSCRIPTEN__) || defined(unix)
+#if defined(__wasm__) || defined(unix)
         alternateids  = createLineEdit(widget, largeFont,     { 225, 104 }, { 403, 27 }, "Characters secret id, typically"); // NOLINT
         playername    = createLineEdit(widget, largeFont,     { 170, 134 }, { 458, 27 }, "The players name"); // NOLINT
 #else
@@ -893,7 +893,7 @@ public:
         createLabel(widget, headerFont, "VITAL INFORMATION", { 419, 346 }, { 200, 20 }); // NOLINT
 #endif
         createLabel(widget, smallBoldNarrowFont, "HTH Damage",      { 397, 375 }, { 100, 22 }); // NOLINT
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
         createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 486, 375 }, { 65, 22 }); // NOLINT
 #else
         createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 496, 375 }, { 65, 22 }); // NOLINT
@@ -918,7 +918,7 @@ public:
         createLabel(widget, smallBoldNarrowFont, "Base OMCV",       { 395, 494 }, { 80, 22 }); // NOLINT
         createLabel(widget, smallBoldNarrowFont, "Base DMCV",       { 515, 494 }, { 80, 22 }); // NOLINT
         createLabel(widget, smallBoldNarrowFont, "Presence Attack", { 395, 661 }, { 150, 22 }); // NOLINT
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
         createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 500, 661 }, { 65, 22 }); // NOLINT
 #else
         createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 510, 661 }, { 55, 22 }); // NOLINT
@@ -995,7 +995,7 @@ public:
         createLabel(widget, headerFont, "ATTACKS & MANEUVERS", { 103, 711 }, { 230, 20 }); // NOLINT
 #endif
         attacksandmaneuvers = createTableWidget(widget, smallfont,
-#if defined(__EMSCRIPTEN__) || defined(unix)
+#if defined(__wasm__) || defined(unix)
                                                 {   "Manuvr",       "Phase", "OCV",   "DCV", "Effects" },
 #else
                                                 {   "Maneuver",     "Phase", "OCV",   "DCV", "Effects" },
@@ -1008,7 +1008,7 @@ public:
                                                   { "Grab By",      "½†",    "-3",    "-4",  "Move&Grab;+(ͮ⁄₁₀) STR"     },
                                                   { "Haymaker",     "½*",    "+0",    "-5",  "+4 DCs to attack"          },
                                                   { "Move By",      "½†",    "-2",    "-2",  "(1+ͮ⁄₁₀)d6; take ⅓"        },
-#if defined(__EMSCRIPTEN__) || defined(unix)
+#if defined(__wasm__) || defined(unix)
                                                   { "Move Thru",    "½†",    "-ͮ⁄₁₀", "-3",  "(2+ͮ⁄₆)d6; take ½ or all"  },
                                                   { "Mult.Attx",    "1",     "var",   "½",   "Attack multiple times"     },
 #else
@@ -1046,7 +1046,7 @@ public:
         createLabel(widget, headerFont, "SENSES", { 479, 1037 }, { 225, 20 }); // NOLINT
 #endif
         createLabel(widget, smallBoldNarrowFont, "Perception Roll", { 395, 1065 }, { 105, 20 }); // NOLINT
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
         createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 496, 1065 }, {  60, 20 }); // NOLINT
 #else
         createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 506, 1065 }, {  50, 20 }); // NOLINT

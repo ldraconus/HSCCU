@@ -1,5 +1,4 @@
-#ifndef SHEET_H
-#define SHEET_H
+#pragma once
 
 #include <QAbstractButton>
 #include <QAbstractTableModel>
@@ -16,7 +15,7 @@
 #include "editmenudialog.h"
 #include "filemenudialog.h"
 #include "imgmenudialog.h"
-#include "PowerMenuDialog.h"
+#include "powerMenuDialog.h"
 #include "skillmenudialog.h"
 #endif
 #include "character.h"
@@ -26,9 +25,9 @@
 
 QT_BEGIN_NAMESPACE
 #ifndef __wasm__
-namespace Ui { class Sheet; }
+    namespace Ui { class Sheet; }
 #else
-namespace Ui { class wasm; }
+    namespace Ui { class wasm; }
 #endif
 QT_END_NAMESPACE
 
@@ -106,19 +105,16 @@ public:
 
     Option& option() { return mOption; }
 
-private:
 #ifndef __wasm__
     Ui::Sheet* ui = nullptr;
 #else
     Ui::wasm* ui = nullptr;
-    QWidget* complicationsButton = nullptr;
-    QWidget* editButton = nullptr;
-    QWidget* fileButton = nullptr;
-    QWidget* imageButton = nullptr;
-    QWidget* powersAndEquipmentButton = nullptr;
-    QWidget* skillsTalentsAndPerksButton = nullptr;
-
-public:
+    QToolButton* complicationsButton = nullptr;
+    QToolButton* editButton = nullptr;
+    QToolButton* fileButton = nullptr;
+    QToolButton* imageButton = nullptr;
+    QToolButton* powersAndEquipmentButton = nullptr;
+    QToolButton* skillsTalentsAndPerksButton = nullptr;
     QAction* action_File = nullptr;
     QAction* action_New = nullptr;
     QAction* action_Open = nullptr;
@@ -163,8 +159,8 @@ private:
     shared_ptr<ImgMenuDialog>            mImgMenuDialog   = nullptr;
     shared_ptr<PowerMenuDialog>          mPowerMenuDialog = nullptr;
     shared_ptr<SkillMenuDialog>          mSkillMenuDialog = nullptr;
-
 #endif
+
     Sheet_UI*    Ui = nullptr;
     QPrinter*    printer = nullptr;
     bool         mExpired = true;
@@ -204,10 +200,10 @@ private:
     bool               checkClose();
     void               clearHitLocations();
     void               closeDialogs(QMouseEvent*);
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
     QWidget*           createToolBarItem(QToolBar*, QAction*, const QString, const QString, QAction*);
     void               createMenuItem(QAction*& action, const QString& name, const char* slot);
-    QWidget*           createToolBarItem(QToolBar*, const QString, const QString, QAction*&, const char*);
+    QToolButton*       createToolBarItem(QToolBar*, const QString, const QString);
     QWidget*           createToolBarItem(QToolBar*, QAction*, const QString);
     QWidget*           createToolBarItem(QToolBar*, const QString);
 #endif
@@ -219,7 +215,7 @@ private:
     void               doOpen();
     void               erase();
     bool               eventFilter(QObject*, QEvent*) override;
-#ifndef __EMSCRIPTEN__
+#ifndef __wasm__
     void               fileOpen();
 #else
     void               fileOpen(const QByteArray&, QString);
@@ -345,12 +341,12 @@ public slots:
     void editSkillstalentsandperks();
     void eyeColorChanged(QString);
 #ifdef __wasm__
-    void editMenu();
-    void fileMenu();
-    void imageMenu();
-    void powerMenu();
-    void stpMenu();
-    void complicationsMenu();
+    void editMenu(bool);
+    void fileMenu(bool);
+    void imgMenu(bool);
+    void powerMenu(bool);
+    void stpMenu(bool);
+    void compMenu(bool);
 #endif
     void focusChanged(QWidget*, QWidget*);
     void gamemasterChanged(QString);
@@ -403,5 +399,3 @@ public:
 public slots:
     void button(QAbstractButton*);
 };
-
-#endif // SHEET_H

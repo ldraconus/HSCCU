@@ -3,10 +3,11 @@
 #include "sheet.h"
 #include "sheet_ui.h"
 
+#include <QToolButton>
+
 SkillMenuDialog::SkillMenuDialog(QWidget *parent) :
     QDialog(parent),
-    mUi(new Ui::SkillMenuDialog)
-{
+    mUi(new Ui::SkillMenuDialog) {
     mUi->setupUi(this);
 
     connect(mUi->newButton,      SIGNAL(clicked()), this, SLOT(newButton()));
@@ -19,17 +20,16 @@ SkillMenuDialog::SkillMenuDialog(QWidget *parent) :
     connect(mUi->moveDownButton, SIGNAL(clicked()), this, SLOT(moveDownButton()));
 }
 
-SkillMenuDialog::~SkillMenuDialog()
-{
+SkillMenuDialog::~SkillMenuDialog() {
     delete mUi;
 }
 
 void SkillMenuDialog::showEvent(QShowEvent*) {
-    QRect dlg = geometry();
-    QSize sz = dlg.size();
-    dlg.setTopLeft(mPos);
-    dlg.setSize(sz);
-    setGeometry(dlg);
+    QRect dialogPos = geometry();
+    QRect menuPos = Sheet::ref().skillsTalentsAndPerksButton->geometry();
+    dialogPos.setLeft(menuPos.left());
+    dialogPos.setTop(menuPos.height());
+    setGeometry(dialogPos);
 
     mUi->copyButton->setEnabled(mShowCopy);
     mUi->cutButton->setEnabled(mShowCut);

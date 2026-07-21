@@ -3,6 +3,8 @@
 #include "sheet.h"
 #include "sheet_ui.h"
 
+#include <QToolButton>
+
 ComplicationsMenuDialog::ComplicationsMenuDialog(QWidget *parent) :
     QDialog(parent),
     mUi(new Ui::ComplicationsMenuDialog) {
@@ -24,8 +26,9 @@ ComplicationsMenuDialog::~ComplicationsMenuDialog() {
 
 void ComplicationsMenuDialog::showEvent(QShowEvent*) {
     QRect dlg = geometry();
+    QRect btn = Sheet::ref().complicationsButton->geometry();
     QSize sz = dlg.size();
-    dlg.setTopLeft(mPos);
+    dlg.setTopLeft(QPoint(btn.left(), btn.height()));
     dlg.setSize(sz);
     setGeometry(dlg);
 
