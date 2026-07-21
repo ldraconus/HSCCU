@@ -111,15 +111,12 @@ private:
     Ui::Sheet* ui = nullptr;
 #else
     Ui::wasm* ui = nullptr;
+    QWidget* complicationsButton = nullptr;
     QWidget* editButton = nullptr;
     QWidget* fileButton = nullptr;
-    QWidget* newButton = nullptr;
-    QWidget* openButton = nullptr;
-    QWidget* saveButton = nullptr;
-    QWidget* cutButton = nullptr;
-    QWidget* copyButton = nullptr;
-    QWidget* pasteButton = nullptr;
-    QWidget* optionButton = nullptr;
+    QWidget* imageButton = nullptr;
+    QWidget* powersAndEquipmentButton = nullptr;
+    QWidget* skillsTalentsAndPerksButton = nullptr;
 
 public:
     QAction* action_File = nullptr;
@@ -131,14 +128,41 @@ public:
     QAction* actionC_opy = nullptr;
     QAction* action_Paste = nullptr;
     QAction* actionOptions = nullptr;
+    QAction* action_Image = nullptr;
+    QAction* action_ImgNew = nullptr;
+    QAction* action_ImgClear = nullptr;
+    QAction* action_Complications = nullptr;
+    QAction* action_CompNew = nullptr;
+    QAction* action_CompDel = nullptr;
+    QAction* action_CompCut = nullptr;
+    QAction* action_CompCopy = nullptr;
+    QAction* action_CompPaste = nullptr;
+    QAction* action_CompMoveUp = nullptr;
+    QAction* action_CompMoveDown = nullptr;
+    QAction* action_Powers = nullptr;
+    QAction* action_PowNew = nullptr;
+    QAction* action_PowDel = nullptr;
+    QAction* action_PowCut = nullptr;
+    QAction* action_PowCopy = nullptr;
+    QAction* action_PowPaste = nullptr;
+    QAction* action_PowMoveUp = nullptr;
+    QAction* action_PowMoveDown = nullptr;
+    QAction* action_STP = nullptr;
+    QAction* action_StpNew = nullptr;
+    QAction* action_StpDel = nullptr;
+    QAction* action_StpCut = nullptr;
+    QAction* action_StpCopy = nullptr;
+    QAction* action_StpPaste = nullptr;
+    QAction* action_StpMoveUp = nullptr;
+    QAction* action_StpMoveDown = nullptr;
 
 private:
-    shared_ptr<ComplicationsMenuDialog>  mComplicationsMenuDialog = nullptr;
-    shared_ptr<FileMenuDialog>           mFileMenuDialog          = nullptr;
-    shared_ptr<EditMenuDialog>           mEditMenuDialog          = nullptr;
-    shared_ptr<ImgMenuDialog>            mImgMenuDialog           = nullptr;
-    shared_ptr<PowerMenuDialog>          mPowerMenuDialog         = nullptr;
-    shared_ptr<SkillMenuDialog>          mSkillMenuDialog         = nullptr;
+    shared_ptr<ComplicationsMenuDialog>  mCompMenuDialog  = nullptr;
+    shared_ptr<FileMenuDialog>           mFileMenuDialog  = nullptr;
+    shared_ptr<EditMenuDialog>           mEditMenuDialog  = nullptr;
+    shared_ptr<ImgMenuDialog>            mImgMenuDialog   = nullptr;
+    shared_ptr<PowerMenuDialog>          mPowerMenuDialog = nullptr;
+    shared_ptr<SkillMenuDialog>          mSkillMenuDialog = nullptr;
 
 #endif
     Sheet_UI*    Ui = nullptr;
@@ -182,7 +206,8 @@ private:
     void               closeDialogs(QMouseEvent*);
 #ifdef __EMSCRIPTEN__
     QWidget*           createToolBarItem(QToolBar*, QAction*, const QString, const QString, QAction*);
-    QWidget*           createToolBarItem(QToolBar*, const QString, const QString, QAction*);
+    void               createMenuItem(QAction*& action, const QString& name, const char* slot);
+    QWidget*           createToolBarItem(QToolBar*, const QString, const QString, QAction*&, const char*);
     QWidget*           createToolBarItem(QToolBar*, QAction*, const QString);
     QWidget*           createToolBarItem(QToolBar*, const QString);
 #endif
@@ -322,6 +347,10 @@ public slots:
 #ifdef __wasm__
     void editMenu();
     void fileMenu();
+    void imageMenu();
+    void powerMenu();
+    void stpMenu();
+    void complicationsMenu();
 #endif
     void focusChanged(QWidget*, QWidget*);
     void gamemasterChanged(QString);

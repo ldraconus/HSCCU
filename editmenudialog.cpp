@@ -37,24 +37,20 @@ EditMenuDialog::~EditMenuDialog()
 void EditMenuDialog::doCopy() {
     done(QDialog::Accepted);
     emit Sheet::ref().actionC_opy->triggered();
-//    Sheet::ref().copyCharacter();
 }
 
 void EditMenuDialog::doCut() {
     done(QDialog::Accepted);
     emit Sheet::ref().action_Cut->triggered();
-//    Sheet::ref().cutCharacter();
 }
 
 void EditMenuDialog::doOption() {
     done(QDialog::Accepted);
     emit Sheet::ref().actionOptions->triggered();
-//    Sheet::ref().options();
 }
 
 void EditMenuDialog::doPaste() {
     done(QDialog::Accepted);
     emit Sheet::ref().action_Paste->triggered();
-//    Sheet::ref().pasteCharacter();
 }
 #endif

@@ -127,7 +127,7 @@ qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
     config/style.css
     HSCCU.html
     Background.png Installer.ico
-    appicon.rc
+#    appicon.rc
     data.qrc
 )
 

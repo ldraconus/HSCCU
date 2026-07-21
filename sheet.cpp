@@ -295,36 +295,24 @@ Sheet::Sheet(QWidget *parent)
     connect(ui->action_Paste,  SIGNAL(triggered()),   this, SLOT(pasteCharacter()));
     connect(ui->actionOptions, SIGNAL(triggered()),   this, SLOT(options()));
 #else
-    action_File = new QAction(this);
-    action_File->setObjectName("action_File");
-    action_New = new QAction(this);
-    action_New->setObjectName("action_New");
-    action_Open = new QAction(this);
-    action_Open->setObjectName("action_Open");
-    action_Save = new QAction(this);
-    action_Save->setObjectName("action_Save");
-    action_Edit = new QAction(this);
-    action_Edit->setObjectName("action_Edit");
-    action_Cut = new QAction(this);
-    action_Cut->setObjectName("action_Cut");
-    actionC_opy = new QAction(this);
-    actionC_opy->setObjectName("actionC_opy");
-    action_Paste = new QAction(this);
-    action_Paste->setObjectName("action_Paste");
-    actionOptions = new QAction(this);
-    actionOptions->setObjectName("actionOptions");
+    fileButton = createToolBarItem(ui->menuBar, "File", "File menu", action_File, SLOT(fileMenu()));
+    createMenuItem(action_New, "action_New", SLOT(newchar()));
+    createMenuItem(action_Open, "action_Open",  SLOT(open()));
+    createMenuItem(action_Save, "action_Save", SLOT(save()));
 
-    fileButton = createToolBarItem(ui->menuBar, "File", "File menu", action_File);
-    editButton = createToolBarItem(ui->menuBar, "Edit", "Edit menu", action_Edit);
-    connect(action_File,   SIGNAL(triggered()), this, SLOT(fileMenu()));
-    connect(action_Edit,   SIGNAL(triggered()), this, SLOT(editMenu()));
-    connect(action_New,    SIGNAL(triggered()), this, SLOT(newchar()));
-    connect(action_Open,   SIGNAL(triggered()), this, SLOT(open()));
-    connect(action_Save,   SIGNAL(triggered()), this, SLOT(save()));
-    connect(action_Cut,    SIGNAL(triggered()), this, SLOT(cutCharacter()));
-    connect(actionC_opy,   SIGNAL(triggered()), this, SLOT(copyCharacter()));
-    connect(action_Paste,  SIGNAL(triggered()), this, SLOT(pasteCharacter()));
-    connect(actionOptions, SIGNAL(triggered()), this, SLOT(options()));
+    editButton = createToolBarItem(ui->menuBar, "Edit", "Edit menu", action_Edit, SLOT(editMenu()));
+    createMenuItem(action_Cut, "action_Cut", SLOT(cutCharacter()));
+    createMenuItem(actionC_opy, "actionC_opy", SLOT(copyCharacter()));
+    createMenuItem(action_Paste,  "action_Paste", SLOT(pasteCharacter()));
+    createMenuItem(actionOptions, "actionOptions", SLOT(options()));
+
+    imageButton = createToolBarItem(ui->menuBar, "Image", "Image menu", action_Image, SLOT(imageMenu()));
+
+    skillsTalentsAndPerksButton = createToolBarItem(ui->menuBar, "Skills", "Skills, Talents, & Perks menu", action_STP, SLOT(stpMenu()));
+
+    complicationsButton = createToolBarItem(ui->menuBar, "Complications", "Complicatioss menu", action_Complications, SLOT(complicationsMenu()));
+
+    powersAndEquipmentButton = createToolBarItem(ui->menuBar, "Power", "Power & Equipment menu", action_Powers, SLOT(powerMenu()));
 #endif
 
     connect(Ui->alternateids,          SIGNAL(textEdited(QString)), this, SLOT(alternateIdsChanged(QString)));
@@ -500,12 +488,12 @@ static void closeDialog(shared_ptr<QDialog> dlg, QMouseEvent* me) {
 
 void Sheet::closeDialogs(QMouseEvent* me) {
 #ifdef __wasm__
-    if (mComplicationsMenuDialog != nullptr) closeDialog(mComplicationsMenuDialog, me);
-    if (mEditMenuDialog          != nullptr) closeDialog(mEditMenuDialog,          me);
-    if (mFileMenuDialog          != nullptr) closeDialog(mFileMenuDialog,          me);
-    if (mImgMenuDialog           != nullptr) closeDialog(mImgMenuDialog,           me);
-    if (mSkillMenuDialog         != nullptr) closeDialog(mSkillMenuDialog,         me);
-    if (mPowerMenuDialog         != nullptr) closeDialog(mPowerMenuDialog,         me);
+    if (mCompMenuDialog  != nullptr) closeDialog(mCompMenuDialog,  me);
+    if (mEditMenuDialog  != nullptr) closeDialog(mEditMenuDialog,  me);
+    if (mFileMenuDialog  != nullptr) closeDialog(mFileMenuDialog,  me);
+    if (mImgMenuDialog   != nullptr) closeDialog(mImgMenuDialog,   me);
+    if (mSkillMenuDialog != nullptr) closeDialog(mSkillMenuDialog, me);
+    if (mPowerMenuDialog != nullptr) closeDialog(mPowerMenuDialog, me);
 #endif
     if (mOptionDlg != nullptr) closeDialog(mOptionDlg, me);
     if (mCompDlg   != nullptr) closeDialog(mCompDlg,   me);
@@ -750,7 +738,7 @@ void Sheet::clearHitLocations() {
 }
 
 #ifdef __wasm__
-QWidget* Sheet::createToolBarItem(QToolBar* sb, const QString name, const QString tip, QAction* action) {
+QWidget* Sheet::createToolBarItem(QToolBar* sb, const QString name, const QString tip, QAction*& action, const char* slot) {
     QToolButton *tb = new QToolButton();
     tb->setText(name);
     tb->setObjectName(name);
@@ -760,7 +748,16 @@ QWidget* Sheet::createToolBarItem(QToolBar* sb, const QString name, const QStrin
     action->setText(name);
     action->setToolTip(tip);
     sb->addWidget(tb);
+    action = new QAction(this);
+    action->setObjectName("action_" + name);
+    connect(action, SIGNAL(triggered()), this, slot);
     return tb;
+}
+
+void Sheet::createMenuItem(QAction*& action, const QString& name, const char* slot) {
+    action = new QAction(this);
+    action->setObjectName("name");
+    connect(action, SIGNAL(triggered()), this, slot);
 }
 
 QWidget* Sheet::createToolBarItem(QToolBar* sb, QAction* at, const QString name, const QString tip, QAction* action) {
@@ -2562,6 +2559,34 @@ void Sheet::fileMenu() {
     mFileMenuDialog->setSave(mChanged);
     mFileMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mFileMenuDialog->open();
+}
+
+void Sheet::imageMenu() {
+    closeDialogs(nullptr);
+    mImgMenuDialog = make_shared<ImgMenuDialog>();
+    mImgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    mImgMenuDialog->open();
+}
+
+void Sheet::powerMenu() {
+    closeDialogs(nullptr);
+    mPowerMenuDialog = make_shared<PowerMenuDialog>();
+    mPowerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    mPowerMenuDialog->open();
+}
+
+void Sheet::stpMenu() {
+    closeDialogs(nullptr);
+    mSkillMenuDialog = make_shared<SkillMenuDialog>();
+    mSkillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    mSkillMenuDialog->open();
+}
+
+void Sheet::complicationsMenu() {
+    closeDialogs(nullptr);
+    mCompMenuDialog = make_shared<ComplicationsMenuDialog>();
+    mCompMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    mCompMenuDialog->open();
 }
 #endif
 
