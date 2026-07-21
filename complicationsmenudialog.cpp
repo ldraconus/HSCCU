@@ -28,7 +28,8 @@ void ComplicationsMenuDialog::showEvent(QShowEvent*) {
     QRect dlg = geometry();
     QRect btn = Sheet::ref().complicationsButton->geometry();
     QSize sz = dlg.size();
-    dlg.setTopLeft(QPoint(btn.left(), btn.height()));
+    if (mPos == QPoint()) dlg.setTopLeft(QPoint(btn.left(), btn.height()));
+    else dlg.setTopLeft(mPos);
     dlg.setSize(sz);
     setGeometry(dlg);
 

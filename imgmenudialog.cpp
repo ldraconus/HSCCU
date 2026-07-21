@@ -21,13 +21,13 @@ ImgMenuDialog::~ImgMenuDialog() {
 }
 
 void ImgMenuDialog::showEvent(QShowEvent*) {
-    QRect dialogPos = geometry();
-    QRect menuPos = Sheet::ref().imageButton->geometry();
-    dialogPos.setLeft(menuPos.left());
-    dialogPos.setTop(menuPos.height());
-    dialogPos.setWidth(80);
-    dialogPos.setHeight(48);
-    setGeometry(dialogPos);
+    QRect dlg = geometry();
+    QRect btn = Sheet::ref().imageButton->geometry();
+    if (mPos == QPoint()) dlg.setTopLeft(QPoint(btn.left(), btn.height()));
+    else dlg.setTopLeft(mPos);
+    dlg.setWidth(80);
+    dlg.setHeight(48);
+    setGeometry(dlg);
 }
 
 void ImgMenuDialog::newImage() {

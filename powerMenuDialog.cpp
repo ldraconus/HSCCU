@@ -26,9 +26,9 @@ PowerMenuDialog::~PowerMenuDialog() {
 
 void PowerMenuDialog::showEvent(QShowEvent*) {
     QRect dialogPos = geometry();
-    QRect menuPos = Sheet::ref().powersAndEquipmentButton->geometry();
-    dialogPos.setLeft(menuPos.left());
-    dialogPos.setTop(menuPos.height());
+    QRect btn = Sheet::ref().powersAndEquipmentButton->geometry();
+    if (mPos == QPoint()) dialogPos.setTopLeft(QPoint(btn.left(), btn.height()));
+    else dialogPos.setTopLeft(mPos);
     dialogPos.setWidth(82);
     dialogPos.setHeight(194);
     setGeometry(dialogPos);

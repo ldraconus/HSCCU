@@ -26,9 +26,9 @@ SkillMenuDialog::~SkillMenuDialog() {
 
 void SkillMenuDialog::showEvent(QShowEvent*) {
     QRect dialogPos = geometry();
-    QRect menuPos = Sheet::ref().skillsTalentsAndPerksButton->geometry();
-    dialogPos.setLeft(menuPos.left());
-    dialogPos.setTop(menuPos.height());
+    QRect btn = Sheet::ref().skillsTalentsAndPerksButton->geometry();
+    if (mPos == QPoint()) dialogPos.setTopLeft(QPoint(btn.left(), btn.height()));
+    else dialogPos.setTopLeft(mPos);
     setGeometry(dialogPos);
 
     mUi->copyButton->setEnabled(mShowCopy);
