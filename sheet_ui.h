@@ -28,7 +28,7 @@ public:
     explicit ClickableLabel(QWidget* parent = Q_NULLPTR)
         : QLabel(parent) {
 #ifdef __wasm__
-        this->setAttribute(Qt::WA_AcceptTouchEvents);
+//        this->setAttribute(Qt::WA_AcceptTouchEvents);
 #endif
     }
 
@@ -44,6 +44,7 @@ protected:
             emit clicked();
     }
     bool event(QEvent* e) override {
+        /*
         QTouchEvent* te = dynamic_cast<QTouchEvent*>(e);
         if (te == nullptr) return QLabel::event(e);
         if (te->type() == QEvent::TouchEnd) {
@@ -54,6 +55,8 @@ protected:
             }
         }
         return true;
+        */
+        return false;
     }
 #else
     void mousePressEvent(QMouseEvent*) override {
@@ -70,7 +73,7 @@ public:
     explicit ClickableTable(QWidget* parent = Q_NULLPTR)
         : QTableWidget(parent) {
 #ifdef __wasm__
-        this->setAttribute(Qt::WA_AcceptTouchEvents);
+//        this->setAttribute(Qt::WA_AcceptTouchEvents);
 #endif
     }
 
@@ -86,6 +89,7 @@ protected:
             emit showmenu();
     }
     bool event(QEvent* e) override {
+        /*
         QTouchEvent* te = dynamic_cast<QTouchEvent*>(e);
         if (te == nullptr) return QTableWidget::event(e);
         if (te->type() == QEvent::TouchEnd) {
@@ -95,6 +99,8 @@ protected:
                 emit customContextMenuRequested(te->point(0).position().toPoint());
             }
         }
+        return true;
+        */
         return true;
     }
 #else

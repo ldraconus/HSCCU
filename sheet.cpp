@@ -2571,21 +2571,27 @@ void Sheet::imgMenu(bool) {
 
 void Sheet::powerMenu(bool) {
     closeDialogs(nullptr);
-    mPowerMenuDialog = make_shared<PowerMenuDialog>();
+    if (!mPowerMenuDialog) mPowerMenuDialog = make_shared<PowerMenuDialog>();
+    aboutToShowPowersAndEquipmentMenu();
+    mPowerMenuDialog->setPos(QPoint());
     mPowerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mPowerMenuDialog->open();
 }
 
 void Sheet::stpMenu(bool) {
     closeDialogs(nullptr);
-    mSkillMenuDialog = make_shared<SkillMenuDialog>();
+    if (!mSkillMenuDialog) mSkillMenuDialog = make_shared<SkillMenuDialog>();
+    aboutToShowSkillsPerksAndTalentsMenu();
+    mSkillMenuDialog->setPos(QPoint());
     mSkillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mSkillMenuDialog->open();
 }
 
 void Sheet::compMenu(bool) {
     closeDialogs(nullptr);
-    mCompMenuDialog = make_shared<ComplicationsMenuDialog>();
+    if (!mCompMenuDialog) mCompMenuDialog = make_shared<ComplicationsMenuDialog>();
+    aboutToShowComplicationsMenu();
+    mCompMenuDialog->setPos(QPoint());
     mCompMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mCompMenuDialog->open();
 }
