@@ -507,49 +507,6 @@ void Sheet::closeEvent(QCloseEvent* event) {
 }
 
 bool Sheet::event(QEvent* e) {
-    auto type = e->type();
-    if (type == QEvent::TouchBegin ||
-        type == QEvent::TouchUpdate ||
-        type == QEvent::TouchEnd) {
-        auto *te = static_cast<QTouchEvent *>(e);
-        const auto &pts = te->points();
-
-        // just single finger events at this time
-        if (pts.size() == 1) {
-            auto pos = pts[0];
-
-            // only handle menu press at this time
-            if (type == QEvent::TouchBegin) {
-                mTouchStart = pos.globalPosition();
-                QPoint pnt = pos.position().toPoint();
-                bool powers = Ui->powersandequipment->geometry().contains(pnt);
-                bool skills = Ui->skillstalentsandperks->geometry().contains(pnt);
-                bool complications = Ui->complications->geometry().contains(pnt);
-                if (powers || skills || complications) {
-                    mExpired = false;
-                    mRunning = true;
-                    mLongPressTimer.singleShot(500, [this, pnt, powers, skills, complications]() {
-                        mExpired = true;
-                        mRunning = false;
-                        if (powers) powersandequipmentMenu(pnt);
-                        else if (skills) skillstalentsandperksMenu(pnt);
-                        else if (complications) complicationsMenu(pnt);
-                    });
-                }
-            } else if (type == QEvent::TouchUpdate) {
-                if ((mTouchStart - pos.globalGrabPosition()).manhattanLength() > 15) {
-                    mLongPressTimer.stop();
-                    mExpired = true;
-                    mRunning = false;
-                }
-            } else if (type == QEvent::TouchEnd) {
-                mLongPressTimer.stop();
-                mExpired = true;
-                mRunning = false;
-            }
-        }
-    }
-
     return QMainWindow::event(e);
 }
 

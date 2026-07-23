@@ -108,16 +108,30 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
     tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     tablewidget->setFont(font);
     QString family = font.family();
-    tablewidget->setStyleSheet("QTableWidget { gridline-color: white;"
-                                           "   background-color: white;"
-                                           "   border-color: black;"
-                                 + QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
-                                           "   color: black;"
-                                           " } "
-                               "QTableWidget::item { background-color: white;"
-                                                 " }"
-                               "QTableWidget::item:selected { background-color: cyan;"
-                                                          " }");
+    tablewidget->setStyleSheet("QTableWidget { selection-color: black;"
+                               "   selection-background-color: darkcyan;"
+                               "   gridline-color: cyan;"
+                               "   background-color: cyan;"
+                               "   border: 1px cyan;"
+                               "   border-style: none;"
+                     + QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
+                               "   color: black;"
+                               " } "
+                               "QHeaderView::section { background-color: white;"
+                               "   border-style: none;"
+                               "   color: black;" +
+                       QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
+                               " } "
+                               "QTableWidget::item:selected { background: darkcyan; "
+                               "   color: black; "
+                               "   border: 1px darkcyan; "
+                               "   border-style: none; "
+                               "} "
+                               "QToolTip { border: 1px solid #555555;"
+                               "           padding: 3px;"
+                               "           background-color: #333333;"
+                               "           color: #ffffff;"
+                               "}");
     tablewidget->setColumnCount(int(columns.count()));
     tablewidget->setRowCount(0);
 
@@ -321,10 +335,13 @@ QTableWidget* PowerDialog::createLimitations(QWidget* parent, QVBoxLayout* layou
 }
 
 void PowerDialog::setCellLabel(QTableWidget* tbl, int row, int col, QString str, QFont&) {
-    QLabel* lbl = new QLabel(str);
     if (row >= tbl->rowCount()) tbl->setRowCount(row + 1);
-    lbl->setWordWrap(true);
-    tbl->setCellWidget(row, col, lbl);
+
+    QTableWidgetItem* item = nullptr;
+    if (item = tbl->item(row, col); item) item->setText(str);
+    else tbl->setItem(row, col, item = new QTableWidgetItem(str));
+    item->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
+    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
 }
 
 void PowerDialog::aboutToShowAdvantagesMenu() {

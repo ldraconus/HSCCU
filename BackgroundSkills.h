@@ -37,7 +37,7 @@ public:
     QString description(bool showRoll = false) override { return showRoll ? v.mName : v.mName; }
     bool form(QWidget*, QVBoxLayout*) override          { return true; }
     QString name() override                             { return v.mName; }
-    Points points(bool noStore = false) override      { return noStore ? 0_cp : 0_cp; }
+    Points points(bool noStore = false) override        { return noStore ? 0_cp : 0_cp; }
     void restore() override                             { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
@@ -111,7 +111,7 @@ public:
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                   auto pts = v.mPlus * 2_cp + (v.mIntRoll ? 3_cp : 2_cp);
 #ifndef ISHSC
                                                                   if (Sheet::ref().character().hasScholar()  && (v.mType == 1 || v.mType == 4)) pts -= 1_cp;

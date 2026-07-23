@@ -235,7 +235,7 @@ private:
 
 class DangerSense: public Talent {
 public:
-    DangerSense(): Talent("Danger Sense")              { }
+    DangerSense(): Talent("Danger Senseϴ")             { }
     DangerSense(const DangerSense& s): Talent(s)       { }
     DangerSense(DangerSense&& s): Talent(s)            { }
     DangerSense(const QJsonObject& json): Talent(json) { mPlus   = json["plus"].toInt(0);
@@ -392,7 +392,7 @@ private:
 
 class DeadlyBlow: public Talent {
 public:
-    DeadlyBlow(): Talent("Deadly Blow")               { }
+    DeadlyBlow(): Talent("Deadly Blow▲")              { }
     DeadlyBlow(const DeadlyBlow& s): Talent(s)        { }
     DeadlyBlow(DeadlyBlow&& s): Talent(s)             { }
     DeadlyBlow(const QJsonObject& json): Talent(json) { v.mMult  =  json["mult"].toInt(0);

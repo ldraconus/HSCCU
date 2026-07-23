@@ -1139,7 +1139,7 @@ public:
 #endif
         createLabel(widget, smallBoldNarrowFont, "Total Complications Points", { 117, 2512 }, { 200, 22 }); // NOLINT
         complications        = createTableWidget(widget, tableFont, { "Pts   ", "Complication" },
-                                                 { }, { 73, 2130 }, { 260, 383 }, "The things that make life difficult for your character", Selectable); // NOLINT
+                                                 { }, { 73, 2130 }, { 265, 383 }, "The things that make life difficult for your character", Selectable); // NOLINT
         totalcomplicationpts = createLabel(widget, font, "0/75", { 73, 2513 }, { 45, 20 }); // NOLINT
         complicationsMenu    = createMenu(complications, font, { { "New",       &newComplication },
                                                                  { "Edit",      &editComplication },
