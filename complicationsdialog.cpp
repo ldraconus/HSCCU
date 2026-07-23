@@ -27,6 +27,9 @@ ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
         auto& complication = complications[i];
         ui->comboBox->addItem(complication);
     }
+
+    mOk = ui->buttonBox->button(QDialogButtonBox::Ok);
+    mOk->setDisabled(true);
 }
 
 ComplicationsDialog::~ComplicationsDialog() {
@@ -59,9 +62,7 @@ QLabel* ComplicationsDialog::createLabel(QVBoxLayout* parent, QString text, bool
     QLabel* label = new QLabel();
     if (label != nullptr) {
         label->setText(text);
-#ifdef unix
-        label->setStyleSheet("color: #000;");
-#endif
+        label->setStyleSheet("color: #000; background: #fff;");
         label->setWordWrap(wordWrap);
         parent->addWidget(label);
     }

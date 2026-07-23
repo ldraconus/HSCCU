@@ -252,12 +252,8 @@ Sheet::Sheet(QWidget *parent)
     sSheet = this;
 
     ui->setupUi(this);
-#ifdef unix
     ui->scrollAreaWidgetContents->setStyleSheet("background: #fff");
     ui->scrollArea->setStyleSheet("color: #000; background: #fff");
-#else
-    ui->scrollArea->setStyleSheet("color: #000;");
-#endif
 
     Ui->setupUi(ui->label, ui->optLabel);
     setupIcons();
@@ -372,12 +368,14 @@ Sheet::Sheet(QWidget *parent)
     connect(Ui->weight,                SIGNAL(textEdited(QString)), this, SLOT(weightChanged(QString)));
     connect(Ui->notes,                 SIGNAL(textChanged()),       this, SLOT(noteChanged()));
 
+    setTableSelectionMode(Ui->skillstalentsandperks);
+    setTableSelectionMode(Ui->complications);
+    setTableSelectionMode(Ui->powersandequipment);
+
     connect(Ui->image,      SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(imageMenu(QPoint)));
 #ifndef __wasm__
     connect(Ui->newImage,   SIGNAL(triggered()),                        this, SLOT(newImage()));
     connect(Ui->clearImage, SIGNAL(triggered()),                        this, SLOT(clearImage()));
-#else
-//    connect(Ui->image,      SIGNAL(showMenu()),                         this, SLOT(outsideImageArea()));
 #endif
 
     connect(Ui->complications,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(complicationDoubleClicked(QTableWidgetItem*)));
@@ -399,9 +397,7 @@ Sheet::Sheet(QWidget *parent)
 
     connect(Ui->skillstalentsandperks,     SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(skillstalentsandperksDoubleClicked(QTableWidgetItem*)));
     connect(Ui->skillstalentsandperks,     SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(skillstalentsandperksMenu(QPoint)));
-#ifdef __wasm__
-//    connect(Ui->skillstalentsandperks,     SIGNAL(showmenu()),                           this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
-#else
+#ifndef __wasm__
     connect(Ui->skillstalentsandperksMenu, SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
 #endif
     connect(Ui->newSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(newSkillTalentOrPerk()));
@@ -415,9 +411,7 @@ Sheet::Sheet(QWidget *parent)
 
     connect(Ui->powersandequipment,       SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
     connect(Ui->powersandequipment,       SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
-#ifdef __wasm__
-//   connect(Ui->powersandequipment,       SIGNAL(showmenu()),                           this, SLOT(aboutToShowPowersAndEquipmentMenu()));
-#else
+#ifndef __wasm__
     connect(Ui->powersandequipmentMenu,   SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
 #endif
     connect(Ui->newPowerOrEquipment,      SIGNAL(triggered()),                          this, SLOT(newPowerOrEquipment()));
@@ -598,16 +592,6 @@ void Sheet::addPower(shared_ptr<Power> power) {
 
 void Sheet::fixButtonBox(QDialogButtonBox *bb)
 {
-    /*
-    bb->setStyleSheet("QPushButton { border-color: #888; color: #888; background: #fff; } "
-                      "QPushButton:default { border-color: #000; color: #000; } "
-                      "QPushButton[enabled=\"true\"] { border-color: #000; color: #000; }"
-                      "QAbstractButton { border-color: #888; color: #888; background: #fff; } "
-                      "QAbstractButton:default { border-color: #000; color: #000; } "
-                      "QAbstractButton[enabled=\"true\"] { border-color: #000; color: #000; }"
-                      "QDialogButtonBox { border-color: #888; color: #888; background: #fff; } "
-                      "QDialogButtonBox:default { border-color: #000; color: #000; } ");
-    */
     bb->setStyleSheet("QDialogButtonBox { border-color: #888; color: #888; background: #fff; } "
                       "QDialogButtonBox:default { border-color: #000; color: #000; } ");
     QList<QAbstractButton*> buttons = bb->buttons();
@@ -1462,20 +1446,20 @@ void Sheet::rebuildDefenses() {
     def->setRowCount(0);
     def->update();
 
-    setCellLabel(def, 0, 0, "Normal PD ",      font);
-    setCellLabel(def, 0, 1, strPrimPD,         font);
-    setCellLabel(def, 1, 0, "Resistant PD ",   font);
-    setCellLabel(def, 1, 1, strRPD,            font);
-    setCellLabel(def, 2, 0, "Normal ED ",      font);
-    setCellLabel(def, 2, 1, strPrimED,         font);
-    setCellLabel(def, 3, 0, "Resistant ED ",   font);
-    setCellLabel(def, 3, 1, strRED,            font);
-    setCellLabel(def, 4, 0, "Mental Defense ", font);
-    setCellLabel(def, 4, 1, strMD,             font);
-    setCellLabel(def, 5, 0, "Power Defense ",  font);
-    setCellLabel(def, 5, 1, strPowD,           font);
-    setCellLabel(def, 6, 0, "Flash Defense ",  font);
-    setCellLabel(def, 6, 1, strFD,             font);
+    setCell(def, 0, 0, "Normal PD ",      font);
+    setCell(def, 0, 1, strPrimPD,         font);
+    setCell(def, 1, 0, "Resistant PD ",   font);
+    setCell(def, 1, 1, strRPD,            font);
+    setCell(def, 2, 0, "Normal ED ",      font);
+    setCell(def, 2, 1, strPrimED,         font);
+    setCell(def, 3, 0, "Resistant ED ",   font);
+    setCell(def, 3, 1, strRED,            font);
+    setCell(def, 4, 0, "Mental Defense ", font);
+    setCell(def, 4, 1, strMD,             font);
+    setCell(def, 5, 0, "Power Defense ",  font);
+    setCell(def, 5, 1, strPowD,           font);
+    setCell(def, 6, 0, "Flash Defense ",  font);
+    setCell(def, 6, 1, strFD,             font);
 //    delete Ui->defenses;
 //    Ui->defenses->deleteLater();
 //    Ui->defenses = nullptr;
@@ -1537,12 +1521,12 @@ void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
         int size = man->rowCount();
         int row = 15; // NOLINT
         for (; row < size; ++row) {
-            const auto* cell = man->cellWidget(row, 0);
-            if (dynamic_cast<const QLabel*>(cell)->text() == m) break;
+            const auto* cell = man->item(row, 0);
+            if (dynamic_cast<const QTableWidgetItem*>(cell)->text() == m) break;
         }
         if (row != size) continue;
         if (table.contains(m)) {
-            setCellLabel(man, row, 0, m, font);
+            setCell(man, row, 0, m, font);
             for (int i = 0; i < 4; i++) {
                 QString x = table[m][i];
                 if (i == 3) x = QString(x)
@@ -1556,7 +1540,7 @@ void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
                                      .arg(STR)                           // 8
                                      .arg(valueToDice(STR, noD6));       // 9
                 QStringList t = x.split("~");
-                setCellLabel(man, row, i + 1, t[0], font);
+                setCell(man, row, i + 1, t[0], font);
             }
         }
     }
@@ -1602,7 +1586,7 @@ void Sheet::rebuildBasicManeuvers(QFont& font) {
                                .arg(valueToDice(STR))           // 5
                                .arg(OCV);                       // 6
             QStringList t = x.split("~");
-            setCellLabel(man, row, i, t[0], font);
+            setCell(man, row, i, t[0], font);
         }
         ++row;
     }
@@ -1687,21 +1671,21 @@ void Sheet::rebuildMovement() {
     int vLeap = (mCharacter.leaping() + 1) / 2;
     QString vLeaping = QString("%1m").arg(vLeap);
     QString ncVLeaping = QString("%1m").arg(mult * vLeap);
-    setCellLabel(Ui->movement, 0, 1, running);
-    setCellLabel(Ui->movement, 0, 2, ncRunning);
-    setCellLabel(Ui->movement, 1, 1, swimming);
-    setCellLabel(Ui->movement, 1, 2, ncSwimming);
-    setCellLabel(Ui->movement, 2, 1, hLeaping);
-    setCellLabel(Ui->movement, 2, 2, ncHLeaping);
-    setCellLabel(Ui->movement, 3, 1, vLeaping);
-    setCellLabel(Ui->movement, 3, 2, ncVLeaping);
+    QFont font = Ui->movement->item(0, 1)->font();
+    setCell(Ui->movement, 0, 1, running,    font);
+    setCell(Ui->movement, 0, 2, ncRunning,  font);
+    setCell(Ui->movement, 1, 1, swimming,   font);
+    setCell(Ui->movement, 1, 2, ncSwimming, font);
+    setCell(Ui->movement, 2, 1, hLeaping,   font);
+    setCell(Ui->movement, 2, 2, ncHLeaping, font);
+    setCell(Ui->movement, 3, 1, vLeaping,   font);
+    setCell(Ui->movement, 3, 2, ncVLeaping, font);
     const auto keys = movements.keys();
     int row = 4;
-    QFont font = Ui->movement->cellWidget(0, 1)->font();
     for (const auto& name: std::as_const(keys)) {
-        setCellLabel(Ui->movement, row, 0, name,                                                                  font);
-        setCellLabel(Ui->movement, row, 1, QString("%1%2").arg(movements[name]).arg(units[name]),                 font);
-        setCellLabel(Ui->movement, row, 2, QString("%1%2").arg(doubles[name] * movements[name]).arg(units[name]), font);
+        setCell(Ui->movement, row, 0, name,                                                                  font);
+        setCell(Ui->movement, row, 1, QString("%1%2").arg(movements[name]).arg(units[name]),                 font);
+        setCell(Ui->movement, row, 2, QString("%1%2").arg(doubles[name] * movements[name]).arg(units[name]), font);
         row++;
     }
 }
@@ -1842,9 +1826,7 @@ void Sheet::setCell(QTableWidget* tbl, int row, int col, QString str, const QFon
 
 void Sheet::setCellLabel(QTableWidget* tbl, int row, int col, QString str, const QFont& font) {
     QLabel* lbl = new QLabel(str);
-#ifdef unix
-    lbl->setStyleSheet("color: #000;");
-#endif
+    lbl->setStyleSheet("color: #000; background: #fff;");
     lbl->setFont(font);
     if (row >= tbl->rowCount()) tbl->setRowCount(row + 1);
     tbl->setCellWidget(row, col, lbl);
@@ -3147,4 +3129,18 @@ void Sheet::totalExperienceEarnedChanged(QString txt) {
 void Sheet::totalExperienceEarnedEditingFinished() {
     totalExperienceEarnedChanged(Ui->totalexperienceearned->text());
     if (Ui->totalexperienceearned->text().isEmpty()) Ui->totalexperienceearned->setText("0");
+}
+
+void Sheet::setTableSelectionMode(QTableWidget* table) {
+/*
+    connect(table->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+        [table](const QItemSelection &selected, const QItemSelection &deselected) {
+            for (const QModelIndex& idx: deselected.indexes()) {
+                if (auto* w = table->cellWidget(idx.row(), idx.column())) w->setStyleSheet("color: #000; background: cyan;");
+            }
+            for (const QModelIndex& idx: selected.indexes()) {
+                if (auto* w = table->cellWidget(idx.row(), idx.column())) w->setStyleSheet("color: white; background: darkcyan;");
+            }
+        });
+*/
 }

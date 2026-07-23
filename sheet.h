@@ -65,6 +65,7 @@ public:
     void        setCell(QTableWidget*, int, int, QString, const QFont&, bool wordWrap = false);
     void        setCellLabel(QTableWidget*, int, int, QString, const QFont&);
     void        setCellLabel(QTableWidget*, int, int, QString);
+    void        setTableSelectionMode(QTableWidget*);
     void        updateDisplay();
     void        updatePower(shared_ptr<Power>);
 

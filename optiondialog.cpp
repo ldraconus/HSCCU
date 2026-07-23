@@ -15,9 +15,7 @@ optionDialog::optionDialog(QWidget *parent) :
 
     ui->setupUi(this);
 
-#ifdef unix
     setStyleSheet("color: #000; background: #fff;");
-#endif
 
     connect(ui->totalPointsLineEdit,   SIGNAL(textChanged(QString)),     this, SLOT(numeric(QString)));
     connect(ui->complicationsLineEdit, SIGNAL(textChanged(QString)),     this, SLOT(numeric(QString)));

@@ -148,9 +148,7 @@ public:
                 if (label) {
                     QLabel* cell = new QLabel(vals[i][j]);
                     cell->setFont(narrowTableFont);
-#ifdef unix
                     cell->setStyleSheet("color: #000;");
-#endif
                     tablewidget->setCellWidget(i, j, cell);
                 } else {
                     QTableWidgetItem* lbl = new QTableWidgetItem(vals[i][j]);
@@ -188,9 +186,7 @@ private:
         QLabel* label = new QLabel(parent);
         label->setFont(font);
         label->setText(val);
-#ifdef unix
-        label->setStyleSheet("color: #000;");
-#endif
+        label->setStyleSheet("color: #000; background: transparent;");
         if (s.h() == -1) moveTo(label, p, { s.h(), s.l() });
         else moveTo(label, p, s);
         if (parent != page3) widgets.append(label);
@@ -240,9 +236,8 @@ private:
 
     QLineEdit* createLineEdit(QWidget* parent, QFont& font, QString val, At p, Size s, QString w = "") {
         QString style = "QLineEdit { background: cyan;"
-#ifdef unix
                                  "   color: #000;"
-#endif
+                                 "   border: 1px cyan;"
                                  "   border-style: none;"
                                  " }"
                         "QToolTip { border: 1px solid #555555;"
@@ -276,9 +271,8 @@ private:
 
     QLineEdit* createNumEdit(QWidget* parent, QFont& font, QString val, At p, Size s, QString w = "") {
         QString style = "QLineEdit { background: cyan;"
-#ifdef unix
                                  "   color: #000;"
-#endif
+                                 "   border: 1px cyan;"
                                  "   border-style: none;"
                                  " }"
                         "QToolTip { border: 1px solid #555555;"
@@ -323,9 +317,7 @@ private:
 
     QMenu* createMenu(QWidget* parent, QFont& font, QList<menuItems> items) {
         QMenu* menu = new QMenu(parent);
-#ifdef unix
-        menu->setStyleSheet("QMenu { color: #000; background: #fff; }");
-#endif
+        menu->setStyleSheet("QMenu { color: #000; background: #bbb; }");
         menu->setFont(font);
         for (auto& item: items) {
             if (item.action == nullptr) {
@@ -360,9 +352,9 @@ private:
         tablewidget->setWordWrap(true);
         tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        QFontMetrics metrics(font);
         int pnt = font.pointSize();
-        auto dpiy = parent->screen()->physicalDotsPerInchY();
-        int sz = (pnt * Fraction(static_cast<long>(dpiy), Points)).toInt();
+        int sz = metrics.lineSpacing();
 #ifdef __wasm__
         QFont temp = font;
         temp.setPointSize(pnt * 8 + 0.5); // NOLINT
@@ -372,9 +364,9 @@ private:
 #endif
         auto verticalHeader = tablewidget->verticalHeader();
         verticalHeader->setVisible(false);
-        verticalHeader->setMinimumSectionSize(sz + 2);
-        verticalHeader->setMaximumSectionSize(selectable ? s.l() : sz + 2);
-        verticalHeader->setDefaultSectionSize(sz + 2);
+        verticalHeader->setMinimumSectionSize(sz);
+        verticalHeader->setMaximumSectionSize(selectable ? s.l() : sz);
+        verticalHeader->setDefaultSectionSize(sz);
         verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
         auto horizontalHeader = tablewidget->horizontalHeader();
         horizontalHeader->setStretchLastSection(true);
@@ -382,18 +374,19 @@ private:
         horizontalHeader->setDefaultSectionSize(10); // NOLINT
         horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
 #ifdef __wasm__
-        horizontalHeader->setMaximumSize(s.l(), sz + 2);
+        horizontalHeader->setMaximumSize(s.l(), sz);
 #else
-        horizontalHeader->setMaximumSize(s.l(), sz * 2);
+        horizontalHeader->setMaximumSize(s.l(), sz);
 #endif
         tablewidget->setSelectionMode(selectable ? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
         tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         QString family = font.family();
         if (selectable)
-            tablewidget->setStyleSheet("QTableWidget { selection-color: white;"
-                                                   "   selection-background-color: DarkCyan;"
+            tablewidget->setStyleSheet("QTableWidget { selection-color: black;"
+                                                   "   selection-background-color: darkcyan;"
                                                    "   gridline-color: cyan;"
                                                    "   background-color: cyan;"
+                                                   "   border: 1px cyan;"
                                                    "   border-style: none;"
                                          + QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
                                                    "   color: black;"
@@ -402,7 +395,12 @@ private:
                                                            "   border-style: none;"
                                                            "   color: black;" +
                                                    QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
-                                                           " }"
+                                                           " } "
+                                       "QTableWidget::item:selected { background: darkcyan; "
+                                                                  "   color: black; "
+                                                                  "   border: 1px darkcyan; "
+                                                                  "   border-style: none; "
+                                       "} "
                                        "QToolTip { border: 1px solid #555555;"
                                        "           padding: 3px;"
                                        "           background-color: #333333;"
@@ -412,6 +410,7 @@ private:
             tablewidget->setStyleSheet("QTableWidget { selection-color: transparent;"
                                                    "   selection-background-color: transparent;"
                                                    "   gridline-color: transparent;"
+                                                   "   border: 1px transparent;;"
                                                    "   border-style: none;"
                                                    "   background-color: transparent;"
                                                    "   color: black;" +
@@ -433,21 +432,23 @@ private:
         int i = 0;
         for (i = 0; i < vals.size(); ++i) {
             for (int j = 0; j < vals[i].size(); ++j) {
+/*
                 if (label) {
                     QLabel* cell = new QLabel(vals[i][j]);
                     cell->setFont(font);
-#ifdef unix
-                    cell->setStyleSheet("color: #000;");
-#endif
+                    cell->setStyleSheet("QLabel: { color: #000; }");
                     tablewidget->setCellWidget(i, j, cell);
                 } else {
+*/
                     QTableWidgetItem* lbl = new QTableWidgetItem(vals[i][j]);
                     lbl->setFont(font);
+                    lbl->setBackground(QBrush(Qt::transparent));
+                    lbl->setForeground(Qt::black);
                     lbl->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
                     if (selectable) lbl->setFlags(Qt::ItemIsSelectable);
                     else lbl->setFlags(Qt::NoItemFlags);
                     tablewidget->setItem(i, j, lbl);
-                }
+//                }
             }
         }
         tablewidget->setToolTip(w);
@@ -477,6 +478,7 @@ private:
         textedit->setFont(font);
         textedit->setHtml(val);
         textedit->setStyleSheet("QTextEdit { "
+                                             "  border: 1px transparent;"
                                              "  border-style: none; "
                                              "  background: #fff;"
                                              "  color: #000; "
@@ -501,9 +503,10 @@ private:
         editwidget->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
         editwidget->setFont(font);
         editwidget->setStyleSheet("QPlainTextEdit { selection-color: white;"
-                                                "   selection-background-color: DarkCyan;"
+                                                "   selection-background-color: darkcyan;"
                                                 "   gridline-color: cyan;"
                                                 "   background-color: cyan;"
+                                                "   border: 1px cyan;"
                                                 "   border-style: none;"
                                                 "   color: black;"
                                                 " }"
@@ -691,14 +694,14 @@ public:
     Sheet_UI& operator=(const Sheet_UI&) = default;
     Sheet_UI& operator=(Sheet_UI&&) = default;
 
-    static constexpr int StandardFontSize = 12;
-    static constexpr int TinyFontSize = 11;
+    static constexpr int StandardFontSize = 11;
+    static constexpr int TinyFontSize = 10;
 #ifdef unix
     static constexpr int SmallFontPointSize = 7;
     static constexpr int LargeBoldFontSize = 16;
 #else
     static constexpr int SmallFontPointSize = 8;
-    static constexpr int LargeBoldFontSize = 16;
+    static constexpr int LargeBoldFontSize = 15;
     static constexpr int HeaderFontSize    = 14;
 #endif
 
@@ -740,6 +743,7 @@ public:
 
         QFont tableFont = font;
         tableFont.setPointSize(StandardFontSize);
+        tableFont.setStretch(QFont::Stretch::SemiCondensed);
 
         QFont narrow = font;
         narrow.setStretch(QFont::Stretch::SemiCondensed);
@@ -873,9 +877,7 @@ public:
         createLabel(widget, smallBoldFont, "STUN", { 394, 294 }, { 100, 22 }); // NOLINT
 
         QString style = "QLineEdit { background: palegreen;"
-#ifdef unix
                                  "   color: #000;"
-#endif
                                  "   border-style: none;"
                                  " }"
                         "QToolTip { border: 1px solid #555555;"
@@ -1114,7 +1116,7 @@ public:
         createLabel(widget, headerFont, "SKILLS, PERKS, & TALENTS", { 82, 1494 }, { 250, 20 }); // NOLINT
         createLabel(widget, headerFont, "SKILLS, PERKS, & TALENTS", { 83, 1494 }, { 250, 20 }); // NOLINT
 #endif
-        createLabel(widget, smallBoldNarrowFont, "Total Skills,Perks,& Talents Cost", { 112, 2057 }, { 220, 22 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Total Skills,Perks, & Talents Cost", { 112, 2057 }, { 220, 22 }); // NOLINT
         skillstalentsandperks         = createTableWidget(widget, tableFont, { "Cost", "Name                        ", "Roll" },
                                                           { }, { 73, 1521 }, { 265, 535 }, "Things your character is skilled at or has a gift for", Selectable); // NOLINT
         totalskillstalentsandperkscost = createLabel(widget, font, "0", { 73, 2058 }, { 40, 20 }); // NOLINT

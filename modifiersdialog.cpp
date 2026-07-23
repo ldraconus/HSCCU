@@ -15,9 +15,7 @@ ModifiersDialog::ModifiersDialog(bool advantage, QWidget *parent)
 
     ui->setupUi(this);
 
-#ifdef unix
     setStyleSheet("color: #000; background: #fff;");
-#endif
 
     mModifiersDialog = this;
 

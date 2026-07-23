@@ -13,9 +13,7 @@ SkillDialog::SkillDialog(QWidget *parent) :
 
     ui->setupUi(this);
 
-#ifdef unix
     setStyleSheet("color: #000; background: #fff;");
-#endif
 
     connect(ui->skillTalentOrPerkComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickType(int)));
     connect(ui->availableComboBox,         SIGNAL(currentIndexChanged(int)), this, SLOT(pickOne(int)));
