@@ -35,7 +35,7 @@ set(source_files
     optiondialog.cpp
     powerdialog.cpp
     powers.cpp
-    printwindow.cpp
+    printdialog.cpp
     sheet.cpp
     skilldialog.cpp
     skilltalentorperk.cpp
@@ -80,7 +80,7 @@ set(header_files
     PhysicalComplication.h
     powerdialog.h
     powers.h
-    printwindow.h
+    printdialog.h
     PsychologicalComplication.h
     Rivalry.h
     SenseAffectingPowers.h
@@ -105,7 +105,7 @@ set(form_files
     modifiersdialog.ui
     optiondialog.ui
     powerdialog.ui
-    printwindow.ui
+    printdialog.ui
     sheet.ui
     skilldialog.ui
    )
@@ -129,6 +129,8 @@ if(EMSCRIPTEN)
             HSCCU.html
             Background.png Installer.ico
             data.qrc
+            printdialog.cpp
+            printer.h printer.cpp
     )
 else()
     qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE

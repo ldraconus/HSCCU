@@ -34,6 +34,7 @@ QT_END_NAMESPACE
 // ϴ▲Ꚛϟ 03F4,25B2,A69A,03DF
 
 // --- [Actual sheet definitions] ----------------------------------------------------------------------
+class Printer;
 
 class Sheet: public QMainWindow {
     Q_OBJECT
@@ -162,7 +163,6 @@ private:
 #endif
 
     Sheet_UI*    Ui = nullptr;
-    QPrinter*    printer = nullptr;
     bool         mExpired = true;
     bool         mRunning = false;
     QPointF      mTouchStart;
@@ -377,13 +377,20 @@ public slots:
     void playerNameChanged(QString);
     void powersandequipmentMenu(QPoint);
     void print();
-    void printCharacter(QPrinter*);
+    void printCharacter(Printer*);
     void save();
     void saveAs();
     void skillstalentsandperksMenu(QPoint);
     void totalExperienceEarnedChanged(QString);
     void totalExperienceEarnedEditingFinished();
 };
+
+void YesNo(const QString& msg, std::function<void()> yes, std::function<void()> no, const QString title = "") ;
+void YesNoCancel(const QString& msg, std::function<void()> yes, std::function<void()> no, std::function<void()> cancel, const QString& title = "");
+void OK(const QString& msg, std::function<void ()> ok, const QString& title = "");
+void OKCancel(const QString& msg, std::function<void ()> ok, const QString& title = "");
+void Question(const QString& msg, std::function<void ()> yes, std::function<void ()> no, const QString& title = "");
+void Statement(const QString& msg);
 
 class Msg: public QObject {
     Q_OBJECT

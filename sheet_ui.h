@@ -477,17 +477,16 @@ private:
         textedit->setFont(font);
         textedit->setHtml(val);
         textedit->setStyleSheet("QTextEdit { "
-                                "  border-style: none; "
-#ifdef unix
-                                "  background: #fff;"
-                                "  color: #000;"
-#endif
-                                "}"
-                                "QToolTip { border: 1px solid #555555;"
-                                "           padding: 3px;"
-                                "           background-color: #333333;"
-                                "           color: #ffffff;"
-                                "}");
+                                             "  border-style: none; "
+                                             "  background: #fff;"
+                                             "  color: #000; "
+                                             "}"
+                                "QToolTip { "
+                                "              border: 1px solid #555555;"
+                                "              padding: 3px;"
+                                "              background-color: #333333;"
+                                "              color: #ffffff; "
+                                "         }");
         textedit->setReadOnly(true);
         textedit->setToolTip(w);
         moveTo(textedit, p, s);

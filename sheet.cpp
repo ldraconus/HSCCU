@@ -9,6 +9,8 @@
 #include "optiondialog.h"
 #include "powers.h"
 #include "powerdialog.h"
+#include "printdialog.h"
+#include "printer.h"
 #include "skilldialog.h"
 #include "skilltalentorperk.h"
 
@@ -78,7 +80,7 @@ static bool numeric(QString txt) {
     return ok;
 }
 
-void YesNo(const QString& msg, std::function<void()> yes, std::function<void()> no, const QString title = "") {
+void YesNo(const QString& msg, std::function<void()> yes, std::function<void()> no, const QString title) {
     Msg::Box = make_shared<QMessageBox>();
     Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
     Msg::mYes = yes;
@@ -90,7 +92,7 @@ void YesNo(const QString& msg, std::function<void()> yes, std::function<void()> 
     Msg::Box->open();
 }
 
-void YesNoCancel(const QString& msg, std::function<void()> yes, std::function<void()> no, std::function<void()> cancel, const QString& title = "") {
+void YesNoCancel(const QString& msg, std::function<void()> yes, std::function<void()> no, std::function<void()> cancel, const QString& title) {
     Msg::Box = make_shared<QMessageBox>();
     Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
     Msg::mYes = yes;
@@ -104,9 +106,7 @@ void YesNoCancel(const QString& msg, std::function<void()> yes, std::function<vo
     Msg::Box->open();
 }
 
-void OK(const QString& msg,
-        std::function<void ()> ok,
-        const QString& title = "") {
+void OK(const QString& msg, std::function<void ()> ok, const QString& title) {
     Msg::Box = make_shared<QMessageBox>();
     Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
     Msg::mOk = ok;
@@ -118,7 +118,7 @@ void OK(const QString& msg,
     Msg::Box->open();
 }
 
-void OKCancel(const QString& msg, std::function<void ()> ok, const QString& title = "") {
+void OKCancel(const QString& msg, std::function<void ()> ok, const QString& title) {
     Msg::Box = make_shared<QMessageBox>();
     Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
     Msg::mOk = ok;
@@ -130,10 +130,7 @@ void OKCancel(const QString& msg, std::function<void ()> ok, const QString& titl
     Msg::Box->open();
 }
 
-void Question(const QString& msg,
-              std::function<void ()> yes,
-              std::function<void ()> no,
-              const QString& title = "") {
+void Question(const QString& msg,  std::function<void ()> yes, std::function<void ()> no, const QString& title) {
     Msg::Box = make_shared<QMessageBox>();
     Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
     Msg::mYes = yes;
@@ -251,7 +248,6 @@ Sheet::Sheet(QWidget *parent)
     , ui(new Ui::wasm)
 #endif
     , Ui(&sSheet_UI)
-    , printer(nullptr)
     , mSaveChanged(false) {
     sSheet = this;
 
@@ -472,7 +468,6 @@ Sheet::Sheet(QWidget *parent)
 }
 
 Sheet::~Sheet() {
-    delete printer;
     delete ui;
     // Ui's contents are pointed to by ui->label, don't delete it (double deletes)!  Don't worry, it is not allocated either, static global storage with a pointer to it.
 }
@@ -2965,6 +2960,10 @@ void Sheet::powersandequipmentMenu(QPoint pos) {
 void Sheet::print() {
     bool saveChanged = mChanged;
 
+    PrintDialog dlg;
+    dlg.exec();
+
+#ifdef NOTDEF
     if (printer == nullptr) printer = new QPrinter(QPrinter::HighResolution);
 
     QPrintPreviewDialog preview(printer, this);
@@ -2974,27 +2973,31 @@ void Sheet::print() {
     this->connect(&preview, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printCharacter(QPrinter*)));
 
     preview.exec();
-
+#endif
     mChanged = saveChanged; // lots of changed signals get passed around but the character really didn't change
 }
 
-void Sheet::printCharacter(QPrinter* printer) {
+static constexpr auto pdfPPI = 72.0;
+static constexpr auto halfInch = pdfPPI / 2.0;
+static constexpr auto fullPage = 11.0;
+
+void Sheet::printCharacter(Printer* printer) {
     QPixmap page1(QString(":/gfx/Page1.png"));
     QPixmap page2(QString(":/gfx/Page2.png"));
     QPixmap page3(QString(":/gfx/Page3.png"));
 
-    auto pageLayout = printer->pageLayout();
-    pageLayout.setOrientation(QPageLayout::Orientation::Portrait);
-    printer->setPageLayout(pageLayout);
+    auto pageLayout = printer->qprinter()->pageLayout();
+    pageLayout.setOrientation(printer->pageOrientation());
+    printer->qprinter()->setPageLayout(pageLayout);
     printer->setFullPage(false);
     QPainter painter;
-    painter.begin(printer);
+    painter.begin(printer->qprinter());
     QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
-    double pnt = pageRect.height() / (11.0 * 72.0); // NOLINT
-    double xscale = (pageRect.width() - 72.0 * pnt) / page1.width(); // NOLINT
-    double yscale = (pageRect.height() - 72.0 * pnt) / page1.height(); // NOLINT
+    double pnt = pageRect.height() / (fullPage * pdfPPI);
+    double xscale = (pageRect.width() - pdfPPI * pnt) / page1.width();
+    double yscale = (pageRect.height() - pdfPPI * pnt) / page1.height();
     double scale = qMin(xscale, yscale);
-    painter.translate(QPoint({ (int) (36 * pnt), (int) (36 * pnt) })); // NOLINT
+    painter.translate(QPoint({ (int) (halfInch * pnt), (int) (halfInch * pnt) }));
     painter.scale(scale, scale);
 
     QPoint offset { 55, 48 }; // NOLINT
@@ -3041,7 +3044,7 @@ void Sheet::printCharacter(QPrinter* printer) {
             printer->newPage();
             painter.drawImage(QPointF { -50.0, -48.0 }, page3.toImage()); // NOLINT
             for (int i = 0; i < Ui->hiddenWidgets.count(); ++i) {
-                auto& widget = Ui->widgets[i];
+                auto& widget = Ui->hiddenWidgets[i];
                 if (widget == nullptr) continue; // skip things we can't render
                 print(painter, offset, widget);
             }
