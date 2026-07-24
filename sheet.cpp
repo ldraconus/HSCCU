@@ -2774,6 +2774,8 @@ void Sheet::outsideImageArea() {
 
 void Sheet::options() {
     mOptionDlg = make_shared<optionDialog>();
+    mOptionDlg->setAbbreviations(mOption.abbreviations());
+    mOptionDlg->setGreenFields(mOption.greenfields());
     mOptionDlg->setBanner(mOption.banner());
     mOptionDlg->setComplications(mOption.complications().points);
     mOptionDlg->setShowFrequencyRolls(mOption.showFrequencyRolls());

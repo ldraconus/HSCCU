@@ -30,6 +30,7 @@ public:
     }
 
     Fraction adv() override                                      { return def(); }
+    QString  abbreviation(bool showEnd = false) override         { return optOut(showEnd, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -79,16 +80,22 @@ private:
     QComboBox* defensive = nullptr;
     QCheckBox* varying = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDefensive < 1 && v.mTo.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Absorption▲: " + QString("+%1").arg(v.mBody) + " to " + v.mTo;
         if (v.mDefensive == 1) {
             Fraction f(1, 2);
-            res += "; (+" + f.toString() + ") Normal Defensive";
+            res += "; (+" + f.toString();
+            if (abbr) res += ") Def";
+            else res = +") Normal Defensive";
         }
-        if (v.mDefensive == 2) res += "; (+1) Resistant Defensive";
+        if (v.mDefensive == 2) {
+            res += "; (+1) ";
+            if (abbr) res += "RDef ";
+            else res += "Resistant Def ";
+        }
         if (v.mVarying) {
             Fraction f(3, 4);
             res += "; (+" + f.toString() + ") Varying";
@@ -148,6 +155,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice  = createLineEdit(parent, layout, "Dice of Aid", std::mem_fn(&Power::numeric));
@@ -193,16 +201,20 @@ private:
     QCheckBox* boost = nullptr;
     QComboBox* who = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1 || v.mTo.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += (v.mBoost ? "Boost: " : "Aid: " ) + QString("+%1").arg(v.mDice) + "d6 to " + v.mTo;
         if (v.mWho == 1) {
             Fraction f(1, 2);
-            res += "; (-" + f.toString() + ") Only Aid Others";
+            if (abbr) res += "; (-" + f.toString() + ") Others Only";
+            else res += "; (-" + f.toString() + ") Only Aid Others";
         }
-        if (v.mWho == 2) res += "; (-1) Only Aid Self";
+        if (v.mWho == 2) {
+            if (abbr) res += "; (-1) Self Only";
+            else res += "; (-1) Only Aid Self";
+        }
         return res;
     }
 
@@ -257,6 +269,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice     = createLineEdit(parent, layout, "Dice of Drain", std::mem_fn(&Power::numeric));
@@ -296,11 +309,13 @@ private:
     QLineEdit* from = nullptr;
     QCheckBox* suppress = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1 || v.mFrom.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += (v.mSuppress ? "Suppress: " : "Drain: " ) + QString("+%1").arg(v.mDice) + "d6 from " + v.mFrom;
+        res += (v.mSuppress ? "Suppress: " : "Drain: ") + QString("+%1").arg(v.mDice);
+        if (abbr) res += +"d6 of " + v.mFrom;
+        else res += +"d6 from " + v.mFrom;
         return res;
     }
 
@@ -339,6 +354,7 @@ public:
     }
 
     Fraction adv() override                                      { return def(); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice = createLineEdit(parent, layout, "Dice of Healing?", std::mem_fn(&Power::numeric));
@@ -384,14 +400,20 @@ private:
         return Fraction(0);
     }
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1 || v.mTo.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Healing: " + QString("+%1").arg(v.mDice) + "d6 to " + v.mTo;
-        QStringList rate { "", "6 Hours", "Hour", "20 Minutes",
-                           "5 Minutes", "Minute", "Turn" };
-        if (v.mRate >= 1) res += " (Usable Every " + rate[v.mRate] + "On Same Target)";
+        if (abbr) {
+            QStringList rate { "", "6 Hrs", "Hr", "20 Mins",
+                             "5 Mins", "Min", "Turn" };
+            if (v.mRate >= 1) res += " (Rpt " + rate[v.mRate] + " On A Tgt)";
+        } else {
+            QStringList rate { "", "6 Hours", "Hour", "20 Minutes",
+                               "5 Minutes", "Minute", "Turn" };
+            if (v.mRate >= 1) res += " (Usable Every " + rate[v.mRate] + " On Same Target)";
+        }
         return res;
     }
 

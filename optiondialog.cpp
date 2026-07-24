@@ -53,9 +53,11 @@ QMap<int, int> table { // NOLINT
 };
 
 void optionDialog::accept() {
+    Sheet::ref().option().abbreviations(useAbbreviations());
     Sheet::ref().option().banner(banner());
     Sheet::ref().option().complications(Points(complications()));
     Sheet::ref().option().equipmentFree(equipmentFree());
+    Sheet::ref().option().greenfields(greenFields());
     Sheet::ref().option().showFrequencyRolls(showFrequencyRolls());
     Sheet::ref().option().showNotesPage(showNotesPage());
     Sheet::ref().option().activePerEND(Points(activePointsPerEND()));

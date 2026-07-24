@@ -160,14 +160,15 @@ public:
     static const bool NoUpdate = false;
     static const bool DoUpdate = true;
 
-    virtual QString     description(bool roll = false) { return roll ? "" : ""; };
-    virtual void        form(QWidget*, QVBoxLayout*)   { }
-    virtual QString     name()                         { return ""; }
-    virtual Points      points(bool noStore = false)   { return noStore ? 0_cp : 0_cp; }
-    virtual QString     nickname()                     { return ""; }
-    virtual void        restore()                      { }
-    virtual void        store()                        { }
-    virtual bool        varying()                      { return false; }
+    virtual QString     abbreviation(bool roll = false) { return description(roll); }
+    virtual QString     description(bool roll = false)  { return roll ? "" : ""; };
+    virtual void        form(QWidget*, QVBoxLayout*)    { }
+    virtual QString     name()                          { return ""; }
+    virtual Points      points(bool noStore = false)    { return noStore ? 0_cp : 0_cp; }
+    virtual QString     nickname()                      { return ""; }
+    virtual void        restore()                       { }
+    virtual void        store()                         { }
+    virtual bool        varying()                       { return false; }
 
     virtual QJsonObject toJson() const           { QJsonObject obj;
                                                    QJsonObject mods;
@@ -413,6 +414,7 @@ public:
         v._varies = json["varies"].toBool(false);
     }
 
+    QString     abbreviation(bool roll = false) override { return description(roll); }
     QString     description(bool roll = false) override = 0;
     Points      points(bool noStore = false) override   = 0;
 
