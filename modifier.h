@@ -449,6 +449,7 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<AffectedAsAnotherSense>(json); }
 
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { sense = createComboBox(p, l, "Affect as?", { "", "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" },
                                                                                      std::mem_fn(&ModifierBase::index));
@@ -473,11 +474,11 @@ private:
 
     QComboBox* sense = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction quarter(1, 4);
         if (v.mSense < 1) return "<incomplete>";
         QStringList sense { "", "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
-        return (show ? "(-" + quarter.toString() + ") " : "") + "Affected As Another Sense (" + sense[v.mSense] + ")";
+        return (show ? "(-" + quarter.toString() + ") " : "") + "Affected As " + (abbr ? "" : "Another Sense") + " (" + sense[v.mSense] + ")";
     }
 };
 
@@ -507,6 +508,7 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { veryUncommon = createCheckBox(p, l, "Senses are very uncommon", std::mem_fn(&ModifierBase::checked));
                                                               senses       = createLineEdit(p, l, "Affect as?", std::mem_fn(&ModifierBase::changed));
@@ -536,10 +538,12 @@ private:
     QCheckBox* veryUncommon = nullptr;
     QLineEdit* senses = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction quarter(1, 4);
         Fraction half(1, 2);
         if (v.mSenses.isEmpty()) return "<incomplete>";
+        if (abbr) return (show ? "(-" + (v.mVeryUncommon ? half.toString() : quarter.toString()) + ") " : "") + "Affected As: " + v.mSenses +
+                (v.mVeryUncommon ? " (Senses are V. Unc)" : "");
         return (show ? "(-" + (v.mVeryUncommon ? half.toString() : quarter.toString()) + ") " : "") + "Affected As More Than One Sense: " + v.mSenses +
                 (v.mVeryUncommon ? " (Senses are very uncommon)" : "");
     }
@@ -571,6 +575,7 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { limited = createCheckBox(p, l, "Limited to a single SFX", std::mem_fn(&ModifierBase::checked));
                                                               what    = createLineEdit(p, l, "Limited to?", std::mem_fn(&ModifierBase::changed));
@@ -600,10 +605,12 @@ private:
     QCheckBox* limited = nullptr;
     QLineEdit* what = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction quarter(1, 4);
         Fraction half(1, 2);
         if (v.mWhat.isEmpty() && v.mLimited) return "<incomplete>";
+        if (abbr) return (show ? "(+" + (v.mLimited ? quarter.toString() : half.toString()) + ") " : "") + "Affects Desolid" +
+                (v.mLimited ? " (only vs " + v.mWhat + ")" : "");
         return (show ? "(+" + (v.mLimited ? quarter.toString() : half.toString()) + ") " : "") + "Affects Desolid" +
                 (v.mLimited ? " (only versus " + v.mWhat + ")" : "");
     }
@@ -709,6 +716,7 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<AlternateCombatValue>(json); }
 
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { is = createComboBox(p, l, "Kind of ACV?", { "",
                                                                                                           "Mental Power uses OCV instead of OMCV",
@@ -744,7 +752,7 @@ private:
 
     QComboBox* is = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         QStringList is = {
             "",
             "Mental Power uses OCV instead of OMCV",
@@ -752,9 +760,16 @@ private:
             "Non-Mental Power uses OMCV instead of OCV",
             "Non-Mental Power attacks against DMCV instead of DCV"
         };
+        QStringList isAbbr = {
+            "",
+            "uses OCV",
+            "vs DCV",
+            "uses OMCV",
+            "vs DMCV"
+        };
         if (v.mIs < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
-        return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "ACV▲: " + is[v.mIs];
+        return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "ACV▲: " + (abbr ? isAbbr[v.mIs] : is[v.mIs]);
     }
 };
 
@@ -812,13 +827,14 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<AreaOfEffect>(json); }
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { kind = createComboBox(p, l, "Kind of Area?", { "Radius",
                                                                                                              "Cone",
                                                                                                              "Line",
                                                                                                              "Surface",
                                                                                                              "Any Area" },
-                                                                                  std::mem_fn(&ModifierBase::index));
+                                                                                    std::mem_fn(&ModifierBase::index));
                                                               fixedShape = createCheckBox(p, l, "Fixed Shape", std::mem_fn(&ModifierBase::checked));
                                                               shape = createLineEdit(p, l, "What shape?", std::mem_fn(&ModifierBase::changed));
                                                               explosion = createCheckBox(p, l, "Explosion", std::mem_fn(&ModifierBase::checked));
@@ -828,7 +844,7 @@ public:
                                                               accurate = createCheckBox(p, l, "Accurate", std::mem_fn(&ModifierBase::checked));
                                                               thinCone = createCheckBox(p, l, "Thin Cone", std::mem_fn(&ModifierBase::checked));
                                                               damageShield = createCheckBox(p, l, "Damage Shield", std::mem_fn(&ModifierBase::checked));
-                                                              multiplier = createLineEdit(p, l, "m Length?", std::mem_fn(&ModifierBase::changed));
+                                                              multiplier = createLineEdit(p, l, "m Size?", std::mem_fn(&ModifierBase::changed));
                                                               fixedShape->setEnabled(false);
                                                               shape->setEnabled(false);
                                                               explosion->setEnabled(false);
@@ -978,27 +994,33 @@ private:
         ModifiersDialog::ref().updateForm();
     }
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         QStringList kind = {
             "Radius", "Cone", "Line", "Surface", "Any Area"
+        };
+        QStringList kindAbbr = {
+            "Rad", "Cone", "Line", "Surface", "Any"
         };
         QStringList size = {
             "m radius", "m sides", "m long", "m area", "m area"
         };
+        QStringList sizeAbbr = {
+            "m rad", "m sides", "m long", "m area", "m area"
+        };
         if (v.mKind < 0 || (v.mFixedShape && v.mShape.isEmpty())) return "<incomplete>";
         if (v.mMultiplier < 1) v.mMultiplier = 1;
         Fraction f(fraction(Modifier::NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Area Of Effect: " + kind[v.mKind];
-        if (v.mKind == 4) desc += QString(" (%1x%1%2)").arg(v.mMultiplier).arg(size[v.mKind]);
-        else desc += QString(" (%1%2)").arg(v.mMultiplier).arg(size[v.mKind]);
-        if (v.mFixedShape) desc += "; Fixed Shape(" + v.mShape + ")";
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Area Of Effect: " + (abbr ? kindAbbr[v.mKind] : kind[v.mKind]);
+        if (v.mKind == 4) desc += QString(" (%1x%1%2)").arg(v.mMultiplier).arg(abbr ? sizeAbbr[v.mKind] : size[v.mKind]);
+        else desc += QString(" (%1%2)").arg(v.mMultiplier).arg(abbr ? sizeAbbr[v.mKind] : size[v.mKind]);
+        if (v.mFixedShape) desc += QString("; ") + "Fixed" + (abbr ? "" : " Shape") + "(" + v.mShape + ")";
         if (v.mAccurate) desc += "; Accurate";
-        if (v.mExplosion) desc += "; Explosion";
+        if (v.mExplosion) desc += QString("; ") + (abbr ? "Exp." : "Explosion");
         if (v.mMobile) desc += "; Mobile";
-        if (v.mNonselective) desc += "; Non-selective Targeting";
-        if (v.mSelective) desc += "; Selective Targeting";
+        if (v.mNonselective) desc += QString("; ") + (abbr ? "Non-select. Tgt" : "Non-selective Targeting");
+        if (v.mSelective) desc += QString("; ") + (abbr ? "Select. Tgt" : "Selective Targeting");
         if (v.mThinCone) desc += "; Thin Cone";
-        if (v.mDamageShield) desc += "; Damage Shield";
+        if (v.mDamageShield) desc += QString("; ") + (abbr ? "Dmg Shld" : "Damage Shield");
         return desc;
     }
 };
@@ -1034,6 +1056,7 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<ArmorPiercing>(json); }
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { times = createLineEdit(p, l, "Times?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
@@ -1075,11 +1098,11 @@ private:
         times->undo();
     }
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mTimes < 0) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                ((v.mTimes > 1) ? QString("%1x").arg(v.mTimes) : "") +"Armor Piercing";
+                ((v.mTimes > 1) ? QString("%1x").arg(v.mTimes) : "") + (abbr ? "AP" : "Armor Piercing");
         return desc;
     }
 };
@@ -1114,6 +1137,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { original = createComboBox(p, l, "Original Defense is?", { "",
                                                                                                                         "Very Common (PD/ED) for ex.",
@@ -1174,11 +1198,11 @@ private:
     QLineEdit* versus = nullptr;
     QCheckBox* nnd = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v._original < 1 || v.mNewOne < 1 || v.mVersus.isEmpty()) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 + (v.mNND ? "NND: Defense is " : "Attack Versus Alternate Defense: ") + v.mVersus;
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "")
+                 + (v.mNND ? QString("NND: ") + QString(abbr ? "" : "Defense is ") : QString(abbr ? "vs Alt. DEF: " : "Attack Versus Alternate Defense: ")) + v.mVersus;
         return desc;
     }
 };
@@ -1215,6 +1239,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { bypass = createCheckBox(p, l, "All or nothing (NND)", std::mem_fn(&ModifierBase::checked));
                                                               doubling = createLineEdit(p, l, "Doublings of shots?", std::mem_fn(&ModifierBase::numeric));
@@ -1259,10 +1284,10 @@ private:
     QLineEdit* doubling = nullptr;
     QCheckBox* bypass = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 QString("Autofire: %1 shots").arg((3 + 5) * std::pow(2, v.mDoubling)); // NOLINT
+                 QString("Autofire: %1%2").arg((3 + 5) * std::pow(2, v.mDoubling)).arg(abbr ? "" : " shots"); // NOLINT
         return desc;
     }
 
@@ -1452,6 +1477,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }   // ¹²³₂₄⁄
     bool          form(QWidget* p, QVBoxLayout* l) override { value = createComboBox(p, l, "Value of the limitation?", { "", "-¹⁄₄⁄", "-¹⁄₂⁄", "-³⁄₄", "-1", "-1¹⁄₄⁄", "-1¹⁄₂⁄", "-1³⁄₄", "-2"
                                                                                                                        }, std::mem_fn(&ModifierBase::index));
@@ -1482,11 +1508,11 @@ private:
 
     QComboBox* value = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         static QStringList values { "", "¹⁄₄⁄", "¹⁄₂⁄", "³⁄₄", "1", "1¹⁄₄⁄", "1¹⁄₂⁄", "1³⁄₄", "2" };
 
         if (v.mValue < 1) return "<incomplete>";
-        return (show ? QString("(%1").arg(values[v.mValue]) + ") " : "") + "Can Only Be Used Through Mind Link";
+        return (show ? QString("(%1").arg(values[v.mValue]) + ") " : "") + (abbr ? "Only Via Mind Link" : "Can Only Be Used Through Mind Link");
     }
 };
 
@@ -1556,6 +1582,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { veryEffective = createCheckBox(p, l, "Very Effective", std::mem_fn(&ModifierBase::checked));
                                                               maneuver = createLineEdit(p, l, "Maneuver", std::mem_fn(&ModifierBase::changed));
@@ -1586,11 +1613,11 @@ private:
     QCheckBox* veryEffective = nullptr;
     QLineEdit* maneuver = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction quarter(1, 4);
         Fraction half(1, 2);
-        return (show ? "(-" + (v.mVeryEffective ? half.toString() : quarter.toString()) + ") " : "") + "Cannot Be used With " + v.mManeuver +
-                (v.mVeryEffective ? " (very effective)" : "");
+        return (show ? "(-" + (v.mVeryEffective ? half.toString() : quarter.toString()) + ") " : "") + (abbr ? "Not With " : "Cannot Be used With ") + v.mManeuver +
+                (v.mVeryEffective ? " (very " + QString(abbr ? "eff." : "effective") + ")" : "");
     }
 };
 
@@ -1665,6 +1692,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { charges      = createLineEdit(p, l, "Number of Charges", std::mem_fn(&ModifierBase::numeric));
                                                               clips        = createLineEdit(p, l, "Number of Clips", std::mem_fn(&ModifierBase::numeric));
@@ -1783,8 +1811,8 @@ private:
         text->undo();
     }
 
-    QString optOut(bool show) {
-        static QStringList conTime { "", "2 Phases", "Turn", "1 Minute", "5 Minutes", "20 Minutes",
+    QString optOut(bool show, bool abbr = false) {
+        static QStringList conTime { "", "2 Phases", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                                      "1 Hour", "6 Hours", "1 Day", "1 Week", "1 Month", "1 Season",
                                      "1 Year", "5 Years" };
         static QStringList recTime {
@@ -1793,17 +1821,26 @@ private:
         static QStringList extraTime {
             "", "2 Phases", "Turn", "1 Minute", "5 Minutes", "20 Minutes",  "1 Hour", "6 Hours", "1 Day", "1 Week", "1 Month", "1 Season", "1 Year", "5 Years"
         };
+        static QStringList conTimeAbbr { "", "2 Phs", "Tn", "1 Min", "5 Mins", "20 Mins",
+                                     "1 Hr", "6 Hrs", "1 Day", "1 Wk", "1 Mth", "3 Mths",
+                                     "1 Yr", "5 Yrs" };
+        static QStringList recTimeAbbr {
+            "", "1 Wk", "1 Mth", "3 Mths", "1 Yr", "5 Yrs", "10 Yrs", "25 Yrs", "Never"
+        };
+        static QStringList extraTimeAbbr {
+            "", "2 Phs", "1 Tn", "1 Min", "5 Mins", "20 Mins",  "1 Hr", "6 Hrs", "1 Day", "1 Wk", "1 Mth", "3 Mnth", "1 Yr", "5 Yrs"
+        };
         if (v.mCharges < 1) return "<incomplete>";
         Fraction mod = fraction(NoStore);
         QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(NoStore).toString() + ") " : "") + "Charges (" +
                 QString("%1").arg(v.mCharges) + QString(" charge%1").arg((v.mCharges > 1) ? "s" : "");
-        if (v.mFuelCharge) res += "; Fuel Charge";
-        if (v.mRecoverable) res += "; Recoverable";
-        if (v.mRecoveryTime > 0) res += "; Recovery Time: " + recTime[v.mRecoveryTime];
-        if (v.mContinuing > 0) res += "Continuing: " + conTime[v.mContinuing];
+        if (v.mFuelCharge) res += QString("; Fuel") + (abbr ? "" : " Charge");
+        if (v.mRecoverable) res += QString("; ") + (abbr ? "Recov." : "Recoverable");
+        if (v.mRecoveryTime > 0) res += QString("; ") + (abbr ? "Every" : "Recovery Time") + ": " + recTime[v.mRecoveryTime];
+        if (v.mContinuing > 0) res += QString(abbr ? "Cont:" : "Continuing: ") + conTime[v.mContinuing];
         if (v.mClips > 1) res += QString("; %1 clips").arg(v.mClips);
-        if (v.mReload > 0) res += "; Extra Time to Reload - " + extraTime[v.mReload];
-        if (v.mExpensive) res += "; Charges are Expensive or Difficult to Obtain";
+        if (v.mReload > 0) res += QString("; ") + (abbr ? "Reload Time: " : "Extra Time to Reload - ") + extraTime[v.mReload];
+        if (v.mExpensive) res += QString("; ") + (abbr ? "Expen. or Diff. to Find" : "Charges are Expensive or Difficult to Obtain");
         return res + ")";
     }
 };
@@ -1856,6 +1893,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { zeroDCV  = createCheckBox(p, l, "0 DCV", std::mem_fn(&ModifierBase::checked));
                                                               unaware  = createCheckBox(p, l, "Unaware (no Perception roll)", std::mem_fn(&ModifierBase::checked));
@@ -1897,13 +1935,13 @@ private:
     QCheckBox* unaware = nullptr;
     QCheckBox* constant = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction mod = fraction(Modifier::NoStore);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(false).toString() + ") " : "") + "Concentrataion";
+        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(false).toString() + ") " : "") + (abbr ? "Concen." : "Concentrataion");
         QString sep = " (";
         if (zeroDCV) { res += sep + "0 DCV"; sep = "; "; }
-        if (unaware) { res += sep + "No Perception Roll"; sep = "; "; }
-        if (constant) { res += sep + "Constant concentration"; sep = "; "; }
+        if (unaware) { res += sep + (abbr ? "No Perc. Roll" : "No Perception Roll"); sep = "; "; }
+        if (constant) { res += sep + (abbr ? "Constnat" : "Constant concentration"); sep = "; "; }
         if (sep != " (") res += ")";
         return res;
     }
@@ -1955,6 +1993,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { howMuch  = createComboBox(p, l, "How Much END?", { "",
                                                                                                                  "Half END",
@@ -1987,13 +2026,13 @@ private:
 
     QComboBox* howMuch = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mHowMuch < 1) return "<incomplete>";
         Fraction mod = fraction(Modifier::NoStore);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + "Costs Endurance (";
+        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + (abbr ? "" : "Costs Endurance (");
         if (v.mHowMuch == 1) res += Fraction(1, 2).toString();
         else res += "Full";
-        return res + " END)";
+        return res + QString(" END") + (abbr ? "" : ")");
     }
 };
 
@@ -2043,6 +2082,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { howMuch  = createComboBox(p, l, "How Much END?", { "", "Half END",
                                                                                                                  "Normal END" }, std::mem_fn(&ModifierBase::index));
@@ -2073,13 +2113,13 @@ public:
 
     QComboBox* howMuch = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mHowMuch < 1) return "<incomplete>";
         Fraction mod = fraction(Modifier::NoStore);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + "Costs Endurance To Maintain (";
+        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + (abbr ? "" : "Costs Endurance To Maintain (");
         if (v.mHowMuch == 1) res += Fraction(1, 2).toString();
         else res += "Full";
-        return res + " END)";
+        return res + QString(" END") + (abbr ? " To Maintain" : ")");
     }
 };
 
@@ -2164,6 +2204,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { times       = createLineEdit(p, l, "Number of Damage Increments", std::mem_fn(&ModifierBase::numeric));
                                                               duration    = createComboBox(p, l, "Duration Between Damage Increments", { "", "Every Segment", "Every Other Segement",
@@ -2219,21 +2260,29 @@ private:
     QCheckBox* once = nullptr;
     QCheckBox* oneUse = nullptr;
 
-    QString optOut(bool show) {
-        static QStringList duration { "", "Every Segment", "Every Other Segement",
+    QString optOut(bool show, bool abbr = false) {
+        static QStringList duration { "", "Every Segment", "Every Other Segment",
                                       "Every 3 Segments", "Every 4 Segments",
                                       "Every 6 Segments", "Every Turn",
                                       "Every 30 Segments", "Every Minute",
-                                      "Every 5 Minutes", "Every 20 MInutes",
+                                      "Every 5 Minutes", "Every 20 Minutes",
                                       "Every Hour", "Every 6 Hours", "Every Day",
                                       "Every Week", "Every Month", "Every Season",
                                       "Every Year", "Every 5 Years" };
+        static QStringList duraAbbr { "", "Per Seg.", "Per Alt. Seg.",
+                                      "Every 3 Seg,", "Every 4 Seg.",
+                                      "Every 6 Seg.", "Every Tn",
+                                      "Every 30 Seg.", "Every Min.",
+                                      "Every 5 Min.", "Every 20 Min.",
+                                      "Every Hr", "Every 6 Hrs", "Every Day",
+                                      "Every Wk", "Every Mth", "Every 3 Mths",
+                                      "Every Yr", "Every 5 Yrs" };
         Fraction mod = fraction(Modifier::NoStore);
         if (v._duration < 1) return "<incomplete>";
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + "Damage Over Time▲ (";
-        res += QString("%1 Damage Increments %1").arg(v._times).arg(duration[v._duration]);
-        if (v._once) res += "; Target's Defenses Apply Only Once";
-        if (v._oneUse) res += "; One Use at a Time";
+        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + (abbr ? "Dmg Per" : "Damage Over") + " Time▲ (";
+        res += QString("%1 " + QString(abbr ? "Dmg Incr." : "Damage Increments") + " %2").arg(v._times).arg(duration[v._duration]);
+        if (v._once) res += QString("; ") + (abbr ? "Tgt DEF Once" : "Target's Defenses Apply Only Once");
+        if (v._oneUse) res += QString("; ") + (abbr ? "1 at a Time" : "One Use at a Time");
         return res + ")";
     }
 };
@@ -2265,6 +2314,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { howMuch  = createComboBox(p, l, "Reduced to?", { "", "4m per m", "3m per m",
                                                                                                                "2m per m", "1m per m" }, std::mem_fn(&ModifierBase::index));
@@ -2294,12 +2344,12 @@ private:
 
     QComboBox* howMuch = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         static QStringList by { "", "4m per m", "3m per m", "2m per m", "1m per m" };
 
         if (v._howMuch < 1) return "<incomplete>";
         Fraction mod = fraction(Modifier::NoStore);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + "Decreased Acceleration/Deceleration (";
+        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + (abbr ? "Decr. Accel./Decel." : "Decreased Acceleration/Deceleration") + " (";
         res += by[v._howMuch];
         return res + ")";
     }
@@ -2332,6 +2382,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { doubling = createLineEdit(p, l, "Doublings of powers?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
@@ -2363,11 +2414,11 @@ private:
 
     QLineEdit* doubling = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mDoubling == 0) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 QString("Delayed EffectꚚ: x%1").arg((int) pow(2.0, (double) v.mDoubling)); // NOLINT
+                 QString(abbr ? "Delay Eff." : "Delayed Effect") + QString("Ꚛ: x%1").arg((int) pow(2.0, (double) v.mDoubling)); // NOLINT
         return desc;
     }
 };
@@ -2399,6 +2450,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { duration    = createComboBox(p, l, "5 CP Per Time ", { "", "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
                                                                                                                      "Day", "Week", "Month", "Season", "Year", "5 Years" },
@@ -2428,12 +2480,14 @@ public:
 
     QComboBox* duration = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         static QStringList duration { "", "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
                                       "Day", "Week", "Month", "Season", "Year", "5 Years" };
+        static QStringList durationAbbr{ "", "Tn", "Min.", "5 Mins", "20 Mins", "Hr", "6 Hrs",
+                                          "Dy", "Wk", "Mth", "3 Mths", "Yr", "5 Yrs" };
         if (v._duration < 1) return "<incomplete>";
         Fraction mod = fraction(Modifier::NoStore);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + "Delayed Fade/Return Rate▲ (";
+        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + (abbr ? "Delayed Fade/Return" : "Delayed Fade/Return Rate") + "▲ (";
         res += QString("5 CP per %1").arg(duration[v._duration]);
         return res + ")";
     }
@@ -2466,6 +2520,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { doubling = createLineEdit(p, l, "Doublings of active points?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
@@ -2497,11 +2552,11 @@ private:
 
     QLineEdit* doubling = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mDoubling == 0) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 QString("Difficult To Dispel: x%1 Active Points").arg((int) pow(2.0, (double) v.mDoubling)); // NOLINT
+                 QString(abbr ? "Diff. To Dispel" : "Difficult To Dispel") + ": " + QString("x%1 ").arg((int) pow(2.0, (double) v.mDoubling)) + (abbr ? "Acting" : "Active Points"); // NOLINT
         return desc;
     }
 };
@@ -2610,6 +2665,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { doesnt    = createLineEdit(p, l, "Doesn't Work On?", std::mem_fn(&ModifierBase::changed));
                                                               howCommon = createComboBox(p, l, "How Common?", { "", "Rare", "Uncommon", "Common", "Very Common" },
@@ -2646,11 +2702,11 @@ private:
     QLineEdit* doesnt = nullptr;
     QComboBox* howCommon = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mDoesnt.isEmpty() || v.mHowCommon < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Doesn't Work On " + v.mDoesnt;
+                 (abbr ? "Not On " : "Doesn't Work On ") + v.mDoesnt;
         return desc;
     }
 };
@@ -2721,6 +2777,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { effects = createLineEdit(p, l, "Effects?", std::mem_fn(&ModifierBase::changed));
                                                               howMany = createComboBox(p, l, "How Many?", { "", "Two", "Three", "Four", "Five", "Six", "Seven", "All" },
@@ -2757,11 +2814,11 @@ private:
     QLineEdit* effects = nullptr;
     QComboBox* howMany = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mEffects.isEmpty() || v.mHowMany < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Expanded Effect▲: " + v.mEffects;
+                 (abbr ? "Exp. Eff." : "Expanded Effect") + "▲: " + v.mEffects;
         return desc;
     }
 };
@@ -2795,6 +2852,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { time = createComboBox(p, l, "How Much Extra Time?", { "", "Delayed Phase", "Extra Segment", "Full Phase", "Extra Phase",
                                                                                                                     "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
@@ -2848,17 +2906,20 @@ private:
     QCheckBox* lockout = nullptr;
     QCheckBox* activate = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         static QStringList extra { "", "Delayed Phase", "Extra Segment", "Full Phase", "Extra Phase",
                                    "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
                                    "Day", "Week", "Month", "Season", "Year", "5 Years" };
+        static QStringList extraAbbr { "", "Delayed Phs", "Xtra Seg.", "Full Phs", "Xtra Phs",
+                                       "Tn", "Min.", "5 Min.", "20 Min.", "Hr", "6 Hrs",
+                                       "Day", "Wk", "Mth", "3 Mths", "Yr", "5 Yrs" };
         if (v.mTime < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Extra Time: " + extra[v.mTime];
+                 (abbr ? "Xtra Time" : "Extra Time") + ": " + extra[v.mTime];
         QString sep = " (";
-        if (v.mLockout) { desc += sep + "Cannot Activate Other Powers"; sep = "; "; }
-        if (v.mActivate) { desc += sep + "Only to Activate"; sep = "; "; }
+        if (v.mLockout) { desc += sep + (abbr ? "Not w/Other Powers" : "Cannot Activate Other Powers"); sep = "; "; }
+        if (v.mActivate) { desc += sep + "Only to " + (abbr ? "Act." : "Activate"); sep = "; "; }
         if (sep == "; ") desc += ")";
         return desc;
     }
@@ -2891,6 +2952,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { throughout = createCheckBox(p, l, "Must Keep Eye Contact Throuhgout", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
@@ -2922,10 +2984,10 @@ private:
 
     QCheckBox* throughout = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Eye Contact Required";
+                 "Eye Contact " + (abbr ? "Req." : "Required");
         if (v.mThroughout) desc += "(Throughout)";
         return desc;
     }
@@ -2963,6 +3025,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { what          = createLineEdit(p, l, "What is the fopcus?", std::mem_fn(&ModifierBase::changed));
                                                               ntype         = createComboBox(p, l, "Type Of Focus?", { "Inobvious, Inaccessable", "Inobvious, Accessable",
@@ -3033,19 +3096,28 @@ private:
     QComboBox* durability = nullptr;
     QCheckBox* universal = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mWhat.isEmpty() || v.mType < 0) return "<incomplete>";
         QStringList Type { "IIF", "IAF", "OIF", "OAF" };
         QStringList Mobiillity { "", "Bulky", "Immobile", "Arrangement" };
+        QStringList MobiillityAbbr { "", "Bulky", "Immob.", "Arrange." };
         QStringList Expendability { "", "Difficult To Obtain", "Very Difficult To Obtain", "Extremely Difficult To Obtain" };
+        QStringList ExpendabilityAbbr { "", "Diff. To Obtain", "V. Diff. To Obtain", "Xtreme. Diff. To Obtain" };
         QStringList Durability { "", "Fragile", "Durable", "Unbreakable" };
+        QStringList DurabilityAbbr { "", "Frag.", "Dur.", "Unbreak." };
         Fraction f = fraction(Modifier::NoStore);
         try {
             QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + Type[v.mType] + " (" + v.mWhat;
             QString sep = "; ";
-            if (v.mMobility > 0) desc += sep + Mobiillity[v.mMobility];
-            if (v.mExpendability > 0) desc += sep + Expendability[v.mExpendability];
-            if (v.mDurability > 0) desc += sep + Durability[v.mDurability];
+            if (abbr) {
+                if (v.mMobility > 0) desc += sep + MobiillityAbbr[v.mMobility];
+                if (v.mExpendability > 0) desc += sep + ExpendabilityAbbr[v.mExpendability];
+                if (v.mDurability > 0) desc += sep + DurabilityAbbr[v.mDurability];
+            } else {
+                if (v.mMobility > 0) desc += sep + Mobiillity[v.mMobility];
+                if (v.mExpendability > 0) desc += sep + Expendability[v.mExpendability];
+                if (v.mDurability > 0) desc += sep + Durability[v.mDurability];
+            }
             desc += ")";
             return desc;
         } catch (...) { return ""; }
@@ -3080,6 +3152,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { bothHands  = createCheckBox(p, l, "Both Hands", std::mem_fn(&ModifierBase::checked));
                                                               throughout = createCheckBox(p, l, "Must Gesture Throuhgout", std::mem_fn(&ModifierBase::checked));
@@ -3118,12 +3191,12 @@ private:
     QCheckBox* bothHands = nullptr;
     QCheckBox* throughout = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Gesstures";
         QString sep = " (";
-        if (v.mBothHands) { desc += sep + "Both Hands"; sep = "; "; }
+        if (v.mBothHands) { desc += sep + (abbr ? "2x" : "Both ") + "Hands"; sep = "; "; }
         if (v.mThroughout) { desc += sep + "Throughout"; sep = "; "; }
         if (sep == "; ") desc += ")";
         return desc;
@@ -3176,6 +3249,7 @@ public:
 
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { changeable = createCheckBox(p, l, "Shae is changeable", std::mem_fn(&ModifierBase::checked));
                                                               shape      = createLineEdit(p, l, "Hole shape?", std::mem_fn(&ModifierBase::changed));
@@ -3213,11 +3287,11 @@ private:
     QCheckBox* changeable = nullptr;
     QLineEdit* shape = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (!v.mChangeable && v.mShape.isEmpty()) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Hole In The Middle";
+                 (abbr ? "Hole in Mid." : "Hole In The Middle");
         if (v.mChangeable) desc += " (Any Shape)";
         else desc += " (" + v.mShape + ")";
         return desc;
@@ -3276,6 +3350,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { dbling = createLineEdit(p, l, "How many doublings?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
@@ -3307,10 +3382,10 @@ private:
 
     QLineEdit* dbling = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Points p(points(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((p < 0) ? "" : "+") + QString("%1").arg(p.points) + ") " : "") +
-                 "Improved Noncombat Movement (" + QString("x%1").arg(2 * (int) pow(2, v.mDoubling)) + ")";
+                 (abbr ? "Impr. Noncom. Move." : "Improved Noncombat Movement") + " (" + QString("x%1").arg(2 * (int) pow(2, v.mDoubling)) + ")";
         return desc;
     }
 };
@@ -3342,6 +3417,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { zero = createCheckBox(p, l, "0 OCV", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
@@ -3373,12 +3449,17 @@ private:
 
     QCheckBox* zero = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Inaccurate";
-        if (v.mZero) desc += " (0 OCV, Range Mods start at 6m)";
-        else { Fraction(1, 2); desc += " (" + f.toString() + " OCV, Range Mods start at 4m)"; }
+        if (abbr) {
+            if (v.mZero) desc += " (0 OCV, Rng Mods at 6m)";
+            else { Fraction(1, 2); desc += " (" + f.toString() + " OCV, Rng Mods at 4m)"; }
+        } else {
+            if (v.mZero) desc += " (0 OCV, Range Mods start at 6m)";
+            else { Fraction(1, 2); desc += " (" + f.toString() + " OCV, Range Mods start at 4m)"; }
+        }
         return desc;
     }
 };
@@ -3410,6 +3491,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { throughout = createCheckBox(p, l, "Must Incant Throuhgout", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
@@ -3441,10 +3523,10 @@ private:
 
     QCheckBox* throughout = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Incantations";
+                (abbr ? "Incant." : "Incantations");
         QString sep = " (";
         if (v.mThroughout) { desc += sep + "Throughout"; sep = "; "; }
         if (sep == "; ") desc += ")";
@@ -3480,6 +3562,7 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { amount        = createComboBox(p, l, "Amount of increased END?", { "", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9", "x10" },
                                                                                                                                  std::mem_fn(&ModifierBase::index));
@@ -3530,13 +3613,14 @@ private:
     QComboBox* circumstances = nullptr;
     QLineEdit* what = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mAmount < 1) return "<incomplete>";
         QStringList Amount { "", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9", "x10" };
         QStringList Circumstances { "", "Very Common", "Common", "Uncommon" };
+        QStringList CircumstancesAbbr { "", "V. Com.", "Com.", "Uncom." };
         Fraction f = fraction(Modifier::NoStore);
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Increased END Cost (" + Amount[v.mAmount];
-        if (Circumstances[v.mCircumstances] != "") desc += "; " + Circumstances[v.mCircumstances] + ((v.mCircumstances != 0) ? ": " + v.mWhat : "");
+        if (Circumstances[v.mCircumstances] != "") desc += "; " + (abbr ? CircumstancesAbbr[v.mCircumstances] : Circumstances[v.mCircumstances]) + ((v.mCircumstances != 0) ? ": " + v.mWhat : "");
         return desc + ")";
     }
 
@@ -3574,6 +3658,7 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
@@ -3604,10 +3689,10 @@ private:
 
     QLineEdit* doubling = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Points p(points(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((p < 0) ? "" : "+") + QString("%1").arg(p.points) + ") " : "") +
-                 "Increased Mass (" + QString("x%1, %2 kg").arg((int) pow(2, v.mDoubling)).arg(200 * (int) pow(2, v.mDoubling)) + ")"; // NOLINT
+                 (abbr ? " Incr." : "Increased") + " Mass (" + QString("x%1, %2 kg").arg((int) pow(2, v.mDoubling)).arg(200 * (int) pow(2, v.mDoubling)) + ")"; // NOLINT
         return desc;
     }
 };
@@ -3639,6 +3724,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
@@ -3668,10 +3754,10 @@ private:
 
     QLineEdit* doubling = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Increased Maximum Effect (" + QString("x%1").arg((int) pow(2, v.mDoubling)) + ")";
+                 (abbr ? "Incr. Max." : "Increased Maximum") + " Effect (" + QString("x%1").arg((int) pow(2, v.mDoubling)) + ")";
         return desc;
     }
 };
@@ -3703,6 +3789,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { doubling  = createLineEdit(p, l, "How mnay doublings?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
@@ -3732,10 +3819,10 @@ private:
 
     QLineEdit* doubling = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Increased Maximum Range (" + QString("x%1").arg((int) pow(2, v.mDoubling)) + ")";
+                 (abbr ? "Incr. Max." : "Increased Maximum") + " Range (" + QString("x%1").arg((int) pow(2, v.mDoubling)) + ")";
         return desc;
     }
 };
@@ -3768,6 +3855,7 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { location  = createComboBox(p, l, "Power Source?", { "Always The Character",
                                                                                                                   "Always the Same",
@@ -3816,15 +3904,23 @@ private:
     QLineEdit* locAndDir = nullptr;
     QComboBox* direction = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = true) {
         if (v.mPowerSource < 0 || v.mDirection < 0 || ((v.mPowerSource == 2 || v.mDirection == 2) && v.mLocAndDir.isEmpty())) return "<incomplete>";
         QStringList Location { "Always The Character", "Always the Same", "Variable" };
         QStringList Direction { "Directly from Source to Target", "Always the Same", "Variable" };
+        QStringList LocationAbbr { "Always The Char.", "Always the Same", "Var." };
+        QStringList DirectionAbbr { "Start to Tgt", "Always the Same", "Var." };
         Fraction f = fraction(Modifier::NoStore);
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Indirect (" + Location[v.mPowerSource];
-        if (v.mPowerSource == 1 && v.mDirection != 2) desc += ", " + v.mLocAndDir;
-        desc += "; " + Direction[v.mDirection];
-        if (v.mPowerSource == 2 || v.mDirection == 2) desc += ", " + v.mLocAndDir;
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Indirect (" + (abbr ? LocationAbbr[v.mPowerSource] : Location[v.mPowerSource]);
+        if (abbr) {
+            if (v.mPowerSource == 1 && v.mDirection != 2) desc += ", " + v.mLocAndDir;
+            desc += "; " + DirectionAbbr[v.mDirection];
+            if (v.mPowerSource == 2 || v.mDirection == 2) desc += ", " + v.mLocAndDir;
+        } else {
+            if (v.mPowerSource == 1 && v.mDirection != 2) desc += ", " + v.mLocAndDir;
+            desc += "; " + Direction[v.mDirection];
+            if (v.mPowerSource == 2 || v.mDirection == 2) desc += ", " + v.mLocAndDir;
+        }
         return desc + ")";
     }
 
@@ -3902,6 +3998,7 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<InvisiblePowerEffects>(json); }
 
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { inobvious = createCheckBox(p, l, "Power is Inobvious", std::mem_fn(&ModifierBase::checked));
                                                               how       = createComboBox(p, l, "How Invisible?", { "",
@@ -3963,27 +4060,44 @@ private:
     QLineEdit* sense = nullptr;
     QComboBox* effect = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mHow < 1 || v.mEffect < 1) return "<incomplete>";
         if (v.mInobvious && v.mHow != 1 && v.mSense.isEmpty()) return "<incomplete>";
         if (!v.mInobvious && v.mHow != 3 && v.mSense.isEmpty()) return "<incomplete>";
         static QStringList How { "",
                                  "Inobvious to One Sense Group",
                                  "Inobvious to Two Sense Groups",
-                                 "Imperceptible to Onse Sense Group",
+                                 "Imperceptible to One Sense Group",
                                  "Fully Invisible" };
         static QStringList Effect {  "",
                                      "Inobvious to other characters but not to target",
                                      "Invisible to other characters but not to target",
                                      "Inobvious to target but not to other characters"
                                      "Invisible to target but not to other characters" };
+        static QStringList HowAbbr { "",
+                                 "Inob. to 1 Sense Group",
+                                 "Inob. to 2 Sense Groups",
+                                 "Imper. to 1 Sense Group",
+                                 "Fully Invisible" };
+        static QStringList EffectAbbr {  "",
+                                     "Inobv. to others but not to tgt",
+                                     "Invis. to others but not to tgt",
+                                     "Inobv. to tgt but not to others"
+                                     "Invis. to tgt but not to others" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Invisible Power Effects (";
-        if (v.mInobvious) desc += How[v.mHow + 2];
-        else desc += How[v.mHow];
-        desc += (v.mSense.isEmpty() ? "" : ": " + v.mSense);
-        if (v.mEffect > 0) desc += "; " + Effect[v.mEffect];
+                 (abbr ? "Invis. Pow. Eff." : "Invisible Power Effects") + " (";
+        if (abbr) {
+            if (v.mInobvious) desc += HowAbbr[v.mHow + 2];
+            else desc += HowAbbr[v.mHow];
+            desc += (v.mSense.isEmpty() ? "" : ": " + v.mSense);
+            if (v.mEffect > 0) desc += "; " + EffectAbbr[v.mEffect];
+        } else {
+            if (v.mInobvious) desc += How[v.mHow + 2];
+            else desc += How[v.mHow];
+            desc += (v.mSense.isEmpty() ? "" : ": " + v.mSense);
+            if (v.mEffect > 0) desc += "; " + Effect[v.mEffect];
+        }
         return desc + ")";
     }
 
@@ -4037,6 +4151,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { sense = createLineEdit(p, l, "Sense(s)?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
@@ -4066,11 +4181,11 @@ private:
 
     QLineEdit* sense = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mSense.isEmpty()) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Limited Effect (" + v.mSense + ")";
+                 (abbr ? "Lim. Eff." : "Limited Effect") + " (" + v.mSense + ")";
         return desc;
     }
 };
@@ -4122,6 +4237,7 @@ public:
 
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { conditional = createCheckBox(p, l, "Power is Conditional", std::mem_fn(&ModifierBase::checked));
                                                               how         = createComboBox(p, l, "How Limited?", { "", "Power loses less than a fourth of its overall effectiveness",
@@ -4178,11 +4294,11 @@ private:
     QComboBox* how = nullptr;
     QLineEdit* what = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mHow < 1 || v.mWhat.isEmpty()) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "-") + f.toString() + ") " : "") +
-                 "Limited Power (";
+                 (abbr ? "Lim. Pow." : "Limited Power") + " (";
         desc += v.mWhat;
         return desc + ")";
     }
@@ -4232,6 +4348,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { noRange = createCheckBox(p, l, "Power Has No Range", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
@@ -4263,10 +4380,10 @@ private:
 
     QCheckBox* noRange = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Limited Range";
+                 (abbr ? "Lim. Rng" : "Limited Range") + " (" + (v.mNoRange ? (abbr ? "No Rng" : "No Range") : (abbr ? "Std Rng" : "Standard Range")) + ")";
         return desc;
     }
 };
@@ -4299,6 +4416,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { how  = createComboBox(p, l, "How Common?", { "", "Very Common", "Common", "Uncommon" }, std::mem_fn(&ModifierBase::index));
                                                               what = createLineEdit(p, l, "What?", std::mem_fn(&ModifierBase::changed));
@@ -4340,12 +4458,13 @@ private:
     QComboBox* how = nullptr;
     QLineEdit* what = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mHow < 1 || v.mWhat.isEmpty()) return "<incomplete>";
         static QStringList Limited { "", "Very Common", "Common", "Uncommon" };
+        static QStringList LimitedAbbr { "", "V. Com.", "Com.", "Uncom." };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Limited Special Effect (" + Limited[v.mHow] + ": " + v.mWhat + ")";
+                 (abbr ? "Lim. Spec. Eff." : "Limited Special Effect") + " (" + (abbr ? LimitedAbbr[v.mHow] : Limited[v.mHow]) + ": " + v.mWhat + ")";
         return desc;
     }
 
@@ -4403,6 +4522,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { greater  = createCheckBox(p, l, "Greater Power Linked to Lesser▲", std::mem_fn(&ModifierBase::checked));
                                                               both     = createCheckBox(p, l, "Must Use Together and Lesser is Inconvenient", std::mem_fn(&ModifierBase::checked));
@@ -4475,17 +4595,26 @@ private:
     QCheckBox* instant = nullptr;
     QLineEdit* target = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Linked to " + v.mTarget;
         QString sep = " (";
-        if (v.mGreater) { desc += sep + "Greater Power Linked to Lesser▲"; sep = "; "; }
-        if (v.mBoth) { desc += sep + "Must Use Together and Lesser is Inconvenient"; sep = "; "; }
-        if (v.mProp) { desc += sep + "Need Not Use Powers Proportionally"; sep = "; "; }
-        if (v.mFull) { desc += sep + "Greater must be at Full Power to use Lesser"; sep = "; "; }
-        if (v.mConstant) { desc += sep + "Greater Power is Constant"; sep = "; "; }
-        if (v.mInstant) { desc += sep + "Instant Power can be Used any Time with Constant"; sep = ": "; }
+        if (abbr) {
+            if (v.mGreater) { desc += sep + "Greater Pow. Linked w/Less.▲"; sep = "; "; }
+            if (v.mBoth) { desc += sep + "Must Use Both & Lesser is Inconv."; sep = "; "; }
+            if (v.mProp) { desc += sep + "Need Not Use Pows Proport."; sep = "; "; }
+            if (v.mFull) { desc += sep + "Greater Full Pow. to use Lesser"; sep = "; "; }
+            if (v.mConstant) { desc += sep + "Greater Pow. is Const."; sep = "; "; }
+            if (v.mInstant) { desc += sep + "Can be Used any Time with Const."; sep = ": "; }
+        } else {
+            if (v.mGreater) { desc += sep + "Greater Power Linked to Lesser▲"; sep = "; "; }
+            if (v.mBoth) { desc += sep + "Must Use Together and Lesser is Inconvenient"; sep = "; "; }
+            if (v.mProp) { desc += sep + "Need Not Use Powers Proportionally"; sep = "; "; }
+            if (v.mFull) { desc += sep + "Greater must be at Full Power to use Lesser"; sep = "; "; }
+            if (v.mConstant) { desc += sep + "Greater Power is Constant"; sep = "; "; }
+            if (v.mInstant) { desc += sep + "Instant Power can be Used any Time with Constant"; sep = ": "; }
+        }
         if (sep == "; ") desc += ")";
         return desc;
     }
@@ -4538,6 +4667,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { effect = createComboBox(p, l, "What Effect?", { "", "EGO+10", "EGO+20", "EGO+30" }, std::mem_fn(&ModifierBase::index));
                                                               other  = createLineEdit(p, l, "Other Effects?", std::mem_fn(&ModifierBase::changed));
@@ -4580,12 +4710,12 @@ private:
     QComboBox* effect = nullptr;
     QLineEdit* other = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mEffect < 1) return "<incomplete>";
         static QStringList Limited { "", "EGO+10", "EGO+20", "EGO+30" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Mandatory Effect (" + Limited[v.mEffect];
+                 (abbr ? "Mand. Eff." : "Mandatory Effect") + " (" + Limited[v.mEffect];
         if (!v.mOther.isEmpty()) desc += " and " + v.mOther;
         return desc + ")";
     }
@@ -4618,6 +4748,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { mass = createComboBox(p, l, "How much?", { "", Fraction(1, 2).toString() + " Mass",
                                                                                                          "Normal Mass", "2x Mass" }, std::mem_fn(&ModifierBase::index));
@@ -4653,12 +4784,13 @@ private:
 
     QComboBox* mass = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mMass < 1) return "<incomplete>";
         static QStringList Limited { "", Fraction(1, 2).toString() + " Mass", "Normal Mass", "2x Mass" };
+        static QStringList LimitedAbbr { "", Fraction(1, 2).toString() + " Mass", "1x Mass", "2x Mass" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "MassꚚ (" + Limited[v.mMass] + ")";
+                 "MassꚚ (" + (abbr ? LimitedAbbr[v.mMass] : Limited[v.mMass]) + ")";
         return desc;
     }
 };
@@ -4691,6 +4823,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { scale = createComboBox(p, l, "How much?", { "", "1 km", "10 km", "100 km", "1,000 km", "10,000 km", "100,000 km",
                                                                                                           "1 million km", "100 million km", "1 billion km", "10 billion km",
@@ -4737,16 +4870,20 @@ private:
     QComboBox* scale = nullptr;
     QCheckBox* invariant = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mScale == -1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QStringList scale { "", "1 km", "10 km", "100 km", "1,000 km", "10,000 km", "100,000 km",
                             "1 million km", "100 million km", "1 billion km", "10 billion km",
                             "100 billion km", "1 trillion km", "1 light year", "10 light years",
                             "100,000 light-years", "100 billion light-years" };
+        QStringList scaleAbbr { "", "1 km", "10 km", "100 km", "1,000 km", "10,000 km", "100,000 km",
+                            "1 mil. km", "100 mil. km", "1 bil. km", "10 bil. km",
+                            "100 bil. km", "1 tril. km", "1 lt-yr", "10 lt-yrs",
+                            "100,000 lt-yrs", "100 bil. lt-yrs" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Megascaleϴ (" + scale[v.mScale];
-        if (v.mInvariant) desc += "; Can't change scale";
+                 "Megascaleϴ (" + (abbr ? scaleAbbr[v.mScale] : scale[v.mScale]);
+        if (v.mInvariant) desc += "; " + QString(abbr ? "Fixed " : "Can't Change") + " Scale";
         return desc + ")";
     }
 };
@@ -4798,6 +4935,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { activation = createCheckBox(p, l, "Acvtivation", std::mem_fn(&ModifierBase::checked));
                                                               effects    = createCheckBox(p, l, "Effects", std::mem_fn(&ModifierBase::checked));
@@ -4836,14 +4974,14 @@ private:
     QCheckBox* activation = nullptr;
     QCheckBox* effects = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (!v.mActivation && !v.mEffects) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "No Concious Control▲";
+                 (abbr ? "No Conc. Ctrl" : "No Concious Control") + "▲";
         QString sep = " (";
-        if (v.mActivation) { desc += sep + "Activation"; sep = " and "; }
-        if (v.mEffects) { desc += sep + "Effects"; sep = "; "; }
+        if (v.mActivation) { desc += sep + (abbr ? ":Act." : "Activation"); sep = (abbr ? " & " : " and "); }
+        if (v.mEffects) { desc += sep + (abbr ? "Eff." : "Effects"); sep = "; "; }
         return desc + ")";
     }
 };
@@ -5046,6 +5184,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { identity = createLineEdit(p, l, "Identity", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
@@ -5076,11 +5215,11 @@ private:
 
     QLineEdit* identity = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mIdentity.isEmpty()) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Only In Alternate Identity (" + v.mIdentity + ")";
+                 (abbr ? "Only In Alt. Id." : "Only In Alternate Identity") + " (" + v.mIdentity + ")";
         return desc;
     }
 };
@@ -5151,6 +5290,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { against   = createLineEdit(p, l, "Only Works Against?", std::mem_fn(&ModifierBase::changed));
                                                               howCommon = createComboBox(p, l, "How Common?", { "", "Rare", "Uncommon", "Common", "Very Common" },
@@ -5187,11 +5327,11 @@ private:
     QLineEdit* against = nullptr;
     QComboBox* howCommon = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mAgainst.isEmpty() || v.mHowCommon < 0) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Only Works Against " + v.mAgainst;
+                 (abbr ? "Only vs " : "Only Works Against ") + v.mAgainst;
         return desc;
     }
 };
@@ -5224,6 +5364,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
     void          selected(int,int,bool) override           { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { what  = createTreeWidget(p, l, { { "Hearing",     { "Normal Hearing",
                                                                                                                   "Active Sonar",
@@ -5276,15 +5417,36 @@ private:
 
     QTreeWidget* what = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
+        static QMap<QString, QString> abbrev {
+            { "Hearing", "All Hearing" },
+            { "Mental", "All Mental" },
+            { "Radio", "All Radio" },
+            { "Sight", "All Sight" },
+            { "Smell/Taste", "All Smell/Taste"} ,
+            { "Touch", "All Touch" },
+            { "Normal Hearing", "Hearing" },
+            { "Active Sonar", "Sonar" },
+            { "Ultrasonic Perception", "Ultrasonic" },
+            { "Mental Awareness", "Ment. Awar." },
+            { "Mind Scan", "Mind Scan" },
+            { "Radio Perception", "Radio" },
+            { "Radar", "Radar" },
+            { "Normal Sight", "Sight" },
+            { "Nightvision", "Nightbision" },
+            { "Infrared Pereception", "Infrared" },
+            { "Ultraviolet Perception", "Untraviolet" },
+            { "Normal Smell", "Smell" },
+            { "Normal Taste", "Taste" },
+            { "Normal Touch", "Touch" } };
         if (v.mWhat.isEmpty()) return "<incomplete>";
         Points p(points(Modifier::NoStore));
         QString desc = (show ? QString("(+%1) ").arg(p.points) : "") + "Opaque to " + v.mWhat[0];
         auto len = v.mWhat.length();
         for (auto i = 1; i < len; ++i) {
             if (i != len - 1) desc += ", ";
-            else desc += ", and ";
-            desc += v.mWhat[i];
+            else desc += abbr ? ", & " : ", and ";
+            desc += abbr ? abbrev[v.mWhat[i]] : v.mWhat[i];
         }
         return desc;
     }
@@ -5343,6 +5505,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { imperceptable = createCheckBox(p, l, "Imperceptable power is Obvious", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
@@ -5374,10 +5537,11 @@ private:
 
     QCheckBox* imperceptable = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  "Perceivable";
+        if (v.mImperceptable) desc += " (" + QString(abbr ? "Pow. is Obv." : "Power is Obvious") + ")";
         return desc;
     }
 };
@@ -5485,6 +5649,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { noRange = createCheckBox(p, l, "Power has no range", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
@@ -5516,10 +5681,10 @@ private:
 
     QCheckBox* noRange = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Range Based On STR";
+                 (abbr ? "Range w/" : "Range Based On ") + "STR";
         return desc;
     }
 };
@@ -5733,6 +5898,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { reduced = createLineEdit(p, l, "Points of negation?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
@@ -5762,10 +5928,10 @@ private:
 
     QLineEdit* reduced = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mReduced < 1) return "<incomplete>";
         Points p(points(Modifier::NoStore));
-        QString desc = (show ? QString("(+%1) ").arg(p.points) : "")  + QString("Reduced Negation (-%1)").arg(v.mReduced);
+        QString desc = (show ? QString("(+%1) ").arg(p.points) : "")  + QString(abbr ? "Red. Neg. (-%1)" : "Reduced Negation (-%1)").arg(v.mReduced);
         return desc;
     }
 };
@@ -5816,6 +5982,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { noRangeMod = createCheckBox(p, l, "No Range Modifier", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
@@ -5847,10 +6014,10 @@ private:
 
     QCheckBox* noRangeMod = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 (v.mNoRangeMod ? "No Range Modifier" : (Fraction(1, 2).toString() + " Range Modifier"));
+                 (v.mNoRangeMod ? (abbr ? "No Rng Mod." : "No Range Modifier") : (Fraction(1, 2).toString() + (abbr ? "Rng Mod." : " Range Modifier")));
         return desc;
     }
 };
@@ -5882,6 +6049,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { hands = createComboBox(p, l, "How Manhy Hands?", { "", "One-And-A-Half", "Two" },
                                                                                          std::mem_fn(&ModifierBase::index));
@@ -5912,12 +6080,13 @@ private:
 
     QComboBox* hands = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mHands < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         static QStringList hands { "", "One-And-A-Half", "Two" };
+        static QStringList handsAbbr { "", "1" + Fraction(1, 2).toString(), "2" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 hands[v.mHands] + " HandedꚚ";
+                 (abbr ? handsAbbr[v.mHands] : hands[v.mHands]) + " HandedꚚ";
         return desc;
     }
 };
@@ -5955,6 +6124,7 @@ public:
 
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { rType = createCheckBox(p, l, "Skill Roll", std::mem_fn(&ModifierBase::checked));
                                                               when  = createCheckBox(p, l, "Every phase or Use", std::mem_fn(&ModifierBase::checked));
@@ -6043,22 +6213,23 @@ private:
     QComboBox* per = nullptr;
     QComboBox* fails = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         QStringList per { "20 Active points", "10 Active Points", "5 Active Points" };
+        QStringList perAbbr { "20 Act. pts", "10 Act. Pts", "5 Act Pts" };
         QStringList roll { "", "7-", "8-", "9-", "10-", "11-", "12-", "13-", "14-" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         QString sep;
         if (v.mType) {
             if (v.mSkill.isEmpty() || v.mPer < 1) return "<incomplete>";
-            desc = "Skill Roll: " + v.mSkill + " (-1 per " + per[v.mPer];
+            desc = "Skill Roll: " + v.mSkill + " (-1 per " + (abbr ? perAbbr[v.mPer] : per[v.mPer]);
             sep = "; ";
         } else {
             if (v.mRoll < 1) return "<incomplete>";
             desc = "Roll " + roll[v.mRoll];
             sep = " (";
         }
-        if (v.mWhen) { desc += sep + "Every phase or Use"; sep = "; "; }
+        if (v.mWhen) { desc += sep + (abbr ? "Each Phs/" : "Every phase or ") + "Use"; sep = "; "; }
         if (v.mFails == 1) { desc += sep + "Burnout"; sep = "; "; }
         else if (v.mFails == 2) { desc += sep + "Jammed"; sep = ": "; }
         if (sep == "; ") desc += ")";
@@ -6107,6 +6278,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { max   = createLineEdit(p, l, "Maximum charges available?", std::mem_fn(&ModifierBase::numeric));
                                                               needs = createLineEdit(p, l, "Charges needed?", std::mem_fn(&ModifierBase::numeric));
@@ -6152,11 +6324,11 @@ private:
     QLineEdit* max = nullptr;
     QLineEdit* needs = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mMax < 1 || v.mNeeds < 2) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
-        desc += QString("%1").arg(v.mNeeds) + " Charges per Use";
+        desc += QString("%1").arg(v.mNeeds) + (abbr ? "/" : " Charges per ") + "Use";
         return desc;
     }
 };
@@ -6188,6 +6360,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { needs = createLineEdit(p, l, "Users needed?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
@@ -6224,11 +6397,11 @@ private:
 
     QLineEdit* needs = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mNeeds < 2) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
-        desc += QString("%1").arg(v.mNeeds) + " Users to Activate";
+        desc += QString("%1").arg(v.mNeeds) + " Users to " + (abbr ? "Act." : "Activate");
         return desc;
     }
 };
@@ -6279,6 +6452,7 @@ public:
 
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { nonStandard = createCheckBox(p, l, "Non-standard restraint", std::mem_fn(&ModifierBase::checked));
                                                               restraint   = createLineEdit(p, l, "How to restrain?", std::mem_fn(&ModifierBase::changed));
@@ -6317,10 +6491,10 @@ private:
     QCheckBox* nonStandard = nullptr;
     QLineEdit* restraint = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Restrainable";
-        if (v.mNonStandard) desc += "(Only by " + v.mRestraint + ")";
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + (abbr ? "Restrain." : "Restrainable");
+        if (v.mNonStandard) desc += " (Only by " + v.mRestraint + ")";
         return desc;
     }
 
@@ -6377,6 +6551,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { regen = createCheckBox(p, l, "Regeneration", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
@@ -6408,9 +6583,9 @@ private:
 
     QCheckBox* regen = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "-") + f.toString() + ") " : "") + "Ressurection Only";
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "-") + f.toString() + ") " : "") + (abbr ? "Resur. Only" : "Ressurection Only");
         return desc;
     }
 };
@@ -6466,6 +6641,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { level    = createComboBox(p, l, "Level?", { "", "Minor", "Major", "Extreme" },
                                                                                         std::mem_fn(&ModifierBase::index));
@@ -6551,17 +6727,27 @@ private:
     QCheckBox* constant = nullptr;
     QCheckBox* pre = nullptr;
 
-    QString optOut(bool show) {
-        QStringList affects { "", "Character", "Aropund Character", "Recipient", "Character And Recipient" };
+    QString optOut(bool show, bool abbr = false) {
+        QStringList level { "", "Minor", "Major", "Extreme" };
+        QStringList levelAbbr { "", "Min.", "Maj.", "Ext." };
+        QStringList affects { "", "Character", "Around Character", "Recipient", "Character And Recipient" };
         QStringList when { "", "Required Roll Fails", "A Thing Happens", "When Power Used",
                            "When Power Stops Being Used" };
+        QStringList affectsAbbr { "", "Char.", "Around Char.", "Recip.", "Char. & Recip." };
+        QStringList whenAbbr { "", "Req. Roll Fails", "A Thing Happens", "When Used",
+                           "When Pow. Stops" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "-") + f.toString() + ") " : "");
         if (v.mAffects < 1 || v.mWhen < 1 || v.mLevel < 1 || v.mEffect.isEmpty()) return "<incomplete>";
-        desc += "Side Effect (" + v.mEffect;
-        desc += " On " + affects[v.mAffects];
-        desc += " When " + when[v.mWhen];
-        if (v.mConstant) desc += "; Fixed Damage";
+        desc += QString(abbr ? levelAbbr[v.mLevel] : level[v.mLevel]) + " Side Effect (" + v.mEffect;
+        if (abbr) {
+            desc += " On " + affectsAbbr[v.mAffects];
+            desc += " When " + whenAbbr[v.mWhen];
+        } else {
+            desc += " On " + affects[v.mAffects];
+            desc += " When " + when[v.mWhen];
+        }
+        if (v.mConstant) desc += abbr ? "; Fixed Dmg" : "; Fixed Damage";
         return desc + ")";
     }
 };
@@ -6612,6 +6798,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { rmod = createCheckBox(p, l, "Subject To Range Mod", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
@@ -6643,10 +6830,10 @@ private:
 
     QCheckBox* rmod = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Standard Range";
-        if (v.mRMod) desc += " (Subject To Range Penallties)";
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + (abbr ? "Stnd Rng" : "Standard Range");
+        if (v.mRMod) desc += abbr ? " (Subj. Rng. Pen.)" : " (Subject To Range Penallties)";
         return desc;
     }
 };
@@ -6678,6 +6865,7 @@ public:
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { stunned = createCheckBox(p, l, "Or Stunned", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
@@ -6709,9 +6897,9 @@ private:
 
     QCheckBox* stunned = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Stops Working If Knocked Out";
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + (abbr ? "Stops If KO'd" : "Stops Working If Knocked Out");
         if (v.mStunned) desc += " Or Stunned";
         return desc;
     }
@@ -6741,6 +6929,7 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<Sticky>(json); }
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { all = createCheckBox(p, l, "Free one, free all??", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
@@ -6767,11 +6956,11 @@ private:
 
     QCheckBox* all = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                        "Sticky";
-        if (v.mAll) desc += " (Free on, free all)";
+        if (v.mAll) desc += " (Free one, free all)";
         return desc;
     }
 };
@@ -6801,6 +6990,7 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<STRMinimum>(json); }
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { min = createLineEdit(p, l, "STR Minimum?", std::mem_fn(&ModifierBase::numeric));
                                                               return true; }
@@ -6844,11 +7034,11 @@ private:
         min->undo();
     }
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mMin < 0) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                "STR MinimumꚚ (" + QString("%1)").arg(v.mMin);
+                (abbr ? "STR Min." : "STR Minimum") + "Ꚛ (" + QString("%1)").arg(v.mMin);
         return desc;
     }
 };
@@ -6918,6 +7108,7 @@ public:
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { lType = createComboBox(p, l, "Type?", { "", "Instant Power", "Constant Power", "All Others" },
                                                                                      std::mem_fn(&ModifierBase::index));
@@ -6964,22 +7155,20 @@ private:
     QComboBox* lType = nullptr;
     QComboBox* time = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mType < 1 || v.mTime < 1) return "<incomplete>";
         Fraction f(fraction(NoStore));
+        QStringList instantAbbr = { "", "An Xtra Phs", "1 Tn", "1 Min.", "5 Mins", "20 Mins",
+                                "1 Hr", "6 Hrs", "1 Day", "1 Wk", "1 Mth", "3 Mths",
+                                "1 Yr", "5 Yrs" };
         QStringList instant = { "", "An Extra Phase", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                                 "1 Hour", "6 Hours", "1 Day", "1 Week", "1 Month", "1 Season",
                                 "1 Year", "5 Years" };
-        QStringList constant = { "", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
-                                 "1 Hour", "6 Hours", "1 Day", "1 Week", "1 Month", "1 Season",
-                                 "1 Year", "5 Years" };
-        QStringList other = { "", "An Extra Phase", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
-                              "1 Hour", "6 Hours", "1 Day" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Time Limit (";
         switch (v.mType) {
-        case 1: desc += instant[v.mTime];  break;
-        case 2: desc += constant[v.mTime]; break;
-        case 3: desc += other[v.mTime];    break;
+        case 1: desc += abbr ? instantAbbr[v.mTime] : instant[v.mTime];         break;
+        case 2: desc += abbr ? instantAbbr[v.mTime + 1] : instant[v.mTime + 1]; break;
+        case 3: desc += abbr ? instantAbbr[v.mTime] : instant[v.mTime];         break;
         }
         return desc + ")";
     }
@@ -7039,6 +7228,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { lType = createComboBox(p, l, "Type?", { "", "Single Dimension", "Related Group of Dimensions", "Any Dimension" },
                                                                                      std::mem_fn(&ModifierBase::index));
@@ -7081,15 +7271,16 @@ private:
     QComboBox* lType = nullptr;
     QLineEdit* which = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mType < 1 || (v.mType != 3 && v.mWhich.isEmpty())) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QStringList type = { "", "Single Dimension", "Related Group of Dimensions", "Any Dimension" };
+        QStringList typeAbbr = { "", "Single Dim.", "Related Dims", "Any Dim." };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Transdimensionalϴ (";
         switch (v.mType) {
         case 0:
-        case 1: desc += type[v.mType] + "; " + v.mWhich; break;
-        case 2: desc += type[v.mType];                  break;
+        case 1: desc += (abbr ? typeAbbr[v.mType] : type[v.mType]) + "; " + v.mWhich; break;
+        case 2: desc += (abbr ? typeAbbr[v.mType] : type[v.mType]);                   break;
         }
         return desc + ")";
     }
@@ -7128,6 +7319,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { change  = createCheckBox(p, l, "Can Change Trigger Conditions", std::mem_fn(&ModifierBase::checked));
                                                               cond    = createLineEdit(p, l, "Conditions?", std::mem_fn(&ModifierBase::changed));
@@ -7202,18 +7394,19 @@ private:
     QCheckBox* expire = nullptr;
     QCheckBox* misfire = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mCond.isEmpty() || v.mAct < 1 || v.mReset < 1) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QStringList reset { "", "Turn to", "Full Phase to", "Half Phase to", "0-Phase to", "Automatically" };
+        QStringList resetAbbr { "", "Tn to", "Full Phs to", Fraction(1, 2).toString() + " Phs to", "0-Phs to", "Auto." };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Trigger (";
         desc += v.mCond;
-        if (v.mChange) desc += "; Can change conditions";
-        if (v.mActive) desc += ": 0-Phase Act.";
-        desc += QString("; %1 Activating Conditions").arg(v.mAct);
-        desc += "; " + reset[v.mReset] + " reset";
-        if (v.mExpire) desc += "; expires";
-        if (v.mMisfire) desc += "; misfire";
+        if (v.mChange) desc += abbr ? "Can Chng Cond." : "; Can Change Conditions";
+        if (v.mActive) desc += abbr ? "0-Phs Act." : ": 0-Phase Act.";
+        desc += QString(abbr ? "%1 Act. Cond." : "; %1 Activating Conditions").arg(v.mAct);
+        desc += "; " + (abbr ? resetAbbr[v.mReset] : reset[v.mReset]) + " reset";
+        if (v.mExpire) desc += "; " + QString(abbr ? "Exp." : "Expires");
+        if (v.mMisfire) desc += "; Misfire";
         return desc + ")";
     }
 };
@@ -7263,6 +7456,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { until = createLineEdit(p, l, "Until?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
@@ -7288,10 +7482,10 @@ private:
 
     QLineEdit* until = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mUntil.isEmpty()) return "<incomplete>";
         Fraction f(fraction(NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Uncontrolled Until " + v.mUntil;
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + (abbr ? "Uncontrolled til " : "Uncontrolled Until ") + v.mUntil;
         return desc;
     }
 };
@@ -7343,6 +7537,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { num   = createLineEdit(p, l, "Number of Movements?", std::mem_fn(&ModifierBase::numeric));
                                                               which = createLineEdit(p, l, "Which?", std::mem_fn(&ModifierBase::changed));
@@ -7378,7 +7573,7 @@ private:
     QLineEdit* num = nullptr;
     QLineEdit* which = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mNum < 1 || v.mWhich.isEmpty()) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Usable As " + v.mWhich;
@@ -7418,6 +7613,7 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<UsableByOthers>(json); }
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { doubles = createLineEdit(p, l, "How many doublings?", std::mem_fn(&ModifierBase::numeric));
                                                               ten     = createCheckBox(p, l, "Everyone with 10m can be recipient", std::mem_fn(&ModifierBase::checked));
@@ -7512,31 +7708,31 @@ private:
         doubles->undo();
     }
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mDoubles < 0) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         if (v.mForce) desc += "Usable Against Othersϴ";
         else desc += "Usable On Othersϴ";
-        desc += "(x" + QString("%1").arg((int) pow(2.0, v.mDoubles)) + " targets"; // NOLINT
+        desc += "(x" + QString("%1").arg((int) pow(2.0, v.mDoubles)) + (abbr ? "Tgts" : " Targets"); // NOLINT
         if (v.mTen) desc += "; Anyone In 10m";
         if (v.mOne) desc += "; One At A Time";
         switch (v.mControl) {
-        case 0: desc += "; Recipient Controls";                        break;
-        case 1: desc += "; Recipient Controls But Grantor Can Revoke"; break;
-        case 2: desc += "; Grantor Controls";                          break;
+        case 0: desc += "; " + QString(abbr ? "Recip. Cntrls" : "Recipient Controls");                                               break;
+        case 1: desc += "; " + QString(abbr ? "Recip. Cntrls But Grantor Can Revoke" : "Recipient Controls But Grantor Can Revoke"); break;
+        case 2: desc += "; " + QString(abbr ? "Granto Cntrls" : "Grantor Controls");                                                 break;
         }
         if (v.mPays) desc += "; Grantor Pays END";
         else desc += "; Receipient Pays END";
         switch (v.mRange) {
-        case 0: desc += "; Must Be In Reach";         break;
-        case 1: desc += "; Must Be In Limited Range"; break;
-        case 2: desc += "; Must Be In Range";         break;
+        case 0: desc += "; " + QString(abbr ? "In Reach" : "Must Be In Reach");           break;
+        case 1: desc += "; " + QString(abbr ? "In Ltd Rng" : "Must Be In Limited Range"); break;
+        case 2: desc += "; " + QString(abbr ? "In Rng" : "Must Be In Range");             break;
         }
         desc += " When Granted";
         switch (v.mStay) {
-        case 1: desc += "; Must Stay In LIne-Of-Sight"; break;
-        case 2: desc += "; Must stay In Range";         break;
+        case 1: desc += "; " + QString(abbr ? "Stay In Line-Of-Sight" : "Must Stay In Line-Of-Sight"); break;
+        case 2: desc += "; " + QString(abbr ? "Stay In Rng" : "Must Stay In Range");                   break;
         }
 
         return desc + ")";
@@ -7572,6 +7768,7 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<VariableAdvantage>(json); }
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { whole   = createLineEdit(p, l, "Whole part?", std::mem_fn(&ModifierBase::numeric));
                                                               half    = createCheckBox(p, l, "+" + Fraction(1, 2).toString(), std::mem_fn(&ModifierBase::checked));
@@ -7630,15 +7827,15 @@ private:
     QCheckBox* limit = nullptr;
     QLineEdit* advs = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mWhole < 0 || (v.mLimit && v.mAdvs.isEmpty())) return "<incomplete>";
         Fraction f(fraction(NoStore));
         Fraction amt(v.mWhole);
         if (v.mHalf) amt += Fraction(1, 2);
         if (v.mQuarter) amt += Fraction(1, 4);
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
-        desc += "Variable Advantageϴ";
-        desc += " (+" + amt.toString() + " in Advantages";
+        desc += abbr ? "Var. Adv." : "Variable Advantageϴ";
+        desc += " (+" + amt.toString() + (abbr ? " in Adv." : " in Advantages");
         if (v.mLimit) desc += "; Only From: " + v.mAdvs;
         return desc + ")";
     }
@@ -7668,6 +7865,7 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<VariableEffect>(json); }
 
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { effect = createLineEdit(p, l, "Effects?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
@@ -7692,10 +7890,10 @@ private:
 
     QLineEdit* effect = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mEffect.isEmpty()) return "<incomplete>";
         Fraction f(fraction(NoStore));
-        return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Variable Effect▲ (versus " + v.mEffect + ")";
+        return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + (abbr ? "Var. Eff. (vs " : "Variable Effect▲ (versus ") + v.mEffect + ")";
     }
 };
 
@@ -7726,6 +7924,7 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<VariableLimitations>(json); }
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { whole   = createLineEdit(p, l, "Whole part?", std::mem_fn(&ModifierBase::numeric));
                                                               half    = createCheckBox(p, l, "+" + Fraction(1, 2).toString(), std::mem_fn(&ModifierBase::checked));
@@ -7770,14 +7969,14 @@ private:
     QCheckBox* half = nullptr;
     QCheckBox* quarter = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mWhole < 0) return "<incomplete>";
         Fraction f(fraction(NoStore));
         Fraction amt(v.mWhole);
         if (v.mHalf) amt += Fraction(1, 2);
         if (v.mQuarter) amt += Fraction(1, 4);
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
-        desc += "Variable Limitations▲ (+" + amt.toString() + " in Limitations" + ")";
+        desc += QString(abbr ? "Var. Lim." : "Variable Limitations") + "▲ (+" + amt.toString() + " in " + QString(abbr ? "Lims" : "Limitations") + ")";
         return desc;
     }
 };
@@ -7807,6 +8006,7 @@ public:
     shared_ptr<Modifier> create(const QJsonObject& json) override  { return make_shared<VariableSpecialEffects>(json); }
 
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { effect = createLineEdit(p, l, "Special Effects?", std::mem_fn(&ModifierBase::changed));
                                                               return true; }
@@ -7836,9 +8036,9 @@ private:
 
     QLineEdit* effect = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Variable Special Effects";
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + (abbr ? "Var. Special Eff." : "Variable Special Effects");
         if (!v.mEffect.isEmpty()) desc += " (from:  " + v.mEffect + ")";
         return desc;
     }
@@ -7871,6 +8071,7 @@ public:
     void          checked(bool) override                    { store(); ModifiersDialog::ref().updateForm(); }
     void          changed(QString) override                 { store(); ModifiersDialog::ref().updateForm(); }
     void          index(int) override                       { store(); ModifiersDialog::ref().updateForm(); }
+    QString       abbreviation(bool show = false) override  { return optOut(show, true); }
     QString       description(bool show = false) override   { return optOut(show); }
     bool          form(QWidget* p, QVBoxLayout* l) override { characteristic = createComboBox(p, l, "Characteristic?", { "", "STR", "DEX", "INT", "EGO", "PRE", "OCV", "DCV", "OMCV", "DMCV",
                                                                                                                          "SPD", "PD", "ED", "REC", "END", "BODY", "STUN" },
@@ -7902,12 +8103,12 @@ private:
 
     QComboBox* characteristic = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         if (v.mCharacteristic < 1) return "<incomplete>";
         Fraction f(fraction(NoStore));
         QStringList characteristic = { "", "STR", "DEX", "INT", "EGO", "PRE", "OCV", "DCV", "OMCV", "DMCV",
                                        "SPD", "PD", "ED", "REC", "END", "BODY", "STUN" };
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + QString("Works Against EGO Not %1▲").arg(characteristic[v.mCharacteristic]);
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + QString(abbr ? "Vs EGO Not %1▲" : "Works Against EGO Not %1▲").arg(characteristic[v.mCharacteristic]);
         return desc;
     }
 };

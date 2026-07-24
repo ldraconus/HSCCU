@@ -407,7 +407,7 @@ private:
         res += "Healing: " + QString("+%1").arg(v.mDice) + "d6 to " + v.mTo;
         if (abbr) {
             QStringList rate { "", "6 Hrs", "Hr", "20 Mins",
-                             "5 Mins", "Min", "Turn" };
+                             "5 Mins", "Min", "Tn" };
             if (v.mRate >= 1) res += " (Rpt " + rate[v.mRate] + " On A Tgt)";
         } else {
             QStringList rate { "", "6 Hours", "Hour", "20 Minutes",

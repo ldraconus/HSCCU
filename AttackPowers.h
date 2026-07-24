@@ -29,6 +29,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice = createLineEdit(parent, layout, "Dice of Damage?", std::mem_fn(&Power::numeric));
@@ -36,7 +37,7 @@ public:
                                                                    stun = createCheckBox(parent, layout, "STUN Only");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return Points(v.mDice * 5); }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -68,11 +69,12 @@ private:
     QComboBox* pded;
     QCheckBox* stun;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1 || v.mPdEd < 0) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v.mDice) + "d6 Blast vs " + ((v.mPdEd == 0) ? "PD" : "ED");
+        if (abbr) res += QString("%1").arg(v.mDice) + "d6 EB" + ((v.mPdEd == 0) ? "" : " vs PD");
+        else res += QString("%1").arg(v.mDice) + "d6 Blast vs " + ((v.mPdEd == 0) ? "PD" : "ED");
         if (v.mStun) res += "; STUN Only";
         return res;
     }
@@ -143,6 +145,7 @@ public:
     }
 
     Fraction adv() override                                      { return (v.mEnvs + 1) * Fraction(1, 4); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    effect  = createComboBox(parent, layout, "Effects?", { "",
@@ -473,7 +476,7 @@ private:
 #endif
     }
 
-    QString describe(const effects& effect) {
+    QString describe(const effects& effect, bool abbr) {
         if (effect.idx < 0) return "";
         QStringList movement { "None",
                                "Running",
@@ -511,44 +514,77 @@ private:
                            "INT",
                            "EGO",
                            "PRE" };
+        QStringList moveAbbr { "None",
+                               "Run",
+                               "Swim",
+                               "Jump",
+                               "Fly",
+                               "Telep.",
+                               "Tunnel" };
+        QStringList senseAbbr { "None",
+                                "Hearing",
+                                "Sonar",
+                                "Ultrasonic",
+                                "Mntl Aware",
+                                "Mind Scan",
+                                "Radio",
+                                "Radar",
+                                "Sight",
+                                "Nightvision",
+                                "Infrared",
+                                "Ultraviolet",
+                                "Smell",
+                                "Taste",
+                                "Touch" };
+        QStringList senseGroupAbbr { "None",
+                                     "Hear",
+                                     "Mental",
+                                     "Radio",
+                                     "Sight",
+                                     "Smell/Taste",
+                                     "Touch" };
         switch (effect.which) {
-        case 0:  return QString("-%1m ").arg(effect.level) + movement[effect.idx];
-        case 1:  return QString("-%1 PER Roll w/").arg(effect.level) + sense[effect.idx];
-        case 2:  return QString("-%1 PER Roll w/").arg(effect.level) + senseGroup[effect.idx];
+        case 0:  return QString("-%1m ").arg(effect.level) + (abbr ? moveAbbr[effect.idx] : movement[effect.idx]);
+        case 1:  return QString("-%1 PER%2 w/").arg(effect.level).arg(abbr ? "" : " Roll") + (abbr ? senseAbbr[effect.idx] : sense[effect.idx]);
+        case 2:  return QString("-%1 PER%2 w/").arg(effect.level).arg(abbr ? "" : " Roll") + (abbr ? senseGroupAbbr[effect.idx] : senseGroup[effect.idx]);
         case 3:  return QString("-%1 Roll w/").arg(effect.level) + stat[effect.idx];
         case 4:  return QString("-%1 w/").arg(effect.level) + effect.val;
-        case 5:  return QString("+%1 Temperature Level%2").arg(effect.level).arg((effect.level > 1) ? "s" : "");
-        case 6:  return QString("-%1 Temperature Level%2").arg(effect.level).arg((effect.level > 1) ? "s" : "");
-        case 7:  return QString("+%1 to Range MOD").arg(effect.level);
+        case 5:  return QString("+%1 %2%3").arg(effect.level).arg(abbr ? "Temp. Lvl" : "Temperature Level").arg((effect.level > 1) ? "s" : "");
+        case 6:  return QString("-%1 %2%3").arg(effect.level).arg(abbr ? "Temp. Lvl" : "Temperature Level").arg((effect.level > 1) ? "s" : "");
+        case 7:  return QString("+%1 %2 MOD").arg(effect.level).arg(abbr ? "Rng." : "to Range");
         case 8:  return QString("-%1 w/").arg(effect.level) + effect.val + "▲";
-        case 9:  return QString("-%1 Roll w/").arg(effect.level) + stat[effect.idx + 1] + " and Skills";
-        case 10: return QString("%1 Damage").arg(effect.level);
-        case 11: return QString("%1 Telekinetic STR").arg(effect.level);
-        case 12: return QString("+%1 Wind Level%2").arg(effect.level).arg((effect.level > 1) ? "s" : "");
-        case 13: return QString("-%1 Wind Level%2").arg(effect.level).arg((effect.level > 1) ? "s" : "");
+        case 9:  return QString("-%1 %2 w/").arg(effect.level).arg(abbr ? "" : "Roll") + stat[effect.idx + 1] + QString(" %1").arg(abbr ? "&" : "and") + " Skills";
+        case 10: return QString("%1 %2").arg(effect.level).arg(abbr ? "Dmg" : "Damage");
+        case 11: return QString("%1 %2").arg(effect.level).arg(abbr ? "TK" : "Telekinetic STR");
+        case 12: return QString("+%1 Wind %3%2").arg(effect.level).arg((effect.level > 1) ? "s" : "").arg(abbr ? "Lvl" : "Level");
+        case 13: return QString("-%1 Wind %3%2").arg(effect.level).arg((effect.level > 1) ? "s" : "").arg(abbr ? "Lvl" : "Level");
         }
 
         return "";
     }
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mEffects.isEmpty() || (v.mEnvs > 0 && v.mWhat.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Change Environment: ";
+        if (abbr) res += "Chng Env: ";
+        else res += "Change Environment: ";
         QString sep = "";
         for (int i = 0; i < v.mEffects.count(); ++ i) {
             auto& effect = v.mEffects[i];
-            res += sep + describe(effect);
+            res += sep + describe(effect, abbr);
             sep = ", ";
         }
         sep = " (";
         QStringList lasting { "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                               "1 Hour", "6 Hours", "1 Day", "1 Week",
                               "1 Month", "1 Season", "1 Year", "5 Years" };
-        if (v.mLasting != -1) { res += sep + "Long Lasting: " + lasting[v.mLasting]; sep = "; "; }
-        if (v.mVarying) { res += sep + "Varying Combat Effects "; sep = "; "; }
-        if (v.mEnvs > 0) { res += sep + " Varying Environments (" + v.mWhat + ")"; sep += "; "; }
+        QStringList lastingAbbr { "1 Tn", "1 Min", "5 Mins", "20 Mins",
+                                  "1 Hr", "6 Hrs", "1 Dy", "1 Wk",
+                                  "1 Mth", "3 Mths", "1 Yr", "5 Yrs" };
+        if (v.mLasting != -1) { res += sep + (abbr ? "" : "Long ") + "Lasting: " + (abbr ? lastingAbbr[v.mLasting] : lasting[v.mLasting]); sep = "; "; }
+        if (v.mVarying) { res += sep + "Varying " + (abbr ? "Cbt Eff." : "Combat Effects"); sep = "; "; }
+        if (v.mEnvs > 0) { res += sep + " Varying " + (abbr ? "Env." : "Environments") + " (" + v.mWhat + ")"; sep += "; "; }
         if (sep == "; ") res += ")";
         return res;
     }
@@ -580,26 +616,27 @@ public:
     Entangle(const Entangle& s): AllPowers(s)          { }
     Entangle(Entangle&& s): AllPowers(s)               { }
     Entangle(const QJsonObject& json): AllPowers(json) { v.mDice   = json["dice"].toInt(0);
-                                                            v.mBody   = json["body"].toInt(0);
-                                                            v.mDef    = json["def"].toInt(0);
-                                                            v.mDmg    = json["dmg"].toInt(0);
-                                                            v.mWhat   = json["what"].toString();
-                                                            v.mSenses = json["senses"].toString();
-                                                            v.mGroups = json["groups"].toString();
-                                                            v.mFoci   = json["foci"].toBool(false);
-                                                            v.mOne    = json["one"].toBool(false);
-                                                            v.mNoDef  = json["nodef"].toBool(false);
-                                                            v.mSet    = json["set"].toInt(0);
-                                                            v.mSusc   = json["susc"].toInt(0);
-                                                            v.mSuscTo = json["suscTo"].toString();
-                                                            v.mVuln   = json["vuln"].toInt(0);
-                                                            v.mVulnTo = json["vulnTo"].toString();
-                                                          }
+                                                         v.mBody   = json["body"].toInt(0);
+                                                         v.mDef    = json["def"].toInt(0);
+                                                         v.mDmg    = json["dmg"].toInt(0);
+                                                         v.mWhat   = json["what"].toString();
+                                                         v.mSenses = json["senses"].toString();
+                                                         v.mGroups = json["groups"].toString();
+                                                         v.mFoci   = json["foci"].toBool(false);
+                                                         v.mOne    = json["one"].toBool(false);
+                                                         v.mNoDef  = json["nodef"].toBool(false);
+                                                         v.mSet    = json["set"].toInt(0);
+                                                         v.mSusc   = json["susc"].toInt(0);
+                                                         v.mSuscTo = json["suscTo"].toString();
+                                                         v.mVuln   = json["vuln"].toInt(0);
+                                                         v.mVulnTo = json["vulnTo"].toString();
+                                                        }
 
     Fraction adv() override                                      { return ((v.mDmg == 0) ? Fraction(1, 4) : Fraction(0)) +
                                                                           ((v.mDmg == 1) ? Fraction(1, 4) : Fraction(0)) +
                                                                           ((v.mDmg == 2) ? Fraction(1, 2) : Fraction(0)) +
                                                                           ((v.mDmg == 3) ? Fraction(1)    : Fraction(0)); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice   = createLineEdit(parent, layout, "Dice of Entangle?", std::mem_fn(&Power::numeric));
@@ -737,7 +774,7 @@ private:
     QComboBox* vuln;
     QLineEdit* vulnTo;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1 ||
             (v.mDmg == 2 && v.mWhat.isEmpty()) ||
             (v.mSusc >= 1 && v.mSuscTo.isEmpty()) ||
@@ -745,31 +782,37 @@ private:
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1").arg(v.mDice) + "d6 Entangle";
-        if (v.mBody > 0) res += " +" + QString("+%1").arg(v.mBody) + "d6 (Body Only)";
+        if (v.mBody > 0) res += " +" + QString("+%1").arg(v.mBody) + "d6 " + (abbr ? "BODY" : "(BODY Only)");
         if (v.mDef > 0) res += " +" + QString("+%1").arg(v.mDef) + " DEF";
         QStringList dmg { "",
                           "Both Take Damage",
                           "Takes No Damage From Certain Attacks",
                           "Transparent To All Attacks",
                           "Only Affected By Target" };
+        QStringList dmgAbbr { "",
+                              "Both Dmg",
+                              "No Dmg From ",
+                              "Trans. To Atks",
+                              "Only Tgt can Dmg" };
         if (v.mDmg > 0) {
-            res += "; " + dmg[v.mDmg];
-            if (v.mDmg == 2) res += " (" + v.mWhat + ")";
+            res += "; " + (abbr ? dmgAbbr[v.mDmg] : dmg[v.mDmg]);
+            if (v.mDmg == 2) res += (abbr ? " " : " (") + v.mWhat + (abbr ? "" : ")");
         }
         if (!v.mSenses.isEmpty()) {
             res += "; Blocks " + v.mSenses;
-            if (!v.mGroups.isEmpty()) res += "and " + v.mGroups;
+            if (!v.mGroups.isEmpty()) res += (abbr ? " & " : "and ") + v.mGroups;
         } else if (!v.mGroups.isEmpty()) res += "; Blocks " + v.mGroups;
-        if (v.mFoci) res += "; Allows use of Foci";
+        if (v.mFoci) res += QString("; Allows ") + (abbr ? "" : "use of ") + "Foci";
         if (v.mOne) res += "; 1 BODY";
-        if (v.mNoDef) res += "; No Defense";
+        if (v.mNoDef) res += QString("; No ") + (abbr ? "DEF" : "Defense");
         if (v.mSet > 0) {
             if (v.mSet == 1) res += "; Only Hands";
             else res += "; Only Feet";
         }
         QStringList common { "", " (Uncommon)", " (Common)", " (Very Common)" };
-        if (v.mSusc > 0) res += "; Susceptible to " + v.mSuscTo + common[v.mSusc];
-        if (v.mVuln > 0) res += "; Vulnerable to " + v.mVulnTo + common[v.mVuln];
+        QStringList commonAbbr { "", " (Unc.)", " (Com.)", " (V. Com.)" };
+        if (v.mSusc > 0) res += QString("; ") + (abbr ? "Susc. to " : "Susceptible to ") + v.mSuscTo + (abbr ? commonAbbr[v.mSusc] : common[v.mSusc]);
+        if (v.mVuln > 0) res += QString("; ") + (abbr ? "Vuln. to " : "Vulnerable to ") + v.mVulnTo + (abbr ? commonAbbr[v.mVuln] : common[v.mVuln]);
         return res;
     }
 
@@ -809,6 +852,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice      = createLineEdit(parent, layout, "Dice of Damage?", std::mem_fn(&Power::numeric));
@@ -870,7 +914,7 @@ private:
     QLineEdit* indNonTgt;
     QCheckBox* desolid;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1 || (v.mTgt.isEmpty() && v.mNonTgt.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
@@ -880,7 +924,7 @@ private:
         if (!v.mNonTgt.isEmpty()) { res += sep + v.mNonTgt; sep = ", "; }
         if (!v.mIndTgt.isEmpty()) { res += sep + v.mIndTgt; sep = ", "; }
         if (!v.mIndNonTgt.isEmpty()) { res += sep + v.mIndNonTgt; sep = ", "; }
-        if (v.mDesolid) res += "; Does Not Effect Desolid";
+        if (v.mDesolid) res += abbr ? "; No desolid" : "; Does Not Effect Desolid";
         return res;
     }
 
@@ -915,6 +959,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice = createLineEdit(parent, layout, "Dice of Damage?", std::mem_fn(&Power::numeric));
@@ -942,11 +987,11 @@ private:
 
     QLineEdit* dice;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v.mDice) + "d6 HA; Hand-To-Hand Attack";
+        res += QString("+%1").arg(v.mDice) + (abbr ? "d6 HA" : "d6 Hand-To-Hand Attack");
         return res;
     }
 
@@ -987,6 +1032,7 @@ public:
     }
 
     Fraction adv() override                                      { return v.mIncr * Fraction(1, 4); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    range = createCheckBox(parent, layout, "Ranged");
@@ -1085,14 +1131,14 @@ private:
         return QString("%1%2d6%3").arg(dice).arg((extra == 2) ? Fraction(1, 2).toString() : "",(extra == 1) ? "+1" : "");
     }
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if ((v.mDice < 1 && v.mExtra < 1) || v.mPdEd == -1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1%2d6%3 %4").arg(v.mDice).arg((v.mExtra == 2) ? Fraction(1, 2).toString() : "", (v.mExtra == 1) ? "+1" : "", v.mRange ? "R" : "H") + "KA vs " +
                ((v.mPdEd == 0) ? "PD" : "ED") + ((v.mRange || v.mStr) ? "" : ", " + KAwSTR() + " w/STR");
-        if (v.mIncr > 0) res += "; " + QString("+%1 Increased STUN Multiplier").arg(v.mIncr);
-        if (v.mDecr > 0) res += "; "+ QString("-%1 Decreased STUN Multipier").arg(v.mDecr + 1);
+        if (v.mIncr > 0) res += "; " + QString(abbr ? "+1% Inc. STUN Mult." : "+%1 Increased STUN Multiplier").arg(v.mIncr);
+        if (v.mDecr > 0) res += "; "+ QString(abbr ? "-%1 Decr. STUN Mult." : "-%1 Decreased STUN Multipier").arg(v.mDecr + 1);
         if (v.mStr) res += "; No STR Bonus";
         return res;
     }
@@ -1130,6 +1176,7 @@ public:
     }
 
     Fraction adv() override                                      { return v.mAny ? Fraction(1, 2) : Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    point    = createLineEdit(parent, layout, "Active Points Reflected?", std::mem_fn(&Power::numeric));
@@ -1169,12 +1216,12 @@ private:
     QCheckBox* any;
     QCheckBox* feedback;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mPoints < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("%1").arg(v.mPoints) + " CP Reflection";
-        if (v.mAny) res += "; Any Target";
+        if (v.mAny) res += abbr ? "; Any Tgt" : "; Any Target";
         if (v.mFeedback) res += "; Feedback";
         return res;
     }
@@ -1214,6 +1261,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    STR   = createLineEdit(parent, layout, "Strength?", std::mem_fn(&Power::numeric));
@@ -1266,14 +1314,14 @@ private:
     QComboBox* limit;
     QLineEdit* what;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mStr < 1 || (v.mLimit >= 1 && v._what.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v.mStr) + " STR Telekinesis";
+        res += QString("%1").arg(v.mStr) + (abbr ? " STR TK" : " STR Telekinesis");
         if (v.mLimit > 0) res += " with " + v._what;
-        if (v.mFine) res += "; Fine Manipulation";
-        if (v.mWhole) res += "; Affects Whole Object";
+        if (v.mFine) res += abbr ? "; Fine Manip." : "; Fine Manipulation";
+        if (v.mWhole) res += abbr ? "Affects Whole Obj." : "; Affects Whole Object";
         return res;
     }
 
@@ -1323,6 +1371,7 @@ public:
                                                                           (v.mPartial       ? Fraction(1, 2) : Fraction(0)) +
                                                                           (v.mHeal          ? Fraction(1, 4) : Fraction(0));
                                                                  }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice    = createLineEdit(parent, layout, "Dice of Transform?", std::mem_fn(&Power::numeric));
@@ -1427,7 +1476,7 @@ private:
     QLineEdit* what;
     QComboBox* rapid;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1 ||
             v.mInto.isEmpty() ||
             v.mDegree == -1 ||
@@ -1442,16 +1491,19 @@ private:
             if (v.mResult == 2) res += "; To Anything";
             else res += "; To " + v.mInto + ", from " + v.mGroup;
         } else res += "; To " + v.mInto;
-        if (v.mPartial) res += "; Partial Transform";
-        if (v.mHeal) res += "; Alternative Healing (" + v.mMethod + ")";
+        if (v.mPartial) res += abbr ? "; Part. " : "; Partial Transform";
+        if (v.mHeal) res += (abbr ? "Alternate Heal (" : "; Alternative Healing (") + v.mMethod + ")";
         if (v.mAll) res += "; All or nothing";
-        if (v.mTarget == 1) res += "; Slightly Limited Target (" + v.mWhat + ")";
-        if (v.mTarget == 2) res += "; Limited Target (" + v.mWhat + ")";
-        if (v.mTarget == 3) res += "; Very Limited Target (" + v.mWhat + ")";
+        if (v.mTarget == 1) res += (abbr ? "; Slightly Lmt Tgt (" : "; Slightly Limited Target (") + v.mWhat + ")";
+        if (v.mTarget == 2) res += (abbr ? "; Lmt Tgt (" : "; Limited Target (") + v.mWhat + ")";
+        if (v.mTarget == 3) res += (abbr ? "; V. Lmtd Tgt" : "; Very Limited Target (") + v.mWhat + ")";
         QStringList rapid { "", "1 Week", "1 Day", "6 Hours", "1 Hour",
                             "20 Minutes", "5 Minutes", "1 Minute",
                             "1 Turn" };
-        if (v.mRapid >= 1) res += "; Rapid Healing (" + rapid[v.mRapid] + ")";
+        QStringList rapidAbbr { "", "1 Wk", "1 Dy", "6 Hrs", "1 Hr",
+                          "20 Mins", "5 Mins", "1 Min",
+                          "1 Turn" };
+        if (v.mRapid >= 1) res += "; Rapid " + QString(abbr ? "Heal (" : "Healing (") + (abbr ? rapidAbbr[v.mRapid] : rapid[v.mRapid]) + ")";
         return res;
     }
 

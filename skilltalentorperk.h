@@ -176,6 +176,7 @@ public:
     static const bool NoStore = true;
     static const bool ShowRoll = true;
 
+    virtual QString     abbreviation(bool roll = false) { return description(roll); }
     virtual QString     description(bool roll = false) = 0;
     virtual bool        form(QWidget*, QVBoxLayout*)   = 0;
     virtual QString     name()                         = 0;

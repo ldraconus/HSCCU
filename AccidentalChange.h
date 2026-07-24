@@ -29,6 +29,19 @@ public:
         return *this;
     }
 
+    QString abbreviation() override {
+        static QList<QString> circ     { "Unc", "Com", "V. Com" };
+        static QList<QString> freq     { "8-", "11-", "14-", "Always" };
+        static QList<QString> freqSans { "Inf.", "Freq.", "Very Freq.", "Always" };
+        if (v.mFrequency < 0 || v.mCircumstance  < 0 || v.mWhat.isEmpty()) return "<incomplete>";
+#ifndef ISHSC
+        if (Sheet::ref().getOption().showFrequencyRolls())
+#endif
+            return QString("Acc. Chng: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freq[v.mFrequency]);
+#ifndef ISHSC
+        else return QString("Acc. Chng: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freqSans[v.mFrequency]);
+#endif
+    }
     QString description() override {
         static QList<QString> circ     { "Uncommon", "Common", "Very Common" };
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };

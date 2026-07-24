@@ -40,6 +40,7 @@ public:
 
     static const bool NoStore = true;
 
+    virtual QString     abbreviation() { return description(); }
     virtual QString     description()                = 0;
     virtual void        form(QWidget*, QVBoxLayout*) = 0;
     virtual Points      points(bool noStore = false) = 0;
