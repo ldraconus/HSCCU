@@ -121,6 +121,7 @@ public:
     virtual shared_ptr<class Modifier> create(const QJsonObject&);
 
     virtual bool          createForm(QWidget*, QVBoxLayout*) { return false; }
+    virtual QString       abbreviation(bool show = false)    { return description(show); }
     virtual QString       description(bool show = false)     { return show ? "<incomplete>" : "<incomplete>"; }
 
 private:
@@ -269,10 +270,11 @@ public:
 
     virtual int         doubling()                     { return 2; }
 
-    QString  description(bool show = false) override { return ModifierBase::description(show); }
-    virtual Fraction fraction(bool noStore = false)          { return noStore ? Fraction(0) : Fraction(0); }
-    virtual Points   points(bool noStore = false)            { return noStore ? 0_cp : 0_cp; }
-    virtual Fraction endChange()                             { return Fraction(1); }
+    QString abbreviation(bool show = false) override { return description(show); }
+    QString description(bool show = false) override  { return ModifierBase::description(show); }
+    virtual Fraction fraction(bool noStore = false)  { return noStore ? Fraction(0) : Fraction(0); }
+    virtual Points   points(bool noStore = false)    { return noStore ? 0_cp : 0_cp; }
+    virtual Fraction endChange()                     { return Fraction(1); }
 
     static void ClearForm(QVBoxLayout* layout);
 
@@ -329,6 +331,7 @@ public:
     shared_ptr<Modifier> create() override                        { return make_shared<NoFormModifier>(*this); }
     shared_ptr<Modifier> create(const QJsonObject& json) override { return make_shared<NoFormModifier>(json); }
 
+    QString       abbreviation(bool show = false) override { return description(show); }
     QString       description(bool show = false) override  { return QString(show ? fraction(Modifier::NoStore).toString() + " ": "") + name(); }
     Fraction      fraction(bool noStore = false) override  { return noStore ? mValue : mValue; }
     Points        points(bool noStore = false) override    { return noStore ? mPoints : mPoints; }
@@ -388,6 +391,7 @@ public:
                                                             ModifiersDialog::ref().updateForm();
 #endif
                                                           }
+    QString     abbreviation(bool show = false) override  { return optOut(show, true); }
     QString     description(bool show = false) override   { return optOut(show); }
     bool        form(QWidget* p, QVBoxLayout* l) override { aquiresRoll = createCheckBox(p, l, "Aquires a Skill Roll when Exceeded", std::mem_fn(&ModifierBase::checked));
                                                             return true; }
@@ -411,9 +415,12 @@ private:
 
     QCheckBox* aquiresRoll = nullptr;
 
-    QString optOut(bool show) {
+    QString optOut(bool show, bool abbr = false) {
         Fraction half(1, 2);
-        if (v._aquiresRoll) return QString(show ? "(-1) " : "") + "Ablative, Aquires a Skill Roll When Exceeded";
+        if (v._aquiresRoll) {
+            if (abbr) return QString(show ? "(-1) " : "") + "Ablates, Skill Roll After";
+            else return QString(show ? "(-1) " : "") + "Ablative, Aquires a Skill Roll When Exceeded";
+        }
         return (show ? "(-" + half.toString() + ") " : "") + "Ablative";
     }
 };
