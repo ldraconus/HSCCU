@@ -1053,11 +1053,7 @@ public:
         createLabel(widget, headerFont, "SENSES", { 479, 1037 }, { 225, 20 }); // NOLINT
 #endif
         createLabel(widget, smallBoldNarrowFont, "Perception Roll", { 395, 1065 }, { 105, 20 }); // NOLINT
-#ifdef __wasm__
         createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 496, 1065 }, {  60, 20 }); // NOLINT
-#else
-        createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 506, 1065 }, {  50, 20 }); // NOLINT
-#endif
         perceptionroll = createLabel(widget, font, "11-", { 569, 1066 }, { 50, 20 }); // NOLINT
         enhancedandunusualsenses = createTextEdit(widget, font, "<b>Enhanced and Unusual Senses</b>", { 390, 1083 }, { 249, 150 }); // NOLINT
 
@@ -1162,7 +1158,11 @@ public:
 
         powersandequipment          = createTableWidget(widget, tableFont,
                                                         { "Cost", "Name              ",
-                                                          "Power/Equipment                                           ",
+#ifdef unix
+                                                          "Power/Equipment                                    ",
+#else
+                                                          "Power/Equipment                                            ",
+#endif
                                                           "END" },
                                                         { }, { 367, 1522 }, { 570, 991 }, "Special powers and equipment for your character", Selectable); // NOLINT
         totalpowersandequipmentcost = createLabel(widget, font, "0", { 367, 2511 }, { 40, 20 }); // NOLINT

@@ -17,18 +17,22 @@ public:
     Option& operator=(const Option&);
     Option& operator=(Option&&);
 
-    QString banner()             { return mBanner; }
-    Points  complications()      { return mComplications; }
-    bool    equipmentFree()      { return mEquipmentFree; }
-    bool    showNotesPage()      { return mShowNotesPage; }
-    bool    showFrequencyRolls() { return mShowFrequencyRolls; }
-    bool    normalHumanMaxima()  { return mNormalHumanMaxima; }
-    Points  activePerEND()       { return mActivePerEND; }
-    Points  totalPoints()        { return mTotalPoints; }
+    QString banner() const             { return mBanner; }
+    Points  complications() const      { return mComplications; }
+    bool    equipmentFree() const      { return mEquipmentFree; }
+    bool    showNotesPage() const      { return mShowNotesPage; }
+    bool    showFrequencyRolls() const { return mShowFrequencyRolls; }
+    bool    normalHumanMaxima() const  { return mNormalHumanMaxima; }
+    bool    abbreviations() const      { return mAbbreviations; }
+    bool    greenfields() const        { return mGreenfields; }
+    Points  activePerEND() const       { return mActivePerEND; }
+    Points  totalPoints() const        { return mTotalPoints; }
 
+    Option& abbreviations(bool f)      { mAbbreviations = f;      return *this; }
     Option& banner(const QString& nm)  { mBanner = nm;            return *this; }
     Option& complications(Points x)    { mComplications = x;      return *this; }
     Option& equipmentFree(bool f)      { mEquipmentFree = f;      return *this; }
+    Option& greenfields(bool f)        { mGreenfields = f;        return *this; }
     Option& showNotesPage(bool f)      { mShowNotesPage = f;      return *this; }
     Option& normalHumanMaxima(bool f)  { mNormalHumanMaxima = f;  return *this; }
     Option& showFrequencyRolls(bool f) { mShowFrequencyRolls = f; return *this; }
@@ -40,13 +44,15 @@ public:
     void toJson(QJsonObject&);
 
 private:
+    bool    mAbbreviations = false;
+    Points  mActivePerEND = 0_cp;
     QString mBanner = ":/gfx/HeroSystem-Banner.png";
     Points  mComplications = 0_cp;
     bool    mEquipmentFree = false;
+    bool    mGreenfields = false;
+    bool    mNormalHumanMaxima = false;
     bool    mShowFrequencyRolls = false;
     bool    mShowNotesPage = false;
-    bool    mNormalHumanMaxima = false;
-    Points  mActivePerEND = 0_cp;
     Points  mTotalPoints = 0_cp;
 };
 

@@ -1115,7 +1115,7 @@ void Sheet::preparePrint(QTableWidget* tbl) {
 
 void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
     QString oldStyle = widget->styleSheet();
-
+    auto& options = Sheet::ref().option();
     QLabel* label = dynamic_cast<QLabel*>(widget);
     if (label) {
         QString style;
@@ -1133,6 +1133,7 @@ void Sheet::print(QPainter& painter, QPoint& offset, QWidget* widget) {
     }
     QLineEdit* lineEdit = dynamic_cast<QLineEdit*>(widget);
     if (lineEdit) {
+        if (options.greenfields() && lineEdit->styleSheet().contains("green")) return;
         QString style = "QLineEdit { background: white;"
                                  "   color: black; "
                                  "   border-style: none;"

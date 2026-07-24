@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>569</width>
-    <height>456</height>
+    <height>554</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Options</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="build/QT_Release/.qt/rcc/res.qrc">
+   <iconset resource="build/Desktop_Qt_6_12_0_CreateInstall/.qt/rcc/res.qrc">
     <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
   </property>
   <property name="styleSheet">
@@ -35,7 +35,7 @@
         <x>0</x>
         <y>0</y>
         <width>549</width>
-        <height>406</height>
+        <height>496</height>
        </rect>
       </property>
       <property name="autoFillBackground">
@@ -109,7 +109,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="build/QT_Release/.qt/rcc/res.qrc">:/gfx/HeroSystem-Banner.png</pixmap>
+             <pixmap resource="build/Desktop_Qt_6_12_0_CreateInstall/.qt/rcc/res.qrc">:/gfx/HeroSystem-Banner.png</pixmap>
             </property>
             <property name="scaledContents">
              <bool>false</bool>
@@ -399,6 +399,56 @@ QComboBox QAbstractItemView:disabled {
             </property>
            </widget>
           </item>
+          <item row="12" column="1">
+           <widget class="QCheckBox" name="abbreviations">
+            <property name="styleSheet">
+             <string notr="true">QCheckBox {
+                      color: black; 
+                      background: white; 
+                    } 
+                    QCheckBox::indicator {
+                      width: 13px;
+                      height: 13px;
+                      border: 1px solid gray; 
+                      color: black;
+                      background: cyan;
+                    } 
+                    QCheckBox::indicator:checked {
+                      border: 1px solid gray; 
+                      image: url(:/icons/Check.png); 
+                      background: cyan;
+                    }</string>
+            </property>
+            <property name="text">
+             <string>Use abbreviations</string>
+            </property>
+           </widget>
+          </item>
+          <item row="13" column="1">
+           <widget class="QCheckBox" name="greenfields">
+            <property name="styleSheet">
+             <string notr="true">QCheckBox {
+                      color: black; 
+                      background: white; 
+                    } 
+                    QCheckBox::indicator {
+                      width: 13px;
+                      height: 13px;
+                      border: 1px solid gray; 
+                      color: black;
+                      background: cyan;
+                    } 
+                    QCheckBox::indicator:checked {
+                      border: 1px solid gray; 
+                      image: url(:/icons/Check.png); 
+                      background: cyan;
+                    }</string>
+            </property>
+            <property name="text">
+             <string>Don't print green fields</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -441,7 +491,7 @@ QDialogButtonBox QPushButton:disabled {
   </layout>
  </widget>
  <resources>
-  <include location="build/QT_Release/.qt/rcc/res.qrc"/>
+  <include location="build/Desktop_Qt_6_12_0_CreateInstall/.qt/rcc/res.qrc"/>
  </resources>
  <connections>
   <connection>

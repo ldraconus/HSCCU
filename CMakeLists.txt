@@ -133,26 +133,48 @@ if(EMSCRIPTEN)
             printer.h printer.cpp
     )
 else()
-    qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
-        ${source_files}
-        ${header_files}
-        ${form_files}
-        resizenotifier.h resizenotifier.cpp
-        dialog.h dialog.cpp
-        packages/com.vendor.product/meta/installScripts.qs
-        packages/com.vendor.product/meta/installScripts.qs.linux
-        packages/com.vendor.product/meta/license.txt
-        packages/com.vendor.product/meta/package.xml
-        installer.sh
-        config/Background.png
-        config/config.xml
-        config/controller.qs
-        config/style.css
-        HSCCU.html
-        Background.png Installer.ico
-        appicon.rc
-        data.qrc
-)
+    if (UNIX)
+        qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
+            ${source_files}
+            ${header_files}
+            ${form_files}
+            resizenotifier.h resizenotifier.cpp
+            dialog.h dialog.cpp
+            packages/com.vendor.product/meta/installScripts.qs
+            packages/com.vendor.product/meta/installScripts.qs.linux
+            packages/com.vendor.product/meta/license.txt
+            packages/com.vendor.product/meta/package.xml
+            installer.sh
+            config/Background.png
+            config/config.xml
+            config/controller.qs
+            config/style.css
+            HSCCU.html
+            Background.png Installer.ico
+            data.qrc
+        )
+    else()
+        qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
+            ${source_files}
+            ${header_files}
+            ${form_files}
+            resizenotifier.h resizenotifier.cpp
+            dialog.h dialog.cpp
+            packages/com.vendor.product/meta/installScripts.qs
+            packages/com.vendor.product/meta/installScripts.qs.linux
+            packages/com.vendor.product/meta/license.txt
+            packages/com.vendor.product/meta/package.xml
+            installer.sh
+            config/Background.png
+            config/config.xml
+            config/controller.qs
+            config/style.css
+            HSCCU.html
+            Background.png Installer.ico
+            data.qrc
+            appicon.rc
+        )
+    endif()
 endif()
 
 # Resources:

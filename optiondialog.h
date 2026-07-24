@@ -20,14 +20,16 @@ public:
     optionDialog& operator=(const optionDialog&) = delete;
     optionDialog& operator=(optionDialog&&) = delete;
 
-    QString banner()             { return mBanner; }
-    int     complications()      { return ui->complicationsLineEdit->text().toInt(); }
-    bool    equipmentFree()      { return ui->equipmentFree->isChecked(); }
-    bool    showFrequencyRolls() { return ui->showFrequencyRolls->isChecked(); }
-    bool    showNotesPage()      { return ui->notePageShown->isChecked(); }
-    bool    normalHumanMaxima()  { return ui->normalHumanMaxima->isChecked(); }
-    int     activePointsPerEND() { return ui->activePointsPerEND->text().toInt(); }
-    int     totalPoints()        { return ui->totalPointsLineEdit->text().toInt(); }
+    QString banner() const             { return mBanner; }
+    int     complications() const      { return ui->complicationsLineEdit->text().toInt(); }
+    bool    equipmentFree() const      { return ui->equipmentFree->isChecked(); }
+    bool    showFrequencyRolls() const { return ui->showFrequencyRolls->isChecked(); }
+    bool    showNotesPage() const      { return ui->notePageShown->isChecked(); }
+    bool    normalHumanMaxima() const  { return ui->normalHumanMaxima->isChecked(); }
+    bool    useAbbreviations() const   { return ui->abbreviations->isChecked(); }
+    bool    greenFields() const        { return ui->greenfields->isChecked(); }
+    int     activePointsPerEND() const { return ui->activePointsPerEND->text().toInt(); }
+    int     totalPoints() const        { return ui->totalPointsLineEdit->text().toInt(); }
 
     void setBanner(const QString& nm)  { mBanner = nm;  ui->banner->setPixmap(loadPixmap(nm)); }
     void setComplications(int x)       { ui->complicationsLineEdit->setText(QString("%1").arg(x)); }
@@ -35,6 +37,8 @@ public:
     void setShowFrequencyRolls(bool f) { ui->showFrequencyRolls->setChecked(f); }
     void setShowNotesPage(bool f)      { ui->notePageShown->setChecked(f); }
     void setNormalHumanMaxima(bool f)  { ui->normalHumanMaxima->setChecked(f); }
+    void setAbbreviations(bool f)      { ui->abbreviations->setChecked(f); }
+    void setGreenFields(bool f)        { ui->greenfields->setChecked(f); }
     void setActivePointsPerEND(int x)  { ui->activePointsPerEND->setText(QString("%1").arg(x)); }
     void setTotalPoints(int x)         { ui->totalPointsLineEdit->setText(QString("%1").arg(x)); }
 
