@@ -21,6 +21,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -37,10 +38,10 @@ public:
                                                                  }
 
 private:
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Cannot Be Stunnedϴ";
+        res += QString(abbr ? "Can't" : "Cannot") + " Be Stunnedϴ";
         return res;
     }
 };
@@ -63,7 +64,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
-    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }    QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
@@ -79,10 +80,10 @@ public:
                                                                  }
 
 private:
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Does Not Bleedϴ";
+        res += QString(abbr ? "Doesn't" : "Does Not") + " Bleedϴ";
         return res;
     }
 };
@@ -105,7 +106,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
-    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }    QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
@@ -121,10 +122,10 @@ public:
                                                                  }
 
 private:
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "No Hit Locationsϴ";
+        res += "No Hit " + QString(abbr ? "Locs" : "Locationsϴ");
         return res;
     }
 };

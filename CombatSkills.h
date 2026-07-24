@@ -119,6 +119,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + CombatSkills::description() + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + CombatSkills::description() + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { accurateSprayfire     = createCheckBox(parent, layout, "Accurate Sprayfire");
                                                                   concentratedSprayfire = createCheckBox(parent, layout, "Concetrated Sprayfire");
@@ -164,13 +165,20 @@ private:
     QCheckBox* rapidAutofire = nullptr;
     QCheckBox* skipoverSprayfire = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         QString res;
         QString sep = ": ";
-        if (v.mAccurateSprayfire)     { res += sep + "Accurate Sprayfire";    sep = ", "; }
-        if (v.mConcentratedSprayfire) { res += sep + "Concetrated Sprayfire"; sep = ", "; }
-        if (v.mRapidAutofire)         { res += sep + "Rapid Autofire";        sep = ", "; }
-        if (v.mSkipoverSprayfire)     { res += sep + "Skipover Sprayfire";    sep = ", "; }
+        if (abbr) {
+            if (v.mAccurateSprayfire)     { res += sep + "Accur. Sprayfire";   sep = ", "; }
+            if (v.mConcentratedSprayfire) { res += sep + "Conc. Sprayfire";    sep = ", "; }
+            if (v.mRapidAutofire)         { res += sep + "Rapid Autofire";     sep = ", "; }
+            if (v.mSkipoverSprayfire)     { res += sep + "Skipover Sprayfire"; sep = ", "; }
+        } else {
+            if (v.mAccurateSprayfire)     { res += sep + "Accurate Sprayfire";    sep = ", "; }
+            if (v.mConcentratedSprayfire) { res += sep + "Concetrated Sprayfire"; sep = ", "; }
+            if (v.mRapidAutofire)         { res += sep + "Rapid Autofire";        sep = ", "; }
+            if (v.mSkipoverSprayfire)     { res += sep + "Skipover Sprayfire";    sep = ", "; }
+        }
         return res;
     }
 };

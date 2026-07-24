@@ -34,13 +34,14 @@ public:
 
     bool isSkill() override { return true; }
 
-    QString description(bool showRoll = false) override { return showRoll ? v.mName : v.mName; }
-    bool form(QWidget*, QVBoxLayout*) override          { return true; }
-    QString name() override                             { return v.mName; }
-    Points points(bool noStore = false) override        { return noStore ? 0_cp : 0_cp; }
-    void restore() override                             { }
-    QString roll() override                             { return ""; }
-    void    store() override                            { }
+    QString abbreviation(bool showRoll = false) override { return description(showRoll); }
+    QString description(bool showRoll = false) override  { return showRoll ? v.mName : v.mName; }
+    bool form(QWidget*, QVBoxLayout*) override           { return true; }
+    QString name() override                              { return v.mName; }
+    Points points(bool noStore = false) override         { return noStore ? 0_cp : 0_cp; }
+    void restore() override                              { }
+    QString roll() override                              { return ""; }
+    void    store() override                             { }
 
     QJsonObject toJson() override {
         QJsonObject obj;
@@ -98,6 +99,13 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? (
+#ifndef ISHSC
+                                                                                v.mIntRoll ? add(Sheet::ref().character().INT().roll(), v.mPlus)
+                                                                                                 :
+#endif
+                                                                                    QString("%1-").arg(11 + v.mPlus)) + " " // NOLINT
+                                                                                   : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? (
 #ifndef ISHSC
                                                                                 v.mIntRoll ? add(Sheet::ref().character().INT().roll(), v.mPlus)
@@ -158,7 +166,7 @@ private:
     QLineEdit* forwhat = nullptr;
     QComboBox* type = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mFor.isEmpty()) return "<incomplete>";
         QString res;
         QString prefix = "";
@@ -209,6 +217,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { which    = createLineEdit(parent, layout, "Which language?");
                                                                   level    = createComboBox(parent, layout, "Fluency", { "Basic", "Fluent", "Fluent w/accent",
@@ -253,8 +262,9 @@ private:
     QComboBox* level = nullptr;
     QCheckBox* literate = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mLevel < 1 || v.mWhich.isEmpty()) return "<incomplete>";
+        if (abbr) return "Lang: " + v.mWhich + " (" + QStringList{ "Basic", "Fluent", "Fluent w/accent", "Idio.", "Dialects" }[v.mLevel] + (v.mLiterate ? ", Liter.)" : ")");
         return "Language: " + v.mWhich + " (" + QStringList{ "Basic", "Fluent", "Fluent w/accent", "Idiomatic", "Imitate Dialects" }[v.mLevel] + (v.mLiterate ? ", Literate)" : ")");
     }
 };
@@ -463,6 +473,7 @@ public:
         v = s.v;
         return *this;
     }
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createComboBox(parent, layout, "Familar with?", { "One class of conveyances",
                                                                                                                            "Broad category of conveyances"});
@@ -496,13 +507,17 @@ private:
     QComboBox* what = nullptr;
     QLineEdit* with = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mWith.isEmpty()) return "<incomplete>";
         QString res = "TF: ";
-        switch (v.mWhat) {
-        case 0: res += QString("(One Class of Conveyances: %1)").arg(v.mWith); break;
-        case 1: res += QString("(Broad Category of Conveyancess: %1)").arg(v.mWith);   break;
-        default: return "<incomplete>";
+        if (abbr) {
+            res += v.mWith;
+        } else {
+            switch (v.mWhat) {
+            case 0: res += QString("(One Class of Conveyances: %1)").arg(v.mWith); break;
+            case 1: res += QString("(Broad Category of Conveyancess: %1)").arg(v.mWith);   break;
+            default: return "<incomplete>";
+            }
         }
 
         return res;

@@ -29,6 +29,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    levels = createLineEdit(parent, layout, "Levels of Density Increase?", std::mem_fn(&Power::numeric));
@@ -73,18 +74,18 @@ private:
     QCheckBox* nopded = nullptr;
     QCheckBox* nostr = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mLevels < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v.mLevels) + " Levels Density Increase (";
+        res += QString("+%1").arg(v.mLevels) + (abbr ? "Lvls Dens. Incr. (" : " Levels Density Increase (");
         res += QString("Mass: %L1 kg").arg((int) pow(2, v.mLevels) * 100); // NOLINT
         if (!v.mNoStr) res += QString("; +%1 STR").arg(5 * v.mLevels);     // NOLINT
         res += QString("; -%1 KB").arg(2 * v.mLevels);
         if (!v.mNoPdEd) res += QString("; +%1 PD/+%1 ED").arg(v.mLevels);
         res += ")";
-        if (v.mNoPdEd) res += "; No Increased PD/ED";
-        if (v.mNoStr) res += "; No Increased STR";
+        if (v.mNoPdEd) res += abbr ? "No Incr. PD/ED" : "; No Increased PD/ED";
+        if (v.mNoStr) res += abbr ? "No Incr. STR" : "; No Increased STR";
         return res;
     }
 
@@ -123,6 +124,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    solid   = createCheckBox(parent, layout, "Cannot Pass Through Solid Objects");
@@ -163,13 +165,13 @@ private:
     QCheckBox* protect = nullptr;
     QLineEdit* affect = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         QString res;
         if (v.mAffect.isEmpty()) return "<incomplete>";
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Desolidificationϴ";
-        if (v.mSolid) res += "; Cannot Pass Thought Solid Objects";
-        if (v.mProtect) res += "; Doesn't Protect Against Damage";
+        res += abbr ? "Desolidϴ" : "Desolidificationϴ";
+        if (v.mSolid) res += abbr ? "; Not Thru Solids" : "; Cannot Pass Thought Solid Objects";
+        if (v.mProtect) res += abbr ? "; No Dmg Prot." : "; Doesn't Protect Against Damage";
         res += "; Affected By " + v.mAffect;
         return res;
     }
@@ -209,6 +211,7 @@ public:
                                                                           ((v.mAltered == 3) ? Fraction(1)    : Fraction(0)) +
                                                                           (v.mRanged         ? Fraction(1, 2) : Fraction(0)) +
                                                                           ((v.mRapid - 1) * Fraction(1, 4)); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -289,24 +292,25 @@ private:
     QComboBox* feedback = nullptr;
     QCheckBox* average = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mLevels < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v.mLevels) + " cp in Duplication▲ (" + QString("%1").arg(v.mLevels * 5) + " cp duplicates)"; // NOLINT
+        res += QString("+%1").arg(v.mLevels) + " cp in Duplication▲ (" + QString("%1").arg(v.mLevels * 5) + (abbr ? " cp dups" : " cp duplicates)"); // NOLINT
         QStringList altered { "",
-                              Fraction(1, 4).toString() + " points different",
-                              Fraction(1, 2).toString() + " points different",
-                              "All points can be different" };
-        if (v.mAltered > 0) res += "; Altered Duplicates (" + altered[v.mAltered] + ")";
-        if (v.mEasy > 0) res += QString("; Easy Recombination ") + ((v.mEasy == 1) ? "(Half Phase)" : "(Zero Phase)");
-        if (v.mRanged) res += "; Ranged Recombination";
-        if (v.mRapid != 0) res += "; Rapid Duplication (" + QString("%1 per Phase)").arg((int) pow(2, v.mRapid));
-        if (v.mRecom) res += "; Cannot Recombine";
+                              Fraction(1, 4).toString() + (abbr ? "pts different" : " points different"),
+                              Fraction(1, 2).toString() + (abbr ? "pts different" : " points different"),
+                              abbr ? "All pts can differ" : "All points can be different" };
+        if (v.mAltered > 0) res += (abbr ? "; Altered Dups (" : "; Altered Duplicates (") + altered[v.mAltered] + ")";
+        if (v.mEasy > 0) res += QString(abbr ? "; Easy Recom. " : "; Easy Recombination ") + ((v.mEasy == 1) ? (abbr ? "(" + Fraction(1, 2).toString() + " Phase)" : "(Half Phase)")
+                                                                                                             : (abbr ? "(0 Phase)" : "(Zero Phase)"));
+        if (v.mRanged) res += abbr ? "; Rngd Recomb." : "; Ranged Recombination";
+        if (v.mRapid != 0) res += (abbr ? "; Rapid Dups" : "; Rapid Duplication (") + QString("%1 per Phase)").arg((int) pow(2, v.mRapid));
+        if (v.mRecom) res += abbr ? "; Can't Recom." : "; Cannot Recombine";
         QStringList feedback { "",
-                               "Damage to Base feeds back to duplicates",
+                               abbr ? "Dmg to Base feeds back to dups" : "Damage to Base feeds back to duplicates",
                                "STUN to any affects all",
-                               "BODY and STUN to any affects all" };
+                               abbr ? "BODY & STUN to any affects all" : "BODY and STUN to any affects all" };
         if (v.mFeedback > 0) res += "; Feedback (" + feedback[v.mFeedback] + ")";
         if (v.mAverage) res += "; No Averaging";
         return res;
@@ -345,6 +349,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -379,12 +384,12 @@ private:
     QLineEdit* limbs = nullptr;
     QCheckBox* limited = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mLimbs < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1").arg(v.mLimbs) + " Extra Limbs";
-        if (v.mLimited) res += QString("; Limited Manipulation");
+        if (v.mLimited) res += QString(abbr ? "; Lmtd Manip." : "; Limited Manipulation");
         return res;
     }
 
@@ -420,13 +425,14 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    size = createComboBox(parent, layout, "Size?", { "Large", "Enormous", "Huge", "Gigantic",
                                                                                                                     "Gargantuan", "Colossal" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    QList<Points> points { 0_cp, 25_cp, 50_cp, 90_cp, 120_cp, 150_cp, 215_cp }; // NOLINT
                                                                    return points[v.mSize + 1]; }
     void     restore() override                                  { vars s = v;
@@ -512,6 +518,7 @@ public:
     Fraction adv() override                                      { return ((v.mRevert == 5) ? Fraction(1)                        : Fraction(0)) +   // NOLINT
                                                                           ((v.mRevert == 4) ? Fraction(1, 2)                     : Fraction(0)) +
                                                                           ((v.mLoss >= 1) ? (2 - (v.mLoss - 1) * Fraction(1, 4)) : Fraction(0)); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -578,16 +585,17 @@ private:
     QCheckBox* instant = nullptr;
     QComboBox* revert = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mPoints < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1").arg(v.mPoints) + " CP Multiform Into " + v.mForm;
         if (v.mMult > 0) res += QString("; x%1 Forms").arg((int) pow(2, v.mMult));
-        QStringList loss {"",  "1 Turn", "1 Minute", "5 Minutes", "20 Minutes", "1 Hour", "6 Hours", "1 Day", "1 Week" };
-        if (v.mLoss >= 1) res += "; Personality Loss Rolls Start Ater " + loss[v.mLoss];
-        if (v.mInstant) res += "; Instant Change";
-        if (v.mRevert >= 1) res += "; Revert To True Form If Stunned Or KO";
+        QStringList loss {"",  abbr ? "1 Tn" : "1 Turn", abbr ? "1 Min" : "1 Minute", abbr ? "5 Mins" : "5 Minutes", abbr ? "20 Mins" : "20 Minutes", abbr ? "1 Hr" : "1 Hour",
+                          abbr ? "6 Hrs" : "6 Hours", "1 Day", abbr ? "1 Wk" : "1 Week" };
+        if (v.mLoss >= 1) res += (abbr ? "; Personality Rolls Ater " : "; Personality Loss Rolls Start Ater ") + loss[v.mLoss];
+        if (v.mInstant) res += abbr ? "Insta Change" : "; Instant Change";
+        if (v.mRevert >= 1) res += abbr ? "; Revert If Stunned Or KO'd" : "; Revert To True Form If Stunned Or KO'd";
         return res;
     }
 
@@ -637,6 +645,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    change   = createComboBox(parent, layout, "Can Change Into?", { "A single Shape",
@@ -765,14 +774,14 @@ private:
     QCheckBox* makeover = nullptr;
     QCheckBox* body = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mChange == -1 || (v.mChange < 3 && v.mForms.isEmpty())) return "<incomplete>";
         if (!(v.mSight || v.mHearing || v.mTouch || v.mMental || v.mRadio || v.mSmell || v.mClair || v.mSpatial)) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Shape Shift Into ";
-        QStringList forms { "A Single Shape", "Four shapes", "A Limited Group", "Any Shape" };
-        if (v.mChange < 3) res += forms[v.mChange] + " (" + v.mForms + ")";
+        res += abbr ? "Shape Shift To " : "Shape Shift Into ";
+        QStringList forms { abbr ? "" : "A Single Shape", abbr ? "" : "Four shapes", abbr ? "" : "A Limited Group", "Any Shape" };
+        if (v.mChange < 3) res += forms[v.mChange] + (abbr ? "" : " (") + v.mForms + (abbr ? "" : ")");
         else res += "Any Shape";
         res += " Affecting ";
         QStringList senses;
@@ -794,7 +803,7 @@ private:
         res += list;
         if (v.mCellular) res += "; Cellular";
         if (v.mImitate) res += "; Imitate";
-        if (v.mInstant) res += "; Instant Change";
+        if (v.mInstant) res += abbr ? "; Insta Change" : "; Instant Change";
         if (v.mMakeover) res += "; Makeover";
         if (v.mBody) res += "; Affects Body Only";
         return res;
@@ -836,6 +845,7 @@ public:
 
     Fraction adv() override                                      { return Fraction(1, 2) * (v.mMass + 1);
                                                                  }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    levels = createLineEdit(parent, layout, "Levels of Shrinking?", std::mem_fn(&Power::numeric));
@@ -877,25 +887,25 @@ private:
     QComboBox* mass = nullptr;
     QCheckBox* perc = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mLevels < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("+%1").arg(v.mLevels) + " Levels Shrinking (";
+        res += QString("+%1").arg(v.mLevels) + (abbr ? " Lvls Shrinking (" : " Levels Shrinking (");
         res += QString("Height: %2m").arg(2.0 / pow(2.0, v.mLevels)); // NOLINT
         if (v.mMass == -1) {
             res += QString("; Mass: %1 kg").arg(1.0 / (8.0 * pow(2, v.mLevels))); // NOLINT
             res += QString("; +%1 KB").arg(6 * v.mLevels); // NOLINT
         }
         if (v.mMass == 1) {
-            res += QString("; Optionally %1 kg").arg(1.0 / (8.0 * pow(2, v.mLevels))); // NOLINT
-            res += QString("; Optionally +%1 KB").arg(6 * v.mLevels); // NOLINT
+            res += QString(abbr ? "; Opt. %1 kg" : "; Optionally %1 kg").arg(1.0 / (8.0 * pow(2, v.mLevels))); // NOLINT
+            res += QString(abbr ? "; Opt +%1 KB" : "; Optionally +%1 KB").arg(6 * v.mLevels); // NOLINT
         }
-        if (!v.mPerc) res += QString("; -%1 PER Rolls Against").arg(2 * v.mLevels);
+        if (!v.mPerc) res += QString(abbr ? "; -%1 PER Rolls Vs" : "; -%1 PER Rolls Against").arg(2 * v.mLevels);
         res += ")";
         if (v.mMass == 0) res += "; No Decreased Mass";
-        else if (v.mMass == 1) res += "; Choice To Decrease Mass";
-        if (v.mPerc) res += "; Easily Perceived";
+        else if (v.mMass == 1) res += abbr ? "; Can Decrease Mass" : "; Choice To Decrease Mass";
+        if (v.mPerc) res += abbr ? "; Easily Seen" : "; Easily Perceived";
         return res;
     }
 
@@ -941,6 +951,7 @@ public:
     }
 
     Fraction adv() override                                      { return (v.mSpace ? Fraction(1, 4) : Fraction(0)); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    meters  = createLineEdit(parent, layout, "Meters of Stretching?", std::mem_fn(&Power::numeric));
@@ -1035,20 +1046,20 @@ private:
     QCheckBox* cause = nullptr;
     QCheckBox* range = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mMeters < 1 || (v.mLimit && v.mParts.isEmpty()) || (v.mCause && v.mDamage)) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1").arg(v.mMeters) + "m Stretching";
         res += QString("; Distort %1x & 1/%1x").arg((int) pow(2, v.mDistort));
-        if (v.mSpace) res += QString("; Doesn't Cross Intervening Space");
-        if (!v.mNonOn) res += QString("; %1m Noncombat").arg((int) pow(2, v.mNonCom + 1));
+        if (v.mSpace) res += QString(abbr ? "; Doesn't Cross Inter. Space" : "; Doesn't Cross Intervening Space");
+        if (!v.mNonOn) res += QString(abbr ? "; %1m Noncom." : "; %1m Noncombat").arg((int) pow(2, v.mNonCom + 1));
         if (v.mDirect) res += QString("; Always Direct");
-        if (v.mDamage) res += QString("; Cannot Do Damage");
+        if (v.mDamage) res += QString(abbr ? "; Can't Do Dmg" : "; Cannot Do Damage");
         if (v.mLimit) res += "; Limited Body Parts (" + v.mParts + ")";
-        if (v.mNonOn) res += "; No Noncombat Stretching";
-        if (v.mCause) res += "; Can Only Cause Damage";
-        if (v.mRange) res += "; Range Modifiers Apply";
+        if (v.mNonOn) res += abbr ? "; No Noncom. Stretching" : "; No Noncombat Stretching";
+        if (v.mCause) res += abbr ? "; Can Only Cause Dmg" : "; Can Only Cause Damage";
+        if (v.mRange) res += abbr ? "; Rng Mods Apply" : "; Range Modifiers Apply";
         return res;
     }
 
