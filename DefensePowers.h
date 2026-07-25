@@ -47,6 +47,7 @@ public:
 
     Fraction adv() override                                      { return (v.mConfig      ? Fraction(1, 4) : Fraction(0)) +
                                                                           ((v.mTrans > 0) ? v.mTrans * Fraction(1, 2) : Fraction(0)); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    length   = createLineEdit(parent, layout, "Meters long?", std::mem_fn(&Power::numeric));
@@ -176,7 +177,7 @@ private:
     QCheckBox* restr = nullptr;
     QLineEdit* what = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mLength < 1 || v.mHeight < 1 || v.mThick < 1 || v.mPD + v.mED + v.mBody < 1 ||
             v.mTrans == -1 || (v.mTrans > 0 && v.mTo.isEmpty()) ||
             (v.mRestr && v.mWhat.isEmpty())) return "<incomplete>";
@@ -189,12 +190,12 @@ private:
         if (v.mConfig) res += "; Configurable";
         if (v.mAnchor) res += "; Non-Anchored";
         if (v.mTrans > 0) {
-            if (v.mTrans == 1) res += "; ▲One-Way Transparent To " + v.mTo;
-            else res += ";  ▲One-Way Transparent To Everything";
+            if (v.mTrans == 1) res += (abbr ? "; ▲1-Way Trans. To " : "; ▲One-Way Transparent To ") + v.mTo;
+            else res += abbr ? "; ▲1-Way Trans. To All" : "; ▲One-Way Transparent To Everything";
         }
-        if (v.mEnglobe) res += "; Cannot Englobe";
+        if (v.mEnglobe) res += abbr ? "; Can't Englobe" : "; Cannot Englobe";
         if (v.mFeedback) res += "; Feedback";
-        if (v.mRestr) res += "; Restricted Shape (" + v.mWhat + ")";
+        if (v.mRestr) res += abbr ? "; Only " + v.mWhat + " Shaped" : ("; Restricted Shape (" + v.mWhat + ")");
         return res;
     }
 
@@ -235,6 +236,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -288,16 +290,16 @@ private:
     QLineEdit* what = nullptr;
     QCheckBox* resist = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDC < 1 || v.mAgainst < 0 ||
             (v.mAgainst == 3 && v.mWhat.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("-%1 DC").arg(v.mDC) + " Damage Negation▲ Against";
+        res += QString("-%1 DC").arg(v.mDC) + (abbr ? "Dmg Neg.▲ Vs" : " Damage Negation▲ Against");
         switch (v.mAgainst) {
-        case 0: res += " Physical Attacks"; break;
-        case 1: res += " Energy Attacks";   break;
-        case 2: res += " Mental Attacks";   break;
+        case 0: res += abbr ? " PD Atks" : " Physical Attacks"; break;
+        case 1: res += abbr ? " ED Atks" : " Energy Attacks";   break;
+        case 2: res += abbr ? " Mental" : " Mental Attacks";   break;
         case 3: res += " " + v.mWhat;       break;
         }
         if (v.mResist) res += "; Nonresistant";
@@ -341,6 +343,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -397,17 +400,17 @@ private:
     QLineEdit* what = nullptr;
     QCheckBox* resist = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mPerc < 0 || v.mAgainst < 0 ||
             (v.mAgainst == 3 && v.mWhat.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v.mPerc * 25) + "% Damage Resistance▲ Against"; // NOLINT
+        res += QString("%1").arg(v.mPerc * 25) + (abbr ? "% Dmg Res.▲ Vs" : "% Damage Resistance▲ Against"); // NOLINT
         switch (v.mAgainst) {
-        case 0: res += " Physical Attacks"; break;
-        case 1: res += " Energy Attacks";   break;
-        case 2: res += " Mental Attacks";   break;
-        case 3: res += " " + v.mWhat;       break;
+        case 0: res += abbr ? " PD" : " Physical Attacks";   break;
+        case 1: res += abbr ? " ED" : " Energy Attacks";     break;
+        case 2: res += abbr ? " Mental" : " Mental Attacks"; break;
+        case 3: res += " " + v.mWhat;                        break;
         }
         if (v.mResist) res += "; Resistant";
         return res;
@@ -444,6 +447,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
@@ -463,10 +467,10 @@ public:
                                                                  }
 
 private:
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Deflection▲";
+        res += abbr ? "Deflect.▲" : "Deflection▲";
         return res;
     }
 
@@ -503,6 +507,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return (showEND ? "" : "") + optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return (showEND ? "" : "") + optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -537,11 +542,11 @@ private:
 
     QLineEdit* def = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v._def < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v._def) + " Flash Defense";
+        res += QString("%1").arg(v._def) + (abbr ? "Flash Def." : " Flash Defense");
         return res;
     }
 
@@ -578,6 +583,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -610,11 +616,11 @@ private:
 
     QLineEdit* pts = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mPts < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("-%1").arg(v.mPts) + "m Knockback Resistance";
+        res += QString("-%1").arg(v.mPts) + (abbr ? "m KB Res." : "m Knockback Resistance");
         return res;
     }
 
@@ -652,6 +658,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -693,11 +700,11 @@ private:
     QLineEdit* def = nullptr;
     QComboBox* put = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDef < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v.mDef) + " Mental Defense";
+        res += QString("%1").arg(v.mDef) + (abbr ? " MD" : " Mental Defense");
         return res;
     }
 
@@ -718,7 +725,7 @@ public:
     PowerDefense(const PowerDefense& s): AllPowers(s)      { }
     PowerDefense(PowerDefense&& s): AllPowers(s)           { }
     PowerDefense(const QJsonObject& json): AllPowers(json) { v.mDef = json["def"].toInt(0);
-                                                               }
+                                                           }
     ~PowerDefense() override { }
     PowerDefense& operator=(const PowerDefense& s) {
         if (this != &s) {
@@ -734,6 +741,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -768,11 +776,11 @@ private:
 
     QLineEdit* def = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDef < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v.mDef) + " Power Defense";
+        res += QString("%1").arg(v.mDef) + (abbr ? " Pow. Def." : " Power Defense");
         return res;
     }
 
@@ -813,6 +821,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -877,14 +886,14 @@ private:
     QCheckBox* imperm = nullptr;
     QCheckBox* protect = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mPD + v.mED < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("%1 %3PD/%2 %3ED").arg(v.mPD).arg(v.mED).arg(hasModifier("Nonresistant Defense") ? "" : "r") +
-               QString(" %1Defense").arg(hasModifier("Nonresistant Defense") ? "" : "Resistant ");
+               QString(abbr ? " %1DEF." : " %1Defense").arg(hasModifier("Nonresistant Defense") ? "" : (abbr ? "RES. " : "Resistant "));
         if (v.mImperm) res += "; Impermeable";
-        if (v.mProtect) res += "; Protects Carried Items";
+        if (v.mProtect) res += abbr ? "; Prot. Items" : "; Protects Carried Items";
         return res;
     }
 
