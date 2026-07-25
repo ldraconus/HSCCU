@@ -34,28 +34,35 @@ public:
         return *this;
     }
 
-    QString description() override {
-        static QList<QString> rarity { "Very Common/Easy To Obtain",
-                                       "Common/Difficult To Obtain",
-                                       "Uncommon/Extremely Difficult To Obtain" };
-        static QList<QString> damage { "", "1d6", "2d6", "3d6" };
-        static QList<QString> roll { "", "Powers aquire a 14- Required Roll",
-                                     "Powers aquire a 11- Required Roll" };
-        static QList<QString> time { "", "Segment", "Phase", "Turn", "Minute", "5 Minutes", "20 Minutes",
-                                     "1 Hour", "6 Hours", "Day", "Week", "Month", "Season",
-                                     "Year", "5 Years" };
+
+    QString abbreviation() override { return str(true); }
+    QString description() override  { return str(); }
+    QString str(bool abbr = false) {
+        QList<QString> rarity { abbr ? "V. Com./Easy To Get" : "Very Common/Easy To Obtain",
+                                abbr ? "Com./Diff. To Get" : "Common/Difficult To Obtain",
+                                abbr ? "Uncom./Xtremely Diff. To Get" : "Uncommon/Extremely Difficult To Obtain" };
+        QList<QString> damage { "", "1d6", "2d6", "3d6" };
+        QList<QString> roll { "", abbr ? "Powers Get 14- Roll" : "Powers Aquire a 14- Required Roll",
+                              abbr ? "Powers Get 11- Roll" : "Powers Aquire a 11- Required Roll" };
+        QList<QString> time { "", "Segment", "Phase", "Turn", "Minute", "5 Minutes", "20 Minutes",
+                              "1 Hour", "6 Hours", "Day", "Week", "Month", "Season",
+                              "Year", "5 Years" };
+        QList<QString> timeAbbr { "", "Seg.", "Phs", "Tn", "Min.", "5 Mins", "20 Mins",
+                                  "1 Hr", "6 Hrs", "Day", "Wk", "Mth", "3 Mths",
+                                  "Yr", "5 Yrs" };
         if (v.mAddiction && v.mDamage < 1 && !v.mCompetence && !v.mWeakness) return "<incomplete>";
         if (v.mRarity < 0 || (v.mDamage < 1 && v.mRoll < 1 && !v.mCompetence && !v.mWeakness) || (!v.mAddiction && v.mTimeStep < 1)) return "<incomplete>";
         QString result;
-        if (v.mAddiction) result = QString("Addiction: %1 (%2").arg(v.mWhat, rarity[v.mRarity]);
-        else result = QString("Dependence: %1 (%2").arg(v.mWhat, rarity[v.mRarity]);
-        if (v.mDamage >= 1) result += "; " + damage[v.mDamage] + " damage";
-        if (v.mTimeStep >= 1 && !v.mAddiction) result += QString("%1 every ").arg(v.mDamage >= 1 ? "" : ";") + time[v.mTimeStep];
+        if (v.mAddiction) result = QString(abbr ? "Addict: %1 (%2" : "Addiction: %1 (%2").arg(v.mWhat, rarity[v.mRarity]);
+        else result = QString(abbr ? "Dep.: %1 (%2" : "Dependence: %1 (%2").arg(v.mWhat, rarity[v.mRarity]);
+        if (v.mDamage >= 1) result += "; " + damage[v.mDamage] + (abbr ? "Dmg" : "Damage");
+        if (v.mTimeStep >= 1 && !v.mAddiction) result += QString("%1 Every ").arg(v.mDamage >= 1 ? "" : ";") + time[v.mTimeStep];
         if (v.mRoll >= 1) result += "; " + roll[v.mRoll];
-        if (v.mCompetence) result += QString("; ") + "-1 to Skill Rolls and related rolls per time increment";
-        if (v.mWeakness) result += QString("; ") + "-3 to all Characteristics per time increment";
+        if (v.mCompetence) result += QString("; ") + (abbr ? " To Skill Rolls/time incr." : "-1 To Skill Rolls And Related Rolls Per Time Increment");
+        if (v.mWeakness) result += QString("; ") + (abbr ? "-3 To All Chars/Time Incr." : "-3 To All Characteristics Per Time Increment");
         return result + ") ";
     }
+
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what       = createLineEdit(parent, layout, "What is the substance?");
         rarity     = createComboBox(parent, layout, "How rare/dificult to get is it?", { "Very Common/Easy To Obtain",
