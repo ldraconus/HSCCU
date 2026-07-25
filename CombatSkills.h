@@ -206,6 +206,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
@@ -249,17 +250,17 @@ private:
     QLineEdit* forwhat = nullptr;
     QComboBox* size = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mPlus < 1) return "<incomplete>";
         if (v.mSize < 3 && v.mFor.isEmpty()) return "<incomplete>";
-        QString res = "Combat Skill Levels: ";
+        QString res = abbr ? "CSL: " : "Combat Skill Levels: ";
         switch (v.mSize) {
-        case 0: res += QString("+%1 with %2").arg(v.mPlus).arg(v.mFor);               break;
-        case 1: res += QString("+%1 with small group (%2)").arg(v.mPlus).arg(v.mFor); break;
-        case 2: res += QString("+%1 with large group (%2)").arg(v.mPlus).arg(v.mFor); break;
-        case 3: res += QString("+%1 with small all HTH combat").arg(v.mPlus);         break;
-        case 4: res += QString("+%1 with small all ranged combat").arg(v.mPlus);      break;
-        case 5: res += QString("+%1 with all combat").arg(v.mPlus);                   break; // NOLINT
+        case 0: res += QString(abbr ? "+%1 w/%2" : "+%1 with %2").arg(v.mPlus).arg(v.mFor);               break;
+        case 1: res += QString(abbr ? "+%1 w/%2" : "+%1 with small group (%2)").arg(v.mPlus).arg(v.mFor); break;
+        case 2: res += QString(abbr ? "+%1 w/%2" : "+%1 with large group (%2)").arg(v.mPlus).arg(v.mFor); break;
+        case 3: res += QString(abbr ? "+%1 w/HTH" : "+%1 with small all HTH combat").arg(v.mPlus);        break;
+        case 4: res += QString(abbr ? "+%1 w/Rngd" : "+%1 with small all ranged combat").arg(v.mPlus);    break;
+        case 5: res += QString(abbr ? "+%1 w/All Cbt" : "+%1 With All combat").arg(v.mPlus);              break; // NOLINT
         default: return "<incomplete>";
         }
 
@@ -293,6 +294,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { which = createComboBox(parent, layout, "Which defense maneuver?", { "Defense Maneuver I",
                                                                                                                                       "Defense Maneuver II",
@@ -322,9 +324,9 @@ private:
 
     QComboBox* which = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mWhich < 0) return "<incomplete>";
-        QString res = "Defense Maneuver ";
+        QString res = abbr ? "Def. Man. " : "Defense Maneuver ";
         switch (v.mWhich) {
         case 0: res += "I";   break;
         case 1: res += "II";  break;
@@ -375,6 +377,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { chokehold        = createCheckBox(parent, layout, "Choke Hold");
                                                                   defensivestrike  = createCheckBox(parent, layout, "Defensive Strike");
@@ -519,7 +522,7 @@ private:
     QLineEdit* weaponelements = nullptr;
     QLineEdit* weapons = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (points(SkillTalentOrPerk::NoStore) < 10) return "<incomplete>"; // NOLINT
         if (v.mWeaponElements > 0 && v.mWeapons.isEmpty()) return "<incomplete>";
         QString res = CombatSkills::description();
@@ -539,8 +542,8 @@ private:
         if (v.mNerveStrike) { res += sep + "Nerve Strike"; sep = ", "; }
         if (v.mPassingStrike) { res += sep + "Passing Strike"; sep = ", "; }
         if (v.mSacrifceThrow) { res += sep + "Sacrifice Throw"; sep = ", "; }
-        if (v.mExtraDamageClass > 0) { res += sep + QString("%1 Extra Damage Class%2").arg(v.mExtraDamageClass).arg((v.mExtraDamageClass > 1) ? "es": ""); sep = ", "; }
-        if (v.mWeaponElements > 0) { res += sep + "Weapon Elements(" + v.mWeapons + ")"; sep = ", "; }
+        if (v.mExtraDamageClass > 0) { res += sep + QString(abbr ? "%1 Xtra Dmg Clss%2" : "%1 Extra Damage Class%2").arg(v.mExtraDamageClass).arg((v.mExtraDamageClass > 1) ? "es": ""); sep = ", "; }
+        if (v.mWeaponElements > 0) { res += sep + (abbr ? "Wpn Elem. (" : "Weapon Elements (") + v.mWeapons + ")"; sep = ", "; }
 
         return res;
     }
@@ -576,6 +579,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
@@ -616,13 +620,13 @@ private:
     QLineEdit* forwhat = nullptr;
     QComboBox* size = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mPlus < 1) return "<incomplete>";
-        QString res = "Mental Combat Skill Levels: ";
+        QString res = abbr ? "MCSL: " : "Mental Combat Skill Levels: ";
         switch (v.mSize) {
-        case 0: res += QString("+%1 with %2").arg(v.mPlus).arg(v.mFor);               break;
-        case 1: res += QString("+%1 with small group (%2)").arg(v.mPlus).arg(v.mFor); break;
-        case 2: res += QString("+%1 with all mental combat").arg(v.mPlus);            break;
+        case 0: res += QString(abbr ? "+%1 w/%2" : "+%1 with %2").arg(v.mPlus).arg(v.mFor);               break;
+        case 1: res += QString(abbr ? "+%1 w/%2" : "+%1 with small group (%2)").arg(v.mPlus).arg(v.mFor); break;
+        case 2: res += QString(abbr ? "+%1 w/All MC" : "+%1 with all mental combat").arg(v.mPlus);        break;
         default: return "<incomplete>";
         }
 
@@ -659,6 +663,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   what = createComboBox(parent, layout, "Penalty versus?", { "Single attack (OCV)",
@@ -701,16 +706,16 @@ private:
     QComboBox* what = nullptr;
     QLineEdit* with = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mPlus < 1 || v.mWith.isEmpty()) return "<incomplete>";
-        QString res = "Penalty Skill Levels: ";
-        res += QString("+%1 with ").arg(v.mPlus);
+        QString res = abbr ? "PSL: ": "Penalty Skill Levels: ";
+        res += QString(abbr ? "+%1 w/" : "+%1 with ").arg(v.mPlus);
         switch (v.mWhat) {
-        case 0: res += QString("(Single Attack (OCV); %1)").arg(v.mWith);          break;
-        case 1: res += QString("(Tight Group of Attacks (OCV); %1)").arg(v.mWith); break;
-        case 2: res += QString("(All attacks (OCV))").arg(v.mPlus);                break;
-        case 3: res += QString("(A single condition (DCV); %1)").arg(v.mWith);     break;
-        case 4: res += QString("(A Group of Conditions (DCV); %1)").arg(v.mWith);  break;
+        case 0: res += QString(abbr ? "%1" : "(Single Attack (OCV); %1)").arg(v.mWith);          break;
+        case 1: res += QString(abbr ? "%1" : "(Tight Group of Attacks (OCV); %1)").arg(v.mWith); break;
+        case 2: res += QString(abbr ? "All Attacks" : "(All attacks (OCV))").arg(v.mPlus);       break;
+        case 3: res += QString(abbr ? "%1" : "(A single condition (DCV); %1)").arg(v.mWith);     break;
+        case 4: res += QString(abbr ? "%1" : "(A Group of Conditions (DCV); %1)").arg(v.mWith);  break;
         default: return "<incomplete>";
         }
 
@@ -749,6 +754,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createComboBox(parent, layout, "Familar with?", { "One class of weapons",
                                                                                                                            "Broad category of weapons"});
@@ -782,12 +788,12 @@ private:
     QComboBox* what = nullptr;
     QLineEdit* with = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = true) {
         if (v.mWith.isEmpty()) return "<incomplete>";
         QString res = "WF: ";
         switch (v.mWhat) {
-        case 0: res += QString("(One Class of Weapons; %1)").arg(v.mWith); break;
-        case 1: res += QString("(A Group of Weapons; %1)").arg(v.mWith);   break;
+        case 0: res += QString(abbr ? "%1" : "(One Class of Weapons; %1)").arg(v.mWith); break;
+        case 1: res += QString(abbr ? "%1" : "(A Group of Weapons; %1)").arg(v.mWith);   break;
         default: return "<incomplete>";
         }
 

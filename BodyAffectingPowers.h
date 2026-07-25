@@ -466,7 +466,7 @@ private:
         { 90, 30, 30, 18, 18, 18, 36, 63, 72, -36, 8, "Phys. Comp.: Colossal (All The Time, Greatly Impairing)" }       // NOLINT
     };
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mSize < 0) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
