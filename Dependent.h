@@ -36,10 +36,13 @@ public:
         return *this;
     }
 
-    QString description() override {
-        static QList<QString> comp     { "Incompetent", "Normal", "Slightly Less Powerful Then The PC", "As Powerful As The PC" };
-        static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
-        static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
+    QString abbreviation() override { return str(); }
+    QString description() override  { return str(); }
+    QString str(bool abbr = false) {
+        QList<QString> comp     { abbr ? "Incomp." : "Incompetent", "Normal", abbr ? "< Power. Then The PC" : "Slightly Less Powerful Then The PC",
+                                  abbr ? "Equal to PC" : "As Powerful As The PC" };
+        QList<QString> freq     { abbr ? "8-" : "Infrequently (8-)", abbr ? "11-" : "Frequently (11-)", abbr ? "14-" : "Very Frequently (14-)" };
+        QList<QString> freqSans { abbr ? "Infreq." : "Infrequently", abbr ? "Freq." : "Frequently", abbr ? "V. Freq." : "Very Frequently", "Always" };
         if (v.mFrequency < 0 || v.mCompetence < 0 || v.mWho.isEmpty()) return "<incomplete>";
         QString result = "Dependent NPC: " + v.mWho + " (";
 #ifndef ISHSC
@@ -50,10 +53,10 @@ public:
         else result += freqSans[v.mFrequency];
 #endif
         result += "); " + comp[v.mCompetence];
-        if (v.mUnaware) result += "; DNPC is unaware of character's adventuring";
-        if (v.mUseful) result += "; DNPC has useful noncombat position or skills";
+        if (v.mUnaware) result += abbr ? "; DNPC unaware" : "; DNPC is unaware of character's adventuring";
+        if (v.mUseful) result += abbr ? "; DNPC is useful" : "; DNPC has useful noncombat position or skills";
         if (v.mMultiples > 1) result += QString("; %1 people").arg(v.mMultiples);
-        return result + ")";
+        return result;
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         who        = createLineEdit(parent, layout, "Who is it?");
