@@ -21,18 +21,22 @@ public:
     NegativeReputation& operator=(const NegativeReputation& ac) = delete;
     NegativeReputation& operator=(NegativeReputation&& ac) = delete;
 
-    QString description() override {
+    QString abbreviation() override { return str(true); }
+    QString description() override  { return str(); }
+    QString str(bool abbr = false) {
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" };
         static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
+        static QList<QString> freqAbbr     { "8-", "11-", "14-", "Always" };
+        static QList<QString> freqSansAbbr { "Infreq.", "Freq.", "V. Freq.", "Always" };
         if (v.mFrequency < 0 || v.mWhat.isEmpty()) return "<incomplete>";
-        return QString("Negative Reputation: %1 (%2%3%4)").arg(v.mWhat,
+        return QString(abbr ? "Neg. Rep.: %1 (%2%3%4)" : "Negative Reputation: %1 (%2%3%4)").arg(v.mWhat,
 #ifndef ISHSC
                                                                Sheet::ref().getOption().showFrequencyRolls()
 #else
                                                                true
 #endif
-                                                                   ? freq[v.mFrequency] : freqSans[v.mFrequency],
-                                                               v.mExtreme ? "; Extreme" : "", v.mLimited ? "; Limited Group" : "");
+                                                                   ? (abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency]) : (abbr ? freqSansAbbr[v.mFrequency] : freqSans[v.mFrequency]),
+                                                                     v.mExtreme ? (abbr ? "; Xtreme" : "; Extreme") : "", v.mLimited ? (abbr ? "Lim. Grp" : "; Limited Group") : "");
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what      = createLineEdit(parent, layout, "What is the reputation?");

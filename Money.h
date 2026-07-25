@@ -28,11 +28,15 @@ public:
         return *this;
     }
 
-    QString description() override {
+    QString abbreviation() override { return str(true); }
+    QString description() override { return str(); }
+    QString str(bool abbr = false) {
         static QList<QString> amount { "Destitute ($3,000 or less)",
                                        "Poor ($10,000 or less)" };
+        static QList<QString> amountAbbr { "Destitute",
+                                           "Poor" };
         if (v.mAmount < 0) return "<incomplete>";
-        return amount[v.mAmount];
+        return abbr ? amountAbbr[v.mAmount] : amount[v.mAmount];
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         amount = createComboBox(parent, layout, "How Poor is the PC?", { "Destitute ($3,000 or less)", "Poor ($10,000 or less)" });

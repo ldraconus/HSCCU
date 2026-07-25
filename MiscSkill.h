@@ -120,6 +120,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   size = createComboBox(parent, layout, "Type of skill?", { "One mode of movement",
@@ -159,12 +160,12 @@ private:
     QLineEdit* forwhat = nullptr;
     QComboBox* size = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mPlus < 1 || v.mSize < 0) return "<incomplete>";
-        QString res = "Movement Skill Levels: ";
+        QString res = abbr ? "Move. Lvls" : "Movement Skill Levels: ";
         switch (v.mSize) {
-        case 0: res += QString("+%1 with %2").arg(v.mPlus).arg(v.mFor);           break;
-        case 1: res += QString("+%1 with all movement").arg(v.mPlus).arg(v.mFor); break;
+        case 0: res += QString(abbr ? "+%1 w/%2" : "+%1 With %2").arg(v.mPlus).arg(v.mFor);                     break;
+        case 1: res += QString(abbr ? "+%1 w/All Movement" : "+%1 With All Movement").arg(v.mPlus).arg(v.mFor); break;
         default: return "<incomplete>";
         }
 
@@ -197,6 +198,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "(" + QString("+%1").arg(v.mPlus) + ") ": "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v.mPlus) + ") ": "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createLineEdit(parent, layout, "What power?");
                                                                   plus = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -241,10 +243,10 @@ private:
     QLineEdit* plus = nullptr;
     QComboBox* stat = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mPlus <= 0 || v.mWhat.isEmpty() || v.mStat < 1) return "<incomplete>";
         QStringList stat { "", " (STR", " (DEX", " (CON", " (INT", " (EGO", " (PRE" };
-        return QString("+%1 with ").arg(v.mPlus) + v.mWhat + stat[v.mStat] + ((v.mStat != 0) ? " based)" : "");
+        return QString(abbr ? "+%1 w/" : "+%1 With ").arg(v.mPlus) + v.mWhat + stat[v.mStat] + ((v.mStat != 0) ? " Based)" : "");
     }
 
     void numeric(QString) override {
@@ -273,6 +275,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
@@ -316,16 +319,16 @@ private:
     QLineEdit* forwhat = nullptr;
     QComboBox* size = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mPlus < 1 || (v.mSize < 3 && v.mFor.isEmpty()) || v.mSize < 0) return "<incomplete>";
         QString res;
         switch (v.mSize) {
         case 0:
         case 1:
-        case 2: res += QString("+%1 with %2").arg(v.mPlus).arg(v.mFor);                         break;
-        case 3: res += QString("+%1 With All Agility Skills").arg(v.mPlus);                     break;
-        case 4: res += QString("+%1 With All Non-Combat Skills").arg(v.mPlus);                  break;
-        case 5: res += QString("+%1 Overall Level%2").arg(v.mPlus).arg(v.mPlus > 1 ? "s" : ""); break; // NOLINT
+        case 2: res += QString(abbr ? "+%1 w/%2" : "+%1 With %2").arg(v.mPlus).arg(v.mFor);                                  break;
+        case 3: res += QString(abbr ? "+%1 w/Agility Skills" : "+%1 With All Agility Skills").arg(v.mPlus);                  break;
+        case 4: res += QString(abbr ? "+%1 w/Non-Cbt. Skills" : "+%1 With All Non-Combat Skills").arg(v.mPlus);              break;
+        case 5: res += QString(abbr ? "+%1 Overall Lvl%2" : "+%1 Overall Level%2").arg(v.mPlus).arg(v.mPlus > 1 ? "s" : ""); break; // NOLINT
         default: return "<incomplete>";
         }
 

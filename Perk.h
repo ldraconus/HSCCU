@@ -80,6 +80,7 @@ public:
     Access& operator=(const Access&) = delete;
     Access& operator=(Access&&) = delete;
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                   cost    = createComboBox(parent, layout, "How many Points?", { "1", "2", "3", "4", "5" });
@@ -117,10 +118,10 @@ private:
     QLineEdit* forwhat = nullptr;
     QLineEdit* hide = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mCost < 0 || v.mFor.isEmpty()) return "<incomplete>";
         QString res = "Access: " + v.mFor;
-        if (v.mHide > 0) res += QString(" (-%1 to discover)").arg(v.mHide);
+        if (v.mHide > 0) res += QString(abbr ? "-%1 to disc." : " (-%1 to discover)").arg(v.mHide);
         return res;
     }
 
@@ -194,6 +195,7 @@ public:
     ComputerLink& operator=(const ComputerLink&) = delete;
     ComputerLink& operator=(ComputerLink&&) = delete;
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                   value   = createLineEdit(parent, layout, "Bonus for value", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -225,9 +227,9 @@ private:
     QLineEdit* forwhat = nullptr;
     QLineEdit* value = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mFor.isEmpty()) return "<incomplete>";
-        QString res = "Computer Link: " + v.mFor;
+        QString res = (abbr ? "Comp. Link" : "Computer Link: ") + v.mFor;
         return res;
     }
 
@@ -258,6 +260,7 @@ public:
     Contact& operator=(const Contact&) = delete;
     Contact& operator=(Contact&&) = delete;
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? roll() + " " : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { who      = createLineEdit(parent, layout, "Contact is?");
                                                                   base     = createComboBox(parent, layout, "Base Contact Roll", { "8-", "11-" });
@@ -345,21 +348,21 @@ private:
     QComboBox* relate = nullptr;
     QCheckBox* org = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mBase < 0 || v.mUseful < 0 || v.mRelate < 0 || v.mWho.isEmpty()) return "<incomplete>";
         QString res;
         if (v.mPlus) res += QString("+%1 ").arg(v.mPlus);
         res += "Contact: " + v.mWho;
         QString sep = " (";
-        if (v.mLimited) { res += sep + "Limited"; sep = "; "; }
-        QStringList useful { "Useful", "Very Useful", "More Userful", "Extremely Useful" };
+        if (v.mLimited) { res += sep + (abbr ? "Lim." : "Limited"); sep = "; "; }
+        QStringList useful { "Useful", abbr ? "V. Useful" : "Very Useful", "More Userful", abbr ? "Xtreme. Useful" : "Extremely Useful" };
         res += sep + useful[v.mUseful];
         sep = "; ";
         if (v.mAccess) res += sep + "Access";
         if (v.mContacts) res += sep + "Contacts";
-        QStringList relate { "Unfriendly", "Neutral", "Good", "Very Good", "Slavishly Loyal" };
+        QStringList relate { abbr ? "Unfriend." : "Unfriendly", "Neutral", "Good", abbr ? "V. Good" : "Very Good", "Slavishly Loyal" };
         res += sep + relate[v.mRelate];
-        if (v.mOrg) res += sep + "Organization";
+        if (v.mOrg) res += sep + (abbr ? "Organ." :"Organization");
         return res + ")";
     }
 
@@ -558,6 +561,7 @@ public:
     FringeBenefit& operator=(const FringeBenefit&) = delete;
     FringeBenefit& operator=(FringeBenefit&&) = delete;
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "What is it?");
                                                                   cost    = createLineEdit(parent, layout, "Cost of the fringe benefit", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -589,9 +593,9 @@ private:
     QLineEdit* forwhat = nullptr;
     QLineEdit* cost = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mFor.isEmpty()) return "<incomplete>";
-        QString res = "Fringe Benefit: " + v.mFor;
+        QString res = (abbr ? "Fringe Ben.: " : "Fringe Benefit: ") + v.mFor;
         return res;
     }
 
@@ -616,6 +620,7 @@ public:
     Money& operator=(const Money&) = delete;
     Money& operator=(Money&&) = delete;
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { amount = createComboBox(parent, layout, "How much money do you make a year?", { "Well Off ($100,000 or less)",
                                                                                                                                                   "Well Off ($200,000 or less)",
@@ -650,7 +655,7 @@ private:
 
     QComboBox* amount = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mAmount < 0) return "<incomplete>";
         QStringList amount { "Well Off ($100,000 or less)",
                              "Well Off ($200,000 or less)",
@@ -664,6 +669,7 @@ private:
                              "Wealthy ($6,000,000 or less)",
                              "Filthy Rich (Unlimited)"
                            };
+        if (abbr) return (v.mAmount < 5 ? "Well Off" : (v.mAmount < 10 ? "Wealthy" : "Filthry Rich"));
         return amount[v.mAmount];
     }
 };
@@ -682,6 +688,7 @@ public:
     PositiveReputation& operator=(const PositiveReputation&) = delete;
     PositiveReputation& operator=(PositiveReputation&&) = delete;
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { forwhat = createLineEdit(parent, layout, "Reputation for what?");
                                                                   level   = createComboBox(parent, layout, "How widely known?", { "Small to medium size group",
@@ -723,12 +730,12 @@ private:
     QLineEdit* forwhat = nullptr;
     QComboBox* known = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mLvl < 0 || v.mKnown < 0 || v.mFor.isEmpty()) return "<incomplete>";
-        QString res = "Positive Reputation: " + v.mFor;
-        QStringList level { "Small to medium size group",
-                            "Medium sized group",
-                            "Large group" };
+        QString res = (abbr ? "Pos. Rep.: " : "Positive Reputation: ") + v.mFor;
+        QStringList level { abbr ? "Small-Med. Group" : "Small To Medium Size Group",
+                            abbr ? "Med. Group" : "Medium Sized Group",
+                            abbr ? "Lrg. " : "Large group" };
         return res + " (Known to a " + level[v.mLvl] + ")";
     }
 };
@@ -747,6 +754,7 @@ public:
     VehiclesAndBases& operator=(const VehiclesAndBases&) = delete;
     VehiclesAndBases& operator=(VehiclesAndBases&&) = delete;
 
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what  = createLineEdit(parent, layout, "What is the thing?");
                                                                   pnts = createLineEdit(parent, layout, "How many points in the thing?", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -784,8 +792,9 @@ private:
     QLineEdit* pnts = nullptr;
     QLineEdit* mult = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mWhat.isEmpty() || v.mPnts == 0) return "<incomplete>";
+        if (abbr) return QString("%1Veh. & Bases: ").arg(v.mMult != 0 ? QString("x%1 ").arg(pow(2.0, v.mMult)) : "") + v.mWhat + QString(" (%1 pnts)").arg(v.mPnts); // NOLINT
         return QString("%1Vehicles and Bases: ").arg(v.mMult != 0 ? QString("x%1 ").arg(pow(2.0, v.mMult)) : "") + v.mWhat + QString(" (%1 points)").arg(v.mPnts); // NOLINT
     }
 

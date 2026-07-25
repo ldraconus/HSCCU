@@ -28,7 +28,8 @@ public:
     ExtraDimensionalMovement& operator=(ExtraDimensionalMovement&&) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
-    QString  description(bool showEND = false) override          { return (showEND ? "" : "") + optOut(showEND); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    time   = createCheckBox(parent, layout, "Time Travelϴ", std::mem_fn(&Power::checked));
                                                                    numDim = createComboBox(parent, layout, "Number of Dimensions Modifiers",
@@ -163,7 +164,7 @@ private:
     QComboBox* timLoc = nullptr;
     QLineEdit* timWhr = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (!v.mTime && v.mLoc != 1 && v.mNumDim == 0) return "<incomplete>";
         if ((!v.mTime && ((v.mNumDim < 1 && v.mDim.isEmpty())
                          || (v.mLoc < 1 && v.mWhere.isEmpty()))) ||
@@ -177,28 +178,32 @@ private:
                 { "1 Turn", "1 Minute", "5 Minutes", "20 Minutes", "1 Hour", "6 Hours",
                   "1 Day", "1 Week", "1 Month", "1 Season", "1 Year", "5 Years",
                   "25 Years", "1 Century", "5 Centuries", "25 Centuries" };
+            QStringList spanAbbr
+                { "1 Tn", "1 Min.", "5 Mins", "20 Mins", "1 Hr", "6 Hrs",
+                 "1 Day", "1 Wk", "1 Mth", "3 Mths", "1 Yr", "5 Yrs",
+                 "25 Yrs", "1 Ctry", "5 Ctrys", "25 Ctrys" };
             res += "ϴTime Travelϴ ";
             if (v.mWhen < 0) res += "To Fixed Time (" + v.mMoment + ")";
             else if (v.mWhen == 1) res += "To Fixed Times (" + v.mMoment + ")";
             else {
-                if (v.mWhen == 2) res += "Forward In Time";
-                else if (v.mWhen == 3) res += "Backward In Time";
-                else res += "Forwards And Backwards In Time";
-                res += " (" + span[v.mSpan] + ")";
+                if (v.mWhen == 2) res += abbr ? "For." : "Forward In Time";
+                else if (v.mWhen == 3) res += abbr ? "Back." : "Backward In Time";
+                else res += abbr ? "For. & Back." : "Forwards And Backwards In Time";
+                res += " (" + (abbr ? spanAbbr[v.mSpan] : span[v.mSpan]) + ")";
             }
             if (v.mTimLoc > 0) {
                 if (v.mTimLoc != 3) res += "; To " + v.mTimWhr;
-                else res += "; To Any Location";
+                else res += abbr ? "; To Any Loc." : "; To Any Location";
             }
         }
         else {
-            res += "Extra-Dimensional Movementϴ";
-            if (v.mNumDim < 1) res += "Single Dimenstion (" + v.mDim + ")";
-            else if (v.mNumDim == 1) res += "; Related Group of Dimensions (" + v.mDim + ")";
-            else res += "; Any Dimension";
+            res += abbr ? "Xtra Dim. Move.ϴ" : "Extra-Dimensional Movementϴ";
+            if (v.mNumDim < 1) res += (abbr ? "; To/From " : "; Single Dimenstion (") + v.mDim + (abbr ? "" : ")");
+            else if (v.mNumDim == 1) res += (abbr ? "; Rel. Grp (" : "; Related Group of Dimensions (") + v.mDim + ")";
+            else res += abbr ? "; Any Dim." : "; Any Dimension";
             if (v.mLoc > 0) {
-                res += "; Any Location";
-                if (v.mLoc == 2) res += " Corresponding to Current Location";
+                res += abbr ? "; Any Loc." : "; Any Location";
+                if (v.mLoc == 2) res += abbr ? " Corres. Cur. Loc." : " Corresponding to Current Location";
             } else res += "; To " + v.mWhere;
         }
         return res;
@@ -242,6 +247,7 @@ public:
     FTLTravel& operator=(FTLTravel&&) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    speed   = createLineEdit(parent, layout, "Velocity?", std::mem_fn(&Power::numeric));
@@ -282,12 +288,12 @@ private:
     QLineEdit* speed = nullptr;
     QCheckBox* instant = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mSpeed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1 LY/Y FTL Travel").arg(v.mSpeed);
-        if (v.mInstant) res += "; Instant Lightspeed";
+        res += QString(abbr ? "%1 LY/Y FTL" : "%1 LY/Y FTL Travel").arg(v.mSpeed);
+        if (v.mInstant) res += abbr ? "; Instant" : "; Instant Lightspeed";
         return res;
     }
 
@@ -317,6 +323,7 @@ public:
     virtual Flight& operator=(Flight&&) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return v.mGlide ? noEnd() : Power::end(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -369,15 +376,15 @@ private:
     QCheckBox* glide = nullptr;
     QCheckBox* surface = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mSpeed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("%1m Flight").arg(v.mSpeed);
-        if (v.mHover == 1) res += "Cannot Hover (2m/Phase Min)";
-        if (v.mHover == 2) res += QString("Cannot Hover (%1m/Phase Min)").arg((v.mSpeed + 1) / 2);
+        if (v.mHover == 1) res += abbr ? "Min 2m/Phs" : "; Cannot Hover (2m/Phase Min)";
+        if (v.mHover == 2) res += QString(abbr ? "; Min %1m/Phs" : "; Cannot Hover (%1m/Phase Min)").arg((v.mSpeed + 1) / 2);
         if (v.mGlide) res += "; Gliding";
-        if (v.mSurface) res += "; Only In Contact With A Surface";
+        if (v.mSurface) res += abbr ? "; Only On Surfaces" : "; Only In Contact With A Surface";
         return res;
     }
 
@@ -407,7 +414,8 @@ public:
     Leaping& operator=(Leaping&& s) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
-    QString  description(bool showEND = false) override          { return (showEND ? "" : "") + optOut(showEND); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    speed    = createLineEdit(parent, layout, "Leaping?", std::mem_fn(&Power::numeric));
                                                                    accurate = createCheckBox(parent, layout, "Accurate Leap?");
@@ -450,14 +458,14 @@ private:
     QCheckBox* accurate = nullptr;
     QComboBox* limit = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mSpeed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1m Leap").arg(v.mSpeed);
-        if (v.mAccurate) res += "; Accurate Leap";
-        if (v.mLimit == 1) res += "; Upward Movement Only";
-        if (v.mLimit == 2) res += "; Forward Movement Only";
+        if (v.mAccurate) res += abbr ? "; Accurate" : "; Accurate Leap";
+        if (v.mLimit == 1) res += abbr ? "; Up Only" : "; Upward Movement Only";
+        if (v.mLimit == 2) res += abbr ? "; Forward Only" : "; Forward Movement Only";
         return res;
     }
 
@@ -487,6 +495,7 @@ public:
     Running& operator=(Running&& s) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    speed   = createLineEdit(parent, layout, "Velocity?", std::mem_fn(&Power::numeric));
@@ -530,12 +539,12 @@ private:
     QCheckBox* correct = nullptr;
     QLineEdit* terrain = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mSpeed < 1 || (v.mCorrect && v.mTerrain.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1m Running").arg(v.mSpeed);
-        if (v.mCorrect) res += "; Only On Appropriate Terrain (" + v.mTerrain + ")";
+        if (v.mCorrect) res += abbr ? "; Only On " + v.mTerrain : ("; Only On Appropriate Terrain (" + v.mTerrain + ")");
         return res;
     }
 
@@ -566,6 +575,7 @@ public:
     Swimming& operator=(Swimming&& s) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    speed   = createLineEdit(parent, layout, "Velocity?", std::mem_fn(&Power::numeric));
@@ -603,12 +613,12 @@ private:
     QLineEdit* speed = nullptr;
     QCheckBox* surface = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mSpeed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1m Swimming").arg(v.mSpeed);
-        if (v.mSurface) res += "; Surface Only";
+        if (v.mSurface) res += abbr ? "; Surface" : "; Surface Only";
         return res;
     }
 
@@ -704,6 +714,7 @@ public:
     Teleportation& operator=(Teleportation&& s) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    speed = createLineEdit(parent, layout, "Distance?", std::mem_fn(&Power::numeric));
@@ -761,16 +772,16 @@ private:
     QComboBox* fixed = nullptr;
     QCheckBox* pass = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mSpeed < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1m Telportation").arg(v.mSpeed);
-        if (v.mVeloc) res += "; No Relative Velocity";
-        if (v.mSafe)  res += "; Safe Aquatic Teleport";
-        if (v.mFixed == 1) res += "; Can Only Teleport To Fixed Or Floating Locations";
-        if (v.mFixed == 2) res += "; Can Only Teleport To Fixed Locations";
-        if (v.mPass) res += "; Must Pass Through Intervening Space";
+        res += QString(abbr ? "%1m Teleport" : "%1m Telportation").arg(v.mSpeed);
+        if (v.mVeloc) res += abbr ? "; No Rel. Vel." : "; No Relative Velocity";
+        if (v.mSafe)  res += abbr ? "; Safe in water" : "; Safe Aquatic Teleport";
+        if (v.mFixed == 1) res += abbr ? "; Only Fixed/Float Loc." : "; Can Only Teleport To Fixed Or Floating Locations";
+        if (v.mFixed == 2) res += abbr ? "l Only Fixed Loc." : "; Can Only Teleport To Fixed Locations";
+        if (v.mPass) res += abbr ? "; Path must be clear" : "; Must Pass Through Intervening Space";
         return res;
     }
 
@@ -802,6 +813,7 @@ public:
     Tunneling& operator=(Tunneling&& s) = delete;
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    speed  = createLineEdit(parent, layout, "Distance?", std::mem_fn(&Power::numeric));
@@ -859,14 +871,14 @@ private:
     QComboBox* limit = nullptr;
     QCheckBox* to = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mSpeed < 1 || v.mPD < 1 || (v.mLimit > 0 && v.mTo.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("%1m Tunneling (%2 PD").arg(v.mSpeed).arg(v.mPD);
         if (v.mFillIn) res += "; Fill In";
-        if (v.mLimit == 1) res += "; Limited Medium (" + v.mTo + ")";
-        if (v.mLimit == 2) res += "; Very Limited Medium (" + v.mTo + ")";
+        if (v.mLimit == 1) res += abbr ? "; Only tghrough " + v.mTo : ("; Limited Medium (" + v.mTo + ")");
+        if (v.mLimit == 2) res += abbr ? "; Only tghrough " + v.mTo : ("; Very Limited Medium (" + v.mTo + ")");
         return res;
     }
 

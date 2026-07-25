@@ -26,6 +26,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
@@ -53,11 +54,11 @@ private:
 
     QLineEdit* dice = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v.mDice) + "d6 Mental Blast";
+        res += QString("%1").arg(v.mDice) + (abbr ? "d6 MB" : "d6 Mental Blast");
         return res;
     }
 
@@ -98,6 +99,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice   = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
@@ -154,16 +156,16 @@ private:
     QComboBox* sense = nullptr;
     QCheckBox* self = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1").arg(v.mDice) + "d6 Mental Illiusions";
-        if (v.mHarm) res += "; Cannot Cause Harm";
-        if (v.mDepend) res += "; Depends On Character's Knowledge";
+        res += QString("%1").arg(v.mDice) + (abbr ? "d6 M. Illus." : "d6 Mental Illiusions");
+        if (v.mHarm) res += abbr ? "; Can't Harm" : "; Cannot Cause Harm";
+        if (v.mDepend) res += abbr ? "; Dep. Char. Know." : "; Depends On Character's Knowledge";
         if (v.mSense >= 1) {
-            if (v.mSense == 1) res += "; Doesn't Affect Non-Targeting Senses";
-            else res += "; Doesnt Affect Targeting Senses";
+            if (v.mSense == 1) res += abbr ? "No Non-Target Senses" : "; Doesn't Affect Non-Targeting Senses";
+            else res += abbr ? "No Target Senses" : "; Doesnt Affect Targeting Senses";
         }
         if (v.mSelf) res += "; Self Only";
         return res;
@@ -206,6 +208,7 @@ public:
     }
 
     Fraction adv() override                                      { return v.mTele ? Fraction(1, 4) : Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
@@ -262,13 +265,13 @@ private:
     QComboBox* set = nullptr;
     QLineEdit* cmd = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("%1").arg(v.mDice) + "d6 Mind Control";
-        if (v.mTele) res += "; Telepathic";
-        if (v.mLit) res += "; Literal Interpretation";
+        if (v.mTele) res += abbr ? "Telepath." : "; Telepathic";
+        if (v.mLit) res += abbr ? "Literal" : "; Literal Interpretation";
         if (v.mSet != 0) res += "Set Effect (" + v.mCmd + ")";
         return res;
     }
@@ -314,6 +317,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -403,29 +407,29 @@ private:
     QComboBox* feed = nullptr;
     QCheckBox* only = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mMinds < 1 || v.mInv < 0 || (v.mInv != 2 && v.mWho.isEmpty()) || v.mRange < 0) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Mind Link with ";
+        res += abbr ? "Mind Link w/" : "Mind Link with ";
         switch (v.mInv) {
-        case 0: res += "A Single Mind(" + v.mWho + ")";     break;
-        case 1: res += "A Group of Minds (" + v.mWho + ")"; break;
+        case 0: res += abbr ? v.mWho : ("A Single Mind (" + v.mWho + ")");     break;
+        case 1: res += abbr ? v.mWho : ("A Group of Minds (" + v.mWho + ")"); break;
         case 2: res += "Any Mind";                          break;
         }
         switch (v.mRange) {
-        case 0: res += "; Plantary Range";                   break;
-        case 1: res += "; Unlimited Range";                  break;
-        case 2: res += "; Unlimited Range, Pan-Dimensional"; break;
+        case 0: res += abbr ? "; Planetary Rng" : "; Planetary Range";                         break;
+        case 1: res += abbr ? "; Unlim. Rng" : "; Unlimited Range";                            break;
+        case 2: res += abbr ? "; Unlim. Rng, Pan-Dim." : "; Unlimited Range, Pan-Dimensional"; break;
         }
-        if (v.mLOS) res += "; No LOS Needed";
-        if (!v.mBond.isEmpty()) res += ": Psychic Bond with " + v.mBond;
-        if (v.mFloat) res += ": Floating Psychic Bond";
+        if (v.mLOS) res += "; No LOS" + QString(abbr ? "" : " Needed");
+        if (!v.mBond.isEmpty()) res += (abbr ? "; Bond w/" : "; Psychic Bond with ") + v.mBond;
+        if (v.mFloat) res += res += abbr ? "; Float. Bond" : "; Floating Psychic Bond";
         switch (v.mFeed) {
-        case 1: res += "; Link Channels STUN Damage";          break;
-        case 2: res += ": Link Channels STUN and BODY Damage"; break;
+        case 1: res += abbr ? "; Channel STUN Dmg" : "; Link Channels STUN Damage";                 break;
+        case 2: res += abbr ? "; Channel STUN & BODY Dmg" : "; Link Channels STUN and BODY Damage"; break;
         }
-        if (v.mOnly) res += "; Only With Others Who Have Mind Link";
+        if (v.mOnly) res += abbr ? "; Only w/Others w/Mind Link" : "; Only With Others Who Have Mind Link";
         return res;
     }
 
@@ -468,6 +472,7 @@ public:
 
     Fraction adv() override                                      { return (v.mLink ? Fraction(1)    : Fraction(0)) +
                                                                           (v.mLock ? Fraction(1, 2) : Fraction(0)); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice  = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
@@ -528,20 +533,20 @@ private:
     QComboBox* cant = nullptr;
     QCheckBox* part = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("%1").arg(v.mDice) + "d6 Mind Scan";
         if (v.mBonus > 0) res += QString(", +%1 OMCV").arg(v.mBonus);
-        if (v.mLink) res += "; One Way Link";
-        if (v.mLock) res += "; Partial Lock-On";
+        if (v.mLink) res += abbr ? "; 1-Way Link" : "; One Way Link";
+        if (v.mLock) res += abbr ? "; Part. Lock." :"; Partial Lock-On";
         switch (v.mCant) {
-        case 1: res += "; No Attacks Through Link";                 break;
-        case 2: res += "; No Attack or Communication Through Link"; break;
-        case 3: res += "; Only Traget May Attack Through Link";     break;
+        case 1: res += abbr ? "; No Atk Thru" : "; No Attacks Through Link";                          break;
+        case 2: res += abbr ? "; No Atk or Comm. Thru" : "; No Attack or Communication Through Link"; break;
+        case 3: res += abbr ? "; Only Tgt can Atk Thru" : "; Only Traget May Attack Through Link";    break;
         }
-        if (v.mPart) res += "; Partial Effect";
+        if (v.mPart) res += abbr ? "; Part. Eff." : "; Partial Effect";
         return res;
     }
 
@@ -585,6 +590,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    dice  = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
@@ -663,19 +669,19 @@ private:
     QCheckBox* lang = nullptr;
     QCheckBox* recv = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mDice < 1 || (v.mEmp == 1 && v.mEmo.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("%1").arg(v.mDice) + "d6 Telepathy";
-        if (v.mBCast) res += "; Broadcast Only";
-        if (v.mExcl) res += "; Communication Only";
+        if (v.mBCast) res += abbr ? "; Brdcast Only" : "; Broadcast Only";
+        if (v.mExcl) res += abbr ? "; Comm. Only" : "; Communication Only";
         if (v.mEmp == 1) res += "; Empathy";
-        else if (v.mEmp == 2) res += "Empathy (" + v.mEmo + " Only)";
+        else if (v.mEmp == 2) res += abbr ? "; " + v.mEmo : ("Empathy (" + v.mEmo + " Only)");
         if (v.mFeed == 1) res += "; Feedback (STUN)";
         else if (v.mFeed == 2) res += "; Feedback (STUN & BODY)";
-        if (v.mLang) res += "; Language Barrier";
-        if (v.mRecv) res += "; Receive Only";
+        if (v.mLang) res += abbr ? "; Lang. Bar." : "; Language Barrier";
+        if (v.mRecv) res += abbr ? "; Rcv Only" : "; Receive Only";
         return res;
     }
 
