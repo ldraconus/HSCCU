@@ -30,12 +30,16 @@ public:
         return *this;
     }
 
-    QString description() override {
+    QString abbreviation() override { return str(true); }
+    QString description() override  { return str(); }
+    QString str(bool abbr = false) {
         static QList<QString> freq { "Uncommon", "Common", "Very Common" };
+        static QList<QString> freqAbbr { "Uncom.", "Com.", "V. Com." };
         static QList<QString> chnc { "8-", "11-", "14-" };
         static QList<QString> regn { "14-", "11-", "8-" };
         if (v.mRrequency < 0 || v.mChance < 0 || v.mRegain < 0 || v.mWhat.isEmpty()) return "<incomplete>";
-        return QString("%1: %2 (%3 Go: %4; Recover: %5)").arg(v.mType ? "Berserk" : "Enraged", v.mWhat, freq[v.mRrequency], chnc[v.mChance], regn[v.mRegain]);
+        return QString("%1: %2 (%3 Go: %4; Recover: %5)").arg(v.mType ? "Berserk" : "Enraged", v.mWhat, (abbr ? freqAbbr[v.mRrequency] : freq[v.mRrequency]),
+                                                              chnc[v.mChance], regn[v.mRegain]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what      = createLineEdit(parent, layout, "What sets you off?");

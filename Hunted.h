@@ -35,22 +35,30 @@ public:
         return *this;
     }
 
+    QString abbreviation() override { return str(true); }
     QString description() override {
+        return str();
+    }
+    QString str(bool abbr = false) {
         static QList<QString> capa     { "Less Powerful", "As Powerful", "More Powerful" };
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" };
         static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
-        static QList<QString> mtvn     { "Watching", "Mildly Punish", "Harsly Punish" };
+        static QList<QString> mtvn     { "; Watching", "; Mildly Punish", "; Harshly Punish" };
+        static QList<QString> capaAbbr     { "Less Pow.", "As Pow.", "More Pow." };
+        static QList<QString> freqAbbr     { "8-", "11-", "14-" };
+        static QList<QString> freqSansAbbr { "Infreq.", "Freq.", "V. Freq", "Always" };
+        static QList<QString> mtvnAbbr     { "; Watch", "", "; Harsly Pun." };
         if (v.mFrequency < 0 || v.mCapabilities < 0 || v.mMotivation  < 0 || v.mWho.isEmpty()) return "<incomplete>";
-        QString result = QString("Hunted: %1 (%2; %3").arg(v.mWho, capa[v.mCapabilities],
+        QString result = QString("Hunted: %1 (%2; %3").arg(v.mWho, abbr ? capaAbbr[v.mCapabilities] : capa[v.mCapabilities],
 #ifndef ISHSC
                                                            Sheet::ref().getOption().showFrequencyRolls()
 #else
                                                            true
 #endif
-                                                               ? freq[v.mFrequency] : freqSans[v.mFrequency]);
+                                                               ? (abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency]) : (abbr ? freqSansAbbr[v.mFrequency] : freqSans[v.mFrequency]));
         if (v.mNCI) result += "; NCI";
-        if (v.mLimited) result += "; Limited geographical area";
-        return result + "; " + mtvn[v.mMotivation] + ")";
+        if (v.mLimited) result += abbr ? "; Lim. Geo." : "; Limited Geographical Area";
+        return result + (abbr ? mtvnAbbr[v.mMotivation] : mtvn[v.mMotivation]) + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         who           = createLineEdit(parent, layout, "Who is hunting you?");

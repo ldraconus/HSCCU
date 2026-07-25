@@ -34,6 +34,7 @@ public:
 
     bool isSkill() override { return true; }
 
+    QString abbreviation(bool showRoll = false) override     { return description(showRoll); }
     QString description(bool showRoll = false) override      { return v.mName + " (" + (v.mTopic.isEmpty() ? "" : v.mTopic + "; ") +
                                                                                        (showRoll ? roll() : "+" + QString("%1").arg(v.mPlus)) + ")"; }
     bool form(QWidget* parent, QVBoxLayout* layout) override { topic = createLineEdit(parent, layout, "Specific Topic?");
@@ -124,14 +125,16 @@ public:
         return *this;
     }
 
-    QString description(bool showRoll = false) override {
+    QString abbreviation(bool showRoll = false) override { return str(showRoll, true); }
+    QString description(bool showRoll = false) override { return str(showRoll); }
+    QString str(bool showRoll, bool abbr = false) {
         return (showRoll ?
 #ifndef ISHSC
                                add(Sheet::ref().character().INT().roll(), v.mPlus)
 #else
                                QString("+%1").arg(v._plus)
 #endif
-                         : "") + optOut(); }
+                         : "") + optOut(abbr); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override {
         plus = createLineEdit(parent, layout, "How many pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
         what = createLineEdit(parent, layout, "Analyze what?");
@@ -174,10 +177,10 @@ private:
     QLineEdit* plus = nullptr;
     QLineEdit* what = nullptr;
 
-    QString optOut() {
+    QString optOut(bool abbr = false) {
         if (v.mWhat.isEmpty()) return "<incomplete>";
         QString res;
-        res += "Analyze " + v.mWhat;
+        res += (abbr ? "Anlz " : "Analyze ") + v.mWhat;
         QString sep = " (";
         if (v.mPlus > 0) { res += sep + QString("+%1").arg(v.mPlus); sep = ", "; }
         if (sep != " (") res += ")";

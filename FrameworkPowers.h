@@ -32,6 +32,7 @@ public:
         return *this;
     }
 
+    QString abbreviation(bool roll = false) override { return roll ? "" : ""; }
     QString description(bool roll = false) override { return roll ? "" : ""; }
     Points  points(bool noStore = false) override   { return noStore ? 0_cp : 0_cp; }
 
@@ -128,10 +129,10 @@ public:
         return *this;
     }
 
-
     bool isValid(shared_ptr<Power>) override { return true; }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { FrameworkPowers::form(parent, layout);
@@ -224,8 +225,8 @@ public:
 private:
     struct vars { };
 
-    QString optOut(bool) {
-        QString res = "Group";
+    QString optOut(bool, bool abbr = false) {
+        QString res = abbr ? "..." : "Group";
         return res;
     }
 };
@@ -256,6 +257,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { FrameworkPowers::form(parent, layout);
@@ -363,8 +365,8 @@ private:
 
     QLineEdit* pnts = nullptr;
 
-    QString optOut(bool) {
-        QString res = "Multipower Pool " + QString("(%1 cp)").arg(v.mPoints);
+    QString optOut(bool, bool abbr = false) {
+        QString res = (abbr ? "Multipower " : "Multipower Pool ") + QString("(%1 cp)").arg(v.mPoints);
         return res;
     }
 
@@ -417,6 +419,7 @@ public:
 
     Fraction adv() override                                      { return ((v.mTime > 3) ? Fraction(1, 2) * (v.mTime - 3) : Fraction(0)) +
                                                                           (v.mNoSkill    ? Fraction(1)                    : Fraction(0)); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { FrameworkPowers::form(parent, layout);
@@ -607,24 +610,27 @@ private:
     QComboBox* one = nullptr;
     QLineEdit* powr = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         QString res;
         if (showEND) res = nickname().isEmpty() ? "" : nickname() + " ";
-        res += QString("VPP (%1 cp, %2 cp Control)").arg(v.mPool).arg(v.mControl);
+        res += QString("VPP (%1 cp, %2 cp " + QString(abbr ? "Ctrl" : "Control)")).arg(v.mPool).arg(v.mControl);
         QStringList time {
-            "VPP Can Only Be Changed Between Adventures", "VPP Can Only Be Changed Between Scenes", "Full Action", "Powers Can be Changed As A Half-Phase Action",
-                "Powers Can be Changed As A Zero Phase Action" };
+            abbr ? "Only Change Between Advs" : "VPP Can Only Be Changed Between Adventures",
+            abbr ? "Only Change Between Scns" : "VPP Can Only Be Changed Between Scenes",
+            "Change Full Act.",
+            abbr ? "Change " + Fraction(1, 2).toString() + "-Phs" : "Powers Can be Changed As A Half-Phase Action",
+            abbr ? "Change 0-Phs" : "Powers Can be Changed As A Zero Phase Action" };
         if (v.mTime >= 0 && v.mTime != 2) res += "; " + time[v.mTime];
-        if (v.mNoSkill) res += "; No Skill Roll Required";
-        if (v.mGiven) res += "; Powers Can Only Be Changed When " + v.mCirc;
-        if (v.mHow) res += "; Character Has No Control Over How Powers Change";
-        if (v.mWhen2) res += "; Character Has No Control Over When Powers Change";
+        if (v.mNoSkill) res += abbr ? "; No Roll" : "; No Skill Roll Required";
+        if (v.mGiven) res += (abbr ? "; Only Change When " : "; Powers Can Only Be Changed When ") + v.mCirc;
+        if (v.mHow) res += abbr ? "; No Control How Change" : "; Character Has No Control Over How Powers Change";
+        if (v.mWhen2) res += abbr ? "; No Control When Change" : "; Character Has No Control Over When Powers Change";
         QStringList clss {
-            "", "Slightly Limited Class Of Powers",
-                "Limited Class Of Powers",
-                "Very Limited Class Of Powers" };
+            "", abbr ? "Broad Class" : "Slightly Limited Class Of Powers",
+                abbr ? "Lim. Class" : "Limited Class Of Powers",
+                abbr ? "V. Lim. Class" : "Very Limited Class Of Powers" };
         if (v.mClass > 0) res += "; " + clss[v.mClass] + " - " + v.mWhat;
-        if (v.mOne > 0) res += "; One Type Of Power - " + v.mPower;
+        if (v.mOne > 0) res += (abbr ? "1 Type - " : "; One Type Of Power - ") + v.mPower;
         return res;
     }
 

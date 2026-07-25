@@ -30,16 +30,26 @@ public:
         return *this;
     }
 
+    QString abbreviation() override { return str(true); }
     QString description() override {
+        return str();
+    }
+
+    QString str(bool abbr = false) {
         static QList<QString> conc { "Easily Concealed", "Concealable (with Disguise Skill or major effort)",
                                      "Not Concealable" };
-        static QList<QString> dtct {  "Commonly-Used Senses", "Uncommonly-Used Senses and/or by a Large Group and/or By Simple Tests",
+        static QList<QString> dtct { "Commonly-Used Senses", "Uncommonly-Used Senses and/or by a Large Group and/or By Simple Tests",
                                       "Unusual Senses and/or by a Small Group and/or Only By Technology or Major Effort" };
         static QList<QString> rctn { "Noticed and Recognizable", "Always Noticed and Causes Major Reaction or Prejudice",
                                      "Causes Extreme Reaction" };
+        static QList<QString> concAbbr { "Conceal: Easy; ", "", "Conceal: No; " };
+        static QList<QString> dtctAbbr { "", "Uncom. Detect", "Unusual Detect" };
+        static QList<QString> rctnAbbr { "Note & Recog.", "Note & React.", "Xtreme React." };
         if (v.mWhat.isEmpty() || v.mReaction < 0 || v.mDetectable < 0 || v.mConcealability < 0) return "<incomplete>";
-        return "Distinctive Feature: " + v.mWhat + " (" + conc[v.mConcealability] + "; " + rctn[v.mReaction] + "; " + dtct[v.mDetectable] +
-                (v.mNotDistinctive ? "; Not Distictive in Some Cultures" : "") + ")";
+        return (abbr ? "Distinct. Ftr: " : "Distinctive Feature: ") + v.mWhat + " (" + (abbr ? concAbbr[v.mConcealability] + rctnAbbr[v.mReaction] + "; " + dtctAbbr[v.mDetectable] +
+                                                                                                   (v.mNotDistinctive ? "; Not in Some Cultures" : "")
+                                                                                             : conc[v.mConcealability] + "; " + rctn[v.mReaction] + "; " + dtct[v.mDetectable] +
+                                                                                               (v.mNotDistinctive ? "; Not Distictive in Some Cultures" : "")) + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what           = createLineEdit(parent, layout, "What is distinctive?");

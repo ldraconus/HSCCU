@@ -42,6 +42,7 @@ public:
 
     bool isEquipment() override { return true; }
     Fraction adv() override { return Fraction(0); }
+    QString abbreviation(bool showEnd = false) override { return optOut(showEnd, true); }
     QString description(bool showEND = false) override { return optOut(showEND); }
     void form(QWidget* parent, QVBoxLayout* layout) override {
 #ifndef ISHSC
@@ -88,7 +89,7 @@ private:
     QLineEdit* extraNotes = nullptr;
 
 protected:
-    QString optOut(bool, double mod = 1.0, double modCost = 1.0) {
+    QString optOut(bool, double mod = 1.0, double modCost = 1.0, bool abbr = false) {
         QString res;
         if (v.mCost != 0 || v.mWeight != 0) res += "(";
         if (v.mCost != 0) res += QString("%1 sc").arg((int) (v.mCost * modCost + 0.5)); // NOLINT
@@ -165,6 +166,7 @@ public:
         return QString("%1").arg(STR / 5); // NOLINT
     }
 
+    QString abbreviation(bool showEnd = false) override { return optOut(showEnd, true); }
     QString description(bool showEND = false) override { return optOut(showEND); }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         Equipment::form(parent, layout);
@@ -229,10 +231,10 @@ private:
     QLineEdit* bonusDC = nullptr;
     QLineEdit* bonusOCV = nullptr;
 
-    QString optOut(bool b) {
+    QString optOut(bool b, bool abbr = true) {
         if (v.mWhich < 0) return "<incomplete>";
 
-        QString res = Equipment::optOut(b);
+        QString res = Equipment::optOut(b, abbr);
         QString sep = ", ";
         if (v.mTwoHanded) res += sep + "2 Handed";
         int STR = 0;
@@ -339,6 +341,7 @@ public:
         v.mWeights = fromArray(json["weights"].toArray());
     }
     Fraction adv() override { return Fraction(0); }
+    QString abbreviation(bool showEnd = false) override { return optOut(showEnd, true); }
     QString description(bool showEND = false) override { return optOut(showEND); }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         Equipment::form(parent, layout);
@@ -394,13 +397,13 @@ private:
     QComboBox* type = nullptr;
     QLineEdit* bonus = nullptr;
 
-    QString optOut(bool b) {
+    QString optOut(bool b, bool abbr = false) {
         if (v.mType < 0 || v.mWhich < 0) return "<incomplete>";
         QStringList typeOf {"Heavy Cloth", "Padded Cloth", "Woven Cord", "Heavy Animal Hides", "Soft Leather", "Heavy Leather", "Cuir-Bouilli", "Studded Soft Leather", "Ring Armor (Soft Leather)", "Bezainted Soft Leather", "Jazeraint Soft Leather", "Studded Heavy Leather", "Ring Armor (Heavy Leather)", "Bezainted Heavy Leather", "Jazeraint Heavy Leather", "Studded Cuir-Bouilli", "Ring Armor (Cuir-Bouilli)", "Bezainted Cuir-Bouilli", "Jazeraint Cuir-Bouilli", "Brigandine", "Lamellar (Splint Armor)", "Banded Mail", "Chainmail", "Double Mail/Bar Mail", "Reinforced Chainmail", "Plate And Chain", "Plate Armor", "Field Plate Armor", "Full Plate Armor"};
         QList<int> price   {20,            40,             40,           50,                   30,             50,              75,             36,                     75,                          80,                       90,                       90,                      90,                           100,                       110,                       110,                    100,                         110,                      110,                      100,          125,                       150,           150,         200,                    200,                    275,               350,           500,                 800}; // NOLINT
         QList<double> mass {3.5,           5.0,            5.0,          7.0,                  3.5,            5.0,             7.0,            3.5,                    7.0,                         7.0,                      7.0,                      5.0,                     10.0,                         10.0,                      10.0,                      7.0,                    14.0,                        14.0,                     14.0,                     10.0,         14.0,                      20.0,          20.0,        28.0,                   28.0,                   28.0,              28.0,          28.0,                40.0}; // NOLINT
         QList<int> value {1, 2, 2, 3, 1, 2, 3, 1, 3, 3, 3, 2, 4, 4, 4, 3, 5, 5, 5, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8}; // NOLINT
-        QString res = Equipment::optOut(b, 10.0 * v.mWeights[value[v.mType] - 1] * value[v.mType] / 8.0, price[v.mType] * v.mWeights[value[v.mType] - 1] / mass[v.mType]); // NOLINT
+        QString res = Equipment::optOut(b, 10.0 * v.mWeights[value[v.mType] - 1] * value[v.mType] / 8.0, price[v.mType] * v.mWeights[value[v.mType] - 1] / mass[v.mType], abbr); // NOLINT
         QString sep = ", ";
         res += sep + typeOf[v.mType];
         int def = v.mBonus + value[v.mType];
@@ -452,6 +455,7 @@ public:
         v.mSTRMin = json["strMin"].toInt(0);
     }
     Fraction adv() override { return Fraction(0); }
+    QString abbreviation(bool showEND = false) override { return optOut(showEND, true); }
     QString description(bool showEND = false) override { return optOut(showEND); }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         Equipment::form(parent, layout);
@@ -490,9 +494,9 @@ private:
 
     QComboBox* which = nullptr;
 
-    QString optOut(bool b) {
+    QString optOut(bool b, bool abbr = false) {
         if (v.mWhich < 0) return "<incomplete>";
-        QString res = Equipment::optOut(b);
+        QString res = Equipment::optOut(b, abbr);
         QString sep = " ";
         if (v.mSTRMin != 0) {
             res += sep + QString("%1 STR min").arg(v.mSTRMin);
