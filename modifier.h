@@ -4383,7 +4383,7 @@ private:
     QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
-        if (abbr) desc += QString(v.mNoRange ? "No Rng" : "Stnd Rng");
+        if (abbr) desc += QString(v.mNoRange ? "No Rng" : "Stnd Rng") + ")";
         else desc += QString("Limited Range (") + (v.mNoRange ? "No Range" : "Standard Range") + ")";
         return desc;
     }
