@@ -271,6 +271,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -306,11 +307,11 @@ private:
     QLineEdit* str;
     QCheckBox* knck;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("%1 STR Clinging").arg(v.mStr);
-        if (v.mKnck) res += "; Cannot Resist Knockback";
+        if (v.mKnck) res += abbr ? "; Not For KB" : "; Cannot Resist Knockback";
         return res;
     }
 
@@ -351,7 +352,7 @@ public:
                                                                    dice = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                { if (!noStore) store();
                                                                    return v.mDice * 3_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -425,6 +426,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -541,7 +543,7 @@ private:
     QComboBox* immun;
     QLineEdit* to;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mExtend < 1 && !v.mSelf && v.mExpand.isEmpty() && v.mEating < 1 && v.mSleep  < 1 && !v.mSelpv && !v.mSehp && !v.mSehr && !v.mSeic && !v.mSeih && v.mLong < 1 &&
             v.mImmun < 1) return "<incomplete>";
         if (v.mImmun > 0 && v.mImmun < 5 && v.mTo.isEmpty()) return "<incomplete>";
@@ -549,27 +551,31 @@ private:
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("Life Support");
         QStringList extend { "", "1 END/Turn", "1 END/Minute", "1 END/5 Minutes", "1 End/Hour" };
-        if (v.mExtend > 0) res += "; Extended Breating (" + extend[v.mExtend] + ")";
-        if (v.mSelf) res += "; Self-Contained Breathing";
-        if (!v.mExpand.isEmpty()) res += "; Expanded Breathing (" + v.mExpand + ")";
+        QStringList extendAbbr { "", "1 END/Tn", "1 END/Min.", "1 END/5 Mins", "1 End/Hr" };
+        if (v.mExtend > 0) res += (abbr ? "Xtended (" : "; Extended Breating (") + extend[v.mExtend] + ")";
+        if (v.mSelf) res += abbr ? "Self-Cont." : "; Self-Contained Breathing";
+        if (!v.mExpand.isEmpty()) res += (abbr ? "XPanded" : "; Expanded Breathing (") + v.mExpand + ")";
         QStringList eating { "", "1 Meal/Week", "1 Meal/Year", "Need Not Eat/Drink" };
-        if (v.mEating > 0) res += "; Diminished Eating (" + eating[v.mEating] + ")";
+        QStringList eatingAbbr { "", "1 Meal/Week", "1 Meal/Year", "Need Not Eat/Drink" };
+        if (v.mEating > 0) res += (abbr ? "Dim. Eating (" : "; Diminished Eating (") + (abbr ? eatingAbbr[v.mEating] : eating[v.mEating]) + ")";
         QStringList sleep { "", "8 Hours/Week", "8 Hours/Year", "Need Not Sleep" };
-        if (v.mSleep > 0) res += "; Diminished Sleep (" + sleep[v.mSleep] + ")";
-        QString sep = "; Safe Environment (";
-        if (v.mSelpv) { res += sep + "Low Pressure/Vacuum"; sep = ", "; }
-        if (v.mSehp)  { res += sep + "High Pressure";       sep = ", "; }
-        if (v.mSehr)  { res += sep + "High Radiation";      sep = ", "; }
-        if (v.mSeic)  { res += sep + "Intense Cold";        sep = ", "; }
-        if (v.mSeih)  { res += sep + "Intense Heat";        sep = ", "; }
-        if (sep == ", ") res += ")";
+        QStringList sleepAbbr { "", "8 Hrs/Wk", "8 Hrs/Yr", "No Sleep" };
+        if (v.mSleep > 0) res += abbr ? (v.mSleep == 3 ? "; No Sleep" : "; Dim. Sleep (" + sleepAbbr[v.mSleep] + ")") : "; Diminished Sleep (" + sleep[v.mSleep] + ")";
+        QString sep = abbr ? "; Safe In " : "; Safe Environment (";
+        if (v.mSelpv) { res += sep + (abbr ? "Low Press." : "Low Pressure/Vacuum"); sep = ", "; }
+        if (v.mSehp)  { res += sep + (abbr ? "High Press." : "High Pressure");      sep = ", "; }
+        if (v.mSehr)  { res += sep + (abbr ? "High Rad." : "High Radiation");       sep = ", "; }
+        if (v.mSeic)  { res += sep + (abbr ? "Cold" : "Intense Cold");              sep = ", "; }
+        if (v.mSeih)  { res += sep + (abbr ? "Heat" : "Intense Heat");              sep = ", "; }
+        if (sep == ", ") res += abbr ? "" : ")";
         QStringList Long { "", "200 Year Lifespan", "400 Year Lifespan", "800 Year Lifespan", "1,600 Year Lifespan", "Immortal" };
+        QStringList LongAbbr { "", "200 Yr Life.", "400 Yr Life.", "800 Yr Life.", "1,600 Yr Life.", "Immortal" };
         if (v.mLong >= 1) res += "; " + Long[v.mLong];
         if (v.mImmun >= 1) {
             if (v.mImmun < 5) res += "; Immune to " + v.mTo;
-            else if (v.mImmun == 5) res += "; Immunity Terrestrial Poisons";
-            else if (v.mImmun == 6) res += "; Immunity Terrestrial Diseases";
-            else res += "; Immunity Terrestrial Poisons/Diseases";
+            else if (v.mImmun == 5) res += abbr ? "; Imm. Nrml Poison" : "; Immune To Terrestrial Poisons";
+            else if (v.mImmun == 6) res += abbr ? "; Imm. Nrml Dis." : "; Immunity Terrestrial Diseases";
+            else res += abbr ? "; Imm. Nrml Poison/Dis." : "; Immunity Terrestrial Poisons/Diseases";
         }
         return res;
     }
@@ -625,6 +631,7 @@ public:
                                                                           (v.mSpec          ? Fraction(1)               : Fraction(0)) +
                                                                           ((v.mWeak > 0)    ? v.mWeak * Fraction(1, 4)  : Fraction(0));
                                                                  }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    pts    = createLineEdit(parent, layout, "Pointa?", std::mem_fn(&Power::numeric));
@@ -729,7 +736,7 @@ private:
     QComboBox* strong;
     QCheckBox* must;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mPts < 1 || v.mCrtr.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
@@ -737,20 +744,24 @@ private:
         if (v.mDbl > 0) res += QString(" Up To %1 ").arg((int) pow(2, v.mDbl));
         res += QString("%1 pt %2").arg(v.mPts).arg(v.mCrtr);
         QStringList amicable { "", "Friendly", "Loyal", "Devoted", "Slavishly Devoted" };
+        QStringList amicableAbbr { "", "Friend", "Loyal", "Devoted", "Slavish" };
         if (v.mAmi > 0) res += "; Creature(s) are " + amicable[v.mAmi];
         if (v.mTasks > 0) res += QString("; x%1 Tasks").arg((int) pow(2, v.mTasks));
         QStringList expand { "", "Very Limited Group of Creatures", "Limited Group of Creatures", "Any Creature" };
-        if (v.mExpand > 0) res += "; " + expand[v.mExpand + 1];
-        if (v.mSpec) res += "; Specific Beingϴ";
+        QStringList expandAbbr { "", "Very Lim. Group", "Lim. Group", "Any Creature" };
+        if (v.mExpand > 0) res += "; " + (abbr ? expandAbbr[v.mExpand + 1] : expand[v.mExpand + 1]);
+        if (v.mSpec) res += abbr ? "; Specificϴ" : "; Specific Beingϴ";
         QStringList weak { "", "Weak Willed", "Very Weak Willed" };
-        if (v.mWeak > 0) res += "; " + weak[v.mWeak];
+        QStringList weakAbbr { "", "Weak Will", "V. Weak Will" };
+        if (v.mWeak > 0) res += "; " + (abbr ? weakAbbr[v.mWeak] : weak[v.mWeak]);
         QStringList antag { "", "Annoyed", "Hostile", "Violent" };
         if (v.mAntag > 0) res += "; " + antag[v.mAntag];
-        if (v.mArrive) res += "; Arrives Under Own Power";
+        if (v.mArrive) res += abbr ? "; Arrive By Own Pow." : "; Arrives Under Own Power";
         if (v.mFewer > 0) res += QString("; Tasks/%1").arg((int) pow(2, v.mTasks));
         QStringList strong { "", "Strong Willed", "Very Strong Willed" };
-        if (v.mStrong > 0) res += "; " + strong[v.mStrong];
-        if (v.mMust) res += "; Summoned Being Must Inhabit Locale";
+        QStringList strongAbbr { "", "Str. Will", "V. Str. Will" };
+        if (v.mStrong > 0) res += "; " + (abbr ? strongAbbr[v.mStrong]: strong[v.mStrong]);
+        if (v.mMust) res += abbr ? "; Being Must Be Local" : "; Summoned Being Must Inhabit Locale";
         return res;
     }
 

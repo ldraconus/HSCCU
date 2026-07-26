@@ -36,6 +36,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -106,17 +107,23 @@ private:
     QLineEdit* restr;
     QComboBox* slow;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mEnd < 1 || v.mRec < 1 || (v.mLim > 0 && v.mWhat.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1 END/%2 REC").arg(v.mEnd).arg(v.mRec) + "Endurance Reserve";
-        if (v.mLim > 0) res += "; Limited Recovery (" + v.mWhat + ")";
-        if (!v.mRestr.isEmpty()) res += "; Restricted Use (" + v.mRestr + ")";
-        QStringList restr { "", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes", "1 Hour", "6 Hours",
-                            "1 Day", "1 Week", "1 Month", "1 Season", "1 Year", "5 Years", "25 Years",
-                            "1 Century" };
-        if (v.mSlow > 0) res += "; Slow Recovery (" + restr[v.mSlow] + ")";
+        res += QString("%1 END/%2 REC").arg(v.mEnd).arg(v.mRec) + (abbr ? "END Res." : "Endurance Reserve");
+        if (v.mLim > 0) res += (abbr ? "; Lim. REC (" : "; Limited Recovery (") + v.mWhat + ")";
+        if (!v.mRestr.isEmpty()) res += (abbr ? "Restr. (" : "; Restricted Use (") + v.mRestr + ")";
+        static QStringList restr { "", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes", "1 Hour", "6 Hours",
+                                   "1 Day", "1 Week", "1 Month", "1 Season", "1 Year", "5 Years", "25 Years",
+                                   "1 Century" };
+        static QStringList restrAbbr { "", "1 Tn", "1 Min.", "5 Mins", "20 Mins", "1 Hr", "6 Hrs",
+                                       "1 Day", "1 Wk", "1 Mth", "3 Mths", "1 Yr", "5 Yrs", "25 Yrs",
+                                       "1 Cent." };
+        if (v.mSlow > 0) {
+            if (abbr) res += "; Slow REC (" + restrAbbr[v.mSlow] + ")";
+            else res += "; Slow Recovery (" + restr[v.mSlow] + ")";
+        }
         return res;
     }
 
@@ -217,6 +224,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -225,7 +233,7 @@ public:
                                                                    pow = createComboBox(parent, layout, "or Power?", getPowers());
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    if (v.mMod == nullptr) return 0_cp;
                                                                    if (v.mMod->isAdder()) return v.mMod->points(Modifier::NoStore);
                                                                    else if (v.mPow != nullptr) {
@@ -268,11 +276,15 @@ private:
     QLineEdit*   pts;
     QComboBox*   pow;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mMod == nullptr) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += v.mMod->description() + " on ";
+        res += (abbr ? v.mMod->abbreviation() : v.mMod->description()) + " on " ;
+        if (v.mPow != nullptr) {
+            if (abbr) res += v.mPow->abbreviation();
+            else res += v.mPow->description();
+        } else res += QString(abbr ? "%1 Max. Pts" : "%1 Maximum Points").arg(v.mPts);
         return res;
     }
 
@@ -377,8 +389,8 @@ public:
     Regeneration(const Regeneration& s): AllPowers(s)      { }
     Regeneration(Regeneration&& s): AllPowers(s)           { }
     Regeneration(const QJsonObject& json): AllPowers(json) { v.mBody = json["body"].toInt(0);
-                                                                 v.mTime = json["time"].toInt(0);
-                                                               }
+                                                             v.mTime = json["time"].toInt(0);
+                                                           }
     virtual Regeneration& operator=(const Regeneration& s) {
         if (this != &s) {
             AllPowers::operator=(s);
@@ -393,6 +405,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -401,7 +414,7 @@ public:
                                                                                                                    "Hour", "Turn" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return v.mBody * v.mTime * 2_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -429,13 +442,15 @@ private:
     QLineEdit* body;
     QComboBox* time;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mBody < 1 && v.mTime < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         QStringList time { "", "Week", "Day", "6 Hours", "Hour", "20 Minutes", "Minute",
                            "Hour", "Turn" };
-        res += QString("%1 BODY per %2 Regeneration").arg(v.mBody).arg(time[v.mTime]);
+        QStringList timeAbbr { "", "Wk", "Day", "6 Hrs", "Hr", "20 Mins", "Min,",
+                               "Hr", "Tn" };
+        res += QString(abbr ? "%1 BODY per %2 Regen." : "%1 BODY per %2 Regeneration").arg(v.mBody).arg(time[v.mTime]);
         return res;
     }
 
@@ -473,6 +488,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -505,11 +521,11 @@ private:
 
     QPushButton* skll;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mSkill == nullptr) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += v.mSkill->description();
+        res += abbr ? v.mSkill->description() : v.mSkill->abbreviation();
         return res;
     }
 
@@ -558,6 +574,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
@@ -565,7 +582,7 @@ public:
                                                                    where = createLineEdit(parent, layout, "Where?");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return (v.mFixed ? 1_cp : 5_cp);
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -593,11 +610,11 @@ private:
     QCheckBox* fixed;
     QLineEdit* where;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mFixed && v.mWhere.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Teleport Location " + (v.mFixed ? "(" + v.mWhere + ")" : "(Floating)");
+        res += (abbr ? "Port. Loc. " : "Teleport Location ") + (v.mFixed ? "(" + v.mWhere + ")" : (abbr ? "(Flt)" : "(Floating)"));
         return res;
     }
 
