@@ -20,11 +20,15 @@ public:
     PhysicalComplication& operator=(const PhysicalComplication& ac) = delete;
     PhysicalComplication& operator=(PhysicalComplication&& ac) = delete;
 
-    QString description() override {
+    QString abbreviation() override { return str(true); }
+    QString description() override  { return str(); }
+    QString str(bool abbr = false) {
         static QList<QString> impr { "Barely", "Slightly", "Greatly", "Fully" };
         static QList<QString> freq { "Infrequently", "Frequently", "Very Frequently", "Always" };
+        static QList<QString> freqAbbr { "Infreq.", "Freq.", "V. Freq.", "Always" };
         if (v.mFrequency < 0 || v.mImpairs < 0 || v.mWhat.isEmpty()) return "<incomplete>";
-        return QString("Physical Complication: %1 (%2; %3 imparing)").arg(v.mWhat, freq[v.mFrequency], impr[v.mImpairs]);
+        return QString(abbr ? "Phys. Comp. %1 (%2; %3)" : "Physical Complication: %1 (%2; %3 impairing)").arg(v.mWhat, abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency],
+                                                                                                                      impr[v.mImpairs]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what         = createLineEdit(parent, layout, "What is the complication?");

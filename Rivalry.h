@@ -25,12 +25,19 @@ public:
         return *this;
     }
 
-    QString description() override {
+    QString abbreviation() override { return str(true); }
+    QString description()  override { return str(); }
+    QString str(bool abbr = false) {
         static QList<QString> natr { "", "Professional", "Romantic", "Professional and Romantic" };
         static QList<QString> powr { "", "Less Powerful", "As Powerful", "More Powerful", "Significatly More Powerful" };
         static QList<QString> intn { "", "Outdo, Embaraass, or Humiliate", "Maim, or Kill" };
+        static QList<QString> natrAbbr { "", "Prof.", "Rom.", "Prof. & Rom." };
+        static QList<QString> powrAbbr { "", "L. Pow.", "As Pow.", "M. Pow.", "Sig. M. Pow." };
+        static QList<QString> intnAbbr { "", "Outdo, Embar. or Hum.", "Maim, or Kill" };
         if (v.mNature < 1 || v.mPower < 1 || v.mIntensity < 1 || v.mWho.isEmpty()) return "<incomplete>";
-        QString result = QString("Rivalry: %1 (%2; %3; %4").arg(v.mWho, natr[v.mNature], powr[v.mPower], intn[v.mIntensity]);
+        QString result;
+        if (abbr) result = QString("Rivalry: %1 (%2; %3; %4").arg(v.mWho, natrAbbr[v.mNature], powrAbbr[v.mPower], intnAbbr[v.mIntensity]);
+        else QString result = QString("Rivalry: %1 (%2; %3; %4").arg(v.mWho, natr[v.mNature], powr[v.mPower], intn[v.mIntensity]);
         if (v.mUnaware) result += "; Unaware";
         if (v.mPC) result += "; is a PC";
         return result + ")";

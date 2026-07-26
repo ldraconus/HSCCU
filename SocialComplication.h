@@ -28,19 +28,25 @@ public:
         return *this;
     }
 
-    QString description() override {
+    QString abbreviation() override { return str(); }
+    QString description() override  { return str(); }
+    QString str(bool abbr = false) {
         static QList<QString> freq     { "Infrequently (8-)", "Frequently (11-)",  "Very Frequently (14-)" };
         static QList<QString> freqSans { "Infrequently", "Frequently",  "Very Frequently" };
         static QList<QString> effc     { "Minor", "Major", "Severe" };
+        static QList<QString> freqAbbr     { "8-", "11-",  "14-" };
+        static QList<QString> freqSansAbbr { "Infreq.", "Freq.",  "V. Freq." };
+        static QList<QString> effcAbbr     { "Min.", "Maj.", "Sev." };
         if (v.mWhat.isEmpty() || v.mFrequency < 0 || v.mEffects < 0) return "<incomplete>";
-        return "Social Complication: " + v.mWhat + " (" + (
+        return (abbr ? "Soc. Comp." : "Social Complication: ") + v.mWhat + " (" + (
 #ifndef ISHSC
                    Sheet::ref().getOption().showFrequencyRolls()
 #else
                    true
 #endif
-                       ? freq[v.mFrequency] : freqSans[v.mFrequency]) + "); " + effc[v.mEffects] +
-                (v.mNotRestrictive ? "; Not Resrtictive in Some Cultures" : "") + ")";
+                       ? (abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency]) : (abbr ? freqSansAbbr[v.mFrequency] : freqSans[v.mFrequency])) + "); " +
+                (abbr ? effcAbbr[v.mEffects] : effc[v.mEffects]) +
+                (v.mNotRestrictive ? (abbr ? "; Not in Some Cult." : "; Not Resrtictive in Some Cultures") : "") + ")";
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what           = createLineEdit(parent, layout, "What is the complication?");

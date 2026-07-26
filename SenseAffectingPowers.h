@@ -5,6 +5,48 @@
 #include "powerdialog.h"
 #endif
 
+static QString abbrSense(const QStringList& str) {
+    static QMap<QString, QList<QString>> tree
+        { { "Hearing",    { "Normal Hearing",
+                      "Active Sonar",
+                      "Ultrasonic Perception" } },
+         { "Mental",      { "Mental Awareness",
+                     "Mind Scan" } },
+         { "Radio",       { "Radio Perception",
+                    "Radar"} },
+         { "Sight",       { "Normal Sight",
+                    "Nightvision",
+                    "Infrared Pereception",
+                    "Ultraviolet Perception" } },
+         { "Smell/Taste", { "Normal Smell",
+                          "Normal Taste" } },
+         { "Touch",       { "Normal Touch" } } };
+    static QMap<QString, QString> abbrs
+        { { "Normal Hearing", "Nrm. Hear." },
+         { "Active Sonar", "Act. Son." },
+         { "Ultrasonic Perception", "Ultrasonic" },
+         { "Mental Awareness", "Mental" },
+         { "Mind Scan", "Mind Scan" },
+         { "Radio Perception", "Radio" },
+         { "Radar", "Radar" },
+         { "Normal Sight", "Sight" },
+         { "Nightvision", "Nightvision" },
+         { "Infrared Pereception", "Infrared" },
+         { "Ultraviolet Perception", "Ultraviolet" },
+         { "Normal Smell", "Smell" },
+         { "Normal Taste", "Taste" },
+         { "Normal Touch", "Touch" } };
+    QString res;
+    auto keys = tree.keys();
+    QString sep;
+    for (const auto& what: std::as_const(str)) {
+        if (keys.contains(what)) res += sep + what;
+        else res += sep + abbrs[what];
+        sep = ", ";
+    }
+    return res;
+}
+
 class Darkness: public AllPowers {
 public:
     Darkness(): AllPowers("Darkness")                  { }
@@ -29,6 +71,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* p, QVBoxLayout* l) override           { AllPowers::form(p, l);
                                                                    rad  = createLineEdit(p, l, "Distance?", std::mem_fn(&Power::numeric));
@@ -117,17 +160,20 @@ private:
     QLineEdit*   rad = nullptr;
     QTreeWidget* what = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mRad < 1 || v.mWhat.size() < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += QString("%1m Radius Darkness to ").arg(v.mRad);
-        res += v.mWhat[0];
-        auto len = v.mWhat.length();
-        for (auto i = 1; i < len; ++i) {
-            if (i != len - 1) res += ", ";
-            else res += ", and ";
-            res += v.mWhat[i];
+        res += QString(abbr ? "%1m Rad. Dark. to " : "%1m Radius Darkness to ").arg(v.mRad);
+        if (abbr) res += abbrSense(v.mWhat);
+        else {
+            res += v.mWhat[0];
+            auto len = v.mWhat.length();
+            for (auto i = 1; i < len; ++i) {
+                if (i != len - 1) res += ", ";
+                else res += ", and ";
+                res += v.mWhat[i];
+            }
         }
         return res;
     }
@@ -170,6 +216,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* p, QVBoxLayout* l) override           { AllPowers::form(p, l);
                                                                    what   = createTreeWidget(p, l, { { "Hearing",     { "Normal Hearing",
@@ -301,23 +348,26 @@ private:
     QCheckBox*   set = nullptr;
     QLineEdit*   effect = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mWhat.size() < 1 || (v.mSet && v.mEfect.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Images affecting ";
-        res += v.mWhat[0];
-        auto len = v.mWhat.length();
-        for (auto i = 1; i < len; ++i) {
-            if (i != len - 1) res += ", ";
-            else res += ", and ";
-            res += v.mWhat[i];
+        if (abbr) res += abbrSense(v.mWhat);
+        else {
+            res += v.mWhat[0];
+            auto len = v.mWhat.length();
+            for (auto i = 1; i < len; ++i) {
+                if (i != len - 1) res += ", ";
+                else res += ", and ";
+                res += v.mWhat[i];
+            }
         }
-        if (v.mPer > 0) res += QString("; %2%1 to PER rolls").arg(v.mPer).arg(v.mPer >= 0 ? "+" : "");
-        if (v.mDiff == 1) res += "; Half-Phase Action To Change";
-        if (v.mDiff == 2) res += "; Full-Phase Action To CHange";
-        if (v.mOnly) res += "; Only To Create Light";
-        if (v.mSet) res += "; Set Effect (" + v.mEfect + ")";
+        if (v.mPer > 0) res += QString(abbr ? "%2%1 to PER" : "; %2%1 to PER rolls").arg(v.mPer).arg(v.mPer >= 0 ? "+" : "");
+        if (v.mDiff == 1) res += abbr ? "; " + Fraction(1, 2).toString() + "-Phs" : "; Half-Phase Action To Change";
+        if (v.mDiff == 2) res += abbr ? "; Action" : "; Full-Phase Action To Change";
+        if (v.mOnly) res += abbr ? "; Only Light" : "; Only To Create Light";
+        if (v.mSet) res += (abbr ? "Set Eff. (" : "; Set Effect (") + v.mEfect + ")";
         return res;
     }
 
@@ -358,6 +408,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* p, QVBoxLayout* l) override           { AllPowers::form(p, l);
                                                                    what   = createTreeWidget(p, l, { { "Hearing",     { "Normal Hearing",
@@ -468,22 +519,25 @@ private:
     QCheckBox*   cham = nullptr;
     QCheckBox*   knot = nullptr;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mWhat.size() < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Invisibility to ";
-        res += v.mWhat[0];
-        auto len = v.mWhat.length();
-        for (auto i = 1; i < len; ++i) {
-            if (i != len - 1) res += ", ";
-            else res += ", and ";
-            res += v.mWhat[i];
+        res += abbr ? "Invis. " : "Invisibility to ";
+        if (abbr) res += abbrSense(v.mWhat);
+        else {
+            res += v.mWhat[0];
+            auto len = v.mWhat.length();
+            for (auto i = 1; i < len; ++i) {
+                if (i != len - 1) res += ", ";
+                else res += ", and ";
+                res += v.mWhat[i];
+            }
         }
         if (v.mNo) res += "; No Fringe";
         if (v.mBright) res += "; Bright Fringe";
         if (v.mCham) res += "; Chameleon";
-        if (v.mNot) res += "; Only When Not Attacking";
+        if (v.mNot) res += abbr ? "No Attack" : "; Only When Not Attacking";
         return res;
     }
 

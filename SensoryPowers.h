@@ -4,6 +4,49 @@
 #include "powers.h"
 #include "powerdialog.h"
 
+static QString abbrSense(const QStringList& str) {
+    static QMap<QString, QList<QString>> tree
+        { { "Hearing",    { "Normal Hearing",
+                      "Active Sonar",
+                      "Ultrasonic Perception" } },
+         { "Mental",      { "Mental Awareness",
+                     "Mind Scan" } },
+         { "Radio",       { "Radio Perception",
+                    "Radar"} },
+         { "Sight",       { "Normal Sight",
+                    "Nightvision",
+                    "Infrared Pereception",
+                    "Ultraviolet Perception" } },
+         { "Smell/Taste", { "Normal Smell",
+                          "Normal Taste" } },
+         { "Touch",       { "Normal Touch" } } };
+    static QMap<QString, QString> abbrs
+        { { "Normal Hearing", "Nrm. Hear." },
+         { "Active Sonar", "Act. Son." },
+         { "Ultrasonic Perception", "Ultrasonic" },
+         { "Mental Awareness", "Mental" },
+         { "Mind Scan", "Mind Scan" },
+         { "Radio Perception", "Radio" },
+         { "Radar", "Radar" },
+         { "Normal Sight", "Sight" },
+         { "Nightvision", "Nightvision" },
+         { "Infrared Pereception", "Infrared" },
+         { "Ultraviolet Perception", "Ultraviolet" },
+         { "Normal Smell", "Smell" },
+         { "Normal Taste", "Taste" },
+         { "Normal Touch", "Touch" } };
+    QString res;
+    auto keys = tree.keys();
+    QString sep;
+    for (const auto& what: std::as_const(str)) {
+        if (keys.contains(what)) res += sep + what;
+        else res += sep + abbrs[what];
+        sep = ", ";
+    }
+    return res;
+}
+
+
 class Clairsentience: public AllPowers {
 public:
     Clairsentience(): AllPowers("Clairsentienceϴ")           { }
@@ -39,6 +82,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* p, QVBoxLayout* l) override           { AllPowers::form(p, l);
                                                                    what    = createTreeWidget(p, l, { { "Hearing",     { "Normal Hearing",
@@ -194,7 +238,7 @@ private:
     QCheckBox*   time;
     QCheckBox*   vague;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         QStringList groups = { "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
         bool group = false;
         for (int i = 0; i< v.mWhat.count(); ++i) {
@@ -210,33 +254,36 @@ private:
         if (v.mVague && !(v.mPre || v.mRetro)) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Clairsentienceϴ with ";
-        res += v.mWhat[0];
-        int len = v.mWhat.length();
-        for (int i = 1; i < len; ++i) {
-            if (i != len - 1) res += ", ";
-            else res += ", and ";
-            res += v.mWhat[i];
+        res += abbr ? "Clairsent. w/" : "Clairsentienceϴ with ";
+        if (abbr) res += abbrSense(v.mWhat);
+        else {
+            res += v.mWhat[0];
+            int len = v.mWhat.length();
+            for (int i = 1; i < len; ++i) {
+                if (i != len - 1) res += ", ";
+                else res += ", and ";
+                res += v.mWhat[i];
+            }
         }
-        if (v.mPre) res += "; Precognition";
-        if (v.mRetro) res += "; Retrocognition";
-        if (v.mMult > 0) res += QString("; x%1 Range").arg((int) pow(2, v.mMult));
-        if (v.mMobile > 0) res += QString("; Mobile Perception Point (%1m)").arg(v.mMobile);
-        if (v.mAttack) res += "; Attack Roll Required";
+        if (v.mPre) res += abbr ? "; Precog." : "; Precognition";
+        if (v.mRetro) res += abbr ? "; Retrocog." : "; Retrocognition";
+        if (v.mMult > 0) res += QString(abbr ? "; x%1 Rng" : "; x%1 Range").arg((int) pow(2, v.mMult));
+        if (v.mMobile > 0) res += QString(abbr ? "; Mobile (%1m)": "; Mobile Perception Point (%1m)").arg(v.mMobile);
+        if (v.mAttack) res += abbr ? "; Att. Req." : "; Attack Roll Required";
         if (v.mBlack) res += "; Blackout";
-        if (v.mFixed) res += "; Fixed Perception Point";
-        if (v.mOnly == 1) res += "; Only Through The Senses Of Others (Any)";
-        if (v.mOnly == 2) res += "; Only Through The Senses Of Others (" + v.mCrit + ")";
-        if (v.mOne) res += "; One Sense Only";
+        if (v.mFixed) res += abbr ? "; Fixed Pnt" : "; Fixed Perception Point";
+        if (v.mOnly == 1) res += abbr ? "; Only Thru Others" : "; Only Through The Senses Of Others (Any)";
+        if (v.mOnly == 2) res += (abbr ? "; Only Thru (" : "; Only Through The Senses Of Others (") + v.mCrit + ")";
+        if (v.mOne) res += abbr ? "1 Sense" : "; One Sense Only";
         if (v.mPorr) {
             QString sep = "; ";
-            if (v.mPre) { res += sep + "Precognition"; sep = " and "; }
-            if (v.mRetro) res += sep + "Retrocognition";
+            if (v.mPre) { res += sep + (abbr ? "Precog." : "Precognition"); sep = " and "; }
+            if (v.mRetro) res += sep + (abbr ? "Retrocog." : "Retrocognition");
             res += " Only";
         }
-        if (v.mDreams) res += "; Only Through Dreams";
-        if (v.mTime) res += "; Time Modifiers";
-        if (v.mVague) res += "; Vague and Unclear";
+        if (v.mDreams) res += abbr ? "; Dream Only" : "; Only Through Dreams";
+        if (v.mTime) res += abbr ? "; Tim Mod." : "; Time Modifiers";
+        if (v.mVague) res += abbr ? "; Vague" : "; Vague and Unclear";
         return res;
     }
 
@@ -295,6 +342,7 @@ public:
     }
 
     Fraction adv() override                                      { return Fraction(0); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* p, QVBoxLayout* l) override           { AllPowers::form(p, l);
@@ -544,7 +592,7 @@ private:
     QCheckBox*   trans;
     QCheckBox*   nodir;
 
-    QString optOut(bool showEND) {
+    QString optOut(bool showEND, bool abbr = false) {
         if (v.mWhat.size() < 1 && !v.mSpatl && v.mDetect < 1 && v.mEnhanc < 1) return "<incomplete>";
         if (v.mDetect > 0  && v.mThing.isEmpty()) return "<incomplete>";
         if ((v.mEnhanc > 0 && v.mAmount < 1 && v.mEnhanc < 3 && v.mSenses.isEmpty()) ||
@@ -552,50 +600,62 @@ private:
         if (v.mDim > 0 && v.mDim < 2 && v.mWhich.isEmpty()) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        res += "Enhanced Senses: ";
+        res += abbr ? "Enhanc. Sense: " : "Enhanced Senses: ";
         bool first = true;
-        if (v.mSpatl) { res += "Spatial Awareness"; first = false; }
+        if (v.mSpatl) { res += abbr ? "Spat. Aware." : "Spatial Awareness"; first = false; }
         if (v.mDetect > 0) { res += QString("%1Detect ").arg(first ? "" : ", ") + v.mThing; first = false; }
-        for (int i = 0; i < v.mWhat.count() - 1; ++i) {
-            if (first) first = false;
-            else res += ", ";
-            res += v.mWhat[i];
+        if (abbr) {
+            QStringList list = v.mWhat;
+            QString last = list.takeLast();
+            QString what = abbrSense(v.mWhat);
+            if (!what.isEmpty()) {
+                res += (!first ? ", " : "") + what;
+                first = false;
+            }
+            if (!first && v.mWhat.count() > 0) res += abbr ? ", & " : ", and ";
+            if (v.mWhat.count() > 0) res += abbrSense({ last });
+        } else {
+            for (int i = 0; i < v.mWhat.count() - 1; ++i) {
+                if (first) first = false;
+                else res += ", ";
+                res += v.mWhat[i];
+            }
+            if (!first && v.mWhat.count() > 0) res += abbr ? ", & " : ", and ";
+            if (v.mWhat.count() > 0) res += v.mWhat[v.mWhat.count() - 1];
         }
-        if (!first && v.mWhat.count() > 0) res += ", and ";
-        if (v.mWhat.count() > 0) res += v.mWhat[v.mWhat.count() - 1];
         if (v.mEnhanc > 0) {
-            res += QString("; +%1 PER Roll With ").arg(v.mAmount);
+            res += QString(abbr ? "; +%1 PER Roll w/" : "; +%1 PER Roll With ").arg(v.mAmount);
             if (v.mEnhanc != 3) res += v.mSenses;
-            else res += "All Senses";
+            else res += abbr ? "All" : "All Senses";
         }
         if (v.mAdj > 0) {
-            if (v.mAdj == 1) res += "; Fixed Perception Point ";
-            else res += "; Perception Point Anywhere ";
+            if (v.mAdj == 1) res += abbr ? "; Fixed Pnt " : "; Fixed Perception Point ";
+            else res += abbr ? "; Anywhere" : "; Perception Point Anywhere ";
             res += "Within 2m";
         }
         if (v.mAnlz) res += "; Analyze";
-        if (v.mConc > 0) res += QString("; -%1 PER Roll To Detect").arg(v.mConc);
-        if (v.mDiscr) res += "; Discriminatory";
+        if (v.mConc > 0) res += QString(abbr ? "=%1 PER Roll To Dtct" : "; -%1 PER Roll To Detect").arg(v.mConc);
+        if (v.mDiscr) res += abbr ? "; Descrim." : "; Discriminatory";
         if (v.mDim > 0) {
-            if (v.mDim != 3) res += "; Perceive Into " + v.mWhich;
-            else res += "; Perceive Into Any Dimension";
+            if (v.mDim != 3) res += "; Into " + v.mWhich;
+            else res += abbr ? "; Any Dim." : "; Perceive Into Any Dimension";
         }
         if (v.mIncr > 0) {
-            if (v.mIncr == 1) res += "; 240 Degree Arc Of Perception";
-            else res += res += "; 360 Defgree Arc Of Perception";
+            if (v.mIncr == 1) res += abbr ? "; 240° Arc" : "; 240 Degree Arc Of Perception";
+            else res += res += abbr ? "360° Arc" : "; 360 Defgree Arc Of Perception";
         }
-        if (v.mMic > 0) res += QString("; x%1 Microscopic Vision").arg((int) pow(10, v.mMic));
+        if (v.mMic > 0) res += QString(abbr ? "; x%1 Micro." : "; x%1 Microscopic Vision").arg((int) pow(10, v.mMic));
         if (v.mPen > 0) {
-            if (v.mPen == 1) res += "; Partially Penatrative";
-            else res += "; Fully Penatrative";
+            if (v.mPen == 1) res += abbr ? "; Part. Pen." : "; Partially Penatrative";
+            else res += abbr ? "; Full Pen." : "; Fully Penatrative";
         }
-        if (v.mRange) res += "; Ranged";
+        if (v.mRange) res += abbr ? "; Rngd" : "; Ranged";
         if (v.mRapid) res += QString("; x%1 Rapid").arg((int) pow(10, v.mRapid));
         if (v.mSense) res += "; Sense";
-        if (v.mTarget) res += "; Targeting";
-        if (v.mTele > 0) res += QString("; x%1 Telescopic").arg((int) pow(10, v.mTele));
-        if (v.mTrack) res += "; Tracking";
-        if (v.mTrans) res += "; Transmit";
+        if (v.mTarget) res += abbr ? "; Tgt-ing" : "; Targeting";
+        if (v.mTele > 0) res += QString(abbr ? "; x%1 Tele." : "; x%1 Telescopic").arg((int) pow(10, v.mTele));
+        if (v.mTrack) res += abbr ? "; Track" : "; Tracking";
+        if (v.mTrans) res += abbr ? "Xmit" : "; Transmit";
         return res;
     }
 

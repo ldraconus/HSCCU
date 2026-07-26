@@ -25,10 +25,15 @@ public:
         return *this;
     }
 
-    QString description() override {
+    QString abbreviation() override { return str(true); }
+    QString description() override  { return str(); }
+    QString str(bool abbr = false) {
         static QList<QString> ints { "Moderate", "Strong", "Total" };
         static QList<QString> freq { "Uncommon", "Common", "Very Common" };
+        static QList<QString> intsAbbr { "Mod.", "Strong", "Total" };
+        static QList<QString> freqAbbr { "Uncom.", "Com.", "V. Com.n" };
         if (v.mFrequency < 0 || v.mIntensity < 0 || v.mWhat.isEmpty()) return "<incomplete>";
+        if (abbr) return QString("Pych. Comp.: %1 (%2; %3)").arg(v.mWhat, freqAbbr[v.mFrequency], intsAbbr[v.mIntensity]);
         return QString("Pychological Complication: %1 (%2; %3)").arg(v.mWhat, freq[v.mFrequency], ints[v.mIntensity]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {

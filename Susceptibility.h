@@ -25,14 +25,22 @@ public:
         return *this;
     }
 
-    QString description() override {
+    QString abbreviation() override { return str(true); }
+    QString description() override  { return str(); }
+    QString str(bool abbr = false) {
         static QList<QString> dice { "1d6", "2d6", "3d6" };
         static QList<QString> freq { "Uncommon", "Common", "Very Common" };
         static QList<QString> evry { " Instantly", "/Segment", "/Phase", "/Turn", "/Minute", "/5 Minutes",
                                      "/20 Minutes", "/Hour", "/6 Hours", "/Day" };
-        static QList<QString> prxm { "within 8m", "contact", "internal" };
+        static QList<QString> prxm { "Within 8m", "Contact", "Internal" };
+        static QList<QString> freqAbbr { "Uncommon", "Common", "Very Common" };
+        static QList<QString> evryAbbr { " Inst..", "/Seg.", "/Phs", "/Tn", "/Min.", "/5 Mins",
+                                   "/20 Mins", "/Hr", "/6 Hrs", "/Day" };
+        static QList<QString> prxmAbbr { "In 8m", "Cntct", "Int." };
         if (v.mFrequency < 0 || v.mEvery < 0 || v.mDice < 0 || v.mProximity < 0 || v.mWhat.isEmpty()) return "<incomplete>";
-        return QString("Susceptibility: %1 (%2; %3%4; %5)").arg(v.mWhat, freq[v.mFrequency], dice[v.mDice], evry[v.mEvery], prxm[v.mProximity]);
+        return QString(abbr ? "Suscept.: %1 (%2; %3%4; %5)" : "Susceptibility: %1 (%2; %3%4; %5)").arg(v.mWhat, abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency],
+                                                                                                       dice[v.mDice], abbr ? evryAbbr[v.mEvery] : evry[v.mEvery],
+                                                                                                       abbr ? prxmAbbr[v.mProximity] : prxm[v.mProximity]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what      = createLineEdit(parent, layout, "What are you susceptible to?");

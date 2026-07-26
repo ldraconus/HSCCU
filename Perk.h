@@ -798,6 +798,7 @@ private:
         return QString("%1Vehicles and Bases: ").arg(v.mMult != 0 ? QString("x%1 ").arg(pow(2.0, v.mMult)) : "") + v.mWhat + QString(" (%1 points)").arg(v.mPnts); // NOLINT
     }
 
+
     void numeric(QString) override {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(sender());
         QString txt = edit->text();
