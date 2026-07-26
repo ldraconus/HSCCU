@@ -105,6 +105,8 @@ void ComplicationsDialog::textChanged(QString) {
 
 void ComplicationsDialog::updateForm() {
     mPoints->setText(QString("%1 points").arg(mComplication->points().points));
-    mDescription->setText(mComplication->description());
-    mOk->setEnabled(mComplication->description() != "<incomplete>");
+    bool abbr = Sheet::ref().option().abbreviations();
+    QString text = abbr ? mComplication->abbreviation() : mComplication->description();
+    mDescription->setText(text);
+    mOk->setEnabled(text != "<incomplete>");
 }

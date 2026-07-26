@@ -397,6 +397,7 @@ void PowerDialog::copyAdvantage() {
     auto selection = mAdvantages->selectedRanges();
     if (selection.empty()) return;
 
+    bool abbr = Sheet::ref().option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
     QMimeData* data = new QMimeData();
     int row = selection[0].topRow();
@@ -405,7 +406,7 @@ void PowerDialog::copyAdvantage() {
     QJsonDocument doc;
     doc.setObject(obj);
     data->setData("application/advantage", doc.toJson());
-    QString text = QString("%1\t%2").arg(advantage->fraction(Modifier::NoStore).toString(), advantage->description());
+    QString text = QString("%1\t%2").arg(advantage->fraction(Modifier::NoStore).toString(), abbr ? advantage->abbreviation() : advantage->description());
     data->setData("text/plain", text.toUtf8());
     clip->setMimeData(data);
 }
@@ -415,6 +416,7 @@ void PowerDialog::copyLimitation() {
     auto selection = mLimitations->selectedRanges();
     if (selection.empty()) return;
 
+    bool abbr = Sheet::ref().option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
     QMimeData* data = new QMimeData();
     int row = selection[0].topRow();
@@ -423,7 +425,7 @@ void PowerDialog::copyLimitation() {
     QJsonDocument doc;
     doc.setObject(obj);
     data->setData("application/limitation", doc.toJson());
-    QString text = QString("%1\t%2").arg(limitation->fraction(Modifier::NoStore).toString(), limitation->description());
+    QString text = QString("%1\t%2").arg(limitation->fraction(Modifier::NoStore).toString(), abbr ? limitation->abbreviation() : limitation->description());
     data->setData("text/plain", text.toUtf8());
     clip->setMimeData(data);
 }
@@ -857,6 +859,7 @@ void PowerDialog::setColumns(QTableWidget* tablewidget) {
 void PowerDialog::updateForm() {
     if (mPower == nullptr) return;
 
+    bool abbr = Sheet::ref().option().abbreviations();
     mPower->store();
     Points pts = mPower->real();
     if (!mEquipment) {
@@ -864,7 +867,7 @@ void PowerDialog::updateForm() {
         if (mPower->isVPP()) pts += mPower->pool();
         mPoints->setText(QString("%1 points").arg(pts.points));
     }
-    QString descr = mPower->description(Power::ShowEND);
+    QString descr = abbr ? mPower->abbreviation(Power::ShowEND) : mPower->description(Power::ShowEND);
     if (!mPower->isEquipment()) {
         QFont font = mAdvantages->font();
         mAdvantages->setRowCount(0);
@@ -874,9 +877,10 @@ void PowerDialog::updateForm() {
             QString val;
             if (mod->isAdder()) val = QString("%1").arg(mod->points(Modifier::NoStore).points);
             else val = mod->fraction(Modifier::NoStore).toString();
-            descr += "; (+" + val + ") " + mod->description();
+            QString text = abbr ? mod->abbreviation() : mod->description();
+            descr += "; (+" + val + ") " + text;
             setCellLabel(mAdvantages, row, 0, "+" + val, font);
-            setCellLabel(mAdvantages, row, 1, mod->description(), font);
+            setCellLabel(mAdvantages, row, 1, text, font);
             row++;
         }
         setColumns(mAdvantages);
@@ -885,9 +889,10 @@ void PowerDialog::updateForm() {
         mLimitations->update();
         row = 0;
         for (const auto& lim: std::as_const(mPower->limitationsList())) {
-            descr += "; (" + lim->fraction(Modifier::NoStore).toString() + ") " + lim->description();
+            QString text = abbr ? lim->abbreviation() : lim->description();
+            descr += "; (" + lim->fraction(Modifier::NoStore).toString() + ") " + text;
             setCellLabel(mLimitations, row, 0, lim->fraction(Modifier::NoStore).toString(), font);
-            setCellLabel(mLimitations, row, 1, lim->description(), font);
+            setCellLabel(mLimitations, row, 1, text, font);
             row++;
         }
         setColumns(mLimitations);
@@ -895,5 +900,5 @@ void PowerDialog::updateForm() {
 
     mDescription->setText(descr);
     if (mErrorMsg) mErrorMsg->setText("");
-    mOk->setEnabled(mPower->description() != "<incomplete>");
+    mOk->setEnabled(descr != "<incomplete>");
 }

@@ -772,22 +772,23 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
     QFont font = Ui->powersandequipment->font();
     QFont italic = font;
     italic.setItalic(true);
-    QString descr = pe->description(false);
+    QString descr = option().abbreviations() ? pe->abbreviation(false) : pe->description(false);
 
     if (pe->isEquipment() && pe->name() == "Armor") hitLocations(pe);
 
     if (descr == "-") descr = "";
+    bool abbr = option().abbreviations();
     for (const auto& mod: std::as_const(pe->advantagesList())) {
         if (mod == nullptr) continue;
 
         if (mod->isAdder()) descr += "; (+" + QString("%1").arg(mod->points(Power::NoStore).points) + " pts) ";
         else descr += "; (+" + mod->fraction(Power::NoStore).toString() + ") ";
-        descr += mod->description(false);
+        descr += abbr ? mod->abbreviation(false) : mod->description(false);
     }
     for (const auto& mod: std::as_const(pe->limitationsList())) {
         if (mod == nullptr) continue;
 
-        descr += "; (-" + mod->fraction(Power::NoStore).abs().toString() + ") " + mod->description(false);
+        descr += "; (-" + mod->fraction(Power::NoStore).abs().toString() + ") " + (abbr? mod->abbreviation(false) : mod->description(false));
     }
     Fraction pts(pe->real().points);
     if (((!pe->isFramework() && !pe->isEquipment()) || pe->isVPP() || pe->isMultipower()) && !descr.isEmpty() && pts.toInt() == 0) pts = Fraction(1);
@@ -941,10 +942,11 @@ QString Sheet::getCharacter() {
     out += "\n";
 
     out += "Skills, Talents, and Perks\n";
+    bool abbr = option().abbreviations();
     for (const auto& skill: std::as_const(mCharacter.skillsTalentsOrPerks())) {
         if (skill == nullptr) continue;
 
-        out += QString("%1\t%2\n").arg(skill->points(SkillTalentOrPerk::NoStore).points).arg(skill->description());
+        out += QString("%1\t%2\n").arg(skill->points(SkillTalentOrPerk::NoStore).points).arg(abbr ? skill->abbreviation() : skill->description());
     }
     out += QString("%1\tTotal Skills, Talents, and Perks\n\n").arg(Ui->totalskillstalentsandperkscost->text());
 
@@ -954,7 +956,7 @@ QString Sheet::getCharacter() {
 
         QString end = power->end();
         if (end == "-") end = "";
-        out += QString("%1\t%2%3\n").arg(power->points(Power::NoStore).points).arg(power->description(), end.isEmpty() ? "" : "\t[" + end + "]");
+        out += QString("%1\t%2%3\n").arg(power->points(Power::NoStore).points).arg(abbr ? power->abbreviation() : power->description(), end.isEmpty() ? "" : "\t[" + end + "]");
         if (power->isFramework()) power->display(out);
     }
     out += QString("%1\tTotal Powers and Equipment\n\n").arg(Ui->totalpowersandequipmentcost->text());
@@ -963,7 +965,7 @@ QString Sheet::getCharacter() {
     for (const auto& complication: std::as_const(mCharacter.complications())) {
         if (complication == nullptr) continue;
 
-        out += QString("%1\t%2\n").arg(complication->points(Complication::NoStore).points).arg(complication->description());
+        out += QString("%1\t%2\n").arg(complication->points(Complication::NoStore).points).arg(abbr ? complication->abbreviation() : complication->description());
     }
     out += QString("%1\tTotal Complications Points\n\n").arg(Ui->totalcomplicationpts->text());
 
@@ -1304,9 +1306,11 @@ void Sheet::rebuildCharacteristics() {
 QString Sheet::rebuildCombatSkillLevel(shared_ptr<SkillTalentOrPerk> stp) {
     if (stp == nullptr) return "";
 
+    bool abbr = option().abbreviations();
     stp->points(SkillTalentOrPerk::NoStore);
+    QString descr = abbr ? stp->abbreviation() : stp->description();
     if (stp->name() == "Combat Skill Levels" ||
-        (stp->name() == "Skill Levels" && stp->description().contains("Overall"))) return stp->description().mid(stp->name().length() + 2);
+        (stp->name() == "Skill Levels" && descr.contains("Overall"))) return descr.mid(stp->name().length() + 2);
     return "";
 }
 
@@ -1463,7 +1467,9 @@ void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
     };
 
     auto* man = Ui->attacksandmaneuvers;
-    QString d = stp->description().mid(stp->name().length() + 2);
+    bool abbr = option().abbreviations();
+    QString descr = abbr ? stp->abbreviation() : stp->description();
+    QString d = descr.mid(stp->name().length() + 2);
     auto maneuvers = d.split(", ");
     int extraSTR = 0;
     for (auto i = 0; i < maneuvers.count(); ++i) {
@@ -1711,11 +1717,13 @@ void Sheet::rebuildPowers(bool addTakesNoSTUN) {
 
 void Sheet::rebuildSenseFromPowers(QList<shared_ptr<Power>>& list, QString& senses) {
     bool first = true;
+    bool abbr = option().abbreviations();
     for (const auto& power: list) {
         if (power == nullptr) continue;
 
         if (power->name() == "Enhanced Senses") {
-            const auto& split = power->description(false).split(":");
+            QString descr = abbr ? power->abbreviation(false) : power->description(false);
+            const auto& split = descr.split(":");
             senses += " <small>" + QString((first ? "" : ", ")) + split[1] + "</small>";
             first = false;
         } else if (power->isFramework()) {
@@ -1870,10 +1878,11 @@ void Sheet::updateComplications() {
     mComplicationPoints = 0_cp;
     QFont font = Ui->complications->font();
     int row = 0;
+    bool abbr = option().abbreviations();
     for (const auto& complication: std::as_const(mCharacter.complications())) {
         if (complication == nullptr) continue;
 
-        QString descr = complication->description();
+        QString descr = abbr ? complication->abbreviation() : complication->description();
         if (descr == "-") descr = "";
         Points pts = complication->points(Complication::NoStore);
         setCell(Ui->complications, row, 0, descr.isEmpty() ? "" : QString("%1").arg(pts.points), font);
@@ -2051,12 +2060,13 @@ void Sheet::updateSkillsTalentsAndPerks(){
           else if (stp->name() == "Well-Connected")      mCharacter.hasWellConnected() = true;
     }
 
+    bool abbr = option().abbreviations();
     mSkillsTalentsOrPerksPoints = 0_cp;
     QFont font = Ui->skillstalentsandperks->font();
     int row = 0;
     for (const auto& stp: std::as_const(mCharacter.skillsTalentsOrPerks())) {
         if (stp == nullptr) continue;
-        QString descr = stp->description();
+        QString descr = abbr ? stp->abbreviation() : stp->description();
         if (descr == "-") descr = "";
         Points pts = stp->points(Complication::NoStore);
         setCell(Ui->skillstalentsandperks, row, 0, descr.isEmpty() ? "" : QString("%1").arg(pts.points), font);
@@ -2254,6 +2264,7 @@ void Sheet::copyCharacter() {
 }
 
 void Sheet::copyComplication() {
+    bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
     QMimeData* data = new QMimeData();
     auto selection = Ui->complications->selectedItems();
@@ -2263,12 +2274,14 @@ void Sheet::copyComplication() {
     QJsonDocument doc;
     doc.setObject(obj);
     data->setData("application/complication", doc.toJson());
-    QString text = QString("%1\t%2").arg(complication->points(Complication::NoStore).points).arg(complication->description());
+    QString descr = abbr ? complication->abbreviation() : complication->description();
+    QString text = QString("%1\t%2").arg(complication->points(Complication::NoStore).points).arg(descr);
     data->setData("text/plain", text.toUtf8());
     clip->setMimeData(data);
 }
 
 void Sheet::copyPowerOrEquipment() {
+    bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
     QMimeData* data = new QMimeData();
     auto selection = Ui->powersandequipment->selectedItems();
@@ -2278,12 +2291,14 @@ void Sheet::copyPowerOrEquipment() {
     QJsonDocument doc;
     doc.setObject(obj);
     data->setData("application/powerorequipment", doc.toJson());
-    QString text = QString("%1\t%2").arg(power->points(Power::NoStore).points).arg(power->description());
+    QString descr = abbr ? power->abbreviation() : power->description();
+    QString text = QString("%1\t%2").arg(power->points(Power::NoStore).points).arg(descr);
     data->setData("text/plain", text.toUtf8());
     clip->setMimeData(data);
 }
 
 void Sheet::copySkillTalentOrPerk() {
+    bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
     QMimeData* data = new QMimeData();
     auto selection = Ui->skillstalentsandperks->selectedItems();
@@ -2293,8 +2308,9 @@ void Sheet::copySkillTalentOrPerk() {
     QJsonDocument doc;
     doc.setObject(obj);
     data->setData("application/skillperkortalent", doc.toJson());
+    QString descr = abbr ? skilltalentorperk->abbreviation() : skilltalentorperk->description();
     QString text = QString("%1\t%2\t%3").arg(skilltalentorperk->points(SkillTalentOrPerk::NoStore).points)
-            .arg(skilltalentorperk->description(), skilltalentorperk->roll());
+            .arg(descr, skilltalentorperk->roll());
     data->setData("text/plain", text.toUtf8());
     clip->setMimeData(data);
 }
@@ -2817,6 +2833,7 @@ void Sheet::pasteCharacter() {
 }
 
 void Sheet::pasteComplication() {
+    bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
     const QMimeData* data = clip->mimeData();
     QByteArray byteArray = data->data("application/complication");
@@ -2829,8 +2846,9 @@ void Sheet::pasteComplication() {
 
     int row = Ui->complications->rowCount();
     QFont font = Ui->complications->font();
+    QString descr = abbr ? complication->abbreviation() : complication->description();
     setCell(Ui->complications, row, 0, QString("%1").arg(complication->points(Complication::NoStore).points), font);
-    setCell(Ui->complications, row, 1, complication->description(),                                           font, WordWrap);
+    setCell(Ui->complications, row, 1, descr,                                                                 font, WordWrap);
     Ui->complications->resizeRowsToContents();
 
     mComplicationPoints += complication->points(Complication::NoStore);
@@ -2852,6 +2870,7 @@ void Sheet::pastePowerOrEquipment() {
 }
 
 void Sheet::pasteSkillTalentOrPerk() {
+    bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
     const QMimeData* data = clip->mimeData();
     QByteArray byteArray = data->data("application/skillperkortalent");
@@ -2864,8 +2883,9 @@ void Sheet::pasteSkillTalentOrPerk() {
 
     int row = Ui->skillstalentsandperks->rowCount();
     QFont font = Ui->skillstalentsandperks->font();
+    QString descr = abbr ? stp->abbreviation() : stp->description();
     setCell(Ui->skillstalentsandperks, row, 0, QString("%1").arg(stp->points(Complication::NoStore).points), font);
-    setCell(Ui->skillstalentsandperks, row, 1, stp->description(), font, WordWrap);
+    setCell(Ui->skillstalentsandperks, row, 1, descr, font, WordWrap);
     setCell(Ui->skillstalentsandperks, row, 2, stp->roll(), font);
     Ui->skillstalentsandperks->resizeRowsToContents();
 

@@ -4,48 +4,7 @@
 #include "powers.h"
 #include "powerdialog.h"
 
-static QString abbrSense(const QStringList& str) {
-    static QMap<QString, QList<QString>> tree
-        { { "Hearing",    { "Normal Hearing",
-                      "Active Sonar",
-                      "Ultrasonic Perception" } },
-         { "Mental",      { "Mental Awareness",
-                     "Mind Scan" } },
-         { "Radio",       { "Radio Perception",
-                    "Radar"} },
-         { "Sight",       { "Normal Sight",
-                    "Nightvision",
-                    "Infrared Pereception",
-                    "Ultraviolet Perception" } },
-         { "Smell/Taste", { "Normal Smell",
-                          "Normal Taste" } },
-         { "Touch",       { "Normal Touch" } } };
-    static QMap<QString, QString> abbrs
-        { { "Normal Hearing", "Nrm. Hear." },
-         { "Active Sonar", "Act. Son." },
-         { "Ultrasonic Perception", "Ultrasonic" },
-         { "Mental Awareness", "Mental" },
-         { "Mind Scan", "Mind Scan" },
-         { "Radio Perception", "Radio" },
-         { "Radar", "Radar" },
-         { "Normal Sight", "Sight" },
-         { "Nightvision", "Nightvision" },
-         { "Infrared Pereception", "Infrared" },
-         { "Ultraviolet Perception", "Ultraviolet" },
-         { "Normal Smell", "Smell" },
-         { "Normal Taste", "Taste" },
-         { "Normal Touch", "Touch" } };
-    QString res;
-    auto keys = tree.keys();
-    QString sep;
-    for (const auto& what: std::as_const(str)) {
-        if (keys.contains(what)) res += sep + what;
-        else res += sep + abbrs[what];
-        sep = ", ";
-    }
-    return res;
-}
-
+extern QString abbrSense(const QStringList& str);
 
 class Clairsentience: public AllPowers {
 public:

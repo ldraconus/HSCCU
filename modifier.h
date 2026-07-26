@@ -1010,7 +1010,7 @@ private:
         if (v.mKind < 0 || (v.mFixedShape && v.mShape.isEmpty())) return "<incomplete>";
         if (v.mMultiplier < 1) v.mMultiplier = 1;
         Fraction f(fraction(Modifier::NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Area Of Effect: " + (abbr ? kindAbbr[v.mKind] : kind[v.mKind]);
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + (abbr ? "AoE:" : "Area Of Effect: ") + (abbr ? kindAbbr[v.mKind] : kind[v.mKind]);
         if (v.mKind == 4) desc += QString(" (%1x%1%2)").arg(v.mMultiplier).arg(abbr ? sizeAbbr[v.mKind] : size[v.mKind]);
         else desc += QString(" (%1%2)").arg(v.mMultiplier).arg(abbr ? sizeAbbr[v.mKind] : size[v.mKind]);
         if (v.mFixedShape) desc += QString("; ") + "Fixed" + (abbr ? "" : " Shape") + "(" + v.mShape + ")";
@@ -4382,8 +4382,9 @@ private:
 
     QString optOut(bool show, bool abbr = false) {
         Fraction f(fraction(Modifier::NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 (abbr ? "Lim. Rng" : "Limited Range") + " (" + (v.mNoRange ? (abbr ? "No Rng" : "No Range") : (abbr ? "Std Rng" : "Standard Range")) + ")";
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
+        if (abbr) desc += QString(v.mNoRange ? "No Rng" : "Stnd Rng");
+        else desc += QString("Limited Range (") + (v.mNoRange ? "No Range" : "Standard Range") + ")";
         return desc;
     }
 };

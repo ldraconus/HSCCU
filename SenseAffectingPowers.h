@@ -5,7 +5,8 @@
 #include "powerdialog.h"
 #endif
 
-static QString abbrSense(const QStringList& str) {
+
+QString abbrSense(const QStringList& str) {
     static QMap<QString, QList<QString>> tree
         { { "Hearing",    { "Normal Hearing",
                       "Active Sonar",
