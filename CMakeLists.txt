@@ -132,6 +132,9 @@ if(EMSCRIPTEN)
             printdialog.cpp
             printer.h printer.cpp
     )
+
+set_target_properties(HSCCU PROPERTIES
+   QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
 else()
     if (UNIX)
         qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
@@ -273,6 +276,13 @@ elseif()
     target_include_directories(HSCCU PRIVATE
         /home/chris/src/include
     )
+endif()
+
+if(ANDROID)
+set_target_properties(HSCCU PROPERTIES
+    QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android"
+    QT_ANDROID_APP_ICON "@mipmap/ic_launcher"
+)
 endif()
 
 target_link_libraries(HSCCU

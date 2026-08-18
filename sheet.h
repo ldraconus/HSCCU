@@ -72,6 +72,7 @@ public:
     void closeEvent(QCloseEvent*) override;
     bool event(QEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
+    void showEvent(QShowEvent*) override;
 
     void doNothing() { }
 

@@ -53,6 +53,7 @@
 #include <QStandardPaths>
 #include <QStatusBar>
 #include <QToolButton>
+#include <QWindow>
 
 Sheet* Sheet::sSheet = nullptr; // NOLINT
 shared_ptr<class QMessageBox> Msg::Box; // NOLINT
@@ -249,6 +250,7 @@ Sheet::Sheet(QWidget *parent)
 #endif
     , Ui(&sSheet_UI)
     , mSaveChanged(false) {
+
     sSheet = this;
 
     ui->setupUi(this);
@@ -256,6 +258,9 @@ Sheet::Sheet(QWidget *parent)
     ui->scrollArea->setStyleSheet("color: #000; background: #fff");
 
     Ui->setupUi(ui->label, ui->optLabel);
+#ifdef Q_OS_ANDROID
+    ui->menubar->setNativeMenuBar(false);
+#endif
     setupIcons();
     setUnifiedTitleAndToolBarOnMac(true);
     setAttribute(Qt::WA_AcceptTouchEvents);
@@ -497,8 +502,39 @@ void Sheet::closeDialogs(QMouseEvent* me) {
     if (mSkillDlg  != nullptr) closeDialog(mSkillDlg,  me);
 }
 
+/*
+menuBar()->hide();
+ui->menubar->hide();
+
+menuBar()->setVisible(false);
+ui->menubar->setVisible(false);
+ */
 void Sheet::mousePressEvent(QMouseEvent* me) {
     closeDialogs(me);
+}
+
+void Sheet::showEvent(QShowEvent* se) {
+    QMainWindow::showEvent(se);
+
+    qDebug() << "MainWindow:" << size() << geometry();
+
+    if (windowHandle()) {
+        qDebug() << "QWindow:" << windowHandle()->size();
+        qDebug() << "safe area:" << windowHandle()->safeAreaMargins();
+    }
+
+    qDebug() << "scrollArea:"
+             << "visible:" << ui->scrollArea->horizontalScrollBar()->isVisible()
+             << "enabled:" << ui->scrollArea->horizontalScrollBar()->isEnabled();
+
+    qDebug() << "parent:"
+             << ui->scrollArea->geometry();
+
+    qDebug() << "menuBar:"
+             << menuBar()
+             << "visible:" << menuBar()->isVisible()
+             << "hidden:" << menuBar()->isHidden()
+             << "geometry:" << menuBar()->geometry();
 }
 
 void Sheet::closeEvent(QCloseEvent* event) {
