@@ -26,9 +26,11 @@ SkillMenuDialog::~SkillMenuDialog() {
 
 void SkillMenuDialog::showEvent(QShowEvent*) {
     QRect dialogPos = geometry();
+#ifdef __wasm__
     QRect btn = Sheet::ref().skillsTalentsAndPerksButton->geometry();
-    if (mPos == QPoint()) dialogPos.setTopLeft(QPoint(btn.left(), btn.height()));
-    else dialogPos.setTopLeft(mPos);
+    if (mPos == QPoint()) mPos = QPoint(btn.left(), btn.height());
+#endif
+    dialogPos.setTopLeft(mPos.toPoint());
     setGeometry(dialogPos);
 
     mUi->copyButton->setEnabled(mShowCopy);
@@ -75,7 +77,7 @@ void SkillMenuDialog::moveUpButton() {
     emit Sheet::ref().getUi()->moveSkillTalentOrPerkUp->triggered();
 }
 
-void SkillMenuDialog::moveDownButtons() {
+void SkillMenuDialog::moveDownButton() {
     done(QDialog::Accepted);
     emit Sheet::ref().getUi()->moveSkillTalentOrPerkUp->triggered();
 }

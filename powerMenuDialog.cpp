@@ -25,13 +25,15 @@ PowerMenuDialog::~PowerMenuDialog() {
 }
 
 void PowerMenuDialog::showEvent(QShowEvent*) {
-    QRect dialogPos = geometry();
-    QRect btn = Sheet::ref().powersAndEquipmentButton->geometry();
-    if (mPos == QPoint()) dialogPos.setTopLeft(QPoint(btn.left(), btn.height()));
-    else dialogPos.setTopLeft(mPos);
-    dialogPos.setWidth(82);
-    dialogPos.setHeight(194);
-    setGeometry(dialogPos);
+    auto dlg = geometry();
+#ifdef __wasm__
+    if (mPos == QPoint) {
+        QRect btn = Sheet::ref().powersAndEquipmentButton->geometry();
+        if (mPos == QPoint()) mPos = QPoint(btn.left(), btn.height());
+    }
+#endif
+    dlg.setTopLeft(mPos.toPoint());
+    setGeometry(dlg);
 
     mUi->copyButton->setEnabled(mShowCopy);
     mUi->cutButton->setEnabled(mShowCut);
@@ -77,7 +79,7 @@ void PowerMenuDialog::moveUpButton() {
     emit Sheet::ref().getUi()->movePowerOrEquipmentUp->triggered();
 }
 
-void PowerMenuDialog::moveDownButtons() {
+void PowerMenuDialog::moveDownButton() {
     done(QDialog::Accepted);
     emit Sheet::ref().getUi()->movePowerOrEquipmentDown->triggered();
 }

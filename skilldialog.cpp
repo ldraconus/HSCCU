@@ -3,6 +3,7 @@
 
 #include "sheet.h"
 
+#include <QScroller>
 #include <QVBoxLayout>
 
 SkillDialog::SkillDialog(QWidget *parent) :
@@ -12,6 +13,22 @@ SkillDialog::SkillDialog(QWidget *parent) :
     setFont(font);
 
     ui->setupUi(this);
+
+#ifdef Q_OS_ANDROID
+    QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::TouchGesture);
+
+    QRect avail = screen()->availableGeometry();
+
+    setMaximumSize(avail.size());
+
+    QSize sz = sizeHint();
+    sz.setWidth(qMin(sz.width(), avail.width()));
+    sz.setHeight(qMin(sz.height(), avail.height()));
+
+    resize(sz);
+#endif
+
+
 
     setStyleSheet("color: #000; background: #fff;");
 

@@ -27,7 +27,7 @@ public:
 
 private:
     Ui::ComplicationsMenuDialog* mUi;
-    QPoint                       mPos;
+    QPointF                      mPos;
 
     bool mShowEdit     = false;
     bool mShowDelete   = false;

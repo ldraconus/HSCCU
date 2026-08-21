@@ -26,10 +26,12 @@ ComplicationsMenuDialog::~ComplicationsMenuDialog() {
 
 void ComplicationsMenuDialog::showEvent(QShowEvent*) {
     QRect dlg = geometry();
-    QRect btn = Sheet::ref().complicationsButton->geometry();
     QSize sz = dlg.size();
-    if (mPos == QPoint()) dlg.setTopLeft(QPoint(btn.left(), btn.height()));
-    else dlg.setTopLeft(mPos);
+#ifdef __wasm__
+    QRect btn = Sheet::ref().complicationsButton->geometry();
+    if (mPos == QPoint()) mPps = Point(btn.left(), btn.height());
+#endif
+    dlg.setTopLeft(mPos.toPoint());
     dlg.setSize(sz);
     setGeometry(dlg);
 

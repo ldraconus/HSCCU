@@ -215,6 +215,7 @@ set(res1_resource_files
 
 qt_add_resources(HSCCU "res1"
     PREFIX
+
         "/font"
     FILES
         ${res1_resource_files}
@@ -268,10 +269,26 @@ if(EMSCRIPTEN)
         wasm.ui
     )
 
-    target_include_directories(HSCCU PRIVATE
-        E:/QtSource/include
+elseif(ANDROID)
+    target_compile_options(HSCCU PRIVATE -Wno-deprecated-literal-operator)
+    target_sources(HSCCU PUBLIC
+        powerMenuDialog.cpp
+        powerMenuDialog.h
+        powerMenuDialog.ui
+        complicationsmenudialog.cpp
+        complicationsmenudialog.h
+        complicationsmenudialog.ui
+        imgmenudialog.cpp
+        imgmenudialog.h
+        imgmenudialog.ui
+        skillmenudialog.cpp
+        skillmenudialog.h
+        skillmenudialog.ui
+        wasm.h
+        wasm.ui
     )
-elseif()
+
+elseif(UNIX)
     target_compile_options(HSCCU PRIVATE -Wno-deprecated-literal-operator)
     target_include_directories(HSCCU PRIVATE
         /home/chris/src/include

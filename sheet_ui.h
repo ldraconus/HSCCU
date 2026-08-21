@@ -7,6 +7,7 @@
 #ifdef __wasm__
 #include <QFile>
 #endif
+#include <QApplication>
 #include <QFontDatabase>
 #include <QFrame>
 #include <QHeaderView>
@@ -21,52 +22,42 @@
 
 #include "shared.h"
 
-class ClickableLabel : public QLabel {
+class ClickableLabel: public QLabel {
     Q_OBJECT
 
 public:
     explicit ClickableLabel(QWidget* parent = Q_NULLPTR)
         : QLabel(parent) {
-#ifdef __wasm__
-//        this->setAttribute(Qt::WA_AcceptTouchEvents);
-#endif
     }
 
 signals:
     void clicked();
 
 protected:
-#ifdef __wasm__
+#if defined(__wasm__)
     void mousePressEvent(QMouseEvent* me) override {
-        if (me->buttons() == Qt::RightButton)
+        if (me->button() == Qt::RightButton)
             emit customContextMenuRequested(me->pos());
         else
             emit clicked();
     }
-    bool event(QEvent* e) override {
-        /*
-        QTouchEvent* te = dynamic_cast<QTouchEvent*>(e);
-        if (te == nullptr) return QLabel::event(e);
-        if (te->type() == QEvent::TouchEnd) {
-            te->accept();
-            if (te->pointCount() == 2) {
-                QPoint pnt = te->point(0).position().toPoint();
-                emit customContextMenuRequested(pnt);
-            }
-        }
-        return true;
-        */
-        return false;
+#elif defined(Q_OS_ANDROID)
+    void mousePressEvent(QMouseEvent* me) override { if (me->button()== Qt::LeftButton) mPnt = me->pos(); }
+    void mouseReleaseEvent(QMouseEvent* me) override {
+        if (me->button() == Qt::LeftButton
+            && (me->pos() - mPnt).manhattanLength() < QApplication::startDragDistance()) emit customContextMenuRequested(me->globalPosition().toPoint());
+        else                                                                             QLabel::mouseReleaseEvent(me);
     }
+
+    QPoint mPnt;
 #else
     void mousePressEvent(QMouseEvent*) override {
         emit clicked();
     }
 #endif
-
 };
 
-class ClickableTable : public QTableWidget {
+class ClickableTable: public QTableWidget {
     Q_OBJECT
 
 public:
@@ -81,31 +72,23 @@ signals:
     void showmenu();
 
 protected:
-#ifdef __wasm__
+#if defined(__wasm__)
     void mousePressEvent(QMouseEvent* me) override {
-        if (me->buttons() == Qt::RightButton)
-            emit customContextMenuRequested(me->pos());
-        else
-            emit showmenu();
+        if (me->button() == Qt::RightButton)     emit customContextMenuRequested(me->pos());
+        else if (me->button() == Qt::LeftButton) emit clicked(indexAt(me->pos()));
+        else                                     QTableWidget::mousePressEvent(me);
     }
-    bool event(QEvent* e) override {
-        /*
-        QTouchEvent* te = dynamic_cast<QTouchEvent*>(e);
-        if (te == nullptr) return QTableWidget::event(e);
-        if (te->type() == QEvent::TouchEnd) {
-            te->accept();
-            if (te->pointCount() == 2) {
-                emit showmenu();
-                emit customContextMenuRequested(te->point(0).position().toPoint());
-            }
-        }
-        return true;
-        */
-        return true;
+#elif defined(Q_OS_ANDROID)
+    void mousePressEvent(QMouseEvent* me) override { if (me->button()== Qt::LeftButton) mPnt = me->pos(); }
+    void mouseReleaseEvent(QMouseEvent* me) override {
+        if (me->button() == Qt::LeftButton
+            && (me->pos() - mPnt).manhattanLength() < QApplication::startDragDistance()) emit customContextMenuRequested(me->globalPosition().toPoint());
+        else                                                                             QTableWidget::mouseReleaseEvent(me);
     }
+
+    QPoint mPnt;
 #else
     void mousePressEvent(QMouseEvent* me) override {
-        emit showmenu();
         QTableWidget::mousePressEvent(me);
     }
 #endif
@@ -113,13 +96,8 @@ protected:
 
 class Sheet_UI {
 public:
-#ifdef __wasm__
     ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
                                                   bool selectable = false, bool label = true) {
-#else
-    QTableWidget* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
-                                                bool selectable = false, bool label = true) {
-#endif
         return createTableWidget(parent, font, headers, vals, p, s, "", selectable, label);
     }
 
@@ -195,13 +173,8 @@ private:
         return label;
     }
 
-#ifndef __wasm__
-    QLabel* createImage(QWidget* parent, At p, Size s, const QString& image, bool selectable = false) {
-        QLabel* label = createImage(parent, p, s, selectable);
-#else
     ClickableLabel* createImage(QWidget* parent, At p, Size s, const QString image, bool selectable = false) {
         ClickableLabel* label = createImage(parent, p, s);
-#endif
         QPixmap pixmap(image);
         pixmap = pixmap.scaled(s.l(), s.h(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
         label->setPixmap(pixmap);
@@ -209,13 +182,8 @@ private:
         return label;
     }
 
-#ifndef __wasm__
-    QLabel* createImage(QWidget* parent, At p, Size s, bool selectable = false) {
-        QLabel* label = new QLabel(parent);
-#else
     ClickableLabel* createImage(QWidget* parent, At p, Size s, bool selectable = false) {
         ClickableLabel* label = new ClickableLabel(parent);
-#endif
         QString style = "QLabel { background: cyan;"
                               "   border-style: none;"
                               " }";
@@ -339,16 +307,9 @@ private:
     static constexpr double Points = 72.0;
     static constexpr double Half   = 0.5;
 
-#ifdef __wasm__
     ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
                                       QString w, bool selectable = false, bool label = true) {
         ClickableTable* tablewidget = new ClickableTable(parent);
-#else
-    QTableWidget* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
-                                                QString w, bool selectable = false, bool label = true) {
-        QTableWidget* tablewidget = new QTableWidget(parent);
-        tablewidget->setContextMenuPolicy(Qt::CustomContextMenu);
-#endif
         tablewidget->setWordWrap(true);
         tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -373,11 +334,7 @@ private:
         horizontalHeader->setMaximumSectionSize(s.l());
         horizontalHeader->setDefaultSectionSize(10); // NOLINT
         horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
-#ifdef __wasm__
         horizontalHeader->setMaximumSize(s.l(), sz);
-#else
-        horizontalHeader->setMaximumSize(s.l(), sz);
-#endif
         tablewidget->setSelectionMode(selectable ? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
         tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         QString family = font.family();

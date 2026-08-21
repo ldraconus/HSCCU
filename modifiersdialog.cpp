@@ -5,6 +5,8 @@
 #include "shared.h"
 #include "sheet.h"
 
+#include <QScroller>
+
 ModifiersDialog* ModifiersDialog::mModifiersDialog = nullptr; // NOLINT
 
 ModifiersDialog::ModifiersDialog(bool advantage, QWidget *parent)
@@ -14,6 +16,10 @@ ModifiersDialog::ModifiersDialog(bool advantage, QWidget *parent)
     setFont(font);
 
     ui->setupUi(this);
+
+#ifdef Q_OS_ANDROID
+    QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::TouchGesture);
+#endif
 
     setStyleSheet("color: #000; background: #fff;");
 

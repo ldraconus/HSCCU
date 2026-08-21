@@ -1,5 +1,3 @@
-#ifdef __wasm__
-
 #include <QToolButton>
 
 #include "imgmenudialog.h"
@@ -8,8 +6,7 @@
 
 ImgMenuDialog::ImgMenuDialog(QWidget *parent) :
     QDialog(parent),
-    mUi(new Ui::ImgMenuDialog)
-{
+    mUi(new Ui::ImgMenuDialog) {
     mUi->setupUi(this);
 
     connect(mUi->clearImageButton, SIGNAL(clicked()), this, SLOT(clearImage()));
@@ -22,9 +19,11 @@ ImgMenuDialog::~ImgMenuDialog() {
 
 void ImgMenuDialog::showEvent(QShowEvent*) {
     QRect dlg = geometry();
+#ifdef __wasm__
     QRect btn = Sheet::ref().imageButton->geometry();
-    if (mPos == QPoint()) dlg.setTopLeft(QPoint(btn.left(), btn.height()));
-    else dlg.setTopLeft(mPos);
+    if (mPos == QPoint()) mPos = mapToGlobal(QPoint(btn.left(), btn.height()));
+#endif
+    dlg.moveTopLeft(mPos.toPoint());
     dlg.setWidth(80);
     dlg.setHeight(48);
     setGeometry(dlg);
@@ -39,4 +38,3 @@ void ImgMenuDialog::clearImage() {
     done(QDialog::Accepted);
     Sheet::ref().clearImage();
 }
-#endif

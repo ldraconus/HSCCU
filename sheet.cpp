@@ -49,6 +49,7 @@
 #include <QPrintPreviewDialog>
 #include <QProcess>
 #include <QScrollBar>
+#include <QScroller>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QStatusBar>
@@ -260,6 +261,49 @@ Sheet::Sheet(QWidget *parent)
     Ui->setupUi(ui->label, ui->optLabel);
 #ifdef Q_OS_ANDROID
     ui->menubar->setNativeMenuBar(false);
+    QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::TouchGesture);
+    qApp->setStyleSheet(qApp->styleSheet() + R"(
+
+    QScrollBar:vertical {
+        background: #F0F0F0;
+        width: 24px;
+        margin: 0px;
+    }
+
+    QScrollBar::handle:vertical {
+        background: #A0A0A0;
+        min-height: 48px;
+        border: 1px solid #808080;
+        border-radius: 8px;
+        margin: 2px;
+    }
+
+    QScrollBar:horizontal {
+        background: #F0F0F0;
+        height: 24px;
+        margin: 0px;
+    }
+
+    QScrollBar::handle:horizontal {
+        background: #A0A0A0;
+        min-width: 48px;
+        border: 1px solid #808080;
+        border-radius: 8px;
+        margin: 2px;
+    }
+
+    QScrollBar::add-line,
+    QScrollBar::sub-line {
+        width: 0px;
+        height: 0px;
+    }
+
+    QScrollBar::add-page,
+    QScrollBar::sub-page {
+        background: none;
+    }
+
+)");
 #endif
     setupIcons();
     setUnifiedTitleAndToolBarOnMac(true);
@@ -276,7 +320,7 @@ Sheet::Sheet(QWidget *parent)
 
     updateBanner();
 
-#ifndef __wasm__
+#if !defined(__wasm__)
     connect(ui->menu_File,         SIGNAL(aboutToShow()), this, SLOT(aboutToShowFileMenu()));
     connect(ui->menu_File,         SIGNAL(aboutToHide()), this, SLOT(aboutToHideFileMenu()));
     connect(ui->action_New,        SIGNAL(triggered()),   this, SLOT(newchar()));
@@ -385,9 +429,7 @@ Sheet::Sheet(QWidget *parent)
 
     connect(Ui->complications,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(complicationDoubleClicked(QTableWidgetItem*)));
     connect(Ui->complications,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(complicationsMenu(QPoint)));
-#ifdef __wasm__
-//    connect(Ui->complications,        SIGNAL(showmenu()),                           this, SLOT(aboutToShowComplicationsMenu()));
-#else
+#ifndef __wasm__
     connect(Ui->complicationsMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowComplicationsMenu()));
 #endif
     connect(Ui->newComplication,      SIGNAL(triggered()),                          this, SLOT(newComplication()));
@@ -402,7 +444,7 @@ Sheet::Sheet(QWidget *parent)
 
     connect(Ui->skillstalentsandperks,     SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(skillstalentsandperksDoubleClicked(QTableWidgetItem*)));
     connect(Ui->skillstalentsandperks,     SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(skillstalentsandperksMenu(QPoint)));
-#ifndef __wasm__
+#if !defined(__wasm__) && !defined(Q_OS_ANDROID)
     connect(Ui->skillstalentsandperksMenu, SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
 #endif
     connect(Ui->newSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(newSkillTalentOrPerk()));
@@ -416,7 +458,7 @@ Sheet::Sheet(QWidget *parent)
 
     connect(Ui->powersandequipment,       SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
     connect(Ui->powersandequipment,       SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
-#ifndef __wasm__
+#if !defined(__wasm__) && !defined(Q_OS_ANDROID)
     connect(Ui->powersandequipmentMenu,   SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
 #endif
     connect(Ui->newPowerOrEquipment,      SIGNAL(triggered()),                          this, SLOT(newPowerOrEquipment()));
@@ -488,10 +530,12 @@ static void closeDialog(shared_ptr<QDialog> dlg, QMouseEvent* me) {
 }
 
 void Sheet::closeDialogs(QMouseEvent* me) {
-#ifdef __wasm__
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
     if (mCompMenuDialog  != nullptr) closeDialog(mCompMenuDialog,  me);
+#ifdef __wasm__
     if (mEditMenuDialog  != nullptr) closeDialog(mEditMenuDialog,  me);
     if (mFileMenuDialog  != nullptr) closeDialog(mFileMenuDialog,  me);
+#endif
     if (mImgMenuDialog   != nullptr) closeDialog(mImgMenuDialog,   me);
     if (mSkillMenuDialog != nullptr) closeDialog(mSkillMenuDialog, me);
     if (mPowerMenuDialog != nullptr) closeDialog(mPowerMenuDialog, me);
@@ -2168,7 +2212,7 @@ void Sheet::aboutToShowComplicationsMenu() {
     bool show = !selection.isEmpty();
     int row = -1;
     if (show) row = selection[0]->row();
-#ifndef __wasm__
+#if !defined(__wasm__) && !defined(Q_OS_ANDROID)
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
     bool canPaste = clip->hasFormat("application/complication");
@@ -2211,15 +2255,26 @@ void Sheet::aboutToShowPowersAndEquipmentMenu() {
     bool show = !selection.isEmpty();
     int row = -1;
     if (show) row = selection[0]->row();
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
 #ifdef __wasm__
     bool canPaste = false;
+#else
+#endif
+qDebug() << QString("show: ") + (show ? "true" : "false");
+qDebug() << QString("row: ") + QString::number(row);
     mPowerMenuDialog->setEdit(show);
     mPowerMenuDialog->setDelete(show);
     mPowerMenuDialog->setCut(show);
     mPowerMenuDialog->setCopy(show);
-    mPowerMenuDialog->setPaste(canPaste);
     mPowerMenuDialog->setMoveUp(show && row != 0);
-    mPowerMenuDialog->setMoveDown(show && row != mCharacter.complications().count() - 1);
+    mPowerMenuDialog->setMoveDown(show && row != Ui->powersandequipment->rowCount() - 1);
+    auto power = getPower(row, mCharacter.powersOrEquipment());
+    Ui->movePowerOrEquipmentDown->setEnabled(show && (row != Ui->powersandequipment->rowCount() - 1 || power->parent() != nullptr));
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    const QMimeData* clip = clipboard->mimeData();
+    bool canPaste = clip->hasFormat("application/powerorequipment");
+qDebug() << QString("canPaste: ") + (canPaste ? "true" : "false");
+    mPowerMenuDialog->setPaste(canPaste);
 #else
     Ui->editPowerOrEquipment->setEnabled(show);
     Ui->deletePowerOrEquipment->setEnabled(show);
@@ -2240,8 +2295,14 @@ void Sheet::aboutToShowSkillsPerksAndTalentsMenu() {
     bool show = !selection.isEmpty();
     int row = -1;
     if (show) row = selection[0]->row();
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
 #ifdef __wasm__
     bool canPaste = false;
+#else
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    const QMimeData* clip = clipboard->mimeData();
+    bool canPaste = clip->hasFormat("application/skillperkortalent");
+#endif
     mSkillMenuDialog->setEdit(show);
     mSkillMenuDialog->setDelete(show);
     mSkillMenuDialog->setCut(show);
@@ -2359,6 +2420,15 @@ void Sheet::complicationsMenu(QPoint pos) {
     mCompMenuDialog = make_shared<ComplicationsMenuDialog>();
     mCompMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mCompMenuDialog->setPos(mapToGlobal(pos + Ui->complications->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    aboutToShowComplicationsMenu();
+    mCompMenuDialog->open();
+#elif defined(Q_OS_ANDROID)
+    int row = Ui->complications->rowAt(pos.y());
+    Ui->complications->selectRow(row);
+    closeDialogs(nullptr);
+    mCompMenuDialog = make_shared<ComplicationsMenuDialog>();
+    mCompMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    mCompMenuDialog->setPos(pos);
     aboutToShowComplicationsMenu();
     mCompMenuDialog->open();
 #else
@@ -2533,6 +2603,7 @@ void Sheet::eyeColorChanged(QString txt) {
     mChanged = true;
 }
 
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
 #ifdef __wasm__
 void Sheet::editMenu(bool) {
     closeDialogs(nullptr);
@@ -2548,7 +2619,7 @@ void Sheet::fileMenu(bool) {
     mFileMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mFileMenuDialog->open();
 }
-
+#endif
 void Sheet::imgMenu(bool) {
     closeDialogs(nullptr);
     mImgMenuDialog = make_shared<ImgMenuDialog>();
@@ -2625,6 +2696,12 @@ void Sheet::imageMenu(QPoint pos) {
     mImgMenuDialog = make_shared<ImgMenuDialog>();
     mImgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mImgMenuDialog->setPos(mapToGlobal(pos + Ui->image->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    mImgMenuDialog->open();
+#elif ANDROID
+    closeDialogs(nullptr);
+    mImgMenuDialog = make_shared<ImgMenuDialog>();
+    mImgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    mImgMenuDialog->setPos(pos);
     mImgMenuDialog->open();
 #else
     Ui->imageMenu->exec(mapToGlobal(pos + Ui->image->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
@@ -2818,7 +2895,7 @@ void Sheet::open() {
     } else doOpen();
 }
 
-#ifdef __wasm__
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
 void Sheet::outsideImageArea() {
     closeDialogs(nullptr);
 }
@@ -2948,6 +3025,15 @@ void Sheet::powersandequipmentMenu(QPoint pos) {
     mPowerMenuDialog->setPos(mapToGlobal(pos + Ui->powersandequipment->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
     aboutToShowPowersAndEquipmentMenu();
     mPowerMenuDialog->open();
+#elif defined(Q_OS_ANDROID)
+    int row = Ui->powersandequipment->rowAt(pos.y());
+    Ui->powersandequipment->selectRow(row);
+    closeDialogs(nullptr);
+    mPowerMenuDialog = make_shared<PowerMenuDialog>();
+    mPowerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    mPowerMenuDialog->setPos(pos);
+    aboutToShowPowersAndEquipmentMenu();
+    mPowerMenuDialog->open();
 #else
     Ui->powersandequipmentMenu->exec(mapToGlobal(pos
                                                  + Ui->powersandequipment->pos()
@@ -2961,17 +3047,6 @@ void Sheet::print() {
     PrintDialog dlg;
     dlg.exec();
 
-#ifdef NOTDEF
-    if (printer == nullptr) printer = new QPrinter(QPrinter::HighResolution);
-
-    QPrintPreviewDialog preview(printer, this);
-    preview.setWindowTitle("Print Chracter");
-    preview.setMinimumHeight(600); // NOLINT
-    preview.setMinimumWidth(800); // NOLINT
-    this->connect(&preview, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printCharacter(QPrinter*)));
-
-    preview.exec();
-#endif
     mChanged = saveChanged; // lots of changed signals get passed around but the character really didn't change
 }
 
@@ -3110,13 +3185,22 @@ void Sheet::saveAs() {
 }
 
 void Sheet::skillstalentsandperksMenu(QPoint pos) {
-#ifdef __wasm__
+#if defined(__wasm__)
     int row = Ui->skillstalentsandperks->rowAt(pos.y());
     Ui->skillstalentsandperks->selectRow(row);
     closeDialogs(nullptr);
     mSkillMenuDialog = make_shared<SkillMenuDialog>();
     mSkillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     mSkillMenuDialog->setPos(mapToGlobal(pos + Ui->skillstalentsandperks->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    aboutToShowSkillsPerksAndTalentsMenu();
+    mSkillMenuDialog->open();
+#elif defined(Q_OS_ANDROID)
+    int row = Ui->skillstalentsandperks->rowAt(pos.y());
+    Ui->skillstalentsandperks->selectRow(row);
+    closeDialogs(nullptr);
+    mSkillMenuDialog = make_shared<SkillMenuDialog>();
+    mSkillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    mSkillMenuDialog->setPos(pos);
     aboutToShowSkillsPerksAndTalentsMenu();
     mSkillMenuDialog->open();
 #else

@@ -13,6 +13,7 @@
 #include <QPushButton>
 #include <QScreen>
 #include <QScrollBar>
+#include <QScroller>
 #include <QTimer>
 
 PowerDialog*      PowerDialog::mPtr = nullptr; // NOLINT
@@ -26,6 +27,22 @@ PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
     setFont(font);
 
     ui->setupUi(this);
+
+#ifdef Q_OS_ANDROID
+    QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::TouchGesture);
+
+    QRect avail = screen()->availableGeometry();
+    const int margin = 8;
+    QSize wanted(avail.width()  - margin * 2,
+                     avail.height() - margin * 2);
+
+    setMinimumSize(wanted);
+    resize(wanted);
+
+    move(avail.left() + margin,
+         avail.top()  + margin);
+#endif
+
 
     setStyleSheet("color: #000; background: #fff;");
 

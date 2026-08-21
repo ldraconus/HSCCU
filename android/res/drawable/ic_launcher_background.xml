@@ -1,0 +1,5 @@
+<!-- res/drawable/ic_launcher_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+       android:shape="rectangle">
+    <solid android:color="#0057A8"/>
+</shape>

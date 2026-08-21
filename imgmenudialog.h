@@ -15,11 +15,11 @@ public:
 
     void setPos(QPoint pos) { mPos = pos; }
 
-    void showEvent(QShowEvent* se);
+    void showEvent(QShowEvent* se) override;
 
 private:
     Ui::ImgMenuDialog* mUi;
-    QPoint             mPos;
+    QPointF            mPos;
 
 public slots:
     void clearImage();

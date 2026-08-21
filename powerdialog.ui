@@ -10,11 +10,17 @@
     <height>905</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>Pick A Power</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="build/QT_Release/.qt/rcc/res.qrc">
+   <iconset resource="build/Qt_6_12_0_for_Android_x86_64_Debug/.qt/rcc/res.qrc">
     <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
   </property>
   <property name="styleSheet">
@@ -82,7 +88,10 @@ QComboBox QAbstractItemView:disabled {
    <item>
     <widget class="QScrollArea" name="scrollArea">
      <property name="styleSheet">
-      <string notr="true">QScrollArea { color: #000; background: #fff; }</string>
+      <string notr="true"> color: #000; background: #fff;</string>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored</enum>
      </property>
      <property name="widgetResizable">
       <bool>true</bool>
@@ -93,12 +102,15 @@ QComboBox QAbstractItemView:disabled {
         <x>0</x>
         <y>0</y>
         <width>480</width>
-        <height>789</height>
+        <height>795</height>
        </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QDialog { color: #000; background: #fff; }</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="spacing">
-        <number>0</number>
+        <number>6</number>
        </property>
        <property name="leftMargin">
         <number>0</number>
@@ -113,13 +125,25 @@ QComboBox QAbstractItemView:disabled {
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="form">
-         <property name="styleSheet">
-          <string notr="true">QLabel { color: #000; background: #fff; }</string>
+        <widget class="QFrame" name="frame">
+         <property name="frameShape">
+          <enum>QFrame::Shape::StyledPanel</enum>
          </property>
-         <property name="text">
-          <string/>
+         <property name="frameShadow">
+          <enum>QFrame::Shadow::Raised</enum>
          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QLabel" name="form">
+            <property name="styleSheet">
+             <string notr="true">QLabel { color: #000; background: #fff; }</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -129,50 +153,27 @@ QComboBox QAbstractItemView:disabled {
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="styleSheet">
-      <string notr="true">QDialogButtonBox QPushButton {
+      <string notr="true">QDIalogButtonBox {
+	 color: #000; background: #fff;
+}
+QDialogButtonBox QPushButton {
    color: black;
    background: cyan;
 }
 QDialogButtonBox QPushButton:disabled {
    color: gray;
-}</string>
+}
+</string>
      </property>
      <property name="standardButtons">
       <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QFrame" name="frame">
-     <property name="frameShape">
-      <enum>QFrame::Shape::NoFrame</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Shadow::Plain</enum>
-     </property>
-     <property name="lineWidth">
-      <number>0</number>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-     </layout>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources>
-  <include location="build/QT_Release/.qt/rcc/res.qrc"/>
+  <include location="build/Qt_6_12_0_for_Android_x86_64_Debug/.qt/rcc/res.qrc"/>
  </resources>
  <connections/>
 </ui>

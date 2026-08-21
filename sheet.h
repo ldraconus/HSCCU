@@ -10,10 +10,12 @@
 #include "powerdialog.h"
 #include "complicationsdialog.h"
 #include "skilldialog.h"
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
 #ifdef __wasm__
-#include "complicationsmenudialog.h"
 #include "editmenudialog.h"
 #include "filemenudialog.h"
+#endif
+#include "complicationsmenudialog.h"
 #include "imgmenudialog.h"
 #include "powerMenuDialog.h"
 #include "skillmenudialog.h"
@@ -100,7 +102,7 @@ public:
 
     static const bool WordWrap = true;
 
-#ifdef __wasm__
+#if __wasm__
     Ui::wasm* UI() { return ui; }
 #else
     Ui::Sheet* UI() { return ui; }
@@ -108,10 +110,13 @@ public:
 
     Option& option() { return mOption; }
 
-#ifndef __wasm__
+#if !defined(__wasm__)
     Ui::Sheet* ui = nullptr;
 #else
     Ui::wasm* ui = nullptr;
+#endif
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
+#ifdef __wasm__
     QToolButton* complicationsButton = nullptr;
     QToolButton* editButton = nullptr;
     QToolButton* fileButton = nullptr;
@@ -128,9 +133,12 @@ public:
     QAction* action_Paste = nullptr;
     QAction* actionOptions = nullptr;
     QAction* action_Image = nullptr;
+    QAction* action_Complications = nullptr;
+    QAction* action_Powers = nullptr;
+    QAction* action_STP = nullptr;
+#endif
     QAction* action_ImgNew = nullptr;
     QAction* action_ImgClear = nullptr;
-    QAction* action_Complications = nullptr;
     QAction* action_CompNew = nullptr;
     QAction* action_CompDel = nullptr;
     QAction* action_CompCut = nullptr;
@@ -138,7 +146,6 @@ public:
     QAction* action_CompPaste = nullptr;
     QAction* action_CompMoveUp = nullptr;
     QAction* action_CompMoveDown = nullptr;
-    QAction* action_Powers = nullptr;
     QAction* action_PowNew = nullptr;
     QAction* action_PowDel = nullptr;
     QAction* action_PowCut = nullptr;
@@ -146,7 +153,6 @@ public:
     QAction* action_PowPaste = nullptr;
     QAction* action_PowMoveUp = nullptr;
     QAction* action_PowMoveDown = nullptr;
-    QAction* action_STP = nullptr;
     QAction* action_StpNew = nullptr;
     QAction* action_StpDel = nullptr;
     QAction* action_StpCut = nullptr;
@@ -156,9 +162,11 @@ public:
     QAction* action_StpMoveDown = nullptr;
 
 private:
-    shared_ptr<ComplicationsMenuDialog>  mCompMenuDialog  = nullptr;
+#ifdef __wasm__
     shared_ptr<FileMenuDialog>           mFileMenuDialog  = nullptr;
     shared_ptr<EditMenuDialog>           mEditMenuDialog  = nullptr;
+#endif
+    shared_ptr<ComplicationsMenuDialog>  mCompMenuDialog  = nullptr;
     shared_ptr<ImgMenuDialog>            mImgMenuDialog   = nullptr;
     shared_ptr<PowerMenuDialog>          mPowerMenuDialog = nullptr;
     shared_ptr<SkillMenuDialog>          mSkillMenuDialog = nullptr;
@@ -342,9 +350,11 @@ public slots:
     void editPowerOrEquipment();
     void editSkillstalentsandperks();
     void eyeColorChanged(QString);
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
 #ifdef __wasm__
     void editMenu(bool);
     void fileMenu(bool);
+#endif
     void imgMenu(bool);
     void powerMenu(bool);
     void stpMenu(bool);
@@ -369,7 +379,7 @@ public slots:
     void noteChanged();
     void open();
     void options();
-#ifdef __wasm__
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
     void outsideImageArea();
 #endif
     void pasteCharacter();
