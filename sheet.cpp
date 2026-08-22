@@ -262,8 +262,13 @@ Sheet::Sheet(QWidget *parent)
 #ifdef Q_OS_ANDROID
     ui->menubar->setNativeMenuBar(false);
     QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::TouchGesture);
-    qApp->setStyleSheet(qApp->styleSheet() + R"(
+    for (auto* table: findChildren<QTableWidget*>()) {
+        table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+        table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+        QScroller::grabGesture(table->viewport(), QScroller::TouchGesture);
+    }
 
+    qApp->setStyleSheet(qApp->styleSheet() + R"(
     QScrollBar:vertical {
         background: #F0F0F0;
         width: 24px;
@@ -303,6 +308,20 @@ Sheet::Sheet(QWidget *parent)
         background: none;
     }
 
+    QMenu::item {
+        color: black;
+        background-color: white;
+    }
+
+    QMenu::item:selected {
+        color: white;
+        background-color: #707070;
+    }
+
+    QMenu::item:disabled {
+        color: #A0A0A0;
+        background-color: #909090;
+    }
 )");
 #endif
     setupIcons();
@@ -540,6 +559,7 @@ void Sheet::closeDialogs(QMouseEvent* me) {
     if (mSkillMenuDialog != nullptr) closeDialog(mSkillMenuDialog, me);
     if (mPowerMenuDialog != nullptr) closeDialog(mPowerMenuDialog, me);
 #endif
+    if (mPrintDlg  != nullptr) closeDialog(mPrintDlg,  me);
     if (mOptionDlg != nullptr) closeDialog(mOptionDlg, me);
     if (mCompDlg   != nullptr) closeDialog(mCompDlg,   me);
     if (mPowerDlg  != nullptr) closeDialog(mPowerDlg,  me);
@@ -3044,8 +3064,8 @@ void Sheet::powersandequipmentMenu(QPoint pos) {
 void Sheet::print() {
     bool saveChanged = mChanged;
 
-    PrintDialog dlg;
-    dlg.exec();
+    mPrintDlg = std::make_shared<PrintDialog>();
+    mPrintDlg->open();
 
     mChanged = saveChanged; // lots of changed signals get passed around but the character really didn't change
 }

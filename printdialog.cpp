@@ -1,6 +1,7 @@
 #include "printdialog.h"
 #include "ui_printdialog.h"
 
+#include <QScroller>
 
 #include "sheet.h"
 
@@ -8,6 +9,41 @@ PrintDialog::PrintDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PrintDialog) {
     ui->setupUi(this);
+
+    mSaveChanged = Sheet::ref().isChanged();
+
+    const QRect avail = screen()->availableGeometry();
+#ifdef Q_OS_ANDROID
+    for (auto* combo: findChildren<QComboBox*>()) {
+        auto* view = combo->view();
+        QScroller::grabGesture(view->viewport(), QScroller::LeftMouseButtonGesture);
+        view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    }
+    for (auto* scroll: findChildren<QScrollArea*>()) QScroller::grabGesture(scroll->viewport(), QScroller::TouchGesture);
+    for (auto* table: findChildren<QTableWidget*>()) {
+        table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+        table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+        QScroller::grabGesture(table->viewport(), QScroller::TouchGesture);
+    }
+
+    const int margin = 8;
+    QSize wanted(avail.width()  - margin * 2,
+                     avail.height() - margin * 2);
+
+    setMinimumSize(wanted);
+    resize(wanted);
+
+    move(avail.left() + margin,
+         avail.top()  + margin);
+
+#else
+    if (sizeHint().height() > avail.height()) {
+        resize(width(), avail.height());
+        move(pos().x(), 0);
+        return;
+    }
+    if (pos().y() + sizeHint().height() > avail.height()) move(pos().x(), (avail.height() - sizeHint().height()) / 2);
+#endif
 
     mPrinter = new Printer(QPrinter::HighResolution);
     if (mPrinter == nullptr || mPrinter->qprinter() == nullptr) {
@@ -52,6 +88,8 @@ PrintDialog::PrintDialog(QWidget *parent) :
     connect(ui->printerComboBox,     &QComboBox::currentIndexChanged, this, &PrintDialog::printerChanged);
     connect(ui->pageSizeComboBox,    &QComboBox::currentIndexChanged, this, &PrintDialog::paperChanged);
     connect(ui->orientationComboBox, &QComboBox::currentIndexChanged, this, &PrintDialog::orientationChanged);
+
+    connect(ui->buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, [this]() { reject(); });
 
     connect(mPrintButton, &QPushButton::clicked, this, [&, this]() {
         if (mPrinter == nullptr || mPrinter->qprinter() == nullptr) return;
@@ -169,6 +207,8 @@ void PrintDialog::orientationChanged(int) {
 }
 
 PrintDialog::~PrintDialog() {
+    Sheet::ref().setChanged(mSaveChanged);
+
     delete ui;
 }
 

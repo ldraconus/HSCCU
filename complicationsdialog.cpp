@@ -19,20 +19,6 @@ ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
 
     ui->setupUi(this);
 
-#ifdef Q_OS_ANDROID
-    QRect avail = screen()->availableGeometry();
-
-    setMaximumSize(avail.size());
-
-    QSize sz = sizeHint();
-    sz.setWidth(qMin(sz.width(), avail.width()));
-    sz.setHeight(qMin(sz.height(), avail.height()));
-
-    resize(sz);
-
-    QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::TouchGesture);
-#endif
-
     setStyleSheet("color: #000; background: #fff;");
 
     connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickComplication(int)));

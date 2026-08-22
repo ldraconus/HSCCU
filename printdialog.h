@@ -30,6 +30,8 @@ private:
     QPushButton*         mPrintButton { nullptr };
     QList<QPrinterInfo>  mPrinterList;
     bool                 mReady { false };
+    bool                 mSaveChanged { false };
+
     QPageSize            getSizes(Printer *, QPrinterInfo& def);
 
     void printerChanged(int);

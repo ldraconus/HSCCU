@@ -17,10 +17,6 @@ ModifiersDialog::ModifiersDialog(bool advantage, QWidget *parent)
 
     ui->setupUi(this);
 
-#ifdef Q_OS_ANDROID
-    QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::TouchGesture);
-#endif
-
     setStyleSheet("color: #000; background: #fff;");
 
     mModifiersDialog = this;

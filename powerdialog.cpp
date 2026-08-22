@@ -28,22 +28,6 @@ PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
 
     ui->setupUi(this);
 
-#ifdef Q_OS_ANDROID
-    QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::TouchGesture);
-
-    QRect avail = screen()->availableGeometry();
-    const int margin = 8;
-    QSize wanted(avail.width()  - margin * 2,
-                     avail.height() - margin * 2);
-
-    setMinimumSize(wanted);
-    resize(wanted);
-
-    move(avail.left() + margin,
-         avail.top()  + margin);
-#endif
-
-
     setStyleSheet("color: #000; background: #fff;");
 
     ui->powerTypeComboBox->addItem("Adjustment Powers");
@@ -169,7 +153,7 @@ QTableWidget* PowerDialog::createTableWidget(QWidget* parent, QVBoxLayout* layou
 QTableWidget* PowerDialog::createAdvantages(QWidget* parent, QVBoxLayout* layout) {
     if (mEquipment) return nullptr;
     mAdvantages = createTableWidget(parent, layout, { 15, 200 }, "Power Advantages", 75); // NOLINT
-#ifndef __wasm__
+#if !defined(__wasm__) && !defined(ANDROID)
     mAdvantagesMenu = createMenu(mAdvantages, mAdvantages->font(), { { "New",       &mNewAdvantage },
                                                                      { "Edit",      &mEditAdvantage },
                                                                      { "Delete",    &mDeleteAdvantage },
@@ -198,7 +182,7 @@ QTableWidget* PowerDialog::createAdvantages(QWidget* parent, QVBoxLayout* layout
     return mAdvantages;
 }
 
-#ifdef __wasm__
+#if defined(__wasm__) || defined(ANDROID)
 QWidget* PowerDialog::createEditButton(QWidget* parent, QVBoxLayout* layout, const QList<const char*>& functions) {
     QFrame* frame = nullptr;
     QHBoxLayout* horizontalLayout;
@@ -323,7 +307,7 @@ QLabel* PowerDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWra
 QTableWidget* PowerDialog::createLimitations(QWidget* parent, QVBoxLayout* layout) {
     if (mEquipment) return nullptr;
     mLimitations = createTableWidget(parent, layout, { 15, 200 }, "Power Limitations", 75);
-#ifndef __wasm__
+#if !defined(__wasm__) && !defined(ANDROID)
     mLimitationsMenu = createMenu(mLimitations, mLimitations->font(), { { "New",       &mNewLimitation },
                                                                         { "Edit",      &mEditLimitation },
                                                                         { "Delete",    &mDeleteLimitation },

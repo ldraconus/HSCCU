@@ -7,8 +7,9 @@
 #include <QMainWindow>
 #include <QPrinter>
 
-#include "powerdialog.h"
 #include "complicationsdialog.h"
+#include "powerdialog.h"
+#include "printdialog.h"
 #include "skilldialog.h"
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
 #ifdef __wasm__
@@ -57,7 +58,10 @@ public:
 
     static Sheet& ref() { return* sSheet; }
 
-    void       changed()   { mChanged = true; }
+    void       changed()          { mChanged = true; }
+    bool       isChanged()        { return mChanged; }
+    void       setChanged(bool c) { mChanged = true; }
+
     Character& character() { return mCharacter; }
     Option     getOption() { return mOption; }
 
@@ -192,6 +196,7 @@ private:
     shared_ptr<ComplicationsDialog> mCompDlg  = nullptr;
     shared_ptr<PowerDialog>         mPowerDlg = nullptr;
     shared_ptr<SkillDialog>         mSkillDlg = nullptr;
+    shared_ptr<PrintDialog>         mPrintDlg = nullptr;
 
     Character mCharacter;
     QString   mDir;
