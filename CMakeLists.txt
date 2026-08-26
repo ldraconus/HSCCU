@@ -155,6 +155,8 @@ else()
             HSCCU.html
             Background.png Installer.ico
             data.qrc
+            editmenudialog.h filemenudialog.h
+
         )
     else()
         qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE

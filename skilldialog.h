@@ -22,6 +22,9 @@ public:
 
     SkillDialog& skilltalentorperk(shared_ptr<SkillTalentOrPerk> s);
 
+protected:
+    void showEvent(QShowEvent* event) override { Dialog::showEvent(event); mOk->setEnabled(false); }
+
 private:
     Ui::SkillDialog *ui;
 

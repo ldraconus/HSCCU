@@ -195,6 +195,7 @@ private:
     qulonglong mImageDate = 0;
     QByteArray mImageData;
 
+public:
     void          fromJson(Option&, QJsonDocument& doc);
     QJsonDocument toJson(Option&);
 };

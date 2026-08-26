@@ -47,8 +47,8 @@ PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
     mPtr = this;
     mInMultipower = false;
 
-    connect(ui->powerTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickType(int)));
-    connect(ui->availableComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickOne(int)));
+    connect(ui->powerTypeComboBox, &QComboBox::currentIndexChanged, this, &PowerDialog::pickType);
+    connect(ui->availableComboBox, &QComboBox::currentIndexChanged, this, &PowerDialog::pickOne);
 
     Sheet::ref().fixButtonBox(ui->buttonBox);
     mAccepted = false;
@@ -56,10 +56,8 @@ PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
     mOk = ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
     mCancel = ui->buttonBox->button(QDialogButtonBox::StandardButton::Cancel);
 
-    mOk->setEnabled(false);
-
-    connect(mOk,     SIGNAL(clicked()), this, SLOT(ok()));
-    connect(mCancel, SIGNAL(clicked()), this, SLOT(cancel()));
+    connect(mOk,     &QPushButton::clicked, this, &PowerDialog::ok);
+    connect(mCancel, &QPushButton::clicked, this, &PowerDialog::cancel);
 
     QTimer::singleShot(100, this, &PowerDialog::doUpdate);
 }
@@ -164,26 +162,26 @@ QTableWidget* PowerDialog::createAdvantages(QWidget* parent, QVBoxLayout* layout
                                                                      { "-",         },
                                                                      { "Move Up",   &mMoveAdvantageUp },
                                                                      { "Move Down", &mMoveAdvantageDown } } );
-    connect(mAdvantages,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(advantageDoubleClicked(QTableWidgetItem*)));
-    connect(mAdvantages,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(advantagesMenu(QPoint)));
-    connect(mAdvantagesMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowAdvantagesMenu()));
-    connect(mNewAdvantage,      SIGNAL(triggered()),                          this, SLOT(newAdvantage()));
-    connect(mEditAdvantage,     SIGNAL(triggered()),                          this, SLOT(editAdvantage()));
-    connect(mDeleteAdvantage,   SIGNAL(triggered()),                          this, SLOT(deleteAdvantage()));
-    connect(mCutAdvantage,      SIGNAL(triggered()),                          this, SLOT(cutAdvantage()));
-    connect(mCopyAdvantage,     SIGNAL(triggered()),                          this, SLOT(copyAdvantage()));
-    connect(mPasteAdvantage,    SIGNAL(triggered()),                          this, SLOT(pasteAdvantage()));
-    connect(mMoveAdvantageUp,   SIGNAL(triggered()),                          this, SLOT(moveAdvantageUp()));
-    connect(mMoveAdvantageDown, SIGNAL(triggered()),                          this, SLOT(moveAdvantageDown()));
+    connect(mAdvantages,        &ClickableTable::itemDoubleClicked,          this, &PowerDialog::advantageDoubleClicked);
+    connect(mAdvantages,        &ClickableTable::customContextMenuRequested, this, &PowerDialog::advantagesMenu);
+    connect(mAdvantagesMenu,    &QMenu::aboutToShow,                         this, &PowerDialog::aboutToShowAdvantagesMenu);
+    connect(mNewAdvantage,      &QAction::triggered,                         this, &PowerDialog::newAdvantage);
+    connect(mEditAdvantage,     &QAction::triggered,                         this, &PowerDialog::editAdvantage);
+    connect(mDeleteAdvantage,   &QAction::triggered,                         this, &PowerDialog::deleteAdvantage);
+    connect(mCutAdvantage,      &QAction::triggered,                         this, &PowerDialog::cutAdvantage);
+    connect(mCopyAdvantage,     &QAction::triggered,                         this, &PowerDialog::copyAdvantage);
+    connect(mPasteAdvantage,    &QAction::triggered,                         this, &PowerDialog::pasteAdvantage);
+    connect(mMoveAdvantageUp,   &QAction::triggered,                         this, &PowerDialog::moveAdvantageUp);
+    connect(mMoveAdvantageDown, &QAction::triggered,                         this, &PowerDialog::moveAdvantageDown);
 #else
-    connect(mAdvantages,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(advantageDoubleClicked(QTableWidgetItem*)));
+    connect(mAdvantages, &ClickableTable::itemDoubleClicked, this, &PowerDialog::advantageDoubleClicked);
 #endif
 
     return mAdvantages;
 }
 
 #if defined(__wasm__) || defined(ANDROID)
-QWidget* PowerDialog::createEditButton(QWidget* parent, QVBoxLayout* layout, const QList<const char*>& functions) {
+QWidget* PowerDialog::createEditButton(QWidget* parent, QVBoxLayout* layout, const QList<std::function<void(bool)>>& functions) {
     QFrame* frame = nullptr;
     QHBoxLayout* horizontalLayout;
     QPushButton *pushButton;
@@ -280,18 +278,18 @@ QWidget* PowerDialog::createEditButton(QWidget* parent, QVBoxLayout* layout, con
 
     layout->addWidget(frame);
 
-    connect(pushButton,   SIGNAL(clicked()), this, functions[0]);
-    connect(pushButton_2, SIGNAL(clicked()), this, functions[1]);
-    connect(pushButton_3, SIGNAL(clicked()), this, functions[2]);
-    connect(pushButton_4, SIGNAL(clicked()), this, functions[3]);
-    connect(pushButton_5, SIGNAL(clicked()), this, functions[4]);
-    connect(pushButton_6, SIGNAL(clicked()), this, functions[5]);
-    connect(pushButton_7, SIGNAL(clicked()), this, functions[6]);
-    connect(pushButton_8, SIGNAL(clicked()), this, functions[7]);
+    connect(pushButton,   &QPushButton::clicked, this, functions[0]);
+    connect(pushButton_2, &QPushButton::clicked, this, functions[1]);
+    connect(pushButton_3, &QPushButton::clicked, this, functions[2]);
+    connect(pushButton_4, &QPushButton::clicked, this, functions[3]);
+    connect(pushButton_5, &QPushButton::clicked, this, functions[4]);
+    connect(pushButton_6, &QPushButton::clicked, this, functions[5]);
+    connect(pushButton_7, &QPushButton::clicked, this, functions[6]);
+    connect(pushButton_8, &QPushButton::clicked, this, functions[7]);
     return frame;
 }
 #else
-QWidget* PowerDialog::createEditButton(QWidget*, QVBoxLayout*, const QList<const char*>&) { return nullptr; }
+QWidget* PowerDialog::createEditButton(QWidget*, QVBoxLayout*, const QList<std::function<void(bool)>>&) { return nullptr; }
 #endif
 
 QLabel* PowerDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap) {
@@ -318,19 +316,19 @@ QTableWidget* PowerDialog::createLimitations(QWidget* parent, QVBoxLayout* layou
                                                                         { "-",         },
                                                                         { "Move Up",   &mMoveLimitationUp },
                                                                         { "Move Down", &mMoveLimitationDown } } );
-    connect(mLimitations,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(limitationDoubleClicked(QTableWidgetItem*)));
-    connect(mLimitations,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(limitationsMenu(QPoint)));
-    connect(mLimitationsMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowLimitationsMenu()));
-    connect(mNewLimitation,      SIGNAL(triggered()),                          this, SLOT(newLimitation()));
-    connect(mEditLimitation,     SIGNAL(triggered()),                          this, SLOT(editLimitation()));
-    connect(mDeleteLimitation,   SIGNAL(triggered()),                          this, SLOT(deleteLimitation()));
-    connect(mCutLimitation,      SIGNAL(triggered()),                          this, SLOT(cutLimitation()));
-    connect(mCopyLimitation,     SIGNAL(triggered()),                          this, SLOT(copyLimitation()));
-    connect(mPasteLimitation,    SIGNAL(triggered()),                          this, SLOT(pasteLimitation()));
-    connect(mMoveLimitationUp,   SIGNAL(triggered()),                          this, SLOT(moveLimitationUp()));
-    connect(mMoveLimitationDown, SIGNAL(triggered()),                          this, SLOT(moveLimitationDown()));
+    connect(mLimitations,        &ClickableTable::itemDoubleClicked,          this, &PowerDialog::limitationDoubleClicked);
+    connect(mLimitations,        &ClickableTable::customContextMenuRequested, this, &PowerDialog::limitationsMenu);
+    connect(mLimitationsMenu,    &QMenu::aboutToShow,                         this, &PowerDialog::aboutToShowLimitationsMenu);
+    connect(mNewLimitation,      &QAction::triggered,                         this, &PowerDialog::newLimitation);
+    connect(mEditLimitation,     &QAction::triggered,                         this, &PowerDialog::editLimitation);
+    connect(mDeleteLimitation,   &QAction::triggered,                         this, &PowerDialog::deleteLimitation);
+    connect(mCutLimitation,      &QAction::triggered,                         this, &PowerDialog::cutLimitation);
+    connect(mCopyLimitation,     &QAction::triggered,                         this, &PowerDialog::copyLimitation);
+    connect(mPasteLimitation,    &QAction::triggered,                         this, &PowerDialog::pasteLimitation);
+    connect(mMoveLimitationUp,   &QAction::triggered,                         this, &PowerDialog::moveLimitationUp);
+    connect(mMoveLimitationDown, &QAction::triggered,                         this, &PowerDialog::moveLimitationDown);
 #else
-    connect(mLimitations,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(limitationDoubleClicked(QTableWidgetItem*)));
+    connect(mLimitations, &ClickableTable::itemDoubleClicked, this, &PowerDialog::limitationDoubleClicked);
 #endif
     return mLimitations;
 }
@@ -393,7 +391,7 @@ void PowerDialog::cancel() {
     reject();
 }
 
-void PowerDialog::copyAdvantage() {
+void PowerDialog::copyAdvantage(bool) {
     if (mEquipment) return;
     auto selection = mAdvantages->selectedRanges();
     if (selection.empty()) return;
@@ -412,7 +410,7 @@ void PowerDialog::copyAdvantage() {
     clip->setMimeData(data);
 }
 
-void PowerDialog::copyLimitation() {
+void PowerDialog::copyLimitation(bool) {
     if (mEquipment) return;
     auto selection = mLimitations->selectedRanges();
     if (selection.empty()) return;
@@ -431,19 +429,19 @@ void PowerDialog::copyLimitation() {
     clip->setMimeData(data);
 }
 
-void PowerDialog::cutAdvantage() {
+void PowerDialog::cutAdvantage(bool) {
     if (mEquipment) return;
-    copyAdvantage();
-    deleteAdvantage();
+    copyAdvantage(true);
+    deleteAdvantage(true);
 }
 
-void PowerDialog::cutLimitation() {
+void PowerDialog::cutLimitation(bool) {
     if (mEquipment) return;
-    copyLimitation();
-    deleteLimitation();
+    copyLimitation(true);
+    deleteLimitation(true);
 }
 
-void PowerDialog::deleteAdvantage() {
+void PowerDialog::deleteAdvantage(bool) {
     if (mEquipment) return;
     auto selection = mAdvantages->selectedRanges();
     if (selection.empty()) return;
@@ -454,7 +452,7 @@ void PowerDialog::deleteAdvantage() {
     updateForm();
 }
 
-void PowerDialog::deleteLimitation() {
+void PowerDialog::deleteLimitation(bool) {
     if (mEquipment) return;
     auto selection = mLimitations->selectedRanges();
     if (selection.empty()) return;
@@ -465,7 +463,7 @@ void PowerDialog::deleteLimitation() {
     updateForm();
 }
 
-void PowerDialog::editAdvantage() {
+void PowerDialog::editAdvantage(bool) {
     if (mEquipment) return;
     auto selection = mAdvantages->selectedRanges();
     if (selection.empty()) return;
@@ -478,7 +476,7 @@ void PowerDialog::editAdvantage() {
     mMod->open();
 }
 
-void PowerDialog::editLimitation() {
+void PowerDialog::editLimitation(bool) {
     if (mEquipment) return;
     auto selection = mLimitations->selectedRanges();
     if (selection.empty()) return;
@@ -497,7 +495,7 @@ void PowerDialog::limitationsMenu(QPoint pos) {
 
 }
 
-void PowerDialog::moveAdvantageDown() {
+void PowerDialog::moveAdvantageDown(bool) {
     if (mEquipment) return;
     auto selection = mAdvantages->selectedRanges();
     if (selection.empty()) return;
@@ -510,7 +508,7 @@ void PowerDialog::moveAdvantageDown() {
     updateForm();
 }
 
-void PowerDialog::moveLimitationDown() {
+void PowerDialog::moveLimitationDown(bool) {
     if (mEquipment) return;
     auto selection = mLimitations->selectedRanges();
     if (selection.empty()) return;
@@ -524,7 +522,7 @@ void PowerDialog::moveLimitationDown() {
     updateForm();
 }
 
-void PowerDialog::moveAdvantageUp() {
+void PowerDialog::moveAdvantageUp(bool) {
     if (mEquipment) return;
     auto selection = mAdvantages->selectedRanges();
     if (selection.empty()) return;
@@ -538,7 +536,7 @@ void PowerDialog::moveAdvantageUp() {
     updateForm();
 }
 
-void PowerDialog::moveLimitationUp() {
+void PowerDialog::moveLimitationUp(bool) {
     if (mEquipment) return;
     auto selection = mLimitations->selectedRanges();
     if (selection.empty()) return;
@@ -552,13 +550,13 @@ void PowerDialog::moveLimitationUp() {
     updateForm();
 }
 
-void PowerDialog::newAdvantage() {
+void PowerDialog::newAdvantage(bool) {
     if (mEquipment) return;
     mMod = make_shared<ModifiersDialog>(ModifiersDialog::Advantage);
     mMod->open();
 }
 
-void PowerDialog::newLimitation() {
+void PowerDialog::newLimitation(bool) {
     if (mEquipment) return;
     mMod = make_shared<ModifiersDialog>(ModifiersDialog::Limitation);
     mMod->open();
@@ -581,6 +579,8 @@ void PowerDialog::setupPower(shared_ptr<Power>& power) {
 }
 
 void PowerDialog::ok() {
+    if (!mOk->isEnabled()) return;
+
     mAccepted = mDone = true;
     Sheet& s = Sheet::ref();
 
@@ -608,7 +608,7 @@ void PowerDialog::ok() {
     accept();
 }
 
-void PowerDialog::pasteAdvantage() {
+void PowerDialog::pasteAdvantage(bool) {
     if (mEquipment) return;
     QClipboard* clip = QGuiApplication::clipboard();
     const QMimeData* data = clip->mimeData();
@@ -623,7 +623,7 @@ void PowerDialog::pasteAdvantage() {
     updateForm();
 }
 
-void PowerDialog::pasteLimitation() {
+void PowerDialog::pasteLimitation(bool) {
     if (mEquipment) return;
     QClipboard* clip = QGuiApplication::clipboard();
     const QMimeData* data = clip->mimeData();
@@ -661,11 +661,25 @@ void PowerDialog::pickOne(int) {
     if (!mEquipment) {
         createLabel(layout, "Advantages");
         createAdvantages(this, layout);
-        createEditButton(this, layout, {SLOT(newAdvantage()), SLOT(editAdvantage()), SLOT(deleteAdvantage()), SLOT(cutAdvantage()), SLOT(copyAdvantage()), SLOT(pasteAdvantage()), SLOT(moveAdvantageUp()), SLOT(moveAdvantageDown())});
+        createEditButton(this, layout, { [this](bool b) { newAdvantage(b); },
+                                         [this](bool b) { editAdvantage(b); },
+                                         [this](bool b) { deleteAdvantage(b); },
+                                         [this](bool b) { cutAdvantage(b); },
+                                         [this](bool b) { copyAdvantage(b); },
+                                         [this](bool b) { pasteAdvantage(b); },
+                                         [this](bool b) { moveAdvantageUp(b); },
+                                         [this](bool b) { moveAdvantageDown(b); } });
         createLabel(layout, "");
         createLabel(layout, "Limitations");
         createLimitations(this, layout);
-        createEditButton(this, layout, {SLOT(newLimitation()), SLOT(editLimitation()), SLOT(deleteLimitation()), SLOT(cutLimitation()), SLOT(copyLimitation()), SLOT(pasteLimitation()), SLOT(moveLimitationUp()), SLOT(moveLimitationDown())});
+        createEditButton(this, layout, { [this](bool b) { newLimitation(b); },
+                                         [this](bool b) { editLimitation(b); },
+                                         [this](bool b) { deleteLimitation(b); },
+                                         [this](bool b) { cutLimitation(b); },
+                                         [this](bool b) { copyLimitation(b); },
+                                         [this](bool b) { pasteLimitation(b); },
+                                         [this](bool b) { moveLimitationUp(b); },
+                                         [this](bool b) { moveLimitationDown(b); } });
     }
     createLabel(layout, "");
     if (!mEquipment) mPoints = createLabel(layout, "-1 Points");
@@ -759,25 +773,25 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
         createLabel(layout, "");
         createLabel(layout, "Advantages");
         createAdvantages(this, layout);
-        createEditButton(this, layout, { SLOT(newAdvantage()),
-                                         SLOT(editAdvantage()),
-                                         SLOT(deleteAdvantage()),
-                                         SLOT(cutAdvantage()),
-                                         SLOT(copyAdvantage()),
-                                         SLOT(pasteAdvantage()),
-                                         SLOT(movAdvantageUp()),
-                                         SLOT(moveAdvantageDown()) });
+        createEditButton(this, layout, { [this](bool b) { newAdvantage(b); },
+                                         [this](bool b) { editAdvantage(b); },
+                                         [this](bool b) { deleteAdvantage(b); },
+                                         [this](bool b) { cutAdvantage(b); },
+                                         [this](bool b) { copyAdvantage(b); },
+                                         [this](bool b) { pasteAdvantage(b); },
+                                         [this](bool b) { moveAdvantageUp(b); },
+                                         [this](bool b) { moveAdvantageDown(b); } });
         createLabel(layout, "");
         createLabel(layout, "Limitations");
         createLimitations(this, layout);
-        createEditButton(this, layout, { SLOT(newLimitation()),
-                                         SLOT(editLimitation()),
-                                         SLOT(deleteLimitation()),
-                                         SLOT(cutLimitation()),
-                                         SLOT(copyLimitation()),
-                                         SLOT(pasteLimitation()),
-                                         SLOT(moveLimitationUp()),
-                                         SLOT(moveLimitationDown()) });
+        createEditButton(this, layout, { [this](bool b) { newLimitation(b); },
+                                         [this](bool b) { editLimitation(b); },
+                                         [this](bool b) { deleteLimitation(b); },
+                                         [this](bool b) { cutLimitation(b); },
+                                         [this](bool b) { copyLimitation(b); },
+                                         [this](bool b) { pasteLimitation(b); },
+                                         [this](bool b) { moveLimitationUp(b); },
+                                         [this](bool b) { moveLimitationDown(b); } });
     }
 
     createLabel(layout, "");
@@ -903,3 +917,5 @@ void PowerDialog::updateForm() {
     if (mErrorMsg) mErrorMsg->setText("");
     mOk->setEnabled(descr != "<incomplete>");
 }
+
+

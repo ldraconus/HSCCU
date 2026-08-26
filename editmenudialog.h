@@ -11,6 +11,7 @@ class EditMenuDialog : public QDialog {
     Q_OBJECT
 
 public:
+#ifdef __wasm__
     explicit EditMenuDialog(QWidget *parent = nullptr);
     ~EditMenuDialog();
 
@@ -25,6 +26,10 @@ public slots:
     void doCopy();
     void doPaste();
     void doOption();
+#else
+    explicit EditMenuDialog(QWidget *parent = nullptr) { }
+    ~EditMenuDialog() { }
+#endif
 };
 
 #endif // EDITMENUDIALOG_H

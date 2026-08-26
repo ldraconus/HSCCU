@@ -4,7 +4,7 @@
 #include <QAction>
 #include <QLineEdit>
 #include <QGridLayout>
-#ifdef __wasm__
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
 #include <QFile>
 #endif
 #include <QApplication>
@@ -36,10 +36,8 @@ signals:
 protected:
 #if defined(__wasm__)
     void mousePressEvent(QMouseEvent* me) override {
-        if (me->button() == Qt::RightButton)
-            emit customContextMenuRequested(me->pos());
-        else
-            emit clicked();
+        if (me->button() == Qt::RightButton) emit customContextMenuRequested(me->pos());
+        else                                 emit clicked();
     }
 #elif defined(Q_OS_ANDROID)
     void mousePressEvent(QMouseEvent* me) override { if (me->button()== Qt::LeftButton) mPnt = me->pos(); }
@@ -51,8 +49,9 @@ protected:
 
     QPoint mPnt;
 #else
-    void mousePressEvent(QMouseEvent*) override {
-        emit clicked();
+    void mousePressEvent(QMouseEvent* me) override {
+        if (me->button() == Qt::RightButton) emit customContextMenuRequested(me->globalPosition().toPoint());
+        else                                 emit clicked();
     }
 #endif
 };
@@ -89,7 +88,8 @@ protected:
     QPoint mPnt;
 #else
     void mousePressEvent(QMouseEvent* me) override {
-        QTableWidget::mousePressEvent(me);
+        if (me->button() == Qt::RightButton) emit customContextMenuRequested(me->globalPosition().toPoint());
+        else                                 QTableWidget::mousePressEvent(me);
     }
 #endif
 };
@@ -389,14 +389,6 @@ private:
         int i = 0;
         for (i = 0; i < vals.size(); ++i) {
             for (int j = 0; j < vals[i].size(); ++j) {
-/*
-                if (label) {
-                    QLabel* cell = new QLabel(vals[i][j]);
-                    cell->setFont(font);
-                    cell->setStyleSheet("QLabel: { color: #000; }");
-                    tablewidget->setCellWidget(i, j, cell);
-                } else {
-*/
                     QTableWidgetItem* lbl = new QTableWidgetItem(vals[i][j]);
                     lbl->setFont(font);
                     lbl->setBackground(QBrush(Qt::transparent));
@@ -405,7 +397,6 @@ private:
                     if (selectable) lbl->setFlags(Qt::ItemIsSelectable);
                     else lbl->setFlags(Qt::NoItemFlags);
                     tablewidget->setItem(i, j, lbl);
-//                }
             }
         }
         tablewidget->setToolTip(w);
@@ -653,9 +644,14 @@ public:
 
     static constexpr int StandardFontSize = 11;
     static constexpr int TinyFontSize = 10;
-#ifdef unix
+#if defined(Q_OS_ANDROID)
+    static constexpr int SmallFontPointSize = 8;
+    static constexpr int LargeBoldFontSize = 18;
+    static constexpr int HeaderFontSize    = 14;
+#elif defined(unix)
     static constexpr int SmallFontPointSize = 7;
     static constexpr int LargeBoldFontSize = 16;
+    static constexpr int HeaderFontSize    = 14;
 #else
     static constexpr int SmallFontPointSize = 8;
     static constexpr int LargeBoldFontSize = 15;
@@ -666,7 +662,7 @@ public:
         layout = new QGridLayout();
         widget->setLayout(layout);
 
-#ifdef __wasm__
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
         QFile fontResource(":/font/SegoeUIHS.ttf");
         (void) fontResource.open(QIODevice::ReadOnly);
         QByteArray data = fontResource.readAll();
@@ -692,7 +688,7 @@ public:
         QFont largeNarrowFont = largeFont;
         largeNarrowFont.setStretch(QFont::Stretch::SemiCondensed);
 
-#ifndef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         headerFont = largeBoldFont;
         headerFont.setPointSize(HeaderFontSize);
         headerFont.setStretch(QFont::Stretch::SemiCondensed);
@@ -739,7 +735,7 @@ public:
         createLabel(widget, largeNarrowFont,     "Player Name",          { 61, 135 }, { 175, 27 }); // NOLINT
 
         charactername = createLineEdit(widget, largeBoldFont, { 190,  75 }, { 438, 27 }, "Characters superhero name"); // NOLINT
-#if defined(__wasm__) || defined(unix)
+#if (defined(__wasm__) || defined(unix)) && !defined(Q_OS_ANDROID)
         alternateids  = createLineEdit(widget, largeFont,     { 225, 104 }, { 403, 27 }, "Characters secret id, typically"); // NOLINT
         playername    = createLineEdit(widget, largeFont,     { 170, 134 }, { 458, 27 }, "The players name"); // NOLINT
 #else
@@ -749,8 +745,10 @@ public:
 
         banner1 = createImage(widget, { 654, 76 } , { 293, 109 }, ":/gfx/HeroSystem-Banner.png", false); // NOLINT
 
-#ifdef unix
+#if defined(unix) && ! defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "CHARACTERISTICS", { 149, 197 }, { 175, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "CHARACTERISTICS", { 129, 195 }, { 175, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "CHARACTERISTICS", { 129, 195 }, { 175, 20 }); // NOLINT
         createLabel(widget, headerFont, "CHARACTERISTICS", { 128, 195 }, { 175, 20 }); // NOLINT
@@ -821,8 +819,10 @@ public:
         createLabel(widget, smallBoldFont, "Total Cost", { 276, 631 }, { 75, 22 }); // NOLINT
         totalcost  = createLabel(widget, font,   "0", { 276, 657 }, { 75, 20 }); // NOLINT
 
-#ifdef unix
+#if defined(unix) && ! defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "CURRENT STATUS", { 455, 197 }, { 135, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "CURRENT STATUS", { 435, 195 }, { 175, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "CURRENT STATUS", { 435, 195 }, { 175, 20 }); // NOLINT
         createLabel(widget, headerFont, "CURRENT STATUS", { 434, 195 }, { 175, 20 }); // NOLINT
@@ -850,8 +850,10 @@ public:
         currentbody = createLineEdit(widget, font, style, "10", { 542, 272 }, { 97, 20 }, "You can keep track of your current BODY here"); // NOLINT
         currentstun = createLineEdit(widget, font, style, "20", { 542, 296 }, { 97, 20 }, "You can keep track of your current STUN here"); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "VITAL INFORMATION", { 440, 348 }, { 155, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "VITAL INFORMATION", { 420, 346 }, { 200, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "VITAL INFORMATION", { 420, 346 }, { 200, 20 }); // NOLINT
         createLabel(widget, headerFont, "VITAL INFORMATION", { 419, 346 }, { 200, 20 }); // NOLINT
@@ -910,8 +912,10 @@ public:
         combatskilllevels = createTextEdit(widget, narrow, "<b>Combat Skill Levels</b> ", { 392, 520 }, { 244, 145 }); // NOLINT
         presenceattack    = createLabel(widget, font,   "2d6", { 573, 663 }, { 70, 20 }); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "MOVEMENT", { 763, 197 }, { 105, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "MOVEMENT", { 748, 195 }, { 175, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "MOVEMENT", { 748, 195 }, { 175, 20 }); // NOLINT
         createLabel(widget, headerFont, "MOVEMENT", { 747, 195 }, { 175, 20 }); // NOLINT
@@ -926,8 +930,10 @@ public:
                                           { "V. Leap (2m)  ", "2m",       "4m" } }, { 675, 225 }, { 260, 195 }); // NOLINT
         movementsfx = createLabel(widget, font, "", { 775, 423 }, 20); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "RANGE MODIFIERS", { 733, 475 }, { 150, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "RANGE MODIFIERS", { 718, 473 }, { 175, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "RANGE MODIFIERS", { 718, 473 }, { 175, 20 }); // NOLINT
         createLabel(widget, headerFont, "RANGE MODIFIERS", { 717, 473 }, { 175, 20 }); // NOLINT
@@ -952,14 +958,16 @@ public:
         imageMenu = createMenu(image, font, { { "New Image",   &newImage   },
                                               { "Clear Image", &clearImage } } );
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "ATTACKS & MANEUVERS", { 124, 714 }, { 190, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "ATTACKS & MANEUVERS", { 104, 711 }, { 230, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "ATTACKS & MANEUVERS", { 104, 711 }, { 230, 20 }); // NOLINT
         createLabel(widget, headerFont, "ATTACKS & MANEUVERS", { 103, 711 }, { 230, 20 }); // NOLINT
 #endif
         attacksandmaneuvers = createTableWidget(widget, smallfont,
-#if defined(__wasm__) || defined(unix)
+#if (defined(__wasm__) || defined(unix)) && !defined(Q_OS_ANDROID)
                                                 {   "Manuvr",       "Phase", "OCV",   "DCV", "Effects" },
 #else
                                                 {   "Maneuver",     "Phase", "OCV",   "DCV", "Effects" },
@@ -972,7 +980,7 @@ public:
                                                   { "Grab By",      "½†",    "-3",    "-4",  "Move&Grab;+(ͮ⁄₁₀) STR"     },
                                                   { "Haymaker",     "½*",    "+0",    "-5",  "+4 DCs to attack"          },
                                                   { "Move By",      "½†",    "-2",    "-2",  "(1+ͮ⁄₁₀)d6; take ⅓"        },
-#if defined(__wasm__) || defined(unix)
+#if (defined(__wasm__) || defined(unix)) && !defined(Q_OS_ANDROID)
                                                   { "Move Thru",    "½†",    "-ͮ⁄₁₀", "-3",  "(2+ͮ⁄₆)d6; take ½ or all"  },
                                                   { "Mult.Attx",    "1",     "var",   "½",   "Attack multiple times"     },
 #else
@@ -986,8 +994,10 @@ public:
                                                   { "Trip",         "½",     "-1",    "-2",  "Knock target prone"        }
                                                 }, { 69, 739 }, { 295, 495 }); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "DEFENSES", { 473, 714 }, { 85, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "DEFENSES", { 468, 711 }, { 225, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "DEFENSES", { 468, 711 }, { 225, 20 }); // NOLINT
         createLabel(widget, headerFont, "DEFENSES", { 467, 711 }, { 225, 20 }); // NOLINT
@@ -1003,8 +1013,10 @@ public:
                                        { "Power Defense ",  "0" },
                                        { "Flash Defense ",  "0" } }, { 392, 739 }, { 249, 270 }); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "SENSES", { 490, 1039 }, { 65, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "SENSES", { 480, 1037 }, { 225, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "SENSES", { 480, 1037 }, { 225, 20 }); // NOLINT
         createLabel(widget, headerFont, "SENSES", { 479, 1037 }, { 225, 20 }); // NOLINT
@@ -1014,8 +1026,10 @@ public:
         perceptionroll = createLabel(widget, font, "11-", { 569, 1066 }, { 50, 20 }); // NOLINT
         enhancedandunusualsenses = createTextEdit(widget, font, "<b>Enhanced and Unusual Senses</b>", { 390, 1083 }, { 249, 150 }); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "EXPERIENCE POINTS", { 733, 1107 }, { 165, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "EXPERIENCE POINTS", { 713, 1105 }, { 225, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "EXPERIENCE POINTS", { 713, 1105 }, { 225, 20 }); // NOLINT
         createLabel(widget, headerFont, "EXPERIENCE POINTS", { 712, 1105 }, { 225, 20 }); // NOLINT
@@ -1030,8 +1044,10 @@ public:
         experiencespent       = createLabel(widget, font,     "0", { 855, 1183 }, { 80, 20 }); // NOLINT
         experienceunspent     = createLabel(widget, font,   "325", { 855, 1207 }, { 80, 20 }); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "CHARACTER INFORMATION", { 98, 1363 }, { 230, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "CHARACTER INFORMATION", { 78, 1361 }, { 250, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "CHARACTER INFORMATION", { 78, 1361 }, { 250, 20 }); // NOLINT
         createLabel(widget, headerFont, "CHARACTER INFORMATION", { 77, 1361 }, { 250, 20 }); // NOLINT
@@ -1050,8 +1066,10 @@ public:
 
         banner2 = createImage(widget, { 360, 1376 } , { 293, 109 }, ":/gfx/HeroSystem-Banner.png", false); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "CAMPAIGN INFORMATION", { 710, 1363 }, { 230, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "CAMPAIGN INFORMATION", { 690, 1361 }, { 250, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "CAMPAIGN INFORMATION", { 690, 1361 }, { 250, 20 }); // NOLINT
         createLabel(widget, headerFont, "CAMPAIGN INFORMATION", { 689, 1361 }, { 250, 20 }); // NOLINT
@@ -1063,8 +1081,10 @@ public:
         genre        = createLineEdit(widget, font, "", { 721, 1416 }, { 213, 20 }, "The kind of game (street level, superhero, galactic, etc)"); // NOLINT
         gamemaster   = createLineEdit(widget, font, "", { 764, 1441 }, { 170, 20 }, "Who is running the game for your character"); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "SKILLS, PERKS, & TALENTS", { 107, 1497 }, { 195, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "SKILLS, PERKS, & TALENTS", { 82, 1494 }, { 250, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "SKILLS, PERKS, & TALENTS", { 82, 1494 }, { 250, 20 }); // NOLINT
         createLabel(widget, headerFont, "SKILLS, PERKS, & TALENTS", { 83, 1494 }, { 250, 20 }); // NOLINT
@@ -1084,8 +1104,10 @@ public:
                                                                                    { "Move Up",   &moveSkillTalentOrPerkUp },
                                                                                    { "Move Down", &moveSkillTalentOrPerkDown } } );
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "COMPLICATIONS", { 142, 2105 }, { 135, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "COMPLICATIONS", { 122, 2102 }, { 175, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "COMPLICATIONS", { 122, 2102 }, { 175, 20 }); // NOLINT
         createLabel(widget, headerFont, "COMPLICATIONS", { 123, 2102 }, { 175, 20 }); // NOLINT
@@ -1105,8 +1127,10 @@ public:
                                                                  { "Move Up",   &moveComplicationUp },
                                                                  { "Move Down", &moveComplicationDown } } );
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "POWERS AND EQUIPMENT", { 537, 1497 }, { 200, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(widget, headerFont, "POWERS AND EQUIPMENT", { 537, 1495 }, { 250, 20 }); // NOLINT
 #else
         createLabel(widget, headerFont, "POWERS AND EQUIPMENT", { 537, 1495 }, { 250, 20 }); // NOLINT
         createLabel(widget, headerFont, "POWERS AND EQUIPMENT", { 536, 1495 }, { 250, 20 }); // NOLINT
@@ -1115,7 +1139,7 @@ public:
 
         powersandequipment          = createTableWidget(widget, tableFont,
                                                         { "Cost", "Name              ",
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
                                                           "Power/Equipment                                    ",
 #else
                                                           "Power/Equipment                                            ",
@@ -1140,8 +1164,10 @@ public:
         layout = new QGridLayout();
         hidden->setLayout(layout);
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(hidden, smallBoldWideFont, "KNOCKBACK MODIFIERS", { 110, 85 }, { 180, 17 });
+#elif defined(Q_OS_ANDROID)
+        createLabel(hidden, headerFont, "KNOCKBACK MODIFIERS", { 90, 82 }, { 275, 20 }); // NOLINT
 #else
         createLabel(hidden, headerFont, "KNOCKBACK MODIFIERS", { 90, 82 }, { 275, 20 }); // NOLINT
         createLabel(hidden, headerFont, "KNOCKBACK MODIFIERS", { 89, 82 }, { 275, 20 }); // NOLINT
@@ -1149,23 +1175,29 @@ public:
 
         banner3 = createImage(hidden, { 360, 76 } , { 293, 109 }, ":/gfx/HeroSystem-Banner.png", false); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(hidden, smallBoldWideFont, "WALL BODY", { 770, 82 }, { 90, 17 });
+#elif defined(Q_OS_ANDROID)
+        createLabel(hidden, headerFont, "WALL BODY", { 750, 79 }, { 275, 20 }); // NOLINT
 #else
         createLabel(hidden, headerFont, "WALL BODY", { 750, 79 }, { 275, 20 }); // NOLINT
         createLabel(hidden, headerFont, "WALL BODY", { 749, 79 }, { 275, 20 }); // NOLINT
 #endif
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(hidden, smallBoldWideFont, "NOTES", { 620, 202 }, { 50, 17 });
+#elif defined(Q_OS_ANDROID)
+        createLabel(hidden, headerFont, "NOTES", { 625, 200 }, { 275, 20 }); // NOLINT
 #else
         createLabel(hidden, headerFont, "NOTES", { 625, 200 }, { 275, 20 }); // NOLINT
         createLabel(hidden, headerFont, "NOTES", { 624, 200 }, { 275, 20 }); // NOLINT
 #endif
         notes = createTextEditor(hidden, tableFont, { 365, 229 }, { 575, 1008 }, "Game notes"); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(hidden, smallBoldWideFont, "HIT LOCATION CHART", { 125, 248 }, { 160, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(hidden, headerFont, "HIT LOCATION CHART", { 95, 245 }, { 275, 20 }); // NOLINT
 #else
         createLabel(hidden, headerFont, "HIT LOCATION CHART", { 95, 245 }, { 275, 20 }); // NOLINT
         createLabel(hidden, headerFont, "HIT LOCATION CHART", { 94, 245 }, { 275, 20 }); // NOLINT
@@ -1186,15 +1218,19 @@ public:
         DCVmod     = createLabel(hidden, font, "+0", { 158, 565 }, { 40, 20 }); // NOLINT
         armorNotes = createLabel(hidden, font, "",   { 158, 590 }, { 40, 20 }); // NOLINT
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(hidden, smallBoldWideFont, "COMBAT MODIFIERS", { 130, 671 }, { 155, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(hidden, headerFont, "COMBAT MODIFIERS", { 130, 669 }, { 275, 20 }); // NOLINT
 #else
         createLabel(hidden, headerFont, "COMBAT MODIFIERS", { 105, 669 }, { 275, 20 }); // NOLINT
         createLabel(hidden, headerFont, "COMBAT MODIFIERS", { 104, 669 }, { 275, 20 }); // NOLINT
 #endif
 
-#ifdef unix
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(hidden, smallBoldWideFont, "SKILL MODIFIERS", { 135, 884 }, { 125, 17 }); // NOLINT
+#elif defined(Q_OS_ANDROID)
+        createLabel(hidden, headerFont, "SKILL MODIFIERS", { 115, 882 }, { 275, 20 }); // NOLINT
 #else
         createLabel(hidden, headerFont, "SKILL MODIFIERS", { 115, 882 }, { 275, 20 }); // NOLINT
         createLabel(hidden, headerFont, "SKILL MODIFIERS", { 114, 882 }, { 275, 20 }); // NOLINT

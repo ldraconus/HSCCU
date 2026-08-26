@@ -80,5 +80,14 @@ CMakeLists.txt.user*
 .pch/
 .rcc/
 .uic/
+/HSCCU/android_release.*
+/android/*.properties
+/android/gradle/wrapper/*.jar
+/android/gradle/wrapper/*.properties
+/android/gradlew.bat
+/android/res/values/*.xml
 /build*/
 /.qtcreator/
+
+/android/*.gradle
+/android/gradlew

@@ -52,6 +52,10 @@ public:
     static PowerDialog* mPtr; // NOLINT
 
     void setEquipment() { mEquipment = true; }
+
+protected:
+    void showEvent(QShowEvent* event) override { Dialog::showEvent(event); mOk->setEnabled(false); }
+
 private:
     Ui::PowerDialog *ui;
 
@@ -103,7 +107,7 @@ private:
 
     QMenu*        createMenu(QWidget*, const QFont&, QList<menuItems>);
     QLabel*       createLabel(QVBoxLayout* parent, QString text, bool wordWrap = false);
-    QWidget*      createEditButton(QWidget*, QVBoxLayout*, const QList<const char*>&);
+    QWidget*      createEditButton(QWidget*, QVBoxLayout*, const QList<std::function<void(bool)>>&);
     QTableWidget* createTableWidget(QWidget*, QVBoxLayout*, QList<int>, QString, int);
     void          setupPower(shared_ptr<Power>&);
 
@@ -127,8 +131,8 @@ private:
 
 
 public slots:
-    void advantageDoubleClicked(QTableWidgetItem*)  { editAdvantage(); }
-    void limitationDoubleClicked(QTableWidgetItem*) { editLimitation(); }
+    void advantageDoubleClicked(QTableWidgetItem*)  { editAdvantage(true); }
+    void limitationDoubleClicked(QTableWidgetItem*) { editLimitation(true); }
     void doUpdate()                                 { updateForm(); }
 
     void aboutToShowAdvantagesMenu();
@@ -137,27 +141,27 @@ public slots:
     void advantagesMenu(QPoint);
     void buttonPressed(bool);
     void cancel();
-    void copyAdvantage();
-    void copyLimitation();
+    void copyAdvantage(bool);
+    void copyLimitation(bool);
     void currentIndexChanged(int);
-    void cutAdvantage();
-    void cutLimitation();
-    void deleteAdvantage();
-    void deleteLimitation();
-    void editAdvantage();
-    void editLimitation();
+    void cutAdvantage(bool);
+    void cutLimitation(bool);
+    void deleteAdvantage(bool);
+    void deleteLimitation(bool);
+    void editAdvantage(bool);
+    void editLimitation(bool);
     void itemChanged(QTreeWidgetItem*,int);
     void itemSelectionChanged();
     void limitationsMenu(QPoint);
-    void moveAdvantageDown();
-    void moveLimitationDown();
-    void moveAdvantageUp();
-    void moveLimitationUp();
-    void newAdvantage();
-    void newLimitation();
+    void moveAdvantageDown(bool);
+    void moveLimitationDown(bool);
+    void moveAdvantageUp(bool);
+    void moveLimitationUp(bool);
+    void newAdvantage(bool);
+    void newLimitation(bool);
     void ok();
-    void pasteAdvantage();
-    void pasteLimitation();
+    void pasteAdvantage(bool);
+    void pasteLimitation(bool);
     void pickOne(int);
     void pickType(int);
     void stateChanged(bool state);

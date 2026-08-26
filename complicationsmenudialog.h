@@ -3,6 +3,7 @@
 
 #include <QDialog>
 
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
 namespace Ui {
 class ComplicationsMenuDialog;
 }
@@ -47,5 +48,13 @@ public slots:
     void moveUpButton();
     void moveDownButtons();
 };
+#else
+class ComplicationsMenuDialog : public QDialog {
+    Q_OBJECT
 
+public:
+    explicit ComplicationsMenuDialog(QWidget *parent = nullptr) { }
+    ~ComplicationsMenuDialog() { }
+};
+#endif
 #endif // COMPLICATIONSMENUDIALOG_H

@@ -26,6 +26,9 @@ public:
     shared_ptr<Complication> complication() { return mComplication; }
     ComplicationsDialog& complication(shared_ptr<Complication>& c);
 
+protected:
+    void showEvent(QShowEvent* event) override { Dialog::showEvent(event); mOk->setEnabled(false); }
+
 private:
     Ui::ComplicationsDialog *ui;
 

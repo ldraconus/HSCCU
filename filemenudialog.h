@@ -9,6 +9,7 @@ class FileMenuDialog : public QDialog {
     Q_OBJECT
 
 public:
+#ifdef __wasm__
     explicit FileMenuDialog(QWidget *parent = nullptr);
     ~FileMenuDialog();
 
@@ -23,4 +24,8 @@ public slots:
     void doNew();
     void doOpen();
     void doSave();
+#else
+    explicit FileMenuDialog(QWidget *parent = nullptr) { }
+    ~FileMenuDialog() { }
+#endif
 };

@@ -116,6 +116,7 @@ PrintDialog::PrintDialog(QWidget *parent) :
 
     updatePreview();
 
+    Sheet::ref().fixButtonBox(ui->buttonBox);
     mReady = true;
 }
 

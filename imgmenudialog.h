@@ -2,6 +2,7 @@
 #define IMGMENUDIALOG_H
 #include <QDialog>
 
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
 namespace Ui {
 class ImgMenuDialog;
 }
@@ -25,4 +26,13 @@ public slots:
     void clearImage();
     void newImage();
 };
+#else
+class ImgMenuDialog : public QDialog {
+    Q_OBJECT
+
+public:
+    explicit ImgMenuDialog(QWidget *parent = nullptr) { }
+    ~ImgMenuDialog() { }
+};
+#endif
 #endif // IMGMENUDIALOG_H

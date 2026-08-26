@@ -29,6 +29,7 @@ ComplicationsDialog::ComplicationsDialog(QWidget *parent) :
         ui->comboBox->addItem(complication);
     }
 
+    Sheet::ref().fixButtonBox(ui->buttonBox);
     mOk = ui->buttonBox->button(QDialogButtonBox::Ok);
     mOk->setDisabled(true);
 }

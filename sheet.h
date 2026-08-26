@@ -12,10 +12,8 @@
 #include "printdialog.h"
 #include "skilldialog.h"
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
-#ifdef __wasm__
 #include "editmenudialog.h"
 #include "filemenudialog.h"
-#endif
 #include "complicationsmenudialog.h"
 #include "imgmenudialog.h"
 #include "powerMenuDialog.h"
@@ -57,6 +55,32 @@ public:
     ~Sheet() override;
 
     static Sheet& ref() { return* sSheet; }
+
+    typedef std::shared_ptr<ComplicationsMenuDialog> tComplicationsMenu;
+    typedef std::shared_ptr<EditMenuDialog>          tEditMenu;
+    typedef std::shared_ptr<FileMenuDialog>          tFileMenu;
+    typedef std::shared_ptr<ImgMenuDialog>           tImgMenu;
+    typedef std::shared_ptr<SkillMenuDialog>         tSkillMenu;
+    typedef std::shared_ptr<PowerMenuDialog>         tPowerMenu;
+    typedef std::shared_ptr<PrintDialog>             tPrint;
+    typedef std::shared_ptr<optionDialog>            tOption;
+    typedef std::shared_ptr<ComplicationsDialog>     tComplications;
+    typedef std::shared_ptr<PowerDialog>             tPower;
+    typedef std::shared_ptr<SkillDialog>             tSkill;
+    static class Dialogs {
+    public:
+        tComplicationsMenu ComplicationsMenu { nullptr };
+        tEditMenu          EditMenu { nullptr };
+        tFileMenu          FileMenu { nullptr };
+        tImgMenu           ImgMenu { nullptr };
+        tSkillMenu         SkillMenu { nullptr };
+        tPowerMenu         PowerMenu { nullptr };
+        tPrint             Print { nullptr };
+        tOption            Option { nullptr };
+        tComplications     Complications { nullptr };
+        tPower             Power { nullptr };
+        tSkill             Skill { nullptr };
+    } sDialog;
 
     void       changed()          { mChanged = true; }
     bool       isChanged()        { return mChanged; }
@@ -164,18 +188,9 @@ public:
     QAction* action_StpPaste = nullptr;
     QAction* action_StpMoveUp = nullptr;
     QAction* action_StpMoveDown = nullptr;
+#endif
 
 private:
-#ifdef __wasm__
-    shared_ptr<FileMenuDialog>           mFileMenuDialog  = nullptr;
-    shared_ptr<EditMenuDialog>           mEditMenuDialog  = nullptr;
-#endif
-    shared_ptr<ComplicationsMenuDialog>  mCompMenuDialog  = nullptr;
-    shared_ptr<ImgMenuDialog>            mImgMenuDialog   = nullptr;
-    shared_ptr<PowerMenuDialog>          mPowerMenuDialog = nullptr;
-    shared_ptr<SkillMenuDialog>          mSkillMenuDialog = nullptr;
-#endif
-
     Sheet_UI*    Ui = nullptr;
     bool         mExpired = true;
     bool         mRunning = false;
@@ -192,11 +207,6 @@ private:
     Points mSkillsTalentsOrPerksPoints = 0_cp;
     Points mCharactersticPoints        = 0_cp;
     Points mTotalPoints                = 0_cp;
-
-    shared_ptr<ComplicationsDialog> mCompDlg  = nullptr;
-    shared_ptr<PowerDialog>         mPowerDlg = nullptr;
-    shared_ptr<SkillDialog>         mSkillDlg = nullptr;
-    shared_ptr<PrintDialog>         mPrintDlg = nullptr;
 
     Character mCharacter;
     QString   mDir;
@@ -274,6 +284,8 @@ private:
 #ifdef __wasm__
     void               removeMenuButtons();
 #endif
+    void               saveRecoveryState();
+    void               saveSession(const QJsonObject& json);
     void               saveThenErase();
     void               saveThenExit();
     void               saveThenOpen();
@@ -393,7 +405,7 @@ public slots:
     void pasteSkillTalentOrPerk();
     void playerNameChanged(QString);
     void powersandequipmentMenu(QPoint);
-    void print();
+    void printSheet();
     void printCharacter(Printer*);
     void save();
     void saveAs();

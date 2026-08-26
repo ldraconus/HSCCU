@@ -7,6 +7,7 @@ namespace Ui {
 class SkillMenuDialog;
 }
 
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
 class SkillMenuDialog : public QDialog
 {
     Q_OBJECT
@@ -48,5 +49,15 @@ public slots:
     void moveUpButton();
     void moveDownButton();
 };
+#else
+class SkillMenuDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit SkillMenuDialog(QWidget *parent = nullptr);
+    ~SkillMenuDialog();
+};
+#endif
 
 #endif // SKILLMENUDIALOG_H

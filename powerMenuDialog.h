@@ -2,6 +2,7 @@
 
 #include <QDialog>
 
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
 namespace Ui {
 class powerMenuDialog;
 }
@@ -46,4 +47,12 @@ public slots:
     void moveUpButton();
     void moveDownButton();
 };
+#else
+class PowerMenuDialog : public QDialog {
+    Q_OBJECT
 
+public:
+    explicit PowerMenuDialog(QWidget *parent = nullptr) { }
+    ~PowerMenuDialog() { }
+};
+#endif

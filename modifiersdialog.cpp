@@ -33,7 +33,6 @@ ModifiersDialog::ModifiersDialog(bool advantage, QWidget *parent)
     Sheet::ref().fixButtonBox(ui->buttonBox);
     mOk = ui->buttonBox->button(QDialogButtonBox::Ok); // NOLINT
     mOk->setEnabled(false);
-
 }
 
 ModifiersDialog::~ModifiersDialog() {

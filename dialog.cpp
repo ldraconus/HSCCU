@@ -19,6 +19,7 @@ Dialog::Dialog(QWidget* parent, Qt::WindowFlags f)
 
 void Dialog::showEvent(QShowEvent *event) {
     QDialog::showEvent(event);
+
     adjustForAvailableSpace();
 #ifdef Q_OS_ANDROID
     for (auto* combo: findChildren<QComboBox*>()) {

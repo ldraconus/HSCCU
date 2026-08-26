@@ -48,6 +48,7 @@
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
 #include <QProcess>
+#include <QSaveFile>
 #include <QScrollBar>
 #include <QScroller>
 #include <QSettings>
@@ -242,6 +243,8 @@ static QString formatNumber(double num) {
 
 Sheet_UI Sheet::sSheet_UI; // NOLINT
 
+class Sheet::Dialogs sDialog;
+
 Sheet::Sheet(QWidget *parent)
     : QMainWindow(parent)
 #ifndef __wasm__
@@ -259,6 +262,7 @@ Sheet::Sheet(QWidget *parent)
     ui->scrollArea->setStyleSheet("color: #000; background: #fff");
 
     Ui->setupUi(ui->label, ui->optLabel);
+
 #ifdef Q_OS_ANDROID
     ui->menubar->setNativeMenuBar(false);
     QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::TouchGesture);
@@ -268,61 +272,59 @@ Sheet::Sheet(QWidget *parent)
         QScroller::grabGesture(table->viewport(), QScroller::TouchGesture);
     }
 
-    qApp->setStyleSheet(qApp->styleSheet() + R"(
-    QScrollBar:vertical {
-        background: #F0F0F0;
-        width: 24px;
-        margin: 0px;
-    }
+    qApp->setStyleSheet(qApp->styleSheet() + R"(QScrollBar:vertical {
+                                                    background: #F0F0F0;
+                                                    width: 24px;
+                                                    margin: 0px;
+                                                }
 
-    QScrollBar::handle:vertical {
-        background: #A0A0A0;
-        min-height: 48px;
-        border: 1px solid #808080;
-        border-radius: 8px;
-        margin: 2px;
-    }
+                                                QScrollBar::handle:vertical {
+                                                    background: #A0A0A0;
+                                                    min-height: 48px;
+                                                    border: 1px solid #808080;
+                                                    border-radius: 8px;
+                                                    margin: 2px;
+                                                }
 
-    QScrollBar:horizontal {
-        background: #F0F0F0;
-        height: 24px;
-        margin: 0px;
-    }
+                                                QScrollBar:horizontal {
+                                                    background: #F0F0F0;
+                                                    height: 24px;
+                                                    margin: 0px;
+                                                }
 
-    QScrollBar::handle:horizontal {
-        background: #A0A0A0;
-        min-width: 48px;
-        border: 1px solid #808080;
-        border-radius: 8px;
-        margin: 2px;
-    }
+                                                QScrollBar::handle:horizontal {
+                                                    background: #A0A0A0;
+                                                    min-width: 48px;
+                                                    border: 1px solid #808080;
+                                                    border-radius: 8px;
+                                                    margin: 2px;
+                                                }
 
-    QScrollBar::add-line,
-    QScrollBar::sub-line {
-        width: 0px;
-        height: 0px;
-    }
+                                                QScrollBar::add-line,
+                                                QScrollBar::sub-line {
+                                                    width: 0px;
+                                                    height: 0px;
+                                                }
 
-    QScrollBar::add-page,
-    QScrollBar::sub-page {
-        background: none;
-    }
+                                                QScrollBar::add-page,
+                                                QScrollBar::sub-page {
+                                                    background: none;
+                                                }
 
-    QMenu::item {
-        color: black;
-        background-color: white;
-    }
+                                                QMenu::item {
+                                                    color: black;
+                                                    background-color: white;
+                                                }
 
-    QMenu::item:selected {
-        color: white;
-        background-color: #707070;
-    }
+                                                QMenu::item:selected {
+                                                    color: white;
+                                                    background-color: #707070;
+                                                }
 
-    QMenu::item:disabled {
-        color: #A0A0A0;
-        background-color: #909090;
-    }
-)");
+                                                QMenu::item:disabled {
+                                                    color: #A0A0A0;
+                                                    background-color: #909090;
+                                                })");
 #endif
     setupIcons();
     setUnifiedTitleAndToolBarOnMac(true);
@@ -335,38 +337,38 @@ Sheet::Sheet(QWidget *parent)
     mOption.load();
     ui->optLabel->setVisible(mOption.showNotesPage());
 
-    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*,QWidget*))); // NOLINT
+    connect(qApp, &QApplication::focusChanged, this, &Sheet::focusChanged);
 
     updateBanner();
 
 #if !defined(__wasm__)
-    connect(ui->menu_File,         SIGNAL(aboutToShow()), this, SLOT(aboutToShowFileMenu()));
-    connect(ui->menu_File,         SIGNAL(aboutToHide()), this, SLOT(aboutToHideFileMenu()));
-    connect(ui->action_New,        SIGNAL(triggered()),   this, SLOT(newchar()));
-    connect(ui->action_Open,       SIGNAL(triggered()),   this, SLOT(open()));
-    connect(ui->action_Save,       SIGNAL(triggered()),   this, SLOT(save()));
-    connect(ui->actionSave_As,     SIGNAL(triggered()),   this, SLOT(saveAs()));
-    connect(ui->action_Print,      SIGNAL(triggered()),   this, SLOT(print()));
-    connect(ui->actionE_xit,       SIGNAL(triggered()),   this, SLOT(exitClicked()));
+    connect(ui->menu_File,         &QMenu::aboutToShow, this, &Sheet::aboutToShowFileMenu);
+    connect(ui->menu_File,         &QMenu::aboutToHide, this, &Sheet::aboutToHideFileMenu);
+    connect(ui->action_New,        &QAction::triggered, this, &Sheet::newchar);
+    connect(ui->action_Open,       &QAction::triggered, this, &Sheet::open);
+    connect(ui->action_Save,       &QAction::triggered, this, &Sheet::save);
+    connect(ui->actionSave_As,     &QAction::triggered, this, &Sheet::saveAs);
+    connect(ui->action_Print,      &QAction::triggered, this, &Sheet::printSheet);
+    connect(ui->actionE_xit,       &QAction::triggered, this, &Sheet::exitClicked);
 
-    connect(ui->menu_Edit,     SIGNAL(aboutToShow()), this, SLOT(aboutToShowEditMenu()));
-    connect(ui->menu_Edit,     SIGNAL(aboutToHide()), this, SLOT(aboutToHideEditMenu()));
-    connect(ui->action_Cut,    SIGNAL(triggered()),   this, SLOT(cutCharacter()));
-    connect(ui->actionC_opy,   SIGNAL(triggered()),   this, SLOT(copyCharacter()));
-    connect(ui->action_Paste,  SIGNAL(triggered()),   this, SLOT(pasteCharacter()));
-    connect(ui->actionOptions, SIGNAL(triggered()),   this, SLOT(options()));
+    connect(ui->menu_Edit,     &QMenu::aboutToShow, this, &Sheet::aboutToShowEditMenu);
+    connect(ui->menu_Edit,     &QMenu::aboutToHide, this, &Sheet::aboutToHideEditMenu);
+    connect(ui->action_Cut,    &QAction::triggered, this, &Sheet::cutCharacter);
+    connect(ui->actionC_opy,   &QAction::triggered, this, &Sheet::copyCharacter);
+    connect(ui->action_Paste,  &QAction::triggered, this, &Sheet::pasteCharacter);
+    connect(ui->actionOptions, &QAction::triggered, this, &Sheet::options);
 #else
     fileButton = createToolBarItem(ui->menuBar, "File", "File menu");
     connect(fileButton, &QToolButton::clicked, this, &Sheet::fileMenu);
-    createMenuItem(action_New, "action_New", SLOT(newchar()));
-    createMenuItem(action_Open, "action_Open",  SLOT(open()));
+    createMenuItem(action_New,  "action_New",  SLOT(newchar()));
+    createMenuItem(action_Open, "action_Open", SLOT(open()));
     createMenuItem(action_Save, "action_Save", SLOT(save()));
 
     editButton = createToolBarItem(ui->menuBar, "Edit", "Edit menu");
     connect(editButton, &QToolButton::clicked, this, &Sheet::editMenu);
-    createMenuItem(action_Cut, "action_Cut", SLOT(cutCharacter()));
-    createMenuItem(actionC_opy, "actionC_opy", SLOT(copyCharacter()));
-    createMenuItem(action_Paste,  "action_Paste", SLOT(pasteCharacter()));
+    createMenuItem(action_Cut,    "action_Cut",    SLOT(cutCharacter()));
+    createMenuItem(actionC_opy,   "actionC_opy",   SLOT(copyCharacter()));
+    createMenuItem(action_Paste,  "action_Paste",  SLOT(pasteCharacter()));
     createMenuItem(actionOptions, "actionOptions", SLOT(options()));
 
     imageButton = createToolBarItem(ui->menuBar, "Image", "Image menu");
@@ -382,112 +384,115 @@ Sheet::Sheet(QWidget *parent)
     connect(powersAndEquipmentButton, &QToolButton::clicked, this, &Sheet::powerMenu);
 #endif
 
-    connect(Ui->alternateids,          SIGNAL(textEdited(QString)), this, SLOT(alternateIdsChanged(QString)));
-    connect(Ui->bodyval,               SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->bodyval,               SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->campaignname,          SIGNAL(textEdited(QString)), this, SLOT(campaignNameChanged(QString)));
-    connect(Ui->charactername,         SIGNAL(textEdited(QString)), this, SLOT(characterNameChanged(QString)));
-    connect(Ui->conval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->conval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->currentbody,           SIGNAL(textEdited(QString)), this, SLOT(currentBODYChanged(QString)));
-    connect(Ui->currentbody,           SIGNAL(editingFinished()),   this, SLOT(currentBODYEditingFinished()));
-    connect(Ui->currentend,            SIGNAL(textEdited(QString)), this, SLOT(currentENDChanged(QString)));
-    connect(Ui->currentend,            SIGNAL(editingFinished()),   this, SLOT(currentENDEditingFinished()));
-    connect(Ui->currentstun,           SIGNAL(textEdited(QString)), this, SLOT(currentSTUNChanged(QString)));
-    connect(Ui->currentstun,           SIGNAL(editingFinished()),   this, SLOT(currentSTUNEditingFinished()));
-    connect(Ui->dcvval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->dcvval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->dexval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->dexval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->dmcvval,               SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->dmcvval,               SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->edval,                 SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->edval,                 SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->egoval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->egoval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->endval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->endval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->eyecolor,              SIGNAL(textEdited(QString)), this, SLOT(eyeColorChanged(QString)));
-    connect(Ui->gamemaster,            SIGNAL(textEdited(QString)), this, SLOT(gamemasterChanged(QString)));
-    connect(Ui->genre,                 SIGNAL(textEdited(QString)), this, SLOT(genreChanged(QString)));
-    connect(Ui->haircolor,             SIGNAL(textEdited(QString)), this, SLOT(hairColorChanged(QString)));
-    connect(Ui->intval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->intval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->ocvval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->ocvval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->omcvval,               SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->omcvval,               SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->pdval,                 SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->pdval,                 SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->playername,            SIGNAL(textEdited(QString)), this, SLOT(playerNameChanged(QString)));
-    connect(Ui->preval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->preval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->recval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->recval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->spdval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->spdval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->strval,                SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->strval,                SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->stunval,               SIGNAL(textEdited(QString)), this, SLOT(valChanged(QString)));
-    connect(Ui->stunval,               SIGNAL(editingFinished()),   this, SLOT(valEditingFinished()));
-    connect(Ui->totalexperienceearned, SIGNAL(textEdited(QString)), this, SLOT(totalExperienceEarnedChanged(QString)));
-    connect(Ui->totalexperienceearned, SIGNAL(editingFinished()),   this, SLOT(totalExperienceEarnedEditingFinished()));
-    connect(Ui->height,                SIGNAL(textEdited(QString)), this, SLOT(heightChanged(QString)));
-    connect(Ui->weight,                SIGNAL(textEdited(QString)), this, SLOT(weightChanged(QString)));
-    connect(Ui->notes,                 SIGNAL(textChanged()),       this, SLOT(noteChanged()));
+    connect(Ui->alternateids,          &QLineEdit::textEdited,       this, &Sheet::alternateIdsChanged);
+    connect(Ui->bodyval,               &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->bodyval,               &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->campaignname,          &QLineEdit::textEdited,       this, &Sheet::campaignNameChanged);
+    connect(Ui->charactername,         &QLineEdit::textEdited,       this, &Sheet::characterNameChanged);
+    connect(Ui->conval,                &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->conval,                &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->currentbody,           &QLineEdit::textEdited,       this, &Sheet::currentBODYChanged);
+    connect(Ui->currentbody,           &QLineEdit::editingFinished,  this, &Sheet::currentBODYEditingFinished);
+    connect(Ui->currentend,            &QLineEdit::textEdited,       this, &Sheet::currentENDChanged);
+    connect(Ui->currentend,            &QLineEdit::editingFinished,  this, &Sheet::currentENDEditingFinished);
+    connect(Ui->currentstun,           &QLineEdit::textEdited,       this, &Sheet::currentSTUNChanged);
+    connect(Ui->currentstun,           &QLineEdit::editingFinished,  this, &Sheet::currentSTUNEditingFinished);
+    connect(Ui->dcvval,                &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->dcvval,                &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->dexval,                &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->dexval,                &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->dmcvval,               &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->dmcvval,               &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->edval,                 &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->edval,                 &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->egoval,                &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->egoval,                &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->endval,                &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->endval,                &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->eyecolor,              &QLineEdit::textEdited,       this, &Sheet::eyeColorChanged);
+    connect(Ui->gamemaster,            &QLineEdit::textEdited,       this, &Sheet::gamemasterChanged);
+    connect(Ui->genre,                 &QLineEdit::textEdited,       this, &Sheet::genreChanged);
+    connect(Ui->haircolor,             &QLineEdit::textEdited,       this, &Sheet::hairColorChanged);
+    connect(Ui->intval,                &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->intval,                &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->ocvval,                &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->ocvval,                &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->omcvval,               &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->omcvval,               &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->pdval,                 &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->pdval,                 &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->playername,            &QLineEdit::textEdited,       this, &Sheet::playerNameChanged);
+    connect(Ui->preval,                &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->preval,                &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->recval,                &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->recval,                &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->spdval,                &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->spdval,                &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->strval,                &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->strval,                &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->stunval,               &QLineEdit::textEdited,       this, &Sheet::valChanged);
+    connect(Ui->stunval,               &QLineEdit::editingFinished,  this, &Sheet::valEditingFinished);
+    connect(Ui->totalexperienceearned, &QLineEdit::textEdited,       this, &Sheet::totalExperienceEarnedChanged);
+    connect(Ui->totalexperienceearned, &QLineEdit::editingFinished,  this, &Sheet::totalExperienceEarnedEditingFinished);
+    connect(Ui->height,                &QLineEdit::textEdited,       this, &Sheet::heightChanged);
+    connect(Ui->weight,                &QLineEdit::textEdited,       this, &Sheet::weightChanged);
+    connect(Ui->notes,                 &QPlainTextEdit::textChanged, this, &Sheet::noteChanged);
+
 
     setTableSelectionMode(Ui->skillstalentsandperks);
     setTableSelectionMode(Ui->complications);
     setTableSelectionMode(Ui->powersandequipment);
 
-    connect(Ui->image,      SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(imageMenu(QPoint)));
-#ifndef __wasm__
-    connect(Ui->newImage,   SIGNAL(triggered()),                        this, SLOT(newImage()));
-    connect(Ui->clearImage, SIGNAL(triggered()),                        this, SLOT(clearImage()));
-#endif
 
-    connect(Ui->complications,        SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(complicationDoubleClicked(QTableWidgetItem*)));
-    connect(Ui->complications,        SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(complicationsMenu(QPoint)));
-#ifndef __wasm__
-    connect(Ui->complicationsMenu,    SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowComplicationsMenu()));
-#endif
-    connect(Ui->newComplication,      SIGNAL(triggered()),                          this, SLOT(newComplication()));
-    connect(Ui->editComplication,     SIGNAL(triggered()),                          this, SLOT(editComplication()));
-    connect(Ui->deleteComplication,   SIGNAL(triggered()),                          this, SLOT(deleteComplication()));
-    connect(Ui->cutComplication,      SIGNAL(triggered()),                          this, SLOT(cutComplication()));
-    connect(Ui->copyComplication,     SIGNAL(triggered()),                          this, SLOT(copyComplication()));
-    connect(Ui->pasteComplication,    SIGNAL(triggered()),                          this, SLOT(pasteComplication()));
-    connect(Ui->moveComplicationUp,   SIGNAL(triggered()),                          this, SLOT(moveComplicationUp()));
-    connect(Ui->moveComplicationDown, SIGNAL(triggered()),                          this, SLOT(moveComplicationDown()));
+    connect(Ui->image,      &QMenu::customContextMenuRequested, this, &Sheet::imageMenu);
+    connect(Ui->newImage,   &QAction::triggered,                this, &Sheet::newImage);
+    connect(Ui->clearImage, &QAction::triggered,                this, &Sheet::clearImage);
 
 
-    connect(Ui->skillstalentsandperks,     SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(skillstalentsandperksDoubleClicked(QTableWidgetItem*)));
-    connect(Ui->skillstalentsandperks,     SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(skillstalentsandperksMenu(QPoint)));
+    connect(Ui->complications,        &ClickableTable::itemDoubleClicked, this, &Sheet::complicationDoubleClicked);
+    connect(Ui->complications,        &QMenu::customContextMenuRequested, this, &Sheet::complicationsMenu);
 #if !defined(__wasm__) && !defined(Q_OS_ANDROID)
-    connect(Ui->skillstalentsandperksMenu, SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowSkillsPerksAndTalentsMenu()));
+    connect(Ui->complicationsMenu,    &QMenu::aboutToShow,                this, &Sheet::aboutToShowComplicationsMenu);
 #endif
-    connect(Ui->newSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(newSkillTalentOrPerk()));
-    connect(Ui->editSkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(editSkillstalentsandperks()));
-    connect(Ui->deleteSkillTalentOrPerk,   SIGNAL(triggered()),                          this, SLOT(deleteSkillstalentsandperks()));
-    connect(Ui->cutSkillTalentOrPerk,      SIGNAL(triggered()),                          this, SLOT(cutSkillTalentOrPerk()));
-    connect(Ui->copySkillTalentOrPerk,     SIGNAL(triggered()),                          this, SLOT(copySkillTalentOrPerk()));
-    connect(Ui->pasteSkillTalentOrPerk,    SIGNAL(triggered()),                          this, SLOT(pasteSkillTalentOrPerk()));
-    connect(Ui->moveSkillTalentOrPerkUp,   SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkUp()));
-    connect(Ui->moveSkillTalentOrPerkDown, SIGNAL(triggered()),                          this, SLOT(moveSkillTalentOrPerkDown()));
+    connect(Ui->newComplication,      &QAction::triggered,                this, &Sheet::newComplication);
+    connect(Ui->editComplication,     &QAction::triggered,                this, &Sheet::editComplication);
+    connect(Ui->deleteComplication,   &QAction::triggered,                this, &Sheet::deleteComplication);
+    connect(Ui->cutComplication,      &QAction::triggered,                this, &Sheet::cutComplication);
+    connect(Ui->copyComplication,     &QAction::triggered,                this, &Sheet::copyComplication);
+    connect(Ui->pasteComplication,    &QAction::triggered,                this, &Sheet::pasteComplication);
+    connect(Ui->moveComplicationUp,   &QAction::triggered,                this, &Sheet::moveComplicationUp);
+    connect(Ui->moveComplicationDown, &QAction::triggered,                this, &Sheet::moveComplicationDown);
 
-    connect(Ui->powersandequipment,       SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(powersandequipmentDoubleClicked(QTableWidgetItem*)));
-    connect(Ui->powersandequipment,       SIGNAL(customContextMenuRequested(QPoint)),   this, SLOT(powersandequipmentMenu(QPoint)));
+
+    connect(Ui->skillstalentsandperks,     &ClickableTable::itemDoubleClicked, this, &Sheet::skillstalentsandperksDoubleClicked);
+    connect(Ui->skillstalentsandperks,     &QMenu::customContextMenuRequested, this, &Sheet::skillstalentsandperksMenu);
 #if !defined(__wasm__) && !defined(Q_OS_ANDROID)
-    connect(Ui->powersandequipmentMenu,   SIGNAL(aboutToShow()),                        this, SLOT(aboutToShowPowersAndEquipmentMenu()));
+    connect(Ui->skillstalentsandperksMenu, &QMenu::aboutToShow,                this, &Sheet::aboutToShowSkillsPerksAndTalentsMenu);
 #endif
-    connect(Ui->newPowerOrEquipment,      SIGNAL(triggered()),                          this, SLOT(newPowerOrEquipment()));
-    connect(Ui->editPowerOrEquipment,     SIGNAL(triggered()),                          this, SLOT(editPowerOrEquipment()));
-    connect(Ui->deletePowerOrEquipment,   SIGNAL(triggered()),                          this, SLOT(deletePowerOrEquipment()));
-    connect(Ui->cutPowerOrEquipment,      SIGNAL(triggered()),                          this, SLOT(cutPowerOrEquipment()));
-    connect(Ui->copyPowerOrEquipment,     SIGNAL(triggered()),                          this, SLOT(copyPowerOrEquipment()));
-    connect(Ui->pastePowerOrEquipment,    SIGNAL(triggered()),                          this, SLOT(pastePowerOrEquipment()));
-    connect(Ui->movePowerOrEquipmentUp,   SIGNAL(triggered()),                          this, SLOT(movePowerOrEquipmentUp()));
-    connect(Ui->movePowerOrEquipmentDown, SIGNAL(triggered()),                          this, SLOT(movePowerOrEquipmentDown()));
+    connect(Ui->newSkillTalentOrPerk,      &QAction::triggered,                this, &Sheet::newSkillTalentOrPerk);
+    connect(Ui->editSkillTalentOrPerk,     &QAction::triggered,                this, &Sheet::editSkillstalentsandperks);
+    connect(Ui->deleteSkillTalentOrPerk,   &QAction::triggered,                this, &Sheet::deleteSkillstalentsandperks);
+    connect(Ui->cutSkillTalentOrPerk,      &QAction::triggered,                this, &Sheet::cutSkillTalentOrPerk);
+    connect(Ui->copySkillTalentOrPerk,     &QAction::triggered,                this, &Sheet::copySkillTalentOrPerk);
+    connect(Ui->pasteSkillTalentOrPerk,    &QAction::triggered,                this, &Sheet::pasteSkillTalentOrPerk);
+    connect(Ui->moveSkillTalentOrPerkUp,   &QAction::triggered,                this, &Sheet::moveSkillTalentOrPerkUp);
+    connect(Ui->moveSkillTalentOrPerkDown, &QAction::triggered,                this, &Sheet::moveSkillTalentOrPerkDown);
+
+
+    connect(Ui->powersandequipment,       &ClickableTable::itemDoubleClicked, this, &Sheet::powersandequipmentDoubleClicked);
+    connect(Ui->powersandequipment,       &QMenu::customContextMenuRequested, this, &Sheet::powersandequipmentMenu);
+#if !defined(__wasm__) && !defined(Q_OS_ANDROID)
+    connect(Ui->powersandequipmentMenu,   &QMenu::aboutToShow,                this, &Sheet::aboutToShowPowersAndEquipmentMenu);
+#endif
+    connect(Ui->newPowerOrEquipment,      &QAction::triggered,                this, &Sheet::newPowerOrEquipment);
+    connect(Ui->editPowerOrEquipment,     &QAction::triggered,                this, &Sheet::editPowerOrEquipment);
+    connect(Ui->deletePowerOrEquipment,   &QAction::triggered,                this, &Sheet::deletePowerOrEquipment);
+    connect(Ui->cutPowerOrEquipment,      &QAction::triggered,                this, &Sheet::cutPowerOrEquipment);
+    connect(Ui->copyPowerOrEquipment,     &QAction::triggered,                this, &Sheet::copyPowerOrEquipment);
+    connect(Ui->pastePowerOrEquipment,    &QAction::triggered,                this, &Sheet::pastePowerOrEquipment);
+    connect(Ui->movePowerOrEquipmentUp,   &QAction::triggered,                this, &Sheet::movePowerOrEquipmentUp);
+    connect(Ui->movePowerOrEquipmentDown, &QAction::triggered,                this, &Sheet::movePowerOrEquipmentDown);
+
 
     mWidget2Def = {
         { Ui->strval,  { &mCharacter.STR(),  Ui->strval,  Ui->strpoints, Ui->strroll } },
@@ -512,6 +517,10 @@ Sheet::Sheet(QWidget *parent)
     installEventFilter(dynamic_cast<QObject*>(this));
 
 #ifndef __wasm__
+#ifdef Q_OS_ANDROID
+    connect(qApp, &QGuiApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) { if (state == Qt::ApplicationSuspended) saveRecoveryState(); });
+#endif
+#else
     QStringList args = qApp->arguments(); // NOLINT
     if (args.count() > 1) {
         mFilename = QDir::fromNativeSeparators(args[1]);
@@ -529,7 +538,8 @@ Sheet::Sheet(QWidget *parent)
 
 Sheet::~Sheet() {
     delete ui;
-    // Ui's contents are pointed to by ui->label, don't delete it (double deletes)!  Don't worry, it is not allocated either, static global storage with a pointer to it.
+    // Ui's contents are pointed to by ui->label, don't delete it (double deletes)!
+    // Don't worry, the delete of ui->label delete everything Ui points to as well.
 }
 
 // --- [EVENT FILTER] ----------------------------------------------------------------------------------
@@ -550,29 +560,22 @@ static void closeDialog(shared_ptr<QDialog> dlg, QMouseEvent* me) {
 
 void Sheet::closeDialogs(QMouseEvent* me) {
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
-    if (mCompMenuDialog  != nullptr) closeDialog(mCompMenuDialog,  me);
+    if (sDialog.ComplicationsMenu != nullptr) closeDialog(sDialog.ComplicationsMenu, me);
 #ifdef __wasm__
-    if (mEditMenuDialog  != nullptr) closeDialog(mEditMenuDialog,  me);
-    if (mFileMenuDialog  != nullptr) closeDialog(mFileMenuDialog,  me);
+    if (sDialog,EditMenu          != nullptr) closeDialog(sDialog,EditMenu,          me);
+    if (sDialog.FileMenu          != nullptr) closeDialog(sDialog.FileMenu,          me);
 #endif
-    if (mImgMenuDialog   != nullptr) closeDialog(mImgMenuDialog,   me);
-    if (mSkillMenuDialog != nullptr) closeDialog(mSkillMenuDialog, me);
-    if (mPowerMenuDialog != nullptr) closeDialog(mPowerMenuDialog, me);
+    if (sDialog.ImgMenu           != nullptr) closeDialog(sDialog.ImgMenu,           me);
+    if (sDialog.SkillMenu         != nullptr) closeDialog(sDialog.SkillMenu,         me);
+    if (sDialog.PowerMenu         != nullptr) closeDialog(sDialog.SkillMenu,         me);
 #endif
-    if (mPrintDlg  != nullptr) closeDialog(mPrintDlg,  me);
-    if (mOptionDlg != nullptr) closeDialog(mOptionDlg, me);
-    if (mCompDlg   != nullptr) closeDialog(mCompDlg,   me);
-    if (mPowerDlg  != nullptr) closeDialog(mPowerDlg,  me);
-    if (mSkillDlg  != nullptr) closeDialog(mSkillDlg,  me);
+    if (sDialog.Print             != nullptr) closeDialog(sDialog.Print,             me);
+    if (sDialog.Option            != nullptr) closeDialog(sDialog.Option,            me);
+    if (sDialog.Complications     != nullptr) closeDialog(sDialog.Complications,     me);
+    if (sDialog.Power             != nullptr) closeDialog(sDialog.Power,             me);
+    if (sDialog.Skill             != nullptr) closeDialog(sDialog.Skill,             me);
 }
 
-/*
-menuBar()->hide();
-ui->menubar->hide();
-
-menuBar()->setVisible(false);
-ui->menubar->setVisible(false);
- */
 void Sheet::mousePressEvent(QMouseEvent* me) {
     closeDialogs(me);
 }
@@ -647,8 +650,7 @@ void Sheet::addPower(shared_ptr<Power> power) {
     mChanged = true;
 }
 
-void Sheet::fixButtonBox(QDialogButtonBox *bb)
-{
+void Sheet::fixButtonBox(QDialogButtonBox *bb) {
     bb->setStyleSheet("QDialogButtonBox { border-color: #888; color: #888; background: #fff; } "
                       "QDialogButtonBox:default { border-color: #000; color: #000; } ");
     QList<QAbstractButton*> buttons = bb->buttons();
@@ -1841,6 +1843,33 @@ void Sheet::rebuildSenses() {
     Ui->enhancedandunusualsenses->setText(senses);
 }
 
+void Sheet::saveRecoveryState() {
+    QJsonObject state;
+
+    state["character"]  = mCharacter.toJson(mOption).object();
+    state["filename"]   = mFilename;
+    state["dirty"]      = mChanged;
+    // determine what they were doing and restore that: dialog not-null, get the dialog's state in json (easy, just call the underlying object being constructed and get the json from that, any sub-dialogs are that dialogs responsibility to save the state of.
+    // only one dialog can be active at a time, so that's nice.
+
+    saveSession(state);
+}
+
+void Sheet::saveSession(const QJsonObject& json) {
+    QJsonDocument state;
+    state.setObject(json);
+
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(path);
+    path += "/HSCCU.state";
+
+    QSaveFile file(path);
+    if (!file.open(QIODevice::WriteOnly)) return;
+
+    file.write(state.toJson());
+    file.commit();
+}
+
 int Sheet::searchImprovedNoncombatMovement(QString name) {
     int mult = 0;
     for (const auto& power: mCharacter.powersOrEquipment()) {
@@ -2247,13 +2276,14 @@ void Sheet::aboutToShowComplicationsMenu() {
 #else
     bool canPaste = false;
     // see if anything is under the mouse pointer: select it if there is
-    mCompMenuDialog->setEdit(show);
-    mCompMenuDialog->setDelete(show);
-    mCompMenuDialog->setCut(show);
-    mCompMenuDialog->setCopy(show);
-    mCompMenuDialog->setPaste(canPaste);
-    mCompMenuDialog->setMoveUp(show && row != 0);
-    mCompMenuDialog->setMoveDown(show && mCharacter.complications().count() != 0 && row != mCharacter.complications().count() - 1);
+    auto compMenuDialog = sDialog.ComplicationsMenu;
+    compMenuDialog->setEdit(show);
+    compMenuDialog->setDelete(show);
+    compMenuDialog->setCut(show);
+    compMenuDialog->setCopy(show);
+    compMenuDialog->setPaste(canPaste);
+    compMenuDialog->setMoveUp(show && row != 0);
+    compMenuDialog->setMoveDown(show && mCharacter.complications().count() != 0 && row != mCharacter.complications().count() - 1);
 #endif
 }
 
@@ -2276,25 +2306,23 @@ void Sheet::aboutToShowPowersAndEquipmentMenu() {
     int row = -1;
     if (show) row = selection[0]->row();
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
-#ifdef __wasm__
-    bool canPaste = false;
-#else
-#endif
-qDebug() << QString("show: ") + (show ? "true" : "false");
-qDebug() << QString("row: ") + QString::number(row);
-    mPowerMenuDialog->setEdit(show);
-    mPowerMenuDialog->setDelete(show);
-    mPowerMenuDialog->setCut(show);
-    mPowerMenuDialog->setCopy(show);
-    mPowerMenuDialog->setMoveUp(show && row != 0);
-    mPowerMenuDialog->setMoveDown(show && row != Ui->powersandequipment->rowCount() - 1);
+    auto powerMenuDialog = sDialog.PowerMenu;
+    powerMenuDialog->setEdit(show);
+    powerMenuDialog->setDelete(show);
+    powerMenuDialog->setCut(show);
+    powerMenuDialog->setCopy(show);
+    powerMenuDialog->setMoveUp(show && row != 0);
+    powerMenuDialog->setMoveDown(show && row != Ui->powersandequipment->rowCount() - 1);
     auto power = getPower(row, mCharacter.powersOrEquipment());
     Ui->movePowerOrEquipmentDown->setEnabled(show && (row != Ui->powersandequipment->rowCount() - 1 || power->parent() != nullptr));
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
+#ifdef __wasm__
+    bool canPaste = false;
+#else
     bool canPaste = clip->hasFormat("application/powerorequipment");
-qDebug() << QString("canPaste: ") + (canPaste ? "true" : "false");
-    mPowerMenuDialog->setPaste(canPaste);
+#endif
+    powerMenuDialog->setPaste(canPaste);
 #else
     Ui->editPowerOrEquipment->setEnabled(show);
     Ui->deletePowerOrEquipment->setEnabled(show);
@@ -2323,13 +2351,14 @@ void Sheet::aboutToShowSkillsPerksAndTalentsMenu() {
     const QMimeData* clip = clipboard->mimeData();
     bool canPaste = clip->hasFormat("application/skillperkortalent");
 #endif
-    mSkillMenuDialog->setEdit(show);
-    mSkillMenuDialog->setDelete(show);
-    mSkillMenuDialog->setCut(show);
-    mSkillMenuDialog->setCopy(show);
-    mSkillMenuDialog->setPaste(canPaste);
-    mSkillMenuDialog->setMoveUp(show && row != 0);
-    mSkillMenuDialog->setMoveDown(show && row != mCharacter.skillsTalentsOrPerks().count() - 1);
+    auto skillMenuDialog = sDialog.SkillMenu;
+    skillMenuDialog->setEdit(show);
+    skillMenuDialog->setDelete(show);
+    skillMenuDialog->setCut(show);
+    skillMenuDialog->setCopy(show);
+    skillMenuDialog->setPaste(canPaste);
+    skillMenuDialog->setMoveUp(show && row != 0);
+    skillMenuDialog->setMoveDown(show && row != mCharacter.skillsTalentsOrPerks().count() - 1);
 #else
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
@@ -2433,26 +2462,25 @@ void Sheet::copySkillTalentOrPerk() {
 }
 
 void Sheet::complicationsMenu(QPoint pos) {
+    auto compMenuDialog = (sDialog.ComplicationsMenu = std::make_shared<ComplicationsMenuDialog>());
 #ifdef __wasm__
     int row = Ui->complications->rowAt(pos.y());
     Ui->complications->selectRow(row);
     closeDialogs(nullptr);
-    mCompMenuDialog = make_shared<ComplicationsMenuDialog>();
-    mCompMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mCompMenuDialog->setPos(mapToGlobal(pos + Ui->complications->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    compMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    compMenuDialog->setPos(mapToGlobal(pos + Ui->complications->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
     aboutToShowComplicationsMenu();
-    mCompMenuDialog->open();
+    compMenuDialog->open();
 #elif defined(Q_OS_ANDROID)
     int row = Ui->complications->rowAt(pos.y());
     Ui->complications->selectRow(row);
     closeDialogs(nullptr);
-    mCompMenuDialog = make_shared<ComplicationsMenuDialog>();
-    mCompMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mCompMenuDialog->setPos(pos);
+    compMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    compMenuDialog->setPos(pos);
     aboutToShowComplicationsMenu();
-    mCompMenuDialog->open();
+    compMenuDialog->open();
 #else
-    Ui->complicationsMenu->exec(mapToGlobal(pos + Ui->complications->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    Ui->complicationsMenu->exec(pos);
 #endif
 }
 
@@ -2552,7 +2580,8 @@ void Sheet::deleteSkillstalentsandperks() {
 }
 
 void Sheet::doneEditComplication() {
-    shared_ptr<Complication> complication = mCompDlg->complication();
+    auto compDlg = sDialog.Complications;
+    shared_ptr<Complication> complication = compDlg->complication();
     if (complication->description().isEmpty()) return;
 
     updateDisplay();
@@ -2560,7 +2589,8 @@ void Sheet::doneEditComplication() {
 }
 
 void Sheet::doneEditSkill() {
-    shared_ptr<SkillTalentOrPerk> skilltalentorperk = mSkillDlg->skilltalentorperk();
+    auto skillDlg = sDialog.Skill;
+    shared_ptr<SkillTalentOrPerk> skilltalentorperk = skillDlg->skilltalentorperk();
     if (skilltalentorperk->description().isEmpty()) return;
 
     updateDisplay();
@@ -2574,14 +2604,15 @@ void Sheet::editComplication() {
     shared_ptr<Complication> complication = mCharacter.complications()[row];
     if (complication == nullptr) return;
 
-    mCompDlg = make_shared<ComplicationsDialog>(this);
-    mCompDlg->complication(complication);
-    connect(mCompDlg.get(), SIGNAL(accepted()), this, SLOT(doneEditComplication()));
+    auto compDlg = (sDialog.Complications = std::make_shared<ComplicationsDialog>(this));
+    compDlg = make_shared<ComplicationsDialog>(this);
+    compDlg->complication(complication);
+    connect(compDlg.get(), SIGNAL(accepted()), this, SLOT(doneEditComplication()));
 
 #ifdef __wasm__
     closeDialogs(nullptr);
 #endif
-    mCompDlg->open();
+    compDlg->open();
 }
 
 void Sheet::editPowerOrEquipment() {
@@ -2596,9 +2627,10 @@ void Sheet::editPowerOrEquipment() {
     if (work == nullptr) return;
 
     work->parent(power->parent());
-    mPowerDlg = make_shared<PowerDialog>(this, power);
-    mPowerDlg->powerorequipment(work);
-    mPowerDlg->open();
+    auto powerDlg = (sDialog.Power = std::make_shared<PowerDialog>());
+    powerDlg = make_shared<PowerDialog>(this, power);
+    powerDlg->powerorequipment(work);
+    powerDlg->open();
 }
 
 void Sheet::editSkillstalentsandperks() {
@@ -2608,14 +2640,15 @@ void Sheet::editSkillstalentsandperks() {
     shared_ptr<SkillTalentOrPerk> skilltalentorperk = mCharacter.skillsTalentsOrPerks()[row];
     if (skilltalentorperk == nullptr) return;
 
-    mSkillDlg = make_shared<SkillDialog>(this);
-    mSkillDlg->skilltalentorperk(skilltalentorperk);
-    connect(mSkillDlg.get(), SIGNAL(accepted()), this, SLOT(doneEditSkill()));
+    auto skillDlg = (sDialog.Skill = std::make_shared<SkillDialog>(this));
+    skillDlg = make_shared<SkillDialog>(this);
+    skillDlg->skilltalentorperk(skilltalentorperk);
+    connect(skillDlg.get(), SIGNAL(accepted()), this, SLOT(doneEditSkill()));
 
 #ifdef __wasm__
     closeDialogs(nullptr);
 #endif
-    mSkillDlg->open();
+    skillDlg->open();
 }
 
 void Sheet::eyeColorChanged(QString txt) {
@@ -2627,51 +2660,51 @@ void Sheet::eyeColorChanged(QString txt) {
 #ifdef __wasm__
 void Sheet::editMenu(bool) {
     closeDialogs(nullptr);
-    mEditMenuDialog = make_shared<EditMenuDialog>();
-    mEditMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mEditMenuDialog->open();
+    auto editMenuDialog = (sDialog.editMenu = std::make_shared<EditMenuDialog>());
+    editMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    editMenuDialog->open();
 }
 
 void Sheet::fileMenu(bool) {
     closeDialogs(nullptr);
-    mFileMenuDialog = make_shared<FileMenuDialog>();
-    mFileMenuDialog->setSave(mChanged);
-    mFileMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mFileMenuDialog->open();
+    auto fileMenuDialog = (sDialog.fileMenu = std::make_shared<FileMenuDialog>());
+    fileMenuDialog->setSave(mChanged);
+    fileMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    fileMenuDialog->open();
 }
 #endif
 void Sheet::imgMenu(bool) {
     closeDialogs(nullptr);
-    mImgMenuDialog = make_shared<ImgMenuDialog>();
-    mImgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mImgMenuDialog->open();
+    auto imgMenuDialog = (sDialog.ImgMenu = std::make_shared<ImgMenuDialog>());
+    imgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    imgMenuDialog->open();
 }
 
 void Sheet::powerMenu(bool) {
     closeDialogs(nullptr);
-    if (!mPowerMenuDialog) mPowerMenuDialog = make_shared<PowerMenuDialog>();
+    auto powerMenuDialog = (sDialog.PowerMenu = std::make_shared<PowerMenuDialog>());
     aboutToShowPowersAndEquipmentMenu();
-    mPowerMenuDialog->setPos(QPoint());
-    mPowerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mPowerMenuDialog->open();
+    powerMenuDialog->setPos(QPoint());
+    powerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    powerMenuDialog->open();
 }
 
 void Sheet::stpMenu(bool) {
     closeDialogs(nullptr);
-    if (!mSkillMenuDialog) mSkillMenuDialog = make_shared<SkillMenuDialog>();
+    auto skillMenuDialog = (sDialog.SkillMenu = std::make_shared<SkillMenuDialog>());
     aboutToShowSkillsPerksAndTalentsMenu();
-    mSkillMenuDialog->setPos(QPoint());
-    mSkillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mSkillMenuDialog->open();
+    skillMenuDialog->setPos(QPoint());
+    skillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    skillMenuDialog->open();
 }
 
 void Sheet::compMenu(bool) {
     closeDialogs(nullptr);
-    if (!mCompMenuDialog) mCompMenuDialog = make_shared<ComplicationsMenuDialog>();
+    auto compMenuDialog = (sDialog.ComplicationsMenu = make_shared<ComplicationsMenuDialog>());
     aboutToShowComplicationsMenu();
-    mCompMenuDialog->setPos(QPoint());
-    mCompMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mCompMenuDialog->open();
+    compMenuDialog->setPos(QPoint());
+    compMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    compMenuDialog->open();
 }
 #endif
 
@@ -2711,20 +2744,14 @@ void Sheet::hairColorChanged(QString txt) {
 }
 
 void Sheet::imageMenu(QPoint pos) {
-#ifdef __wasm__
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
     closeDialogs(nullptr);
-    mImgMenuDialog = make_shared<ImgMenuDialog>();
-    mImgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mImgMenuDialog->setPos(mapToGlobal(pos + Ui->image->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
-    mImgMenuDialog->open();
-#elif ANDROID
-    closeDialogs(nullptr);
-    mImgMenuDialog = make_shared<ImgMenuDialog>();
-    mImgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mImgMenuDialog->setPos(pos);
-    mImgMenuDialog->open();
+    auto imgMenuDialog = (sDialog.ImgMenu = make_shared<ImgMenuDialog>());
+    imgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    imgMenuDialog->setPos(pos);
+    imgMenuDialog->open();
 #else
-    Ui->imageMenu->exec(mapToGlobal(pos + Ui->image->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    Ui->imageMenu->exec(pos);
 #endif
 }
 
@@ -2814,7 +2841,7 @@ void Sheet::newchar() {
 }
 
 void Sheet::acceptComplication() {
-    shared_ptr<Complication> complication = mCompDlg->complication();
+    auto complication = sDialog.Complications->complication();
     if (complication == nullptr) return;
     if (complication->description().isEmpty()) return;
 
@@ -2825,13 +2852,13 @@ void Sheet::acceptComplication() {
 }
 
 void Sheet::newComplication() {
-    mCompDlg = make_shared<ComplicationsDialog>(this);
-    connect(mCompDlg.get(), SIGNAL(accepted()), this, SLOT(acceptComplication()));
+    auto compDlg = (sDialog.Complications = std::make_shared<ComplicationsDialog>(this));
+    connect(compDlg.get(), SIGNAL(accepted()), this, SLOT(acceptComplication()));
 
 #ifdef __wasm__
     closeDialogs(nullptr);
 #endif
-    mCompDlg->open();
+    compDlg->open();
 }
 
 void Sheet::newImage() {
@@ -2859,13 +2886,13 @@ void Sheet::newPowerOrEquipment() {
         }
     }
 
-    mPowerDlg = make_shared<PowerDialog>(this);
-    if (framework) mPowerDlg->multipower();
-    mPowerDlg->open();
+    auto powerDlg = (sDialog.Power = make_shared<PowerDialog>(this));
+    if (framework) powerDlg->multipower();
+    powerDlg->open();
 }
 
 void Sheet::acceptNewSkill() {
-    shared_ptr<SkillTalentOrPerk> skilltalentorperk = mSkillDlg->skilltalentorperk();
+    auto skilltalentorperk = sDialog.Skill->skilltalentorperk();
     if (skilltalentorperk == nullptr) return;
     if (skilltalentorperk->description().isEmpty()) return;
 
@@ -2876,9 +2903,9 @@ void Sheet::acceptNewSkill() {
 }
 
 void Sheet::newSkillTalentOrPerk() {
-    mSkillDlg = make_shared<SkillDialog>(this);
-    connect(mSkillDlg.get(), SIGNAL(accepted()), this, SLOT(acceptNewSkill()));
-    mSkillDlg->open();
+    auto skillDlg = (sDialog.Skill = std::make_shared<SkillDialog>(this));
+    connect(skillDlg.get(), SIGNAL(accepted()), this, SLOT(acceptNewSkill()));
+    skillDlg->open();
 }
 
 void Sheet::noteChanged() {
@@ -3036,36 +3063,25 @@ void Sheet::playerNameChanged(QString txt) {
 }
 
 void Sheet::powersandequipmentMenu(QPoint pos) {
-#ifdef __wasm__
+#if defined( __wasm__) || defined(Q_OS_ANDROID)
     int row = Ui->powersandequipment->rowAt(pos.y());
     Ui->powersandequipment->selectRow(row);
     closeDialogs(nullptr);
-    mPowerMenuDialog = make_shared<PowerMenuDialog>();
-    mPowerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mPowerMenuDialog->setPos(mapToGlobal(pos + Ui->powersandequipment->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    auto powerMenuDialog = (sDialog.PowerMenu = make_shared<PowerMenuDialog>());
+    powerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    powerMenuDialog->setPos(pos);
     aboutToShowPowersAndEquipmentMenu();
-    mPowerMenuDialog->open();
-#elif defined(Q_OS_ANDROID)
-    int row = Ui->powersandequipment->rowAt(pos.y());
-    Ui->powersandequipment->selectRow(row);
-    closeDialogs(nullptr);
-    mPowerMenuDialog = make_shared<PowerMenuDialog>();
-    mPowerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mPowerMenuDialog->setPos(pos);
-    aboutToShowPowersAndEquipmentMenu();
-    mPowerMenuDialog->open();
+    powerMenuDialog->open();
 #else
-    Ui->powersandequipmentMenu->exec(mapToGlobal(pos
-                                                 + Ui->powersandequipment->pos()
-                                                 - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    Ui->powersandequipmentMenu->exec(mapToGlobal(pos);
 #endif
 }
 
-void Sheet::print() {
+void Sheet::printSheet() {
     bool saveChanged = mChanged;
 
-    mPrintDlg = std::make_shared<PrintDialog>();
-    mPrintDlg->open();
+    auto printDlg = (sDialog.Print = make_shared<PrintDialog>(this));
+    printDlg->open();
 
     mChanged = saveChanged; // lots of changed signals get passed around but the character really didn't change
 }
@@ -3205,26 +3221,16 @@ void Sheet::saveAs() {
 }
 
 void Sheet::skillstalentsandperksMenu(QPoint pos) {
-#if defined(__wasm__)
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
     int row = Ui->skillstalentsandperks->rowAt(pos.y());
     Ui->skillstalentsandperks->selectRow(row);
     closeDialogs(nullptr);
-    mSkillMenuDialog = make_shared<SkillMenuDialog>();
-    mSkillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mSkillMenuDialog->setPos(mapToGlobal(pos + Ui->skillstalentsandperks->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    auto skillMenuDialog = (sDialog.SkillMenu = make_shared<SkillMenuDialog>());
+    skillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    skillMenuDialog->setPos(pos);
     aboutToShowSkillsPerksAndTalentsMenu();
-    mSkillMenuDialog->open();
-#elif defined(Q_OS_ANDROID)
-    int row = Ui->skillstalentsandperks->rowAt(pos.y());
-    Ui->skillstalentsandperks->selectRow(row);
-    closeDialogs(nullptr);
-    mSkillMenuDialog = make_shared<SkillMenuDialog>();
-    mSkillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    mSkillMenuDialog->setPos(pos);
-    aboutToShowSkillsPerksAndTalentsMenu();
-    mSkillMenuDialog->open();
-#else
-    Ui->skillstalentsandperksMenu->exec(mapToGlobal(pos + Ui->skillstalentsandperks->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+    skillMenuDialog->open();
+    Ui->skillstalentsandperksMenu->exec(mapToGlobal(pos + Ui->image->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
 #endif
 }
 
