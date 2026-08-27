@@ -6,7 +6,7 @@
 #include "sheet.h"
 
 PrintDialog::PrintDialog(QWidget *parent) :
-    QDialog(parent),
+    Dialog(parent),
     ui(new Ui::PrintDialog) {
     ui->setupUi(this);
 

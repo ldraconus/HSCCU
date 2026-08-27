@@ -519,7 +519,7 @@ Sheet::Sheet(QWidget *parent)
 #ifndef __wasm__
 #ifdef Q_OS_ANDROID
     connect(qApp, &QGuiApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) { if (state == Qt::ApplicationSuspended) saveRecoveryState(); });
-#endif
+    recoverState();
 #else
     QStringList args = qApp->arguments(); // NOLINT
     if (args.count() > 1) {
@@ -534,6 +534,7 @@ Sheet::Sheet(QWidget *parent)
         }
     }
 #endif
+#endif
 }
 
 Sheet::~Sheet() {
@@ -541,6 +542,8 @@ Sheet::~Sheet() {
     // Ui's contents are pointed to by ui->label, don't delete it (double deletes)!
     // Don't worry, the delete of ui->label delete everything Ui points to as well.
 }
+
+Sheet::Dialogs Sheet::sDialog{};
 
 // --- [EVENT FILTER] ----------------------------------------------------------------------------------
 
@@ -571,9 +574,9 @@ void Sheet::closeDialogs(QMouseEvent* me) {
 #endif
     if (sDialog.Print             != nullptr) closeDialog(sDialog.Print,             me);
     if (sDialog.Option            != nullptr) closeDialog(sDialog.Option,            me);
-    if (sDialog.Complications     != nullptr) closeDialog(sDialog.Complications,     me);
-    if (sDialog.Power             != nullptr) closeDialog(sDialog.Power,             me);
-    if (sDialog.Skill             != nullptr) closeDialog(sDialog.Skill,             me);
+    if (sDialog.Complications     != nullptr) { closeDialog(sDialog.Complications,   me); sDialog.Complications = nullptr; }
+    if (sDialog.Power             != nullptr) { closeDialog(sDialog.Power,           me); sDialog.Power         = nullptr; }
+    if (sDialog.Skill             != nullptr) { closeDialog(sDialog.Skill,           me); sDialog.Skill         = nullptr; }
 }
 
 void Sheet::mousePressEvent(QMouseEvent* me) {
@@ -648,6 +651,7 @@ void Sheet::addPower(shared_ptr<Power> power) {
     updatePower(power);
     updateDisplay();
     mChanged = true;
+    sDialog.Power = nullptr;
 }
 
 void Sheet::fixButtonBox(QDialogButtonBox *bb) {
@@ -1621,7 +1625,7 @@ void Sheet::rebuildBasicManeuvers(QFont& font) {
                                                   { "Grab By",      "½†",    "-3",    "-4",  "Move&Grab;+(ͮ⁄₁₀) STR~%1%2%3%4%5%6"      },
                                                   { "Haymaker",     "½*",    "+0",    "-5",  "+4 DCs to attack~%1%2%3%4%5%6"           },
                                                   { "Move By",      "½†",    "-2",    "-2",  "(%2+ͮ⁄₁₀)d6; take ⅓~%1%2%3%4%5%6"        }, // STR/2 noD6
-#if defined(__wasm__) || defined(unix)
+#if (defined(__wasm__) || defined(unix)) && !defined(Q_OS_ANDROID)
                                                   { "Move Thru",    "½†",    "-ͮ⁄₁₀", "-3",  "(%3+ͮ⁄₆)d6; take ½ or all~%1%2%3%4%5%6"  }, // STR noD6
                                                   { "Mult.Attx",    "1",     "var",   "½",   "Attack multiple times~%1%2%3%4%5%6"      },
 #else
@@ -1679,7 +1683,6 @@ void Sheet::rebuildMartialArts() {
         }
     }
     man->resizeRowsToContents();
-    for (int i = 1; i < man->columnCount(); ++i) man->resizeColumnToContents(i - 1);
 }
 
 void Sheet::rebuildMoveFromPowers(QList<shared_ptr<Power>>& list,
@@ -1843,14 +1846,53 @@ void Sheet::rebuildSenses() {
     Ui->enhancedandunusualsenses->setText(senses);
 }
 
+bool Sheet::recoverSession(QJsonDocument& json) {
+    // if the file does not exist: return false
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(path);
+    QString stateFile(path + "/HSCCU.state");
+
+    QFile file(stateFile);
+    if (!file.exists()) return false;
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+
+    QByteArray data(file.readAll());
+    file.close();
+    QDir().remove(stateFile);
+
+    QString jsonStr(data);
+    json = QJsonDocument::fromJson(jsonStr.toUtf8());
+    return true;
+}
+
+void Sheet::recoverState() {
+    QJsonDocument inState;
+    if (!recoverSession(inState)) return;
+    if (!inState.isObject()) return;
+    QJsonObject state(inState.object());
+
+    if (!state.contains("character") || !state["character"].isObject()) return;
+    if (!state.contains("filename") || !state["filename"].isString()) return;
+    if (!state.contains("dirty") || !state["dirty"].isBool()) return;
+    QJsonDocument character;
+    character.setObject(state["character"].toObject());
+    mCharacter.fromJson(mOption, character);
+    mFilename = state["filename"].toString();
+    mChanged = state["dirty"].toBool();
+         if (state.contains("power") && state["power"].isObject())                 state["power"].toObject(); //
+    else if (state.contains("complications") && state["complications"].isObject()) state["complications"].toObject(); //
+    else if (state.contains("skill") && state["skill"].isObject())                 state["skill"].toObject(); //
+}
+
 void Sheet::saveRecoveryState() {
     QJsonObject state;
 
     state["character"]  = mCharacter.toJson(mOption).object();
     state["filename"]   = mFilename;
     state["dirty"]      = mChanged;
-    // determine what they were doing and restore that: dialog not-null, get the dialog's state in json (easy, just call the underlying object being constructed and get the json from that, any sub-dialogs are that dialogs responsibility to save the state of.
-    // only one dialog can be active at a time, so that's nice.
+         if (sDialog.Power)         state["power"]         = sDialog.Power->powerorequipment()->toJson();
+    else if (sDialog.Complications) state["complications"] = sDialog.Complications->complication()->toJson();
+    else if (sDialog.Skill)         state["skill"]         = sDialog.Skill->skilltalentorperk()->toJson();
 
     saveSession(state);
 }
@@ -2700,7 +2742,7 @@ void Sheet::stpMenu(bool) {
 
 void Sheet::compMenu(bool) {
     closeDialogs(nullptr);
-    auto compMenuDialog = (sDialog.ComplicationsMenu = make_shared<ComplicationsMenuDialog>());
+    auto compMenuDialog = (sDialog.ComplicationsMenu = std::make_shared<ComplicationsMenuDialog>());
     aboutToShowComplicationsMenu();
     compMenuDialog->setPos(QPoint());
     compMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -2746,7 +2788,7 @@ void Sheet::hairColorChanged(QString txt) {
 void Sheet::imageMenu(QPoint pos) {
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
     closeDialogs(nullptr);
-    auto imgMenuDialog = (sDialog.ImgMenu = make_shared<ImgMenuDialog>());
+    auto imgMenuDialog = (sDialog.ImgMenu = std::make_shared<ImgMenuDialog>());
     imgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     imgMenuDialog->setPos(pos);
     imgMenuDialog->open();
@@ -2849,9 +2891,10 @@ void Sheet::acceptComplication() {
 
     updateDisplay();
     mChanged = true;
+    sDialog.Complications = nullptr;
 }
 
-void Sheet::newComplication() {
+void Sheet:: newComplication() {
     auto compDlg = (sDialog.Complications = std::make_shared<ComplicationsDialog>(this));
     connect(compDlg.get(), SIGNAL(accepted()), this, SLOT(acceptComplication()));
 
@@ -2900,6 +2943,7 @@ void Sheet::acceptNewSkill() {
 
     updateDisplay();
     mChanged = true;
+    sDialog.Skill = nullptr;
 }
 
 void Sheet::newSkillTalentOrPerk() {

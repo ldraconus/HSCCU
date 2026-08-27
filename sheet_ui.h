@@ -307,13 +307,139 @@ private:
     static constexpr double Points = 72.0;
     static constexpr double Half   = 0.5;
 
-    ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
-                                      QString w, bool selectable = false, bool label = true) {
+    struct ColumnHeader {
+        int width;
+        QString header;
+    };
+
+    ClickableTable* createTableWidget(QWidget* parent, QFont& font, const QList<ColumnHeader>& headers, QList<QStringList> vals, At p, Size s,
+                                      QString w = "", bool selectable = false, bool label = true) {
         ClickableTable* tablewidget = new ClickableTable(parent);
         tablewidget->setWordWrap(true);
         tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         QFontMetrics metrics(font);
+        int pnt = font.pointSize();
+        int sz = metrics.lineSpacing();
+#ifdef __wasm__
+        QFont temp = font;
+        temp.setPointSize(pnt * 8 + 0.5); // NOLINT
+        tablewidget->setFont(temp);
+#else
+        tablewidget->setFont(font);
+#endif
+        auto verticalHeader = tablewidget->verticalHeader();
+        verticalHeader->setVisible(false);
+        verticalHeader->setMinimumSectionSize(sz);
+        verticalHeader->setMaximumSectionSize(selectable ? s.l() : sz);
+        verticalHeader->setDefaultSectionSize(sz);
+        verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
+        auto horizontalHeader = tablewidget->horizontalHeader();
+        horizontalHeader->setStretchLastSection(true);
+        horizontalHeader->setMaximumSectionSize(s.l());
+        horizontalHeader->setDefaultSectionSize(10); // NOLINT
+        horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
+        horizontalHeader->setMaximumSize(s.l(), sz);
+        tablewidget->setSelectionMode(selectable ? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
+        tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+        QString family = font.family();
+        if (selectable)
+            tablewidget->setStyleSheet("QTableWidget { selection-color: black;"
+                                       "   selection-background-color: darkcyan;"
+                                       "   gridline-color: cyan;"
+                                       "   background-color: cyan;"
+                                       "   border: 1px cyan;"
+                                       "   border-style: none;"
+                                       + QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
+                                       "   color: black;"
+                                       " } "
+                                       "QHeaderView::section { background-color: white;"
+                                       "   border-style: none;"
+                                       "   color: black;" +
+                                       QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
+                                       " } "
+                                       "QTableWidget::item:selected { background: darkcyan; "
+                                       "   color: black; "
+                                       "   border: 1px darkcyan; "
+                                       "   border-style: none; "
+                                       "} "
+                                       "QToolTip { border: 1px solid #555555;"
+                                       "           padding: 3px;"
+                                       "           background-color: #333333;"
+                                       "           color: #ffffff;"
+                                       "}");
+        else
+            tablewidget->setStyleSheet("QTableWidget { selection-color: transparent;"
+                                       "   selection-background-color: transparent;"
+                                       "   gridline-color: transparent;"
+                                       "   border: 1px transparent;;"
+                                       "   border-style: none;"
+                                       "   background-color: transparent;"
+                                       "   color: black;" +
+                                       QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
+                                       " } "
+                                       "QHeaderView::section { background-color: white;"
+                                       "   border-style: none;"
+                                       "   color: black;" +
+                                       QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
+                                       " }"
+                                       "QToolTip { border: 1px solid #555555;"
+                                       "           padding: 3px;"
+                                       "           background-color: #333333;"
+                                       "           color: #ffffff;"
+                                       "}");
+        tablewidget->setColumnCount(int(headers.size()));
+        tablewidget->setRowCount(int(vals.size()));
+        QStringList textHeaders;
+        int i = 0;
+        for (const auto& hdr: std::as_const(headers)) {
+            textHeaders.append(hdr.header.trimmed());
+            tablewidget->setColumnWidth(i, hdr.width);
+            ++i;
+        }
+        tablewidget->setHorizontalHeaderLabels(textHeaders);
+        for (int i = 0; i < vals.size(); ++i) {
+            for (int j = 0; j < vals[i].size(); ++j) {
+                QTableWidgetItem* lbl = new QTableWidgetItem(vals[i][j]);
+                lbl->setFont(font);
+                lbl->setBackground(QBrush(Qt::transparent));
+                lbl->setForeground(Qt::black);
+                lbl->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
+                if (selectable) lbl->setFlags(Qt::ItemIsSelectable);
+                else lbl->setFlags(Qt::NoItemFlags);
+                tablewidget->setItem(i, j, lbl);
+            }
+        }
+        tablewidget->setToolTip(w);
+        moveTo(tablewidget, p, s);
+        for (int i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
+#ifdef __wasm__
+        for (int i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
+#else
+        int total = 0;
+        for (int i = 1; i < tablewidget->columnCount(); ++i) total += tablewidget->columnWidth(i - 1);
+        tablewidget->setColumnWidth(int(headers.size()) - 1, s.l() - total);
+#endif
+        widgets.append(tablewidget);
+
+        return tablewidget;
+    }
+
+    ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
+                                      QString w, bool selectable = false, bool label = true) {
+        QList<ColumnHeader> tableHeaders;
+        QFontMetrics metrics(font);
+        int col = 0;
+        for (const auto& hdr: std::as_const(headers)) {
+            col = metrics.horizontalAdvance(hdr);
+            tableHeaders.append({ col, hdr.trimmed() });
+        }
+        return createTableWidget(parent, font, tableHeaders, vals, p, s, w, selectable, label);
+#ifdef NOTDEF
+        ClickableTable* tablewidget = new ClickableTable(parent);
+        tablewidget->setWordWrap(true);
+        tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         int pnt = font.pointSize();
         int sz = metrics.lineSpacing();
 #ifdef __wasm__
@@ -415,6 +541,7 @@ private:
         widgets.append(tablewidget);
 
         return tablewidget;
+#endif
     }
 
     QTextEdit* createTextEdit(QWidget* parent, QFont& font, QString val, At p, Size s) {
@@ -646,16 +773,19 @@ public:
     static constexpr int TinyFontSize = 10;
 #if defined(Q_OS_ANDROID)
     static constexpr int SmallFontPointSize = 8;
-    static constexpr int LargeBoldFontSize = 18;
+    static constexpr int LargeBoldFontSize = 16;
     static constexpr int HeaderFontSize    = 14;
+    static constexpr int TableFontSize     = 12;
 #elif defined(unix)
     static constexpr int SmallFontPointSize = 7;
     static constexpr int LargeBoldFontSize = 16;
     static constexpr int HeaderFontSize    = 14;
+    static constexpr int TableFontSize     = StandardFontSize;
 #else
     static constexpr int SmallFontPointSize = 8;
     static constexpr int LargeBoldFontSize = 15;
     static constexpr int HeaderFontSize    = 14;
+    static constexpr int TableFontSize     = StandardFontSize;
 #endif
 
     void setupUi(QWidget* widget, QWidget* hidden) {
@@ -692,10 +822,18 @@ public:
         headerFont = largeBoldFont;
         headerFont.setPointSize(HeaderFontSize);
         headerFont.setStretch(QFont::Stretch::SemiCondensed);
+#elif defined(Q_OS_ANDROID)
+        headerFont = largeBoldFont;
+        headerFont.setPointSize(HeaderFontSize);
+        headerFont.setStretch(QFont::Stretch::SemiCondensed);
+#else
+        headerFont = largeBoldFont;
+        headerFont.setPointSize(HeaderFontSize);
+        headerFont.setStretch(QFont::Stretch::SemiCondensed);
 #endif
 
         QFont tableFont = font;
-        tableFont.setPointSize(StandardFontSize);
+        tableFont.setPointSize(TableFontSize);
         tableFont.setStretch(QFont::Stretch::SemiCondensed);
 
         QFont narrow = font;
@@ -745,7 +883,7 @@ public:
 
         banner1 = createImage(widget, { 654, 76 } , { 293, 109 }, ":/gfx/HeroSystem-Banner.png", false); // NOLINT
 
-#if defined(unix) && ! defined(Q_OS_ANDROID)
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "CHARACTERISTICS", { 149, 197 }, { 175, 17 }); // NOLINT
 #elif defined(Q_OS_ANDROID)
         createLabel(widget, headerFont, "CHARACTERISTICS", { 129, 195 }, { 175, 20 }); // NOLINT
@@ -819,7 +957,7 @@ public:
         createLabel(widget, smallBoldFont, "Total Cost", { 276, 631 }, { 75, 22 }); // NOLINT
         totalcost  = createLabel(widget, font,   "0", { 276, 657 }, { 75, 20 }); // NOLINT
 
-#if defined(unix) && ! defined(Q_OS_ANDROID)
+#if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "CURRENT STATUS", { 455, 197 }, { 135, 17 }); // NOLINT
 #elif defined(Q_OS_ANDROID)
         createLabel(widget, headerFont, "CURRENT STATUS", { 435, 195 }, { 175, 20 }); // NOLINT
@@ -923,11 +1061,11 @@ public:
         createLabel(widget, smallNarrowFont, "Movement SFX", { 678, 420 }, { 100, 22 }); // NOLINT
 
         movement    = createTableWidget(widget, narrowTableFont,
-                                        {   "Type",           "Combat ", "Non-Combat" },
-                                        { { "Run (12m)  ",    "12m",     "24m" },
-                                          { "Swim (4m)  ",    "4m",       "8m" },
-                                          { "H. Leap (4m)  ", "4m",       "8m" },
-                                          { "V. Leap (2m)  ", "2m",       "4m" } }, { 675, 225 }, { 260, 195 }); // NOLINT
+                                        { { 97, "Type" }, { 73, "Combat" }, { 89, "Non-Combat" } },
+                                        { { "Run (12m)",    "12m",           "24m" },
+                                          { "Swim (4m)",    "4m",            "8m" },
+                                          { "H. Leap (4m)", "4m",            "8m" },
+                                          { "V. Leap (2m)", "2m",            "4m" } }, { 675, 225 }, { 260, 195 }); // NOLINT
         movementsfx = createLabel(widget, font, "", { 775, 423 }, 20); // NOLINT
 
 #if defined(unix) && !defined(Q_OS_ANDROID)
@@ -967,31 +1105,27 @@ public:
         createLabel(widget, headerFont, "ATTACKS & MANEUVERS", { 103, 711 }, { 230, 20 }); // NOLINT
 #endif
         attacksandmaneuvers = createTableWidget(widget, smallfont,
+                                                { { 65, "Maneuver" }, { 34, "Phase" }, { 28, "OCV" }, { 26, "DCV" }, { 135, "Effects" } },
+                                                { { "Block",            "½",             "+0",          "+0",          "Block, abort"              },
+                                                  { "Brace",            "0",             "+2",          "½",           "+2 OCV vs R Mod"           },
+                                                  { "Disarm",           "½",             "-2",          "+0",          "Disarm, 10 v. STR"         },
+                                                  { "Dodge",            "½",             "——",          "+3",          "Abort vs. all attacks"     },
+                                                  { "Grab",             "½",             "-1",          "-2",          "Grab 2 limbs"              },
+                                                  { "Grab By",          "½†",            "-3",          "-4",          "Move&Grab;+(ͮ⁄₁₀) STR"     },
+                                                  { "Haymaker",         "½*",            "+0",          "-5",          "+4 DCs to attack"          },
+                                                  { "Move By",          "½†",            "-2",          "-2",          "(1+ͮ⁄₁₀)d6; take ⅓"        },
 #if (defined(__wasm__) || defined(unix)) && !defined(Q_OS_ANDROID)
-                                                {   "Manuvr",       "Phase", "OCV",   "DCV", "Effects" },
+                                                  { "Move Thru",        "½†",            "-ͮ⁄₁₀",       "-3",          "(2+ͮ⁄₆)d6; take ½ or all"  },
+                                                  { "Mult.Attx",        "1",             "var",         "½",           "Attack multiple times"     },
 #else
-                                                {   "Maneuver",     "Phase", "OCV",   "DCV", "Effects" },
+                                                  { "Move Through",     "½†",            "-ͮ⁄₁₀",       "-3",         "(2+ͮ⁄₆)d6; take ½ or all"  },
+                                                  { "Multiple Attacks", "1",             "var",         "½",          "Attack multiple times"     },
 #endif
-                                                { { "Block",        "½",     "+0",    "+0",  "Block, abort"              },
-                                                  { "Brace",        "0",     "+2",    "½",   "+2 OCV vs R Mod"           },
-                                                  { "Disarm",       "½",     "-2",    "+0",  "Disarm, 10 v. STR"         },
-                                                  { "Dodge",        "½",     "——",    "+3",  "Abort vs. all attacks"     },
-                                                  { "Grab",         "½",     "-1",    "-2",  "Grab 2 limbs"              },
-                                                  { "Grab By",      "½†",    "-3",    "-4",  "Move&Grab;+(ͮ⁄₁₀) STR"     },
-                                                  { "Haymaker",     "½*",    "+0",    "-5",  "+4 DCs to attack"          },
-                                                  { "Move By",      "½†",    "-2",    "-2",  "(1+ͮ⁄₁₀)d6; take ⅓"        },
-#if (defined(__wasm__) || defined(unix)) && !defined(Q_OS_ANDROID)
-                                                  { "Move Thru",    "½†",    "-ͮ⁄₁₀", "-3",  "(2+ͮ⁄₆)d6; take ½ or all"  },
-                                                  { "Mult.Attx",    "1",     "var",   "½",   "Attack multiple times"     },
-#else
-                                                  { "Move Through",     "½†", "-ͮ⁄₁₀", "-3", "(2+ͮ⁄₆)d6; take ½ or all"  },
-                                                  { "Multiple Attacks", "1",  "var",   "½",  "Attack multiple times"     },
-#endif
-                                                  { "Set",          "1",     "+1",    "+0",  "Ranged attacks only"       },
-                                                  { "Shove",        "½",     "-1",    "-1",  "Push 2m"                   },
-                                                  { "Strike",       "½",     "+0",    "+0",  "2d6 or weapon"             },
-                                                  { "Throw",        "½",     "+0",    "+0",  "Throw w/2d6 dmg"           },
-                                                  { "Trip",         "½",     "-1",    "-2",  "Knock target prone"        }
+                                                  { "Set",              "1",             "+1",          "+0",          "Ranged attacks only"       },
+                                                  { "Shove",            "½",             "-1",          "-1",          "Push 2m"                   },
+                                                  { "Strike",           "½",             "+0",          "+0",          "2d6 or weapon"             },
+                                                  { "Throw",            "½",             "+0",          "+0",          "Throw w/2d6 dmg"           },
+                                                  { "Trip",             "½",             "-1",          "-2",          "Knock target prone"        }
                                                 }, { 69, 739 }, { 295, 495 }); // NOLINT
 
 #if defined(unix) && !defined(Q_OS_ANDROID)
@@ -1004,14 +1138,14 @@ public:
 #endif
 
         defenses = createTableWidget(widget, narrowTableFont,
-                                     {   "Type", "Amount/Effect" },
-                                     { { "Normal PD ",      "2" },
-                                       { "Resistant PD ",   "0" },
-                                       { "Normal ED ",      "2" },
-                                       { "Resistant ED ",   "0" },
-                                       { "Mental Defense ", "0" },
-                                       { "Power Defense ",  "0" },
-                                       { "Flash Defense ",  "0" } }, { 392, 739 }, { 249, 270 }); // NOLINT
+                                     { { 108, "Type" },   { 142, "Amount/Effect" } },
+                                     { { "Normal PD",      "2" },
+                                       { "Resistant PD",   "0" },
+                                       { "Normal ED",      "2" },
+                                       { "Resistant ED",   "0" },
+                                       { "Mental Defense", "0" },
+                                       { "Power Defense",  "0" },
+                                       { "Flash Defense",  "0" } }, { 392, 739 }, { 249, 270 }); // NOLINT
 
 #if defined(unix) && !defined(Q_OS_ANDROID)
         createLabel(widget, smallBoldWideFont, "SENSES", { 490, 1039 }, { 65, 17 }); // NOLINT
@@ -1090,8 +1224,8 @@ public:
         createLabel(widget, headerFont, "SKILLS, PERKS, & TALENTS", { 83, 1494 }, { 250, 20 }); // NOLINT
 #endif
         createLabel(widget, smallBoldNarrowFont, "Total Skills,Perks, & Talents Cost", { 112, 2057 }, { 220, 22 }); // NOLINT
-        skillstalentsandperks         = createTableWidget(widget, tableFont, { "Cost", "Name                        ", "Roll" },
-                                                          { }, { 73, 1521 }, { 265, 535 }, "Things your character is skilled at or has a gift for", Selectable); // NOLINT
+        skillstalentsandperks         = createTableWidget(widget, tableFont, { { 42, "Cost" }, { 179, "Name" }, { 38, "Roll" } },
+                                                  { }, { 73, 1521 }, { 265, 535 }, "Things your character is skilled at or has a gift for", Selectable); // NOLINT
         totalskillstalentsandperkscost = createLabel(widget, font, "0", { 73, 2058 }, { 40, 20 }); // NOLINT
         skillstalentsandperksMenu      = createMenu(skillstalentsandperks, font, { { "New",       &newSkillTalentOrPerk },
                                                                                    { "Edit",      &editSkillTalentOrPerk },
@@ -1113,7 +1247,7 @@ public:
         createLabel(widget, headerFont, "COMPLICATIONS", { 123, 2102 }, { 175, 20 }); // NOLINT
 #endif
         createLabel(widget, smallBoldNarrowFont, "Total Complications Points", { 117, 2512 }, { 200, 22 }); // NOLINT
-        complications        = createTableWidget(widget, tableFont, { "Pts   ", "Complication" },
+        complications        = createTableWidget(widget, tableFont, { { 41, "Pts" }, { 221, "Complication" } },
                                                  { }, { 73, 2130 }, { 265, 383 }, "The things that make life difficult for your character", Selectable); // NOLINT
         totalcomplicationpts = createLabel(widget, font, "0/75", { 73, 2513 }, { 45, 20 }); // NOLINT
         complicationsMenu    = createMenu(complications, font, { { "New",       &newComplication },
@@ -1137,14 +1271,9 @@ public:
 #endif
         createLabel(widget, smallBoldNarrowFont, "Total Powers/Equipment Cost", { 410, 2510 }, { 300, 22 }); // NOLINT
 
+        QFontMetrics metrics(tableFont);
         powersandequipment          = createTableWidget(widget, tableFont,
-                                                        { "Cost", "Name              ",
-#if defined(unix) && !defined(Q_OS_ANDROID)
-                                                          "Power/Equipment                                    ",
-#else
-                                                          "Power/Equipment                                            ",
-#endif
-                                                          "END" },
+                                                        { { 43, "Cost" }, { 107, "Name" }, { 378, "Power/Equipment" }, { 42, "END" } },
                                                         { }, { 367, 1522 }, { 570, 991 }, "Special powers and equipment for your character", Selectable); // NOLINT
         totalpowersandequipmentcost = createLabel(widget, font, "0", { 367, 2511 }, { 40, 20 }); // NOLINT
         powersandequipmentMenu      = createMenu(powersandequipment, font, { { "New",       &newPowerOrEquipment },

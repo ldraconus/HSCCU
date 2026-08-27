@@ -6,13 +6,14 @@
 #include <QPrintPreviewWidget>
 #include <QPrinterInfo>
 
+#include "dialog.h"
 #include "printer.h"
 
 namespace Ui {
 class PrintDialog;
 }
 
-class PrintDialog : public QDialog {
+class PrintDialog : public Dialog {
     Q_OBJECT
 
 public:

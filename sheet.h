@@ -281,6 +281,8 @@ private:
     void               rebuildPowers(bool);
     void               rebuildSenseFromPowers(QList<shared_ptr<Power>>&, QString&);
     void               rebuildSenses();
+    bool               recoverSession(QJsonDocument& json);
+    void               recoverState();
 #ifdef __wasm__
     void               removeMenuButtons();
 #endif
