@@ -10,7 +10,7 @@
 
 class Dependent: public Complication {
 public:
-    Dependent(): Complication() { }
+    Dependent(): Complication() {id({ }); }
     Dependent(const Dependent& ac)
         : Complication()
         , v(ac.v) { }
@@ -24,14 +24,16 @@ public:
             , json["multiples"].toInt(0)
             , json["unaware"].toBool(false)
             , json["useful"].toBool(false)
-            , json["who"].toString("") } { }
+            , json["who"].toString("") } { id(json); }
     ~Dependent() override { }
 
     Dependent& operator=(const Dependent& ac) {
+        Complication::operator=(d);
         if (this != &ac) v = ac.v;
         return *this;
     }
     Dependent& operator=(Dependent&& ac) {
+        Complication::operator=(std::move(d));
         v = ac.v;
         return *this;
     }
@@ -100,6 +102,7 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]         = mGuid;
         obj["name"]       = "Dependent NPC";
         obj["competence"] = v.mCompetence;
         obj["frequency"]  = v.mFrequency;

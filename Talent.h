@@ -7,24 +7,28 @@
 
 class Talent: public SkillTalentOrPerk {
 public:
-    Talent(): SkillTalentOrPerk() { }
+    Talent(): SkillTalentOrPerk() { id({ }); }
     Talent(QString name)
-        : v { name } { }
+        : v { name } { id({ }); }
     Talent(const Talent& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     Talent(Talent&& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     Talent(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { }
+        , v { json["name"].toString("") } { id(json); }
 
     virtual Talent& operator=(const Talent& s) {
-        if (this != &s) v = s.v;
+        if (this != &s) {
+            mGuid = s.mGuid;
+            v = s.v;
+        }
         return *this;
     }
     virtual Talent& operator=(Talent&& s) {
+        mGuid =s.mGuid;
         v = s.v;
         return *this;
     }
@@ -34,13 +38,14 @@ public:
     QString description(bool showRoll = false) override { return v._name + (showRoll ? "" : ""); }
     bool    form(QWidget*, QVBoxLayout*) override       { return false; }
     QString name() override                             { return v._name; }
-    Points points(bool noStore = false) override        { if (!noStore) store(); return 0_cp; }
+    Points  points(bool noStore = false) override       { if (!noStore) store(); return 0_cp; }
     void    restore() override                          { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
 
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]   = mGuid;
         obj["name"] = v._name;
         return obj;
     }

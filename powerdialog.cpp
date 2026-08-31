@@ -1,6 +1,6 @@
 #include "powerdialog.h"
-#include "ui_powerdialog.h"
 #include "sheet.h"
+#include "ui_powerdialog.h"
 
 #include "modifiersdialog.h"
 
@@ -64,6 +64,23 @@ PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
 
 PowerDialog::~PowerDialog() {
     delete ui;
+}
+
+void PowerDialog::restore(const QJsonObject& json) {
+    if (json.contains("saved")) {
+    //   get the power with that index
+    //   set it as save
+    } else {
+    //   set up the dummy power
+    }
+    std::shared_ptr<Power> power = Power::FromJson(json["name"].toString(), json);
+    powerorequipment(power);
+}
+
+QJsonObject PowerDialog::save() {
+    QJsonObject json = mPower->toJson();
+    if (mSaved != nullptr) json["index"] = dynamic_cast<AllPowers*>(mPower.get())->id();
+    return json;
 }
 
 QMenu* PowerDialog::createMenu(QWidget* parent, const QFont& font, QList<menuItems> items) {
@@ -599,7 +616,6 @@ void PowerDialog::ok() {
         s.addPower(work);
     } else {
         setupPower(mSaved);
-        _dummy.reset(new Power);
         _dummy = nullptr;
     }
 

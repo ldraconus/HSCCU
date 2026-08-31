@@ -5,25 +5,29 @@
 
 class CombatSkills: public SkillTalentOrPerk {
 public:
-    CombatSkills(): SkillTalentOrPerk() { }
+    CombatSkills(): SkillTalentOrPerk() { id({ }); }
     CombatSkills(QString name)
-        : v { name } { }
+        : v { name } { id({ }); }
     CombatSkills(const CombatSkills& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     CombatSkills(CombatSkills&& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     CombatSkills(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { }
+        , v { json["name"].toString("") } { id(json); }
     ~CombatSkills() override { }
 
     CombatSkills& operator=(const CombatSkills& s) {
-        if (this != &s) v = s.v;
+        if (this != &s) {
+            mGuid = s.mGuid;
+            v = s.v;
+        }
         return *this;
     }
     CombatSkills& operator=(CombatSkills&& s) {
+        mGuid = s.mGuid;
         v = s.v;
         return *this;
     }
@@ -40,6 +44,7 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]   = mGuid;
         obj["name"] = v.mName;
         return obj;
     }

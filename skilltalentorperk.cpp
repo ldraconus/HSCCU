@@ -268,7 +268,7 @@ bool SkillTalentOrPerk::isNumber(QString txt) {
 }
 
 void SkillTalentOrPerk::callback(QCheckBox* checkBox) {
-    _sender = checkBox;
+    mSender = checkBox;
     auto f = mCallbacksCB.find(checkBox);
     if (f == mCallbacksCB.end()) return;
     auto function = f.value();
@@ -276,7 +276,7 @@ void SkillTalentOrPerk::callback(QCheckBox* checkBox) {
 }
 
 void SkillTalentOrPerk::callback(QLineEdit* edit) {
-    _sender = edit;
+    mSender = edit;
     auto f = mCallbacksEdit.find(edit);
     if (f == mCallbacksEdit.end()) return;
     auto function = f.value();
@@ -470,7 +470,7 @@ shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::ByName(QString name) {
 }
 
 shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::FromJson(QString name, const QJsonObject& json) {
-    if (sSkills.find(name) != sSkills.end()) return sSkills[name]->create(json);
+    if (sSkills.find(name) != sSkills.end()) { auto x = sSkills[name]->create(json); x->guid(json); return x; }
     else if (sTalents.find(name) != sTalents.end()) return sTalents[name]->create(json);
     else if (sPerks.find(name) != sPerks.end()) return sPerks[name]->create(json);
     else if (sEnhancers.find(name) != sEnhancers.end()) return sEnhancers[name]->create(json);

@@ -27,6 +27,9 @@ public:
     PowerDialog& operator=(const PowerDialog&) = delete;
     PowerDialog& operator=(PowerDialog&&) = delete;
 
+    void restore(const QJsonObject& json) override;
+    QJsonObject save() override;
+
     QTableWidget* createAdvantages(QWidget* parent, QVBoxLayout* layout);
     QTableWidget* createLimitations(QWidget* parent, QVBoxLayout* layout);
 

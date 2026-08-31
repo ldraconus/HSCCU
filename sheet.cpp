@@ -1879,9 +1879,19 @@ void Sheet::recoverState() {
     mCharacter.fromJson(mOption, character);
     mFilename = state["filename"].toString();
     mChanged = state["dirty"].toBool();
-         if (state.contains("power") && state["power"].isObject())                 state["power"].toObject(); //
-    else if (state.contains("complications") && state["complications"].isObject()) state["complications"].toObject(); //
-    else if (state.contains("skill") && state["skill"].isObject())                 state["skill"].toObject(); //
+    if (state.contains("power") && state["power"].isObject()) {
+        sDialog.Power = std::make_shared<PowerDialog>(this);
+        sDialog.Power->restore(state["power]"].toObject());
+        sDialog.Power->open();
+    } else if (state.contains("complications") && state["complications"].isObject()) {
+        sDialog.Complications = std::make_shared<ComplicationsDialog>(this);
+        sDialog.Complications->restore(state["complications"].toObject());
+        sDialog.Complications->open();
+    } else if (state.contains("skill") && state["skill"].isObject()) {
+        sDialog.Skill = std::make_shared<SkillDialog>(this);
+        sDialog.Skill->restore(state["skill"].toObject());
+        sDialog.Skill->open();
+    }
 }
 
 void Sheet::saveRecoveryState() {
@@ -2669,8 +2679,7 @@ void Sheet::editPowerOrEquipment() {
     if (work == nullptr) return;
 
     work->parent(power->parent());
-    auto powerDlg = (sDialog.Power = std::make_shared<PowerDialog>());
-    powerDlg = make_shared<PowerDialog>(this, power);
+    auto powerDlg = (sDialog.Power = std::make_shared<PowerDialog>(this, power));
     powerDlg->powerorequipment(work);
     powerDlg->open();
 }

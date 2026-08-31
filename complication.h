@@ -15,28 +15,35 @@
 
 class Complication {
 protected:
-    QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (Complication::*)(bool)>);
+    using BoolCallback   = std::function<void (Complication*, bool)>;
+    using IntCallback    = std::function<void (Complication*, int)>;
+    using StringCallback = std::function<void (Complication*, QString)>;
+
+    QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString, BoolCallback);
     QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString);
-    QComboBox* createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, std::_Mem_fn<void (Complication::*)(int)>);
+    QComboBox* createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, IntCallback);
     QComboBox* createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
     QLabel*    createLabel(QWidget*, QVBoxLayout*, QString);
-    QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (Complication::*)(QString)> callback);
+    QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, StringCallback);
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString);
 
 private:
-    QMap<QCheckBox*, std::_Mem_fn<void (Complication::*)(bool)>>     mCallbacksCB;
-    QMap<QComboBox*, std::_Mem_fn<void (Complication::*)(int)>>      mCallbacksCBox;
-    QMap<QLineEdit*, std::_Mem_fn<void (Complication::*)(QString)>>  mCallbacksEdit;
-    void empty(bool)      { }
+    QMap<QCheckBox*, BoolCallback>   mCallbacksCB;
+    QMap<QComboBox*, IntCallback>    mCallbacksCBox;
+    QMap<QLineEdit*, StringCallback> mCallbacksEdit;
+
+    void empty(bool) { }
 
 public:
-    Complication() { }
-    Complication(const Complication&) { }
-    Complication(const Complication&&) { }
+    Complication() { id({ }); }
+    Complication(const Complication& c)
+        : mGuid(c.mGuid) { }
+    Complication(const Complication&&c)
+        : mGuid(c.mGuid) { }
     virtual ~Complication() { }
 
-    Complication& operator=(const Complication&) { return *this; }
-    Complication& operator=(Complication&&)      { return *this; }
+    Complication& operator=(const Complication& c) { mGuid = c.mGuid; return *this; }
+    Complication& operator=(Complication&& c)      { mGuid = c.mGuid; return *this; }
 
     static const bool NoStore = true;
 
@@ -60,21 +67,26 @@ public:
     static shared_ptr<Complication> FromJson(QString, const QJsonObject&);
 
     bool isNumber(QString);
+
+protected:
+    QString mGuid;
+
+    void id(const QJsonObject& json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid().toString(QUuid::WithoutBraces); }
 };
 
 class BlankComp: public Complication {
 public:
     BlankComp(): Complication() { }
-    BlankComp(const BlankComp&)
-        : Complication() { }
-    BlankComp(BlankComp&&)
-        : Complication() { }
-    BlankComp(const QJsonObject&)
-        : Complication() { }
+    BlankComp(const BlankComp& c)
+        : Complication(c) { }
+    BlankComp(BlankComp&& c)
+        : Complication(std::move(c)) { }
+    BlankComp(const QJsonObject& obj)
+        : Complication() { id(obj); }
     ~BlankComp() override { }
 
-    BlankComp& operator=(const BlankComp&) { return *this; }
-    BlankComp& operator=(BlankComp&&)      { return *this; }
+    BlankComp& operator=(const BlankComp& c) { Complication::operator=(c); return *this; }
+    BlankComp& operator=(BlankComp&& c)      { Complication::operator=(std::move(c)); return *this; }
 
     QString description() override               { return "-"; }
     void form(QWidget*, QVBoxLayout*) override   { throw "No Form"; }
@@ -83,6 +95,7 @@ public:
     void store() override                        { }
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]     = mGuid;
         obj["name"]   = "Blank Line";
         return obj;
     }

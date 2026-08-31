@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QJsonObject>
 #include <QObject>
 
 class Dialog: public QDialog {
@@ -8,6 +9,8 @@ class Dialog: public QDialog {
 
 public:
     explicit Dialog(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    virtual void restore(const QJsonObject& json) { }
+    virtual QJsonObject save() { return { }; }
 
 protected:
     void showEvent(QShowEvent *event) override;

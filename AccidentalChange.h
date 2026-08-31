@@ -8,7 +8,7 @@
 
 class AccidentalChange: public Complication {
 public:
-    AccidentalChange(): Complication() { }
+    AccidentalChange(): Complication() { id({ }); }
     AccidentalChange(const AccidentalChange& ac)
         : Complication()
         , v(ac.v) { }
@@ -17,14 +17,16 @@ public:
         , v(ac.v) { }
     AccidentalChange(const QJsonObject& json)
         : Complication()
-        , v { json["circumstance"].toInt(0), json["frequency"].toInt(0), json["what"].toString("") } { }
+        , v { json["circumstance"].toInt(0), json["frequency"].toInt(0), json["what"].toString("") } { id(json); }
     ~AccidentalChange() override { }
 
     AccidentalChange& operator=(const AccidentalChange& ac) {
+        Complication::operator=(ac);
         if (this != &ac) v = ac.v;
         return *this;
     }
     AccidentalChange& operator=(AccidentalChange&& ac) {
+        Complication::operator=(std::move(ac));
         v = ac.v;
         return *this;
     }
@@ -35,11 +37,10 @@ public:
         static QList<QString> freqSans { "Inf.", "Freq.", "Very Freq.", "Always" };
         if (v.mFrequency < 0 || v.mCircumstance  < 0 || v.mWhat.isEmpty()) return "<incomplete>";
 #ifndef ISHSC
-        if (Sheet::ref().getOption().showFrequencyRolls())
-#endif
-            return QString("Acc. Chng: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freq[v.mFrequency]);
-#ifndef ISHSC
+        if (Sheet::ref().getOption().showFrequencyRolls()) return QString("Acc. Chng: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freq[v.mFrequency]);
         else return QString("Acc. Chng: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freqSans[v.mFrequency]);
+#else
+        return QString("Acc. Chng: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freq[v.mFrequency]);
 #endif
     }
     QString description() override {
@@ -48,23 +49,20 @@ public:
         static QList<QString> freqSans { "Infrequently", "Frequently", "Very Frequently", "Always" };
         if (v.mFrequency < 0 || v.mCircumstance  < 0 || v.mWhat.isEmpty()) return "<incomplete>";
 #ifndef ISHSC
-        if (Sheet::ref().getOption().showFrequencyRolls())
-#endif
-            return QString("Accidental Change: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freq[v.mFrequency]);
-#ifndef ISHSC
+        if (Sheet::ref().getOption().showFrequencyRolls()) return QString("Accidental Change: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freq[v.mFrequency]);
         else return QString("Accidental Change: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freqSans[v.mFrequency]);
+#else
+        return QString("Accidental Change: %1 (%2; %3)").arg(v.mWhat, circ[v.mCircumstance], freq[v.mFrequency]);
 #endif
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what          = createLineEdit(parent, layout, "What sets off the change?");
         circumstance  = createComboBox(parent, layout, "How common is the change", { "Uncommmon", "Common", "Very Common" });
 #ifndef ISHSC
-        if (Sheet::ref().getOption().showFrequencyRolls())
-#endif
-            frequency = createComboBox(parent, layout, "How often do you change", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" });
-#ifndef ISHSC
-        else
-            frequency = createComboBox(parent, layout, "How often do you change", { "Infrequently", "Frequently", "Very Frequently", "Always" });
+        if (Sheet::ref().getOption().showFrequencyRolls()) frequency = createComboBox(parent, layout, "How often do you change", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" });
+        else frequency = createComboBox(parent, layout, "How often do you change", { "Infrequently", "Frequently", "Very Frequently", "Always" });
+#else
+        frequency = createComboBox(parent, layout, "How often do you change", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)", "Always" });
 #endif
     }
     Points points(bool noStore = false) override {
@@ -85,6 +83,7 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]           = mGuid;
         obj["name"]         = "Accidental Change";
         obj["circumstance"] = v.mCircumstance;
         obj["frequency"]    = v.mFrequency;

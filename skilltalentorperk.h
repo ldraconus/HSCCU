@@ -11,11 +11,12 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QObject>
+#include <QUuid>
 #include <QVBoxLayout>
 
 class SkillTalentOrPerk {
 private:
-    QWidget* _sender {};
+    QWidget* mSender {};
 
 protected:
     QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (SkillTalentOrPerk::*)(bool)>);
@@ -26,9 +27,10 @@ protected:
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (SkillTalentOrPerk::*)(QString)> callback);
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString);
 
-    QMap<QCheckBox*, std::_Mem_fn<void (SkillTalentOrPerk::*)(bool)>>     mCallbacksCB;
-    QMap<QComboBox*, std::_Mem_fn<void (SkillTalentOrPerk::*)(int)>>      mCallbacksCBox;
-    QMap<QLineEdit*, std::_Mem_fn<void (SkillTalentOrPerk::*)(QString)>>  mCallbacksEdit;
+    QMap<QCheckBox*, std::function<void (SkillTalentOrPerk::*)(bool)>>     mCallbacksCB;
+    QMap<QComboBox*, std::function<void (SkillTalentOrPerk::*)(int)>>      mCallbacksCBox;
+    QMap<QLineEdit*, std::function<void (SkillTalentOrPerk::*)(QString)>>  mCallbacksEdit;
+
     void empty(bool)      { }
 
     QString add(QString n, int p) {
@@ -195,7 +197,8 @@ public:
     virtual void checked(bool) { }
     virtual void numeric(QString) { }
 
-    QWidget* sender() { return _sender; }
+    QWidget* sender() { return mSender; }
+    QString  id()     { return mGuid; }
 
     void callback(QCheckBox*);
     void callback(QLineEdit*);
@@ -213,6 +216,12 @@ public:
     bool isNumber(QString);
 
     static constexpr int BaseRoll = 11;
+
+
+protected:
+    QString mGuid;
+
+    void    id(const QJsonObject& json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces); }
 
 private:
     static QMap<QString, skillBase*>    sSkills;    // NOLINT

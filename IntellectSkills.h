@@ -9,25 +9,29 @@
 
 class IntellectSkills: public SkillTalentOrPerk {
 public:
-    IntellectSkills(): SkillTalentOrPerk() { }
+    IntellectSkills(): SkillTalentOrPerk() { id({ }); }
     IntellectSkills(QString name)
-        : v { name, "", 0 } { }
+        : v { name, "", 0 } {id({ }); }
     IntellectSkills(const IntellectSkills& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     IntellectSkills(IntellectSkills&& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     IntellectSkills(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , v { json["name"].toString(""), json["topic"].toString(""), json["plus"].toInt(0) } { }
+        , v { json["name"].toString(""), json["topic"].toString(""), json["plus"].toInt(0) } { id(json); }
     ~IntellectSkills() override { }
 
     IntellectSkills& operator=(const IntellectSkills& s) {
-        if (this != &s) v = s.v;
+        if (this != &s) {
+            mGuid = s.mGuid;
+            v = s.v;
+        }
         return *this;
     }
     IntellectSkills& operator=(IntellectSkills&& s) {
+        mGuid = s.mGuid;
         v = s.v;
         return *this;
     }
@@ -57,6 +61,7 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]    = mGuid;
         obj["name"]  = v.mName;
         obj["topic"] = v.mTopic;
         obj["plus"]  = v.mPlus;

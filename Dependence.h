@@ -5,7 +5,7 @@
 
 class Dependence: public Complication {
 public:
-    Dependence(): Complication() { }
+    Dependence(): Complication() { id({ }); }
     Dependence(const Dependence& d)
         : Complication()
         , v(d.v) { }
@@ -21,15 +21,17 @@ public:
             , json["roll"].toInt(-1)
             , json["time step"].toInt(-1)
             , json["weakness"].toBool(false)
-            , json["what"].toString() } { }
+            , json["what"].toString() } { id(json); }
 
     ~Dependence() override { }
 
     Dependence& operator=(const Dependence& d) {
+        Complication::operator=(d);
         if (this != &d) v = d.v;
         return *this;
     }
     Dependence& operator=(Dependence&& d) {
+        Complication::operator=(std::move(d));
         v = d.v;
         return *this;
     }
@@ -108,6 +110,7 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]         = mGuid;
         obj["name"]       = "Dependence";
         obj["addiction"]  = v.mAddiction;
         obj["competence"] = v.mCompetence;

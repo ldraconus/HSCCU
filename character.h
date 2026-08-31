@@ -99,13 +99,16 @@ public:
         }
     }
 
-    QList<shared_ptr<Complication>>&      complications()        { return mComplications; }
-    QList<shared_ptr<SkillTalentOrPerk>>& skillsTalentsOrPerks() { return mSkillsTalentsOrPerks; }
-    QList<shared_ptr<Power>>&             powersOrEquipment()    { return mPowers; }
-    QString&                              image()                { return mImage; }
-    qulonglong&                           imageDate()            { return mImageDate; }
-    QByteArray&                           imageData()            { return mImageData; }
-    QString&                              notes()                { return mNotes; }
+    QList<shared_ptr<Complication>>&      complications()                       { return mComplications; }
+    std::shared_ptr<Complication>         findComplication(const QString& guid) { return nullptr; }
+    std::shared_ptr<Power>                findPower(const QString& guid)        { for (const auto& power: as_const(mPowers)) if (power->id() == guid) return power; return nullptr; }
+    std::shared_ptr<SkillTalentOrPerk>    findSkill(const QString& guid)        { return nullptr; }
+    QString&                              image()                               { return mImage; }
+    qulonglong&                           imageDate()                           { return mImageDate; }
+    QByteArray&                           imageData()                           { return mImageData; }
+    QString&                              notes()                               { return mNotes; }
+    QList<shared_ptr<Power>>&             powersOrEquipment()                   { return mPowers; }
+    QList<shared_ptr<SkillTalentOrPerk>>& skillsTalentsOrPerks()                { return mSkillsTalentsOrPerks; }
 
     void  clearEnhancers()     { mHasJackOfAllTrades = mHasLinguist = mHasScholar = mHasScientist = mHasTraveler = mHasWellConnected = false; }
     bool& hasJackOfAllTrades() { return mHasJackOfAllTrades; }

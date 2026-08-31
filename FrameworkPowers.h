@@ -6,9 +6,12 @@
 #include "sheet.h"
 #endif
 
+#include <QUuid>
+
 class FrameworkPowers: public Power {
 public:
-    FrameworkPowers(): Power() { }
+    FrameworkPowers()
+        : Power() { }
     FrameworkPowers(QString name)
         : Power()
         , v { name, "", { } } { }
@@ -20,7 +23,9 @@ public:
         , v(s.v) { }
     FrameworkPowers(const QJsonObject& json)
         : Power()
-        , v { json["name"].toString(), json["powerName"].toString(""), { } } { loadPowers(json["powers"].toArray()); }
+        , v { json["name"].toString(),
+              json["powerName"].toString(""),
+              { } } { loadPowers(json["powers"].toArray()); }
     ~FrameworkPowers() override { }
 
     FrameworkPowers& operator=(const FrameworkPowers& s) {
@@ -71,6 +76,7 @@ public:
     QJsonObject toJson() const override                             { QJsonObject obj = Power::toJson();
                                                                       obj["name"]      = v.mName;
                                                                       obj["powerName"] = v.mPowerName;
+                                                                      obj["guid"]      = v.mGuid;
                                                                       QJsonArray powers;
                                                                       for (int i = 0; i < v.mPowers.count(); ++i) powers.append(v.mPowers[i]->toJson());
                                                                       obj.insert("powers", powers);

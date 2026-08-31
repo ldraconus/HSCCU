@@ -9,26 +9,30 @@
 class CustomSkill: public SkillTalentOrPerk {
 public:
     CustomSkill(): SkillTalentOrPerk()
-        , v({ "Custom" }) { }
+        , v({ "Custom" }) { id({ }); }
     CustomSkill(const CustomSkill& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     CustomSkill(CustomSkill&& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     CustomSkill(const QJsonObject& json)
         : SkillTalentOrPerk()
         , v { json["name"].toString(""),
               json["descr"].toString(""),
               json["stat"].toInt(0),
-              json["plus"].toInt(0) } { }
+              json["plus"].toInt(0) } { id(json); }
     ~CustomSkill() override { }
 
     CustomSkill& operator=(const CustomSkill& s) {
-        if (this != &s) v = s.v;
+        if (this != &s) {
+            mGuid = s.mGuid;
+            v = s.v;
+        }
         return *this;
     }
     CustomSkill& operator=(CustomSkill&& s) {
+        mGuid = s.mGuid;
         v = s.v;
         return *this;
     }
@@ -78,6 +82,7 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]    = mGuid;
         obj["name"]  = v.mName;
         obj["descr"] = v.mDescr;
         obj["plus"]  = v.mPlus;

@@ -9,26 +9,28 @@
 
 class MiscSkills: public SkillTalentOrPerk {
 public:
-    MiscSkills(): SkillTalentOrPerk() { }
+    MiscSkills(): SkillTalentOrPerk() { id({ }); }
     MiscSkills(QString name)
-        : v { name } { }
+        : v { name } { id({ }); }
     MiscSkills(const MiscSkills& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     MiscSkills(MiscSkills&& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     MiscSkills(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { }
+        , v { json["name"].toString("") } { id(json); }
     ~MiscSkills() override { }
     MiscSkills& operator=(const MiscSkills& s) {
         if (this != &s) {
+            mGuid = s.mGuid;
             v.mName = s.v.mName;
         }
         return *this;
     }
     MiscSkills& operator=(MiscSkills&& s) {
+        mGuid = s.mGuid;
         v.mName = s.v.mName;
         return *this;
     }
@@ -45,6 +47,7 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]   = mGuid;
         obj["name"] = v.mName;
         return obj;
     }

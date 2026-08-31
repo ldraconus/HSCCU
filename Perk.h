@@ -8,18 +8,18 @@
 
 class Perks: public SkillTalentOrPerk {
 public:
-    Perks(): SkillTalentOrPerk() { }
+    Perks(): SkillTalentOrPerk() { id({ }); }
     Perks(QString name)
-        : v { name } { }
+        : v { name } { id({ }); }
     Perks(const Perks& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid= s.mGuid; }
     Perks(Perks&& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid= s.mGuid; }
     Perks(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { }
+        , v { json["name"].toString("") } { id(json); }
     ~Perks() override { }
 
     Perks& operator=(const Perks& s) = delete;
@@ -30,13 +30,14 @@ public:
     QString description(bool showRoll = false) override { return v.mName + (showRoll ? "" : ""); }
     bool    form(QWidget*, QVBoxLayout*) override       { return false; }
     QString name() override                             { return v.mName; }
-    Points points(bool noStore = false) override        { if (!noStore) store(); return 0_cp; }
+    Points  points(bool noStore = false) override       { if (!noStore) store(); return 0_cp; }
     void    restore() override                          { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
 
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]   = mGuid;
         obj["name"] = v.mName;
         return obj;
     }

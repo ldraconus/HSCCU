@@ -5,24 +5,28 @@
 
 class SkillEnhancers: public SkillTalentOrPerk {
 public:
-    SkillEnhancers(): SkillTalentOrPerk() { }
+    SkillEnhancers(): SkillTalentOrPerk() { id({ }); }
     SkillEnhancers(QString name)
-        : v { name } { }
+        : v { name } { id({ }); }
     SkillEnhancers(const SkillEnhancers& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     SkillEnhancers(SkillEnhancers&& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     SkillEnhancers(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { }
+        , v { json["name"].toString("") } { id(json); }
 
     virtual SkillEnhancers& operator=(const SkillEnhancers& s) {
-        if (this != &s) v = s.v;
+        if (this != &s) {
+            mGuid = s.mGuid;
+            v = s.v;
+        }
         return *this;
     }
     virtual SkillEnhancers& operator=(SkillEnhancers&& s) {
+        mGuid = s.mGuid;
         v = s.v;
         return *this;
     }
@@ -39,6 +43,7 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]   = mGuid;
         obj["name"] = v.mName;
         return obj;
     }

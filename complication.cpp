@@ -27,14 +27,14 @@ void Complication::callback(QCheckBox* checkBox) {
     auto f = mCallbacksCB.find(checkBox);
     if (f == mCallbacksCB.end()) return;
     auto function = f.value();
-    function(this, checkBox->isChecked());
+    std::invoke(function,this, checkBox->isChecked());
 }
 
 void Complication::callback(QLineEdit* edit) {
     auto f = mCallbacksEdit.find(edit);
     if (f == mCallbacksEdit.end()) return;
     auto function = f.value();
-    function(this, edit->text());
+    std::invoke(function, this, edit->text());
 }
 
 QCheckBox* Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt) {
@@ -62,13 +62,13 @@ QCheckBox* Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QS
     return checkBox;
 }
 
-QCheckBox* Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(bool)> callback) {
+QCheckBox* Complication::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, BoolCallback callback) {
     QCheckBox* checkBox = createCheckBox(parent, layout, prompt);
     mCallbacksCB.insert(mCallbacksCB.cend(), checkBox, callback);
     return checkBox;
 }
 
-QComboBox* Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (Complication::*)(int)> callback) {
+QComboBox* Complication::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, IntCallback callback) {
     QComboBox* comboBox = createComboBox(parent, layout, prompt, options);
     mCallbacksCBox.insert(mCallbacksCBox.cend(), comboBox, callback);
     return comboBox;
@@ -113,7 +113,7 @@ QLabel* Complication::createLabel(QWidget*, QVBoxLayout* layout, QString text) {
     return label;
 }
 
-QLineEdit* Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (Complication::*)(QString)> callback) {
+QLineEdit* Complication::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, StringCallback callback) {
     QLineEdit* lineEdit = createLineEdit(parent, layout, prompt);
     mCallbacksEdit.insert(mCallbacksEdit.cend(), lineEdit, callback);
     return lineEdit;

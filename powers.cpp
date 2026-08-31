@@ -729,6 +729,8 @@ shared_ptr<Power> Power::FromJson(QString name, const QJsonObject& json) {
     if (mEquipment.contains(name))           power = statics.powers[mEquipment[name]]->create(json);
     if (power == nullptr) return nullptr;
 
+    power->mGuid = json["id"].toString("");
+    if (power->mGuid.isEmpty()) power->mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
     QJsonObject obj = json["modifiers"].toObject();
     QStringList keys = obj.keys();
     for (const auto& key: std::as_const(keys)) {

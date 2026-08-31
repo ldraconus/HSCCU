@@ -5,7 +5,7 @@
 
 class Enraged: public Complication {
 public:
-    Enraged(): Complication() { }
+    Enraged(): Complication() { id({ }); }
     Enraged(const Enraged& ac)
         : Complication()
         , v(ac.v) { }
@@ -18,14 +18,16 @@ public:
             , json["frequency"].toInt(0)
             , json["regain"].toInt(0)
             , json["type"].toBool(false)
-            , json["what"].toString("") } { }
+            , json["what"].toString("") } { id(json); }
     ~Enraged() override { }
 
     Enraged& operator=(const Enraged& ac) {
+        Complication::operator=(d);
         if (this != &ac) v = ac.v;
         return *this;
     }
     Enraged& operator=(Enraged&& ac) {
+        Complication::operator=(std::move(d));
         v = ac.v;
         return *this;
     }

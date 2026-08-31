@@ -9,24 +9,28 @@
 
 class InteractionSkills: public SkillTalentOrPerk {
 public:
-    InteractionSkills(): SkillTalentOrPerk() { }
+    InteractionSkills(): SkillTalentOrPerk() { id({ }); }
     InteractionSkills(QString name)
-        : v { name, 0 } { }
+        : v { name, 0 } { id({ }); }
     InteractionSkills(const InteractionSkills& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     InteractionSkills(InteractionSkills&& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     InteractionSkills(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , v { json["name"].toString(""), json["plus"].toInt(0) } { }
+        , v { json["name"].toString(""), json["plus"].toInt(0) } { id(json); }
     ~InteractionSkills() override { }
     InteractionSkills& operator=(const InteractionSkills& s) {
-        if (this != &s) v = s.v;
+        if (this != &s) {
+            mGuid = s.mGuid;
+            v = s.v;
+        }
         return *this;
     }
     InteractionSkills& operator=(InteractionSkills&& s) {
+        mGuid = s.mGuid;
         v = s.v;
         return *this;
     }
@@ -47,6 +51,7 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]   = mGuid;
         obj["name"] = v.mName;
         obj["plus"] = v.mPlus;
         return obj;

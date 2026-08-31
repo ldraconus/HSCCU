@@ -121,6 +121,7 @@ public:
         , mSender(p.mSender)
         , mParent(p.mParent)
         , mRow(p.mRow)
+        , mGuid(p.mGuid)
         , mModifiers(p.mModifiers) { Power(); }
     Power(Power&& p)
         : mAdvantagesList(p.mAdvantagesList)
@@ -129,6 +130,7 @@ public:
         , mSender(p.mSender)
         , mParent(p.mParent)
         , mRow(p.mRow)
+        , mGuid(p.mGuid)
         , mModifiers(p.mModifiers) { Power(); }
     virtual ~Power() { }
 
@@ -140,6 +142,7 @@ public:
             mSender = s.mSender;
             mParent = s.mParent;
             mRow = s.mRow;
+            mGuid = s.mGuid;
             mModifiers = s.mModifiers;
         }
         return *this;
@@ -151,6 +154,7 @@ public:
         mSender = s.mSender;
         mParent = s.mParent;
         mRow = s.mRow;
+        mGuid = s.mGuid;
         mModifiers = s.mModifiers;
         return *this;
     }
@@ -172,6 +176,7 @@ public:
 
     virtual QJsonObject toJson() const           { QJsonObject obj;
                                                    QJsonObject mods;
+                                                   obj["id"] = mGuid;
                                                    for (const auto& mod: std::as_const(mAdvantagesList))  mods[mod->name()] = mod->toJson();
                                                    for (const auto& mod: std::as_const(mLimitationsList)) mods[mod->name()] = mod->toJson();
                                                    obj["modifiers"] = mods;
@@ -212,21 +217,22 @@ public:
 
     virtual int characteristic(int) { return 0; }
 
+    virtual void                      append(shared_ptr<Power>)      { }
+    virtual Points                    display(int&, QTableWidget*)   { return 0_cp; }
+    virtual Points                    display(QString&)              { return 0_cp; }
+    virtual int                       count()                        { return -1; }
+    virtual QString                   id()                           { return mGuid; }
+    virtual void                      inMultipower()                 { mInMultipower = true; }
     virtual bool                      isEquipment()                  { return false; }
     virtual bool                      isFramework()                  { return false; }
     virtual bool                      isMultipower()                 { return false; }
     virtual bool                      isVPP()                        { return false; }
     virtual bool                      isValid(shared_ptr<Power>)     { return true; }
-    virtual void                      inMultipower()                 { mInMultipower = true; }
-    virtual Points                    pool()                         { return 0_cp; }
-    virtual int                       count()                        { return -1; }
-    virtual void                      append(shared_ptr<Power>)      { }
     virtual void                      insert(int, shared_ptr<Power>) { }
-    virtual Points                    display(int&, QTableWidget*)   { return 0_cp; }
-    virtual Points                    display(QString&)              { return 0_cp; }
+    virtual QList<shared_ptr<Power>>& list()                         { static QList<shared_ptr<Power>> l; return l; }
+    virtual Points                    pool()                         { return 0_cp; }
     virtual void                      remove(int)                    { }
     virtual void                      remove(shared_ptr<Power>)      { }
-    virtual QList<shared_ptr<Power>>& list()                         { static QList<shared_ptr<Power>> l; return l; }
 
     virtual int                           FD()          { return 0; }
     virtual int                           MD()          { return 0; }
@@ -288,6 +294,7 @@ public:
 
 private:
     QList<shared_ptr<Modifier>> mModifiers;
+    QString                     mGuid;
 
     static const QMap<QString, QString> mAdjustmentPower;
     static const QMap<QString, QString> mAttackPower;
@@ -408,10 +415,10 @@ public:
     }
 
     void load(const QJsonObject& json, const QString& name = "") {
-        if (name.isEmpty()) v._name = json["name"].toString();
-        else v._name = name;
-        v._powerName = json["powerName"].toString("");
-        v._varies = json["varies"].toBool(false);
+        if (name.isEmpty()) v.mName = json["name"].toString();
+        else v.mName = name;
+        v.mPowerName = json["powerName"].toString("");
+        v.mVaries = json["varies"].toBool(false);
     }
 
     QString     abbreviation(bool roll = false) override { return description(roll); }
@@ -430,31 +437,31 @@ public:
         else if (mInMultipower) varies = createCheckBox(widget, layout, "Varies");
         else varies = nullptr;
     }
-    QString     name() override                                     { return v._name;
+    QString     name() override                                     { return v.mName;
                                                                     }
-    QString     nickname() override                                 { return v._powerName;
+    QString     nickname() override                                 { return v.mPowerName;
                                                                     }
     void        restore() override                                  { vars s = v;
-                                                                      if (powerName) powerName->setText(s._powerName);
-                                                                      if (varies != nullptr) varies->setChecked(s._varies);
+                                                                      if (powerName) powerName->setText(s.mPowerName);
+                                                                      if (varies != nullptr) varies->setChecked(s.mVaries);
                                                                       v = s;
                                                                     }
-    void        store() override                                    { v._powerName = powerName ? powerName->text() : "";
-                                                                      if (varies != nullptr) v._varies = varies->isChecked();
+    void        store() override                                    { v.mPowerName = powerName ? powerName->text() : "";
+                                                                      if (varies != nullptr) v.mVaries = varies->isChecked();
                                                                     }
     QJsonObject toJson() const override                             { QJsonObject obj = Power::toJson();
-                                                                      obj["name"]      = v._name;
-                                                                      obj["powerName"] = v._powerName;
-                                                                      obj["varies"]    = v._varies;
+                                                                      obj["name"]      = v.mName;
+                                                                      obj["powerName"] = v.mPowerName;
+                                                                      obj["varies"]    = v.mVaries;
                                                                       return obj;
                                                                     }
-    bool        varying() override                                  { return v._varies; }
+    bool        varying() override                                  { return v.mVaries; }
 
 private:
     struct vars {
-        QString _name      = "";
-        QString _powerName = "";
-        bool    _varies    = false;
+        QString mName      = "";
+        QString mPowerName = "";
+        bool    mVaries    = false;
     } v;
 
     QLineEdit* powerName = nullptr;
@@ -462,3 +469,4 @@ private:
 };
 
 #endif // POWERS_H
+

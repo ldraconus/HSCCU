@@ -9,26 +9,30 @@
 
 class BackgroundSkill: public SkillTalentOrPerk {
 public:
-    BackgroundSkill(): SkillTalentOrPerk() { }
+    BackgroundSkill(): SkillTalentOrPerk() { id({ }); }
     BackgroundSkill(QString name)
-        : v { name } { }
+        : v { name } { id({ }); }
     BackgroundSkill(const BackgroundSkill& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     BackgroundSkill(BackgroundSkill&& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     BackgroundSkill(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { }
+        , v { json["name"].toString("") } { id(json); }
     ~BackgroundSkill() override { }
 
     BackgroundSkill& operator=(const BackgroundSkill& s) {
-        if (this != &s) v = s.v;
+        if (this != &s) {
+            mGuid = s.mGuid;
+            v = s.v;
+        }
         return *this;
     }
     BackgroundSkill& operator=(BackgroundSkill&& s) {
         v = s.v;
+        mGuid = s.mGuid;
         return *this;
     }
 
@@ -45,6 +49,7 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]   = mGuid;
         obj["name"] = v.mName;
         return obj;
     }

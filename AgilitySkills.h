@@ -8,25 +8,30 @@
 
 class AgilitySkills: public SkillTalentOrPerk {
 public:
-    AgilitySkills(): SkillTalentOrPerk() { }
+    AgilitySkills(): SkillTalentOrPerk() { id({ }); }
     AgilitySkills(QString name)
-        : v { name, 0 } { }
+        : SkillTalentOrPerk()
+        , v { name, 0 } { id({ }); }
     AgilitySkills(const AgilitySkills& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     AgilitySkills(AgilitySkills&& s)
         : SkillTalentOrPerk()
-        , v(s.v) { }
+        , v(s.v) { mGuid = s.mGuid; }
     AgilitySkills(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , v { json["name"].toString(""), json["plus"].toInt(0) } { }
+        , v { json["name"].toString(""), json["plus"].toInt(0) } { id(json); }
     ~AgilitySkills() override { }
 
     AgilitySkills& operator=(const AgilitySkills& s) {
-        if (this != &s) v = s.v;
+        if (this != &s) {
+            mGuid = s.mGuid;
+            v = s.v;
+        }
         return *this;
     }
     AgilitySkills& operator=(AgilitySkills&& s) {
+        mGuid = s.mGuid;
         v = s.v;
         return *this;
     }
@@ -47,6 +52,7 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
+        obj["id"]   = mGuid;
         obj["name"] = v.mName;
         obj["plus"] = v.mPlus;
         return obj;
