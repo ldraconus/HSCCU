@@ -6,24 +6,14 @@
 class Rivalry: public Complication {
 public:
     Rivalry(): Complication() { }
-    Rivalry(const Rivalry& ac)
-        : Complication()
-        , v(ac.v) { }
-    Rivalry(Rivalry&& ac)
-        : Complication()
-        , v(ac.v) { }
     Rivalry(const QJsonObject& json)
-        : Complication()
-        , v { json["intensity"].toInt(0), json["nature"].toInt(0), json["pc"].toBool(false), json["power"].toInt(0), json["unaware"].toBool(false), json["who"].toString("") } { }
-
-    Rivalry& operator=(const Rivalry& ac) {
-        if (this != &ac) v = ac.v;
-        return *this;
-    }
-    Rivalry& operator=(Rivalry&& ac) {
-        v = ac.v;;
-        return *this;
-    }
+        : Complication(json)
+        , v { json["intensity"].toInt(0),
+              json["nature"].toInt(0),
+              json["pc"].toBool(false),
+              json["power"].toInt(0),
+              json["unaware"].toBool(false),
+              json["who"].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description()  override { return str(); }
@@ -37,7 +27,7 @@ public:
         if (v.mNature < 1 || v.mPower < 1 || v.mIntensity < 1 || v.mWho.isEmpty()) return "<incomplete>";
         QString result;
         if (abbr) result = QString("Rivalry: %1 (%2; %3; %4").arg(v.mWho, natrAbbr[v.mNature], powrAbbr[v.mPower], intnAbbr[v.mIntensity]);
-        else QString result = QString("Rivalry: %1 (%2; %3; %4").arg(v.mWho, natr[v.mNature], powr[v.mPower], intn[v.mIntensity]);
+        else result = QString("Rivalry: %1 (%2; %3; %4").arg(v.mWho, natr[v.mNature], powr[v.mPower], intn[v.mIntensity]);
         if (v.mUnaware) result += "; Unaware";
         if (v.mPC) result += "; is a PC";
         return result + ")";
@@ -73,7 +63,7 @@ public:
         v.mUnaware   = unaware->isChecked();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
+        QJsonObject obj  = Complication::toJson();
         obj["name"]      = "Rivalry";
         obj["intensity"] = v.mIntensity;
         obj["nature"]    = v.mNature;

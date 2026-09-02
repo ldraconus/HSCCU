@@ -6,29 +6,18 @@
 class Susceptibility: public Complication {
 public:
     Susceptibility(): Complication() { }
-    Susceptibility(const Susceptibility& ac)
-        : Complication()
-        , v(ac.v) { }
-    Susceptibility(Susceptibility&& ac)
-        : Complication()
-        , v(ac.v) { }
     Susceptibility(const QJsonObject& json)
-        : Complication()
-        , v { json["dice"].toInt(0), json["every"].toInt(0), json["frequency"].toInt(0), json["proximity"].toInt(0), json["what"].toString("") } { }
-
-    Susceptibility& operator=(const Susceptibility& ac) {
-        if (this != &ac) v = ac.v;
-        return *this;
-    }
-    Susceptibility& operator=(Susceptibility&& ac) {
-        v = ac.v;
-        return *this;
-    }
+        : Complication(json)
+        , v { json["dice"].toInt(0),
+              json["every"].toInt(0),
+              json["frequency"].toInt(0),
+              json["proximity"].toInt(0),
+              json["what"].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
     QString str(bool abbr = false) {
-        static QList<QString> dice { "1d6", "2d6", "3d6" };
+        static QList<QString> diceStr { "1d6", "2d6", "3d6" };
         static QList<QString> freq { "Uncommon", "Common", "Very Common" };
         static QList<QString> evry { " Instantly", "/Segment", "/Phase", "/Turn", "/Minute", "/5 Minutes",
                                      "/20 Minutes", "/Hour", "/6 Hours", "/Day" };
@@ -39,7 +28,7 @@ public:
         static QList<QString> prxmAbbr { "In 8m", "Cntct", "Int." };
         if (v.mFrequency < 0 || v.mEvery < 0 || v.mDice < 0 || v.mProximity < 0 || v.mWhat.isEmpty()) return "<incomplete>";
         return QString(abbr ? "Suscept.: %1 (%2; %3%4; %5)" : "Susceptibility: %1 (%2; %3%4; %5)").arg(v.mWhat, abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency],
-                                                                                                       dice[v.mDice], abbr ? evryAbbr[v.mEvery] : evry[v.mEvery],
+                                                                                                       diceStr[v.mDice], abbr ? evryAbbr[v.mEvery] : evry[v.mEvery],
                                                                                                        abbr ? prxmAbbr[v.mProximity] : prxm[v.mProximity]);
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
@@ -71,7 +60,7 @@ public:
         v.mProximity = proximity->currentIndex();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
+        QJsonObject obj  = Complication::toJson();
         obj["name"]      = "Susceptibility";
         obj["dice"]      = v.mDice;
         obj["every"]     = v.mEvery;

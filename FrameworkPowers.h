@@ -76,7 +76,7 @@ public:
     QJsonObject toJson() const override                             { QJsonObject obj = Power::toJson();
                                                                       obj["name"]      = v.mName;
                                                                       obj["powerName"] = v.mPowerName;
-                                                                      obj["guid"]      = v.mGuid;
+                                                                      obj["guid"]      = id();
                                                                       QJsonArray powers;
                                                                       for (int i = 0; i < v.mPowers.count(); ++i) powers.append(v.mPowers[i]->toJson());
                                                                       obj.insert("powers", powers);
@@ -345,14 +345,14 @@ public:
                 descr += mod->description(false);
             }
             for (const auto& mod: std::as_const(pe->limitationsList())) descr += "; (-" + mod->fraction(Modifier::NoStore).abs().toString() + ") " + mod->description(false);
-            Points pnts(pe->real());
+            Points pntsVal(pe->real());
             Fraction pts(pe->real(advtg, modif, limit).points);
             if (pe->varying()) pts = pts / 5;  // NOLINT
             else pts = pts / 10;  // NOLINT
             if (pts.toInt() == 0) pts = Fraction(1);
             if (!descr.isEmpty()) {
                 out += QString("%1%2\t").arg(pts.toInt(), 3).arg(pe->varying() ? "v" : "f");
-                out += QString("%1) [%4] %2%3").arg(r).arg(pe->nickname().isEmpty() ? "" : "(" + pe->nickname() + ") ", descr).arg(pnts.points);
+                out += QString("%1) [%4] %2%3").arg(r).arg(pe->nickname().isEmpty() ? "" : "(" + pe->nickname() + ") ", descr).arg(pntsVal.points);
                 QString end = pe->end();
                 if (end == "-") end = "";
                 out += QString("%1").arg(end.isEmpty() ? "" : " [" + end +"]");
@@ -620,22 +620,22 @@ private:
         QString res;
         if (showEND) res = nickname().isEmpty() ? "" : nickname() + " ";
         res += QString("VPP (%1 cp, %2 cp " + QString(abbr ? "Ctrl" : "Control)")).arg(v.mPool).arg(v.mControl);
-        QStringList time {
+        QStringList timeLst {
             abbr ? "Only Change Between Advs" : "VPP Can Only Be Changed Between Adventures",
             abbr ? "Only Change Between Scns" : "VPP Can Only Be Changed Between Scenes",
             "Change Full Act.",
             abbr ? "Change " + Fraction(1, 2).toString() + "-Phs" : "Powers Can be Changed As A Half-Phase Action",
             abbr ? "Change 0-Phs" : "Powers Can be Changed As A Zero Phase Action" };
-        if (v.mTime >= 0 && v.mTime != 2) res += "; " + time[v.mTime];
+        if (v.mTime >= 0 && v.mTime != 2) res += "; " + timeLst[v.mTime];
         if (v.mNoSkill) res += abbr ? "; No Roll" : "; No Skill Roll Required";
         if (v.mGiven) res += (abbr ? "; Only Change When " : "; Powers Can Only Be Changed When ") + v.mCirc;
         if (v.mHow) res += abbr ? "; No Control How Change" : "; Character Has No Control Over How Powers Change";
         if (v.mWhen2) res += abbr ? "; No Control When Change" : "; Character Has No Control Over When Powers Change";
-        QStringList clss {
+        QStringList clssLst {
             "", abbr ? "Broad Class" : "Slightly Limited Class Of Powers",
                 abbr ? "Lim. Class" : "Limited Class Of Powers",
                 abbr ? "V. Lim. Class" : "Very Limited Class Of Powers" };
-        if (v.mClass > 0) res += "; " + clss[v.mClass] + " - " + v.mWhat;
+        if (v.mClass > 0) res += "; " + clssLst[v.mClass] + " - " + v.mWhat;
         if (v.mOne > 0) res += (abbr ? "1 Type - " : "; One Type Of Power - ") + v.mPower;
         return res;
     }

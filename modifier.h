@@ -477,8 +477,8 @@ private:
     QString optOut(bool show, bool abbr = false) {
         Fraction quarter(1, 4);
         if (v.mSense < 1) return "<incomplete>";
-        QStringList sense { "", "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
-        return (show ? "(-" + quarter.toString() + ") " : "") + "Affected As " + (abbr ? "" : "Another Sense") + " (" + sense[v.mSense] + ")";
+        QStringList senses { "", "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
+        return (show ? "(-" + quarter.toString() + ") " : "") + "Affected As " + (abbr ? "" : "Another Sense") + " (" + senses[v.mSense] + ")";
     }
 };
 
@@ -753,7 +753,7 @@ private:
     QComboBox* is = nullptr;
 
     QString optOut(bool show, bool abbr = false) {
-        QStringList is = {
+        QStringList isA = {
             "",
             "Mental Power uses OCV instead of OMCV",
             "Mental Power attacks against DCV instead of DMCV",
@@ -769,7 +769,7 @@ private:
         };
         if (v.mIs < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
-        return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "ACV▲: " + (abbr ? isAbbr[v.mIs] : is[v.mIs]);
+        return (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "ACV▲: " + (abbr ? isAbbr[v.mIs] : isA[v.mIs]);
     }
 };
 
@@ -995,7 +995,7 @@ private:
     }
 
     QString optOut(bool show, bool abbr = false) {
-        QStringList kind = {
+        QStringList kindOf = {
             "Radius", "Cone", "Line", "Surface", "Any Area"
         };
         QStringList kindAbbr = {
@@ -1010,7 +1010,7 @@ private:
         if (v.mKind < 0 || (v.mFixedShape && v.mShape.isEmpty())) return "<incomplete>";
         if (v.mMultiplier < 1) v.mMultiplier = 1;
         Fraction f(fraction(Modifier::NoStore));
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + (abbr ? "AoE:" : "Area Of Effect: ") + (abbr ? kindAbbr[v.mKind] : kind[v.mKind]);
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + (abbr ? "AoE:" : "Area Of Effect: ") + (abbr ? kindAbbr[v.mKind] : kindOf[v.mKind]);
         if (v.mKind == 4) desc += QString(" (%1x%1%2)").arg(v.mMultiplier).arg(abbr ? sizeAbbr[v.mKind] : size[v.mKind]);
         else desc += QString(" (%1%2)").arg(v.mMultiplier).arg(abbr ? sizeAbbr[v.mKind] : size[v.mKind]);
         if (v.mFixedShape) desc += QString("; ") + "Fixed" + (abbr ? "" : " Shape") + "(" + v.mShape + ")";
@@ -2154,10 +2154,10 @@ private:
     Fraction timeFraction() {
         int adv = 0;
         int max = sizeof(_time) / sizeof(int);
-        if (v._times > 0) {
-            for (adv = 0; adv < max; ++adv) if (_time[adv] <= v._times) break; // NOLINT
+        if (v.mTimes > 0) {
+            for (adv = 0; adv < max; ++adv) if (_time[adv] <= v.mTimes) break; // NOLINT
             if (adv >= max) {
-                int C = v._times / 16; // NOLINT
+                int C = v.mTimes / 16; // NOLINT
                 int x = (int) (log((double) C) / log(2.0)); // NOLINT
                 return Fraction(5, 2) + Fraction(1, 4) * x; // NOLINT
             }
@@ -2169,10 +2169,10 @@ private:
     Fraction _duration[8] { { 0, 1 }, { 2, 1 }, { 1, { 1, 2 } }, { 1, 1 }, { 1, 2 }, { 1, 4 }, { 0, 1 }, { -1, 4 } }; // NOLINT
 
     Fraction durationFraction() {
-        if (v._duration == -1) return Fraction(1, 1);
-        if (v._duration < 8) return _duration[v._duration]; // NOLINT
-        if (v._duration > 6 && v._oneUse) return Fraction(0, 1); // NOLINT
-        return Fraction(1, 2) * (v._duration - 7); // NOLINT
+        if (v.mDuration == -1) return Fraction(1, 1);
+        if (v.mDuration < 8) return _duration[v.mDuration]; // NOLINT
+        if (v.mDuration > 6 && v.mOneUse) return Fraction(0, 1); // NOLINT
+        return Fraction(1, 2) * (v.mDuration - 7); // NOLINT
     }
 
 public:
@@ -2188,10 +2188,10 @@ public:
     DamageOverTime(QJsonObject json)
         : Modifier(json["name"].toString("Damage Over Time▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._times    = json["times"].toInt(0);
-                                                  v._duration = json["duration"].toInt(0);
-                                                  v._once     = json["once"].toBool(false);
-                                                  v._oneUse   = json["oneUse"].toBool(false);
+                   json["adder"].toBool(false)) { v.mTimes    = json["times"].toInt(0);
+                                                  v.mDuration = json["duration"].toInt(0);
+                                                  v.mOnce     = json["once"].toBool(false);
+                                                  v.mOneUse   = json["oneUse"].toBool(false);
                                                 }
     ~DamageOverTime() override { }
 
@@ -2221,38 +2221,38 @@ public:
                                                               return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 1);
-                                                              res += (v._once ? Fraction(2, 1) : Fraction(1, 1)) * timeFraction();
+                                                              res += (v.mOnce ? Fraction(2, 1) : Fraction(1, 1)) * timeFraction();
                                                               res += durationFraction();
                                                               return res;
                                                             }
     void          restore() override                        { vars s = v;
-                                                              times->setText(QString("%1").arg(s._times));
-                                                              duration->setCurrentIndex(s._duration);
-                                                              once->setChecked(s._once);
-                                                              oneUse->setChecked(s._oneUse);
+                                                              times->setText(QString("%1").arg(s.mTimes));
+                                                              duration->setCurrentIndex(s.mDuration);
+                                                              once->setChecked(s.mOnce);
+                                                              oneUse->setChecked(s.mOneUse);
                                                               v = s;
                                                             }
-    void          store() override                          { v._times    = times->text().toInt();
-                                                              v._duration = duration->currentIndex();
-                                                              v._once     = once->isChecked();
-                                                              v._oneUse   = oneUse->isChecked();
+    void          store() override                          { v.mTimes    = times->text().toInt();
+                                                              v.mDuration = duration->currentIndex();
+                                                              v.mOnce     = once->isChecked();
+                                                              v.mOneUse   = oneUse->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
-                                                              obj["times"]    = v._times;
-                                                              obj["duration"] = v._duration;
-                                                              obj["omce"]     = v._once;
-                                                              obj["oneUSe"]   = v._oneUse;
+                                                              obj["times"]    = v.mTimes;
+                                                              obj["duration"] = v.mDuration;
+                                                              obj["omce"]     = v.mOnce;
+                                                              obj["oneUSe"]   = v.mOneUse;
                                                               return obj;
                                                             }
 
 private:
     struct vars {
-        int  _times = 0;
-        int  _duration = 0;
-        bool _once = false;
-        bool _oneUse = false;
+        int  mTimes = 0;
+        int  mDuration = 0;
+        bool mOnce = false;
+        bool mOneUse = false;
     } v;
 
     QLineEdit* times = nullptr;
@@ -2261,7 +2261,7 @@ private:
     QCheckBox* oneUse = nullptr;
 
     QString optOut(bool show, bool abbr = false) {
-        static QStringList duration { "", "Every Segment", "Every Other Segment",
+        static QStringList durationOf { "", "Every Segment", "Every Other Segment",
                                       "Every 3 Segments", "Every 4 Segments",
                                       "Every 6 Segments", "Every Turn",
                                       "Every 30 Segments", "Every Minute",
@@ -2278,11 +2278,11 @@ private:
                                       "Every Wk", "Every Mth", "Every 3 Mths",
                                       "Every Yr", "Every 5 Yrs" };
         Fraction mod = fraction(Modifier::NoStore);
-        if (v._duration < 1) return "<incomplete>";
+        if (v.mDuration < 1) return "<incomplete>";
         QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + (abbr ? "Dmg Per" : "Damage Over") + " Time▲ (";
-        res += QString("%1 " + QString(abbr ? "Dmg Incr." : "Damage Increments") + " %2").arg(v._times).arg(duration[v._duration]);
-        if (v._once) res += QString("; ") + (abbr ? "Tgt DEF Once" : "Target's Defenses Apply Only Once");
-        if (v._oneUse) res += QString("; ") + (abbr ? "1 at a Time" : "One Use at a Time");
+        res += QString("%1 " + QString(abbr ? "Dmg Incr." : "Damage Increments") + " %2").arg(v.mTimes).arg(durationOf[v.mDuration]);
+        if (v.mOnce) res += QString("; ") + (abbr ? "Tgt DEF Once" : "Target's Defenses Apply Only Once");
+        if (v.mOneUse) res += QString("; ") + (abbr ? "1 at a Time" : "One Use at a Time");
         return res + ")";
     }
 };
@@ -2481,14 +2481,14 @@ public:
     QComboBox* duration = nullptr;
 
     QString optOut(bool show, bool abbr = false) {
-        static QStringList duration { "", "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
+        static QStringList durationOf { "", "Turn", "Minute", "5 Minutes", "20 Minutes", "Hour", "6 Hours",
                                       "Day", "Week", "Month", "Season", "Year", "5 Years" };
         static QStringList durationAbbr{ "", "Tn", "Min.", "5 Mins", "20 Mins", "Hr", "6 Hrs",
                                           "Dy", "Wk", "Mth", "3 Mths", "Yr", "5 Yrs" };
         if (v._duration < 1) return "<incomplete>";
         Fraction mod = fraction(Modifier::NoStore);
         QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + (abbr ? "Delayed Fade/Return" : "Delayed Fade/Return Rate") + "▲ (";
-        res += QString("5 CP per %1").arg(duration[v._duration]);
+        res += QString("5 CP per %1").arg(durationOf[v._duration]);
         return res + ")";
     }
 };
@@ -4311,12 +4311,12 @@ private:
                               "Power loses about half of its overall effectiveness",
                               "Power loses about two-thirds of its overall effectiveness",
                               "Power loses almost all of its overall effectiveness" };
-        QStringList conditional { "", "Very Common", "Common", "Uncommon", "Very Uncommon" };
+        QStringList condition { "", "Very Common", "Common", "Uncommon", "Very Uncommon" };
         v.mHow = -1;
         how->setCurrentIndex(-1);
         how->clear();
         how->setCurrentText(v.mConditional ? "What Condition?" : "How Limited?");
-        for (int i = 0; i < (v.mConditional ? conditional.count() : limited.count()); ++i) how->addItem(v.mConditional ? conditional[i] : limited[i]);
+        for (int i = 0; i < (v.mConditional ? condition.count() : limited.count()); ++i) how->addItem(v.mConditional ? condition[i] : limited[i]);
         ModifiersDialog::ref().updateForm();
     }
 };
@@ -4874,7 +4874,7 @@ private:
     QString optOut(bool show, bool abbr = false) {
         if (v.mScale == -1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
-        QStringList scale { "", "1 km", "10 km", "100 km", "1,000 km", "10,000 km", "100,000 km",
+        QStringList scaleOf { "", "1 km", "10 km", "100 km", "1,000 km", "10,000 km", "100,000 km",
                             "1 million km", "100 million km", "1 billion km", "10 billion km",
                             "100 billion km", "1 trillion km", "1 light year", "10 light years",
                             "100,000 light-years", "100 billion light-years" };
@@ -4883,7 +4883,7 @@ private:
                             "100 bil. km", "1 tril. km", "1 lt-yr", "10 lt-yrs",
                             "100,000 lt-yrs", "100 bil. lt-yrs" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "Megascaleϴ (" + (abbr ? scaleAbbr[v.mScale] : scale[v.mScale]);
+                 "Megascaleϴ (" + (abbr ? scaleAbbr[v.mScale] : scaleOf[v.mScale]);
         if (v.mInvariant) desc += "; " + QString(abbr ? "Fixed " : "Can't Change") + " Scale";
         return desc + ")";
     }
@@ -6084,10 +6084,10 @@ private:
     QString optOut(bool show, bool abbr = false) {
         if (v.mHands < 1) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
-        static QStringList hands { "", "One-And-A-Half", "Two" };
+        static QStringList handsUsed { "", "One-And-A-Half", "Two" };
         static QStringList handsAbbr { "", "1" + Fraction(1, 2).toString(), "2" };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 (abbr ? handsAbbr[v.mHands] : hands[v.mHands]) + " HandedꚚ";
+                 (abbr ? handsAbbr[v.mHands] : handsUsed[v.mHands]) + " HandedꚚ";
         return desc;
     }
 };
@@ -6215,19 +6215,19 @@ private:
     QComboBox* fails = nullptr;
 
     QString optOut(bool show, bool abbr = false) {
-        QStringList per { "20 Active points", "10 Active Points", "5 Active Points" };
+        QStringList perPnts { "20 Active points", "10 Active Points", "5 Active Points" };
         QStringList perAbbr { "20 Act. pts", "10 Act. Pts", "5 Act Pts" };
-        QStringList roll { "", "7-", "8-", "9-", "10-", "11-", "12-", "13-", "14-" };
+        QStringList rollOf { "", "7-", "8-", "9-", "10-", "11-", "12-", "13-", "14-" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "");
         QString sep;
         if (v.mType) {
             if (v.mSkill.isEmpty() || v.mPer < 1) return "<incomplete>";
-            desc = "Skill Roll: " + v.mSkill + " (-1 per " + (abbr ? perAbbr[v.mPer] : per[v.mPer]);
+            desc = "Skill Roll: " + v.mSkill + " (-1 per " + (abbr ? perAbbr[v.mPer] : perPnts[v.mPer]);
             sep = "; ";
         } else {
             if (v.mRoll < 1) return "<incomplete>";
-            desc = "Roll " + roll[v.mRoll];
+            desc = "Roll " + rollOf[v.mRoll];
             sep = " (";
         }
         if (v.mWhen) { desc += sep + (abbr ? "Each Phs/" : "Every phase or ") + "Use"; sep = "; "; }
@@ -6729,10 +6729,10 @@ private:
     QCheckBox* pre = nullptr;
 
     QString optOut(bool show, bool abbr = false) {
-        QStringList level { "", "Minor", "Major", "Extreme" };
+        QStringList levelOf { "", "Minor", "Major", "Extreme" };
         QStringList levelAbbr { "", "Min.", "Maj.", "Ext." };
-        QStringList affects { "", "Character", "Around Character", "Recipient", "Character And Recipient" };
-        QStringList when { "", "Required Roll Fails", "A Thing Happens", "When Power Used",
+        QStringList affect { "", "Character", "Around Character", "Recipient", "Character And Recipient" };
+        QStringList whenIt { "", "Required Roll Fails", "A Thing Happens", "When Power Used",
                            "When Power Stops Being Used" };
         QStringList affectsAbbr { "", "Char.", "Around Char.", "Recip.", "Char. & Recip." };
         QStringList whenAbbr { "", "Req. Roll Fails", "A Thing Happens", "When Used",
@@ -6740,13 +6740,13 @@ private:
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "-") + f.toString() + ") " : "");
         if (v.mAffects < 1 || v.mWhen < 1 || v.mLevel < 1 || v.mEffect.isEmpty()) return "<incomplete>";
-        desc += QString(abbr ? levelAbbr[v.mLevel] : level[v.mLevel]) + " Side Effect (" + v.mEffect;
+        desc += QString(abbr ? levelAbbr[v.mLevel] : levelOf[v.mLevel]) + " Side Effect (" + v.mEffect;
         if (abbr) {
             desc += " On " + affectsAbbr[v.mAffects];
             desc += " When " + whenAbbr[v.mWhen];
         } else {
-            desc += " On " + affects[v.mAffects];
-            desc += " When " + when[v.mWhen];
+            desc += " On " + affect[v.mAffects];
+            desc += " When " + whenIt[v.mWhen];
         }
         if (v.mConstant) desc += abbr ? "; Fixed Dmg" : "; Fixed Damage";
         return desc + ")";
@@ -7398,14 +7398,14 @@ private:
     QString optOut(bool show, bool abbr = false) {
         if (v.mCond.isEmpty() || v.mAct < 1 || v.mReset < 1) return "<incomplete>";
         Fraction f(fraction(NoStore));
-        QStringList reset { "", "Turn to", "Full Phase to", "Half Phase to", "0-Phase to", "Automatically" };
+        QStringList resetOn { "", "Turn to", "Full Phase to", "Half Phase to", "0-Phase to", "Automatically" };
         QStringList resetAbbr { "", "Tn to", "Full Phs to", Fraction(1, 2).toString() + " Phs to", "0-Phs to", "Auto." };
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Trigger (";
         desc += v.mCond;
         if (v.mChange) desc += abbr ? "Can Chng Cond." : "; Can Change Conditions";
         if (v.mActive) desc += abbr ? "0-Phs Act." : ": 0-Phase Act.";
         desc += QString(abbr ? "%1 Act. Cond." : "; %1 Activating Conditions").arg(v.mAct);
-        desc += "; " + (abbr ? resetAbbr[v.mReset] : reset[v.mReset]) + " reset";
+        desc += "; " + (abbr ? resetAbbr[v.mReset] : resetOn[v.mReset]) + " reset";
         if (v.mExpire) desc += "; " + QString(abbr ? "Exp." : "Expires");
         if (v.mMisfire) desc += "; Misfire";
         return desc + ")";
@@ -8107,9 +8107,9 @@ private:
     QString optOut(bool show, bool abbr = false) {
         if (v.mCharacteristic < 1) return "<incomplete>";
         Fraction f(fraction(NoStore));
-        QStringList characteristic = { "", "STR", "DEX", "INT", "EGO", "PRE", "OCV", "DCV", "OMCV", "DMCV",
-                                       "SPD", "PD", "ED", "REC", "END", "BODY", "STUN" };
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + QString(abbr ? "Vs EGO Not %1▲" : "Works Against EGO Not %1▲").arg(characteristic[v.mCharacteristic]);
+        QStringList stat = { "", "STR", "DEX", "INT", "EGO", "PRE", "OCV", "DCV", "OMCV", "DMCV",
+                             "SPD", "PD", "ED", "REC", "END", "BODY", "STUN" };
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + QString(abbr ? "Vs EGO Not %1▲" : "Works Against EGO Not %1▲").arg(stat[v.mCharacteristic]);
         return desc;
     }
 };

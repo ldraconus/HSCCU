@@ -174,7 +174,7 @@ private:
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         if (v.mTime) {
-            QStringList span
+            QStringList spanLst
                 { "1 Turn", "1 Minute", "5 Minutes", "20 Minutes", "1 Hour", "6 Hours",
                   "1 Day", "1 Week", "1 Month", "1 Season", "1 Year", "5 Years",
                   "25 Years", "1 Century", "5 Centuries", "25 Centuries" };
@@ -189,7 +189,7 @@ private:
                 if (v.mWhen == 2) res += abbr ? "For." : "Forward In Time";
                 else if (v.mWhen == 3) res += abbr ? "Back." : "Backward In Time";
                 else res += abbr ? "For. & Back." : "Forwards And Backwards In Time";
-                res += " (" + (abbr ? spanAbbr[v.mSpan] : span[v.mSpan]) + ")";
+                res += " (" + (abbr ? spanAbbr[v.mSpan] : spanLst[v.mSpan]) + ")";
             }
             if (v.mTimLoc > 0) {
                 if (v.mTimLoc != 3) res += "; To " + v.mTimWhr;

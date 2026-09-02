@@ -10,33 +10,15 @@
 
 class Dependent: public Complication {
 public:
-    Dependent(): Complication() {id({ }); }
-    Dependent(const Dependent& ac)
-        : Complication()
-        , v(ac.v) { }
-    Dependent(Dependent&& ac)
-        : Complication()
-        , v(ac.v) { }
+    Dependent() = default;
     Dependent(const QJsonObject& json)
-        : Complication()
+        : Complication(json)
         , v { json["competence"].toInt(0)
             , json["frequency"].toInt(0)
             , json["multiples"].toInt(0)
             , json["unaware"].toBool(false)
             , json["useful"].toBool(false)
-            , json["who"].toString("") } { id(json); }
-    ~Dependent() override { }
-
-    Dependent& operator=(const Dependent& ac) {
-        Complication::operator=(d);
-        if (this != &ac) v = ac.v;
-        return *this;
-    }
-    Dependent& operator=(Dependent&& ac) {
-        Complication::operator=(std::move(d));
-        v = ac.v;
-        return *this;
-    }
+            , json["who"].toString("") } { }
 
     QString abbreviation() override { return str(); }
     QString description() override  { return str(); }
@@ -48,11 +30,10 @@ public:
         if (v.mFrequency < 0 || v.mCompetence < 0 || v.mWho.isEmpty()) return "<incomplete>";
         QString result = "Dependent NPC: " + v.mWho + " (";
 #ifndef ISHSC
-        if (Sheet::ref().getOption().showFrequencyRolls())
-#endif
-            result += freq[v.mFrequency];
-#ifndef ISHSC
+        if (Sheet::ref().getOption().showFrequencyRolls()) result += freq[v.mFrequency];
         else result += freqSans[v.mFrequency];
+#else
+        result += freq[v.mFrequency];
 #endif
         result += "); " + comp[v.mCompetence];
         if (v.mUnaware) result += abbr ? "; DNPC unaware" : "; DNPC is unaware of character's adventuring";
@@ -66,12 +47,10 @@ public:
                                                                                      "As Powerful As The PC" });
         useful     = createCheckBox(parent, layout, "DNPC has useful noncombat position or skills");
 #ifndef ISHSC
-        if (Sheet::ref().getOption().showFrequencyRolls())
-#endif
-            frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
-#ifndef ISHSC
-        else
-            frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently", "Frequently", "Very Frequently" });
+        if (Sheet::ref().getOption().showFrequencyRolls()) frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
+        else frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently", "Frequently", "Very Frequently" });
+#else
+        frequency  = createComboBox(parent, layout, "How often do they Appear?", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
 #endif
         unaware    = createCheckBox(parent, layout, "DNPC is unaware of character's adventuring");
         multiples  = createLineEdit(parent, layout, "How many dependants?", std::mem_fn(&Complication::numeric));
@@ -101,8 +80,7 @@ public:
         v.mUseful     = useful->isChecked();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
-        obj["id"]         = mGuid;
+        QJsonObject obj   = Complication::toJson();
         obj["name"]       = "Dependent NPC";
         obj["competence"] = v.mCompetence;
         obj["frequency"]  = v.mFrequency;

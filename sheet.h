@@ -56,12 +56,14 @@ public:
 
     static Sheet& ref() { return* sSheet; }
 
+#ifndef _MSVC_LANG
     typedef std::shared_ptr<ComplicationsMenuDialog> tComplicationsMenu;
     typedef std::shared_ptr<EditMenuDialog>          tEditMenu;
     typedef std::shared_ptr<FileMenuDialog>          tFileMenu;
     typedef std::shared_ptr<ImgMenuDialog>           tImgMenu;
     typedef std::shared_ptr<SkillMenuDialog>         tSkillMenu;
     typedef std::shared_ptr<PowerMenuDialog>         tPowerMenu;
+#endif
     typedef std::shared_ptr<PrintDialog>             tPrint;
     typedef std::shared_ptr<optionDialog>            tOption;
     typedef std::shared_ptr<ComplicationsDialog>     tComplications;
@@ -69,12 +71,14 @@ public:
     typedef std::shared_ptr<SkillDialog>             tSkill;
     static class Dialogs {
     public:
+#ifndef _MSVC_LANG
         tComplicationsMenu ComplicationsMenu { nullptr };
         tEditMenu          EditMenu { nullptr };
         tFileMenu          FileMenu { nullptr };
         tImgMenu           ImgMenu { nullptr };
         tSkillMenu         SkillMenu { nullptr };
         tPowerMenu         PowerMenu { nullptr };
+#endif
         tPrint             Print { nullptr };
         tOption            Option { nullptr };
         tComplications     Complications { nullptr };

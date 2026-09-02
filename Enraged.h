@@ -5,32 +5,14 @@
 
 class Enraged: public Complication {
 public:
-    Enraged(): Complication() { id({ }); }
-    Enraged(const Enraged& ac)
-        : Complication()
-        , v(ac.v) { }
-    Enraged(Enraged&& ac)
-        : Complication()
-        , v(ac.v) { }
+    Enraged() = default;
     Enraged(const QJsonObject& json)
-        : Complication()
+        : Complication(json)
         , v { json["chance"].toInt(0)
             , json["frequency"].toInt(0)
             , json["regain"].toInt(0)
             , json["type"].toBool(false)
-            , json["what"].toString("") } { id(json); }
-    ~Enraged() override { }
-
-    Enraged& operator=(const Enraged& ac) {
-        Complication::operator=(d);
-        if (this != &ac) v = ac.v;
-        return *this;
-    }
-    Enraged& operator=(Enraged&& ac) {
-        Complication::operator=(std::move(d));
-        v = ac.v;
-        return *this;
-    }
+            , json["what"].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
@@ -71,7 +53,7 @@ public:
         v.mType      = type->isChecked();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
+        QJsonObject obj  = Complication::toJson();
         obj["name"]      = "Enraged/Berserk";
         obj["chance"]    = v.mChance;
         obj["frequency"] = v.mRrequency;

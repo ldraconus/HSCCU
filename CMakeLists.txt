@@ -156,6 +156,7 @@ else()
             Background.png Installer.ico
             data.qrc
             editmenudialog.h filemenudialog.h
+            test
 
         )
     else()
@@ -180,6 +181,17 @@ else()
             appicon.rc
         )
     endif()
+endif()
+
+if (MSVC)
+    target_compile_options(HSCCU PRIVATE
+            /w34456
+            /w34457
+            /w34458
+            /w34459
+        )
+else()
+    target_compile_options(HSCCU PRIVATE -Wshadow)
 endif()
 
 # Resources:

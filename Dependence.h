@@ -5,15 +5,9 @@
 
 class Dependence: public Complication {
 public:
-    Dependence(): Complication() { id({ }); }
-    Dependence(const Dependence& d)
-        : Complication()
-        , v(d.v) { }
-    Dependence(Dependence&& d)
-        : Complication()
-        , v(d.v) { }
+    Dependence() = default;
     Dependence(const QJsonObject& json)
-        : Complication()
+        : Complication(json)
         , v { json["addiction"].toBool(false)
             , json["competence"].toBool(false)
             , json["damage"].toInt(0)
@@ -21,30 +15,16 @@ public:
             , json["roll"].toInt(-1)
             , json["time step"].toInt(-1)
             , json["weakness"].toBool(false)
-            , json["what"].toString() } { id(json); }
-
-    ~Dependence() override { }
-
-    Dependence& operator=(const Dependence& d) {
-        Complication::operator=(d);
-        if (this != &d) v = d.v;
-        return *this;
-    }
-    Dependence& operator=(Dependence&& d) {
-        Complication::operator=(std::move(d));
-        v = d.v;
-        return *this;
-    }
-
+            , json["what"].toString() } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
     QString str(bool abbr = false) {
-        QList<QString> rarity { abbr ? "V. Com./Easy To Get" : "Very Common/Easy To Obtain",
+        QList<QString> rarityStr { abbr ? "V. Com./Easy To Get" : "Very Common/Easy To Obtain",
                                 abbr ? "Com./Diff. To Get" : "Common/Difficult To Obtain",
                                 abbr ? "Uncom./Xtremely Diff. To Get" : "Uncommon/Extremely Difficult To Obtain" };
-        QList<QString> damage { "", "1d6", "2d6", "3d6" };
-        QList<QString> roll { "", abbr ? "Powers Get 14- Roll" : "Powers Aquire a 14- Required Roll",
+        QList<QString> damageStr { "", "1d6", "2d6", "3d6" };
+        QList<QString> rollStr { "", abbr ? "Powers Get 14- Roll" : "Powers Aquire a 14- Required Roll",
                               abbr ? "Powers Get 11- Roll" : "Powers Aquire a 11- Required Roll" };
         QList<QString> time { "", "Segment", "Phase", "Turn", "Minute", "5 Minutes", "20 Minutes",
                               "1 Hour", "6 Hours", "Day", "Week", "Month", "Season",
@@ -55,11 +35,11 @@ public:
         if (v.mAddiction && v.mDamage < 1 && !v.mCompetence && !v.mWeakness) return "<incomplete>";
         if (v.mRarity < 0 || (v.mDamage < 1 && v.mRoll < 1 && !v.mCompetence && !v.mWeakness) || (!v.mAddiction && v.mTimeStep < 1)) return "<incomplete>";
         QString result;
-        if (v.mAddiction) result = QString(abbr ? "Addict: %1 (%2" : "Addiction: %1 (%2").arg(v.mWhat, rarity[v.mRarity]);
-        else result = QString(abbr ? "Dep.: %1 (%2" : "Dependence: %1 (%2").arg(v.mWhat, rarity[v.mRarity]);
-        if (v.mDamage >= 1) result += "; " + damage[v.mDamage] + (abbr ? "Dmg" : "Damage");
+        if (v.mAddiction) result = QString(abbr ? "Addict: %1 (%2" : "Addiction: %1 (%2").arg(v.mWhat, rarityStr[v.mRarity]);
+        else result = QString(abbr ? "Dep.: %1 (%2" : "Dependence: %1 (%2").arg(v.mWhat, rarityStr[v.mRarity]);
+        if (v.mDamage >= 1) result += "; " + damageStr[v.mDamage] + (abbr ? "Dmg" : "Damage");
         if (v.mTimeStep >= 1 && !v.mAddiction) result += QString("%1 Every ").arg(v.mDamage >= 1 ? "" : ";") + time[v.mTimeStep];
-        if (v.mRoll >= 1) result += "; " + roll[v.mRoll];
+        if (v.mRoll >= 1) result += "; " + rollStr[v.mRoll];
         if (v.mCompetence) result += QString("; ") + (abbr ? " To Skill Rolls/time incr." : "-1 To Skill Rolls And Related Rolls Per Time Increment");
         if (v.mWeakness) result += QString("; ") + (abbr ? "-3 To All Chars/Time Incr." : "-3 To All Characteristics Per Time Increment");
         return result + ") ";
@@ -109,8 +89,7 @@ public:
         v.mWhat       = what->text();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
-        obj["id"]         = mGuid;
+        QJsonObject obj   = Complication::toJson();
         obj["name"]       = "Dependence";
         obj["addiction"]  = v.mAddiction;
         obj["competence"] = v.mCompetence;

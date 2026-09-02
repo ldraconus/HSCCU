@@ -19,17 +19,21 @@ private:
     QWidget* mSender {};
 
 protected:
-    QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (SkillTalentOrPerk::*)(bool)>);
+    using BoolCallback   = std::function<void (SkillTalentOrPerk*, bool)>;
+    using IntCallback    = std::function<void (SkillTalentOrPerk*, int)>;
+    using StringCallback = std::function<void (SkillTalentOrPerk*, QString)>;
+
+    QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString, BoolCallback);
     QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString);
-    QComboBox* createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, std::_Mem_fn<void (SkillTalentOrPerk::*)(int)>);
+    QComboBox* createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, IntCallback);
     QComboBox* createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
     QLabel*    createLabel(QWidget*, QVBoxLayout*, QString);
-    QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (SkillTalentOrPerk::*)(QString)> callback);
+    QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, StringCallback);
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString);
 
-    QMap<QCheckBox*, std::function<void (SkillTalentOrPerk::*)(bool)>>     mCallbacksCB;
-    QMap<QComboBox*, std::function<void (SkillTalentOrPerk::*)(int)>>      mCallbacksCBox;
-    QMap<QLineEdit*, std::function<void (SkillTalentOrPerk::*)(QString)>>  mCallbacksEdit;
+    QMap<QCheckBox*, BoolCallback>   mCallbacksCB;
+    QMap<QComboBox*, IntCallback>    mCallbacksCBox;
+    QMap<QLineEdit*, StringCallback> mCallbacksEdit;
 
     void empty(bool)      { }
 
@@ -50,14 +54,7 @@ protected:
 public:
     class skillBase {
     public:
-        skillBase() { }
-        skillBase(const skillBase&) { }
-        skillBase(skillBase&&) { }
-        skillBase(skillBase*) { }
-        virtual ~skillBase() { }
-
-        skillBase& operator=(const skillBase&) = delete;
-        skillBase& operator=(skillBase&&) = delete;
+        skillBase() = default;
 
         virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
         virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
@@ -66,29 +63,15 @@ public:
     template <typename T>
     class skill: public skillBase {
     public:
-        skill(): skillBase() { }
-        skill(const skill& b): skillBase(b) { }
-        skill(skill&& b): skillBase(b) { }
-        skill(skill* b): skillBase(b) { }
-        ~skill() override { }
-
-        skill& operator=(const skill& b) = delete;
-        skill& operator=(skill&& b) = delete;
-
-        shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
-        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
+        skill() = default;
+\
+        shared_ptr<SkillTalentOrPerk> create() override                        { auto x = make_shared<T>();     x->id();     return x; }
+        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
     };
 
     class perkBase {
     public:
-        perkBase() { }
-        perkBase(const perkBase&) { }
-        perkBase(perkBase&&) { }
-        perkBase(perkBase*) { }
-        virtual ~perkBase() { }
-
-        perkBase& operator=(const perkBase&) = delete;
-        perkBase& operator=(perkBase&&) = delete;
+        perkBase() = default;
 
         virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
         virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
@@ -97,29 +80,15 @@ public:
     template <typename T>
     class perk: public perkBase {
     public:
-        perk(): perkBase() { }
-        perk(const perk& b): perkBase(b) { }
-        perk(perk&& b): perkBase(b) { }
-        perk(perk* b): perkBase(b) { }
-        ~perk() override { }
+        perk() = default;
 
-        perk& operator=(const perk& b) = delete;
-        perk& operator=(perk&& b) = delete;
-
-        shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
-        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
+        shared_ptr<SkillTalentOrPerk> create() override                        { auto x = make_shared<T>();     x->id();     return x; }
+        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
     };
 
     class talentBase {
     public:
-        talentBase() { }
-        talentBase(const talentBase&) { }
-        talentBase(talentBase&&) { }
-        talentBase(talentBase*) { }
-        virtual ~talentBase() { }
-
-        talentBase& operator=(const talentBase&) = delete;
-        talentBase&& operator=(talentBase&&) = delete;
+        talentBase() = default;
 
         virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
         virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
@@ -128,29 +97,15 @@ public:
     template <typename T>
     class talent: public talentBase {
     public:
-        talent(): talentBase() { }
-        talent(const talent& b): talentBase(b) { }
-        talent(talent&& b): talentBase(b) { }
-        talent(talentBase* b): talentBase(b) { }
-        ~talent() override {}
+        talent() = default;
 
-        talent& operator=(const talent&) = delete;
-        talent& operator=(talent&&) = delete;
-
-        shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
-        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
+        shared_ptr<SkillTalentOrPerk> create() override                        { auto x = make_shared<T>();     x->id();     return x; }
+        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
     };
 
     class enhancerBase {
     public:
-        enhancerBase() { }
-        enhancerBase(const enhancerBase&) { }
-        enhancerBase(enhancerBase&&) { }
-        enhancerBase(enhancerBase*) { }
-        virtual ~enhancerBase() { }
-
-        enhancerBase& operator=(const enhancerBase&) = delete;
-        enhancerBase& operator=(enhancerBase&&) = delete;
+        enhancerBase() = default;
 
         virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
         virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
@@ -159,21 +114,13 @@ public:
     template <typename T>
     class enhancer: public enhancerBase {
     public:
-        enhancer(): enhancerBase() { }
-        enhancer(const enhancer& b): enhancerBase(b) { }
-        enhancer(enhancer&& b): enhancerBase(b) { }
-        enhancer(enhancer* b): enhancerBase(b) { }
-        ~enhancer() override {}
+        enhancer() = default;
 
-        enhancer& operator=(const enhancer&) = delete;
-        enhancer& operator=(enhancer&&) = delete;
-
-        shared_ptr<SkillTalentOrPerk> create() override                        { return make_shared<T>(); }
-        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { return make_shared<T>(json); }
+        shared_ptr<SkillTalentOrPerk> create() override                        { auto x = make_shared<T>();     x->id();     return x; }
+        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
     };
 
-    SkillTalentOrPerk();
-    virtual ~SkillTalentOrPerk() { }
+    SkillTalentOrPerk() = default;
 
     static const bool NoStore = true;
     static const bool ShowRoll = true;
@@ -186,7 +133,6 @@ public:
     virtual void        restore()                      = 0;
     virtual QString     roll()                         = 0;
     virtual void        store()                        = 0;
-    virtual QJsonObject toJson()                       = 0;
     virtual bool        isSkill()                      { return false; }
     virtual bool        isPerk()                       { return false; }
     virtual bool        isTalent()                     { return false; }
@@ -194,11 +140,12 @@ public:
     virtual int         rPD()                          { return 0; }
     virtual int         place()                        { return 1; }
 
-    virtual void checked(bool) { }
-    virtual void numeric(QString) { }
+    virtual void        checked(bool)    { }
+    virtual void        numeric(QString) { }
+    virtual QJsonObject toJson()         { QJsonObject obj; obj["id"] = mGuid; return obj; }
 
-    QWidget* sender() { return mSender; }
-    QString  id()     { return mGuid; }
+    QWidget* sender() const { return mSender; }
+    QString  id() const     { return mGuid; }
 
     void callback(QCheckBox*);
     void callback(QLineEdit*);
@@ -216,7 +163,6 @@ public:
     bool isNumber(QString);
 
     static constexpr int BaseRoll = 11;
-
 
 protected:
     QString mGuid;

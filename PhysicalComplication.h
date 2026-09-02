@@ -5,20 +5,12 @@
 
 class PhysicalComplication: public Complication {
 public:
-    PhysicalComplication(): Complication() { }
-    PhysicalComplication(const PhysicalComplication& ac)
-        : Complication()
-        , v(ac.v) { }
-    PhysicalComplication(PhysicalComplication&& ac)
-        : Complication()
-        , v(ac.v) { }
+    PhysicalComplication() = default;
     PhysicalComplication(const QJsonObject& json)
-        : Complication()
-        , v { json["frequency"].toInt(0), json["impairs"].toInt(0), json["what"].toString("") } { }
-    ~PhysicalComplication() override { }
-
-    PhysicalComplication& operator=(const PhysicalComplication& ac) = delete;
-    PhysicalComplication& operator=(PhysicalComplication&& ac) = delete;
+        : Complication(json)
+        , v { json["frequency"].toInt(0),
+              json["impairs"].toInt(0),
+              json["what"].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
@@ -52,7 +44,7 @@ public:
         v.mImpairs   = impairs->currentIndex();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
+        QJsonObject obj  = Complication::toJson();
         obj["name"]      = "Physical Complication";
         obj["frequency"] = v.mFrequency;
         obj["impairs"]   = v.mImpairs;

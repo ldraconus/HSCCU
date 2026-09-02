@@ -55,11 +55,11 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v.mRestr.isEmpty() ? Fraction(0) : Fraction(1, 4)); }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   QList<Fraction> limit { { 0, 1 }, { 0, 1 },
+                                                                   QList<Fraction> limitF { { 0, 1 }, { 0, 1 },
                                                                        { 2, { 0, 1 } }, { 1, { 3, 4 } }, { 1, { 1, 2 } }, { 1, { 1, 4 } },
                                                                        { 1, { 0, 1 } },      { 3, 4 },        { 1, 2 },        { 1, 4 }
                                                                    };
-                                                                   Fraction flim = (Fraction(1) + limit[v.mLim + 1] + ((v.mSlow > 0) ? Fraction(1) * Fraction(v.mSlow) : Fraction(0)));
+                                                                   Fraction flim = (Fraction(1) + limitF[v.mLim + 1] + ((v.mSlow > 0) ? Fraction(1) * Fraction(v.mSlow) : Fraction(0)));
                                                                    return (v.mEnd + 2) / 4_cp + (Fraction((2_cp * (v.mRec + 1) / 3).points) / flim).toInt();
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -114,7 +114,7 @@ private:
         res += QString("%1 END/%2 REC").arg(v.mEnd).arg(v.mRec) + (abbr ? "END Res." : "Endurance Reserve");
         if (v.mLim > 0) res += (abbr ? "; Lim. REC (" : "; Limited Recovery (") + v.mWhat + ")";
         if (!v.mRestr.isEmpty()) res += (abbr ? "Restr. (" : "; Restricted Use (") + v.mRestr + ")";
-        static QStringList restr { "", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes", "1 Hour", "6 Hours",
+        static QStringList resStr { "", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes", "1 Hour", "6 Hours",
                                    "1 Day", "1 Week", "1 Month", "1 Season", "1 Year", "5 Years", "25 Years",
                                    "1 Century" };
         static QStringList restrAbbr { "", "1 Tn", "1 Min.", "5 Mins", "20 Mins", "1 Hr", "6 Hrs",
@@ -122,7 +122,7 @@ private:
                                        "1 Cent." };
         if (v.mSlow > 0) {
             if (abbr) res += "; Slow REC (" + restrAbbr[v.mSlow] + ")";
-            else res += "; Slow Recovery (" + restr[v.mSlow] + ")";
+            else res += "; Slow Recovery (" + resStr[v.mSlow] + ")";
         }
         return res;
     }
@@ -162,16 +162,16 @@ public:
 class IndependantAdvantage: public AllPowers {
 private:
     QStringList getPowers() {
-        QStringList pow;
+        QStringList powLst;
 #ifndef ISHSC
         auto list = Sheet::ref().character().powersOrEquipment();
-        pow << "";
+        powLst << "";
         for (const auto& power: std::as_const(list)) {
-            if (power->nickname().isEmpty()) pow << power->description();
-            else pow << power->nickname();
+            if (power->nickname().isEmpty()) powLst << power->description();
+            else powLst << power->nickname();
         }
 #endif
-        return pow;
+        return powLst;
     }
 
 #ifndef ISHSC
@@ -187,12 +187,12 @@ private:
 #ifdef ISHSC
     int powerLookup(shared_ptr<Power>) {
 #else
-    int powerLookup(shared_ptr<Power> pow) {
+    int powerLookup(shared_ptr<Power> powPtr) {
         int idx = 0;
         auto list = Sheet::ref().character().powersOrEquipment();
         for (const auto& power: std::as_const(list)) {
             idx++;
-            if (power == pow) return idx;
+            if (power == powPtr) return idx;
         }
 #endif
         return -1;
@@ -202,8 +202,8 @@ public:
     IndependantAdvantage(): AllPowers("Independant Advantage")        { }
     IndependantAdvantage(const IndependantAdvantage& s): AllPowers(s) { }
     IndependantAdvantage(IndependantAdvantage&& s): AllPowers(s)      { }
-    IndependantAdvantage(const QJsonObject& json): AllPowers(json)    { auto mod = json["mod"].toObject();
-                                                                        QString name = mod["name"].toString();
+    IndependantAdvantage(const QJsonObject& json): AllPowers(json)    { auto modObj = json["mod"].toObject();
+                                                                        QString name = modObj["name"].toString();
                                                                         v.mMod = Modifiers::ByName(name)->create(json["mod"].toObject());
                                                                         v.mPts = json["pts"].toInt(0);
                                                                         auto power = json["power"].toObject();
@@ -294,11 +294,11 @@ private:
 #ifndef ISHSC
             ModifiersDialog dlg(ModifiersDialog::Advantage, &Sheet::ref());
             if (dlg.exec() == QDialog::Rejected) return;
-            shared_ptr<Modifier> mod = dlg.modifier();
-            if (!(mod->type() == ModifierBase::ModifierType::isAdvantage ||
-                  (mod->type() == ModifierBase::ModifierType::isBoth && mod->fraction(Modifier::NoStore) >= 0L))) return;
-            btn->setText(mod->description());
-            v.mMod = mod;
+            shared_ptr<Modifier> modPtr = dlg.modifier();
+            if (!(modPtr->type() == ModifierBase::ModifierType::isAdvantage ||
+                  (modPtr->type() == ModifierBase::ModifierType::isBoth && modPtr->fraction(Modifier::NoStore) >= 0L))) return;
+            btn->setText(modPtr->description());
+            v.mMod = modPtr;
 #endif
         }
     }
@@ -446,11 +446,11 @@ private:
         if (v.mBody < 1 && v.mTime < 1) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        QStringList time { "", "Week", "Day", "6 Hours", "Hour", "20 Minutes", "Minute",
+        QStringList timeLst { "", "Week", "Day", "6 Hours", "Hour", "20 Minutes", "Minute",
                            "Hour", "Turn" };
         QStringList timeAbbr { "", "Wk", "Day", "6 Hrs", "Hr", "20 Mins", "Min,",
                                "Hr", "Tn" };
-        res += QString(abbr ? "%1 BODY per %2 Regen." : "%1 BODY per %2 Regeneration").arg(v.mBody).arg(time[v.mTime]);
+        res += QString(abbr ? "%1 BODY per %2 Regen." : "%1 BODY per %2 Regeneration").arg(v.mBody).arg(timeLst[v.mTime]);
         return res;
     }
 

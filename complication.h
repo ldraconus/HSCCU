@@ -36,14 +36,7 @@ private:
 
 public:
     Complication() { id({ }); }
-    Complication(const Complication& c)
-        : mGuid(c.mGuid) { }
-    Complication(const Complication&&c)
-        : mGuid(c.mGuid) { }
-    virtual ~Complication() { }
-
-    Complication& operator=(const Complication& c) { mGuid = c.mGuid; return *this; }
-    Complication& operator=(Complication&& c)      { mGuid = c.mGuid; return *this; }
+    Complication(const QJsonObject& obj) { id(obj); }
 
     static const bool NoStore = true;
 
@@ -53,16 +46,20 @@ public:
     virtual Points      points(bool noStore = false) = 0;
     virtual void        restore()                    = 0;
     virtual void        store()                      = 0;
-    virtual QJsonObject toJson()                     = 0;
 
-    virtual void checked(bool) { }
-    virtual void numeric(QString) { }
+    virtual void        checked(bool) { }
+    virtual void        numeric(QString) { }
+    virtual QJsonObject toJson() {
+        QJsonObject obj;
+        obj["id"] = mGuid;
+        return obj;
+    }
 
     void callback(QCheckBox*);
     void callback(QLineEdit*);
     void createForm(QWidget*, QVBoxLayout*);
 
-    static QList<QString> Available();
+    static QList<QString>           Available();
     static shared_ptr<Complication> ByIndex(int);
     static shared_ptr<Complication> FromJson(QString, const QJsonObject&);
 
@@ -76,17 +73,9 @@ protected:
 
 class BlankComp: public Complication {
 public:
-    BlankComp(): Complication() { }
-    BlankComp(const BlankComp& c)
-        : Complication(c) { }
-    BlankComp(BlankComp&& c)
-        : Complication(std::move(c)) { }
+    BlankComp() = default;
     BlankComp(const QJsonObject& obj)
-        : Complication() { id(obj); }
-    ~BlankComp() override { }
-
-    BlankComp& operator=(const BlankComp& c) { Complication::operator=(c); return *this; }
-    BlankComp& operator=(BlankComp&& c)      { Complication::operator=(std::move(c)); return *this; }
+        : Complication(obj) { }
 
     QString description() override               { return "-"; }
     void form(QWidget*, QVBoxLayout*) override   { throw "No Form"; }
@@ -94,12 +83,12 @@ public:
     void restore() override                      { }
     void store() override                        { }
     QJsonObject toJson() override {
-        QJsonObject obj;
-        obj["id"]     = mGuid;
+        QJsonObject obj = Complication::toJson();
         obj["name"]   = "Blank Line";
         return obj;
     }
-};
 
+
+};
 
 #endif // COMPLICATION_H

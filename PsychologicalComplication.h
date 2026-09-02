@@ -6,24 +6,11 @@
 class PsychologicalComplication: public Complication {
 public:
     PsychologicalComplication(): Complication() { }
-    PsychologicalComplication(const PsychologicalComplication& ac)
-        : Complication()
-        , v(ac.v) { }
-    PsychologicalComplication(PsychologicalComplication&& ac)
-        : Complication()
-        , v(ac.v) { }
     PsychologicalComplication(const QJsonObject& json)
-        : Complication()
-        , v { json["frequency"].toInt(0), json["intensity"].toInt(0), json["what"].toString("") } { }
-
-    PsychologicalComplication& operator=(const PsychologicalComplication& ac) {
-        if (this != &ac)v = ac.v;
-        return *this;
-    }
-    PsychologicalComplication& operator=(PsychologicalComplication&& ac) {
-        v = ac.v;
-        return *this;
-    }
+        : Complication(json)
+        , v { json["frequency"].toInt(0),
+              json["intensity"].toInt(0),
+              json["what"].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
@@ -58,7 +45,7 @@ public:
         v.mIntensity = intensity->currentIndex();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
+        QJsonObject obj  = Complication:: toJson();
         obj["name"]      = "Psychological Complication";
         obj["frequency"] = v.mFrequency;
         obj["intensity"] = v.mIntensity;

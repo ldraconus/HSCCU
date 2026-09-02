@@ -6,20 +6,13 @@
 
 class NegativeReputation: public Complication {
 public:
-    NegativeReputation(): Complication() { }
-    NegativeReputation(const NegativeReputation& ac)
-        : Complication()
-        , v(ac.v) { }
-    NegativeReputation(NegativeReputation&& ac)
-        : Complication()
-        , v(ac.v) { }
+    NegativeReputation() = default;
     NegativeReputation(const QJsonObject& json)
-        : Complication()
-        , v { json["extreme"].toBool(false), json["frequency"].toInt(0), json["limited"].toBool(false), json["what"].toString("") } { }
-    ~NegativeReputation() override { }
-
-    NegativeReputation& operator=(const NegativeReputation& ac) = delete;
-    NegativeReputation& operator=(NegativeReputation&& ac) = delete;
+        : Complication(json)
+        , v { json["extreme"].toBool(false),
+              json["frequency"].toInt(0),
+              json["limited"].toBool(false),
+              json["what"].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
@@ -29,24 +22,24 @@ public:
         static QList<QString> freqAbbr     { "8-", "11-", "14-", "Always" };
         static QList<QString> freqSansAbbr { "Infreq.", "Freq.", "V. Freq.", "Always" };
         if (v.mFrequency < 0 || v.mWhat.isEmpty()) return "<incomplete>";
-        return QString(abbr ? "Neg. Rep.: %1 (%2%3%4)" : "Negative Reputation: %1 (%2%3%4)").arg(v.mWhat,
 #ifndef ISHSC
+        return QString(abbr ? "Neg. Rep.: %1 (%2%3%4)" : "Negative Reputation: %1 (%2%3%4)").arg(v.mWhat,
                                                                Sheet::ref().getOption().showFrequencyRolls()
+                                                                    ? (abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency]) : (abbr ? freqSansAbbr[v.mFrequency] : freqSans[v.mFrequency]),
+                                                                      v.mExtreme ? (abbr ? "; Xtreme" : "; Extreme") : "", v.mLimited ? (abbr ? "Lim. Grp" : "; Limited Group") : "");
 #else
-                                                               true
+        return QString(abbr ? "Neg. Rep.: %1 (%2%3%4)" : "Negative Reputation: %1 (%2%3%4)").arg(v.mWhat,
+                                                               abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency]),
+                                                               v.mExtreme ? (abbr ? "; Xtreme" : "; Extreme") : "", v.mLimited ? (abbr ? "Lim. Grp" : "; Limited Group") : "");
 #endif
-                                                                   ? (abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency]) : (abbr ? freqSansAbbr[v.mFrequency] : freqSans[v.mFrequency]),
-                                                                     v.mExtreme ? (abbr ? "; Xtreme" : "; Extreme") : "", v.mLimited ? (abbr ? "Lim. Grp" : "; Limited Group") : "");
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         what      = createLineEdit(parent, layout, "What is the reputation?");
 #ifndef ISHSC
-        if (Sheet::ref().getOption().showFrequencyRolls())
-#endif
-            frequency = createComboBox(parent, layout, "How often is it recognized", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
-#ifndef ISHSC
-        else
-            frequency = createComboBox(parent, layout, "How often is it recognized", { "Infrequently", "Frequently", "Very Frequently" });
+        if (Sheet::ref().getOption().showFrequencyRolls()) frequency = createComboBox(parent, layout, "How often is it recognized", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
+        else frequency = createComboBox(parent, layout, "How often is it recognized", { "Infrequently", "Frequently", "Very Frequently" });
+#else
+        frequency = createComboBox(parent, layout, "How often is it recognized", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
 #endif
         extreme   = createCheckBox(parent, layout, "Extreme Reputation");
         limited   = createCheckBox(parent, layout, "Known only to a limited group");
@@ -70,7 +63,7 @@ public:
         v.mLimited   = limited->isChecked();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
+        QJsonObject obj  = Complication::toJson();
         obj["name"]      = "Negative Reputation";
         obj["extreme"]   = v.mExtreme;
         obj["frequency"] = v.mFrequency;

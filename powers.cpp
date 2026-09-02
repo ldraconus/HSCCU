@@ -883,7 +883,7 @@ Points Power::real(Fraction add, Points mod, Fraction sub) {
     Fraction limits(0);
     if (sub == 0) limits = Fraction(1);
     limits += lim() + sub;
-    for (const auto& mod: std::as_const(limitationsList())) limits += mod->fraction(NoStore).abs();
+    for (const auto& modItm: std::as_const(limitationsList())) limits += modItm->fraction(NoStore).abs();
     pnts = pnts / limits;
     return Points(pnts.toInt(true));
 }
@@ -895,9 +895,9 @@ Points Power::acting(Fraction add, Points mod) {
     if (add == 0) advantages = Fraction(1);
     advantages += adv() + add;
     pnts += Fraction(mod.points);
-    for (const auto& mod: std::as_const(advantagesList()))
-        if (mod->isAdder()) pnts += mod->points(NoStore).points;
-        else advantages += mod->fraction(NoStore);
+    for (const auto& modItm: std::as_const(advantagesList()))
+        if (modItm->isAdder()) pnts += modItm->points(NoStore).points;
+        else advantages += modItm->fraction(NoStore);
     pnts = pnts * advantages;
     return Points(pnts.toInt(true));
 }

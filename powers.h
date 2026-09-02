@@ -221,7 +221,7 @@ public:
     virtual Points                    display(int&, QTableWidget*)   { return 0_cp; }
     virtual Points                    display(QString&)              { return 0_cp; }
     virtual int                       count()                        { return -1; }
-    virtual QString                   id()                           { return mGuid; }
+    virtual QString                   id() const                     { return mGuid; }
     virtual void                      inMultipower()                 { mInMultipower = true; }
     virtual bool                      isEquipment()                  { return false; }
     virtual bool                      isFramework()                  { return false; }

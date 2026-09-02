@@ -9,24 +9,12 @@
 class SocialComplication: public Complication {
 public:
     SocialComplication(): Complication() { }
-    SocialComplication(const SocialComplication& ac)
-        : Complication()
-        , v(ac.v) { }
-    SocialComplication(SocialComplication&& ac)
-        : Complication()
-        , v(ac.v) { }
     SocialComplication(const QJsonObject& json)
-        : Complication()
-        , v { json["effects"].toInt(0), json["frequency"].toInt(0), json["notRestrictive"].toBool(false), json["what"].toString("") } { }
-
-    SocialComplication& operator=(const SocialComplication& ac) {
-        if (this != &ac) v = ac.v;
-        return *this;
-    }
-    SocialComplication& operator=(SocialComplication&& ac) {
-        v = ac.v;
-        return *this;
-    }
+        : Complication(json)
+        , v { json["effects"].toInt(0),
+              json["frequency"].toInt(0),
+              json["notRestrictive"].toBool(false),
+              json["what"].toString("") } { }
 
     QString abbreviation() override { return str(); }
     QString description() override  { return str(); }
@@ -81,7 +69,7 @@ public:
         v.mWhat           = what->text();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
+        QJsonObject obj       = Complication::toJson();
         obj["name"]           = "Social Complication";
         obj["effects"]        = v.mEffects;
         obj["frequency"]      = v.mFrequency;

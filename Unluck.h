@@ -6,24 +6,9 @@
 class Unluck: public Complication {
 public:
     Unluck(): Complication() { }
-    Unluck(const Unluck& ac)
-        : Complication()
-        , v(ac.v) { }
-    Unluck(Unluck&& ac)
-        : Complication()
-        , v(ac.v) { }
     Unluck(const QJsonObject& json)
-        : Complication()
+        : Complication(json)
         , v { json["dice"].toInt(0) } { }
-
-    Unluck& operator=(const Unluck& ac) {
-        if (this != &ac) v = ac.v;
-        return *this;
-    }
-    Unluck& operator=(Unluck&& ac) {
-        v = ac.v;
-        return *this;
-    }
 
     QString description() override {
         if (v.mDice < 1) return "<incomplete>";
@@ -45,9 +30,9 @@ public:
         v.mDice = dice->text().toInt(0);
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
-        obj["name"] = "Unluck";
-        obj["dice"] = v.mDice;
+        QJsonObject obj = Complication::toJson();
+        obj["name"]     = "Unluck";
+        obj["dice"]     = v.mDice;
         return obj;
     }
 

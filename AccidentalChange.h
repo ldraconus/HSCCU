@@ -8,28 +8,10 @@
 
 class AccidentalChange: public Complication {
 public:
-    AccidentalChange(): Complication() { id({ }); }
-    AccidentalChange(const AccidentalChange& ac)
-        : Complication()
-        , v(ac.v) { }
-    AccidentalChange(AccidentalChange&& ac)
-        : Complication()
-        , v(ac.v) { }
+    AccidentalChange() = default;
     AccidentalChange(const QJsonObject& json)
-        : Complication()
-        , v { json["circumstance"].toInt(0), json["frequency"].toInt(0), json["what"].toString("") } { id(json); }
-    ~AccidentalChange() override { }
-
-    AccidentalChange& operator=(const AccidentalChange& ac) {
-        Complication::operator=(ac);
-        if (this != &ac) v = ac.v;
-        return *this;
-    }
-    AccidentalChange& operator=(AccidentalChange&& ac) {
-        Complication::operator=(std::move(ac));
-        v = ac.v;
-        return *this;
-    }
+        : Complication(json)
+        , v { json["circumstance"].toInt(0), json["frequency"].toInt(0), json["what"].toString("") } { }
 
     QString abbreviation() override {
         static QList<QString> circ     { "Unc", "Com", "V. Com" };
@@ -82,8 +64,7 @@ public:
         v.mFrequency    = frequency->currentIndex();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
-        obj["id"]           = mGuid;
+        QJsonObject obj     = Complication::toJson();;
         obj["name"]         = "Accidental Change";
         obj["circumstance"] = v.mCircumstance;
         obj["frequency"]    = v.mFrequency;

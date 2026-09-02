@@ -5,30 +5,14 @@
 
 class DistinctiveFeature: public Complication {
 public:
-    DistinctiveFeature(): Complication() { }
-    DistinctiveFeature(const DistinctiveFeature& ac)
-        : Complication()
-        , v(ac.v) { }
-    DistinctiveFeature(DistinctiveFeature&& ac)
-        : Complication()
-        , v(ac.v) { }
+    DistinctiveFeature() = default;
     DistinctiveFeature(const QJsonObject& json)
-        : Complication()
+        : Complication(json)
         , v { json["concealability"].toInt(0)
             , json["detectable"].toInt(0)
             , json["notDistinctive"].toBool(false)
             , json["reaction"].toInt(0)
             , json["what"].toString("") } { }
-    ~DistinctiveFeature() override { }
-
-    DistinctiveFeature& operator=(const DistinctiveFeature& ac) {
-        if (this != &ac) v = ac.v;
-        return *this;
-    }
-    DistinctiveFeature& operator=(DistinctiveFeature&& ac) {
-        v = ac.v;
-        return *this;
-    }
 
     QString abbreviation() override { return str(true); }
     QString description() override {
@@ -82,7 +66,7 @@ public:
         v.mReaction       = reaction->currentIndex();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
+        QJsonObject obj       = Complication::toJson();
         obj["name"]           = "Distinctive Feature";
         obj["concealability"] = v.mConcealability;
         obj["detectable"]     = v.mDetectable;

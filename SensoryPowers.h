@@ -157,10 +157,10 @@ private:
             } else p += 5_cp;
         }
 
-        int mult = (int) (log((double) v.mMobile / 12) / log(2.0));
-        if (v.mMobile > 0 && mult < 1) mult = 1;
-        if (mult < 0) mult = 0;
-        return p + ((v.mPre || v.mRetro) ? 20_cp : 0_cp) + mult * 5_cp;
+        int multAmt = (int) (log((double) v.mMobile / 12) / log(2.0));
+        if (v.mMobile > 0 && multAmt < 1) multAmt = 1;
+        if (multAmt < 0) multAmt = 0;
+        return p + ((v.mPre || v.mRetro) ? 20_cp : 0_cp) + multAmt * 5_cp;
     }
 
     struct vars {
@@ -449,7 +449,7 @@ private:
         Points p(0);
         int group = 0;
         int groupCount = 0;
-        int sense = 0;
+        int senseIdx = 0;
         QStringList groups { "Hearing", "Mental", "Radio", "Sight", "Smell/Taste", "Touch" };
         QMap<QString, int> groupCounts { { "Hearing", 3}, { "Mental", 1 }, { "Radio", 2 }, { "Sight", 4 }, { "Smell/Taste", 2 }, { "Touch", 1 }};
         QMap<QString, int> cost { { "Active Sonar",           15 },
@@ -470,32 +470,32 @@ private:
                 group++;
                 groupCount += groupCounts[str];
             }
-            else sense++;
+            else senseIdx++;
             if (keys.contains(str)) p += Points(cost[str]);
         }
-        int totalCount = sense + groupCount;
+        int totalCount = senseIdx + groupCount;
 
         if (v.mEnhanc > 0) p += 1_cp * v.mEnhanc * v.mAmount;
         if (v.mDetect > 0) p += 3_cp + ((v.mDetect == 2) ? 2_cp : ((v.mDetect == 3) ? 8_cp : 0_cp));
         if (v.mSpatl) p += 32_cp;
-        if (v.mAdj > 0) p += v.mAdj * sense + (3_cp + (v.mAdj - 1) * 2_cp) * group + (v.mSpatl ? v.mAdj * 1_cp : 0_cp);
-        if (v.mAnlz) p += 5_cp * sense + 10_cp * group + (v.mSpatl ? 5_cp : 0_cp);
+        if (v.mAdj > 0) p += v.mAdj * senseIdx + (3_cp + (v.mAdj - 1) * 2_cp) * group + (v.mSpatl ? v.mAdj * 1_cp : 0_cp);
+        if (v.mAnlz) p += 5_cp * senseIdx + 10_cp * group + (v.mSpatl ? 5_cp : 0_cp);
         if (v.mConc > 0) p += 1_cp * v.mConc;
-        if (v.mDiscr) p += 5_cp * sense + 10_cp * group + (v.mSpatl ? 5_cp : 0_cp);
-        if (v.mDim > 0) p += (v.mDim * 5_cp) * sense + ((v.mDim == 1) ? 10_cp : ((v.mDim == 2) ? 20_cp : 25_cp)) * group + (v.mSpatl ? 5_cp : 0_cp);
+        if (v.mDiscr) p += 5_cp * senseIdx + 10_cp * group + (v.mSpatl ? 5_cp : 0_cp);
+        if (v.mDim > 0) p += (v.mDim * 5_cp) * senseIdx + ((v.mDim == 1) ? 10_cp : ((v.mDim == 2) ? 20_cp : 25_cp)) * group + (v.mSpatl ? 5_cp : 0_cp);
         if (v.mIncr > 0) {
             if (group == 6) p += (v.mIncr == 1) ? 10_cp : 25_cp;
-            else p += (2_cp + (v.mIncr - 1) * 3_cp) * sense + (v.mIncr * 5_cp) * group + (v.mSpatl ? ((sense == 0) ? 2_cp : 0_cp ) + (v.mIncr - 1) * 3_cp : 0_cp);
+            else p += (2_cp + (v.mIncr - 1) * 3_cp) * senseIdx + (v.mIncr * 5_cp) * group + (v.mSpatl ? ((senseIdx == 0) ? 2_cp : 0_cp ) + (v.mIncr - 1) * 3_cp : 0_cp);
         }
-        if (v.mMic > 0) p += (3_cp * sense + 5_cp * group) * v.mMic;
-        if (v.mPen > 0) p += 5_cp * v.mPen * sense + (5_cp + v.mPen * 5) * group + (v.mSpatl ? 5_cp * v.mPen : 0_cp);
-        if (v.mRange) p += 5_cp * sense + 10_cp * group + (v.mSpatl ? 5_cp : 0_cp);
-        if (v.mRapid > 0) p += 3_cp * v.mRapid * sense + 5_cp * v.mRapid * group + (v.mSpatl ? 3_cp * v.mRapid : 0_cp);
+        if (v.mMic > 0) p += (3_cp * senseIdx + 5_cp * group) * v.mMic;
+        if (v.mPen > 0) p += 5_cp * v.mPen * senseIdx + (5_cp + v.mPen * 5) * group + (v.mSpatl ? 5_cp * v.mPen : 0_cp);
+        if (v.mRange) p += 5_cp * senseIdx + 10_cp * group + (v.mSpatl ? 5_cp : 0_cp);
+        if (v.mRapid > 0) p += 3_cp * v.mRapid * senseIdx + 5_cp * v.mRapid * group + (v.mSpatl ? 3_cp * v.mRapid : 0_cp);
         if (v.mSense) p += 2_cp * (totalCount + (v.mSpatl ? 1 : 0));
-        if (v.mTarget) p += 10_cp * sense + 20_cp * group + (v.mSpatl ? 10_cp : 0_cp);
-        if (v.mTele) p += (v.mTele + 1) / 2_cp * (sense + (v.mSpatl ? 1 : 0)) + 3_cp * (v.mTele + 1) / 2 * group;
-        if (v.mTrack) p += 5_cp * sense + 10_cp * group + (v.mSpatl ? 5_cp : 0_cp);
-        if (v.mTrans) p += 5_cp * sense + 10_cp * group + (v.mSpatl ? 5_cp : 0_cp);
+        if (v.mTarget) p += 10_cp * senseIdx + 20_cp * group + (v.mSpatl ? 10_cp : 0_cp);
+        if (v.mTele) p += (v.mTele + 1) / 2_cp * (senseIdx + (v.mSpatl ? 1 : 0)) + 3_cp * (v.mTele + 1) / 2 * group;
+        if (v.mTrack) p += 5_cp * senseIdx + 10_cp * group + (v.mSpatl ? 5_cp : 0_cp);
+        if (v.mTrans) p += 5_cp * senseIdx + 10_cp * group + (v.mSpatl ? 5_cp : 0_cp);
         return p;
     }
 
@@ -566,9 +566,9 @@ private:
         if (abbr) {
             QStringList list = v.mWhat;
             QString last = list.takeLast();
-            QString what = abbrSense(v.mWhat);
-            if (!what.isEmpty()) {
-                res += (!first ? ", " : "") + what;
+            QString whatStr = abbrSense(v.mWhat);
+            if (!whatStr.isEmpty()) {
+                res += (!first ? ", " : "") + whatStr;
                 first = false;
             }
             if (!first && v.mWhat.count() > 0) res += abbr ? ", & " : ", and ";

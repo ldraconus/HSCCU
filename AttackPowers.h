@@ -180,19 +180,19 @@ public:
                                                                    mIndex  = 0;
                                                                    mLayout = layout;
                                                                    mParent = parent;
-                                                                   for (auto& effect: std::as_const(v.mEffects)) { indexed(effect.which, NoUpdate); ++mIndex; }
+                                                                   for (auto& eff: std::as_const(v.mEffects)) { indexed(eff.which, NoUpdate); ++mIndex; }
                                                                    mData = true;
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
     QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
                                                                    QJsonArray arr;
-                                                                   for (auto& effect: std::as_const(v.mEffects)) {
-                                                                       QJsonObject eff;
-                                                                       eff["which"] = effect.which;
-                                                                       eff["idx"]   = effect.idx;
-                                                                       eff["level"] = effect.level;
-                                                                       eff["val"]   = effect.val;
-                                                                       arr.append(eff);
+                                                                   for (auto& eff: std::as_const(v.mEffects)) {
+                                                                       QJsonObject objItm;
+                                                                       objItm["which"] = eff.which;
+                                                                       objItm["idx"]   = eff.idx;
+                                                                       objItm["level"] = eff.level;
+                                                                       objItm["val"]   = eff.val;
+                                                                       arr.append(obj);
                                                                    }
                                                                    obj["effects"] = arr;
                                                                    obj["lasting"] = v.mLasting;
@@ -222,13 +222,13 @@ private:
     void restore() override {
         vars s = v;
         AllPowers::restore();
-        for (auto& effect: std::as_const(s.mEffects)) {
-            int count = effect.widgets.count();
+        for (auto& eff: std::as_const(s.mEffects)) {
+            int count = eff.widgets.count();
             for (int i = 0; i < count; ++i) {
-                QLineEdit* edit = dynamic_cast<QLineEdit*>(effect.widgets[i]);
-                if (edit) edit->setText(effect.val);
-                QComboBox* combo = dynamic_cast<QComboBox*>(effect.widgets[i]);
-                if (combo) combo->setCurrentIndex(effect.idx);
+                QLineEdit* edit = dynamic_cast<QLineEdit*>(eff.widgets[i]);
+                if (edit) edit->setText(eff.val);
+                QComboBox* combo = dynamic_cast<QComboBox*>(eff.widgets[i]);
+                if (combo) combo->setCurrentIndex(eff.idx);
             }
         }
         lasting->setCurrentIndex(s.mLasting);
@@ -242,13 +242,13 @@ private:
 
     void store() override {
         AllPowers::store();
-        for (auto& effect: v.mEffects) {
-            int count = effect.widgets.count();
+        for (auto& eff: v.mEffects) {
+            int count = eff.widgets.count();
             for (int i = 0; i < count - 1; ++i) {
-                QLineEdit* edit = dynamic_cast<QLineEdit*>(effect.widgets[i]);
-                if (edit) effect.val = edit->text();
-                QComboBox* combo = dynamic_cast<QComboBox*>(effect.widgets[i]);
-                if (combo) effect.idx = combo->currentIndex();
+                QLineEdit* edit = dynamic_cast<QLineEdit*>(eff.widgets[i]);
+                if (edit) eff.val = edit->text();
+                QComboBox* combo = dynamic_cast<QComboBox*>(eff.widgets[i]);
+                if (combo) eff.idx = combo->currentIndex();
             }
         }
         v.mLasting = lasting->currentIndex();
@@ -258,20 +258,20 @@ private:
     }
 
     void deleteEffect(QWidget* w) {
-        for (auto effect = v.mEffects.cbegin(); effect != v.mEffects.cend(); ++effect) {
-            for (const auto& wgt: std::as_const(effect->widgets)) if (w == wgt) {
-                for (const auto& wgt: effect->widgets) wgt->deleteLater();
-                v.mEffects.erase(effect);
+        for (auto eff = v.mEffects.cbegin(); eff != v.mEffects.cend(); ++eff) {
+            for (const auto& wgtItm: std::as_const(eff->widgets)) if (w == wgtItm) {
+                for (const auto& wgt: eff->widgets) wgt->deleteLater();
+                v.mEffects.erase(eff);
                 return;
             }
         }
     }
 
     effects& findEffect(QWidget* w) {
-        for (auto& effect: v.mEffects) {
-            for (int i = 0; i < effect.widgets.count(); ++i) {
-                auto& wgt = effect.widgets[i];
-                if (w == wgt) return effect;
+        for (auto& eff: v.mEffects) {
+            for (int i = 0; i < eff.widgets.count(); ++i) {
+                auto& wgt = eff.widgets[i];
+                if (w == wgt) return eff;
             }
         }
         static effects none { -1, -1, -1, { }, "" };
@@ -283,23 +283,23 @@ private:
         Points pts = (v.mLasting + 1) * 2_cp;
         if (v.mVarying) pts += 10_cp;
         for (int i = 0; i < v.mEffects.count(); ++i) {
-            auto& effect = v.mEffects[i];
-            switch (effect.which) {
+            auto& eff = v.mEffects[i];
+            switch (eff.which) {
             case 0:                                   break;
-            case 1:  pts = pts + effect.level;        break;
-            case 2:  pts = pts + effect.level * 2_cp; break;
+            case 1:  pts = pts + eff.level;        break;
+            case 2:  pts = pts + eff.level * 2_cp; break;
             case 3:
             case 4:
             case 5:
             case 6:
             case 7:
             case 8:
-            case 9:  pts = pts + effect.level * 3_cp; break;
-            case 10: pts = pts + effect.level * 4_cp; break;
+            case 9:  pts = pts + eff.level * 3_cp; break;
+            case 10: pts = pts + eff.level * 4_cp; break;
             case 11:
             case 12:
             case 13:
-            case 14: pts = pts + effect.level * 5_cp; break;
+            case 14: pts = pts + eff.level * 5_cp; break;
             }
         }
         return pts;
@@ -476,8 +476,8 @@ private:
 #endif
     }
 
-    QString describe(const effects& effect, bool abbr) {
-        if (effect.idx < 0) return "";
+    QString describe(const effects& eff, bool abbr) {
+        if (eff.idx < 0) return "";
         QStringList movement { "None",
                                "Running",
                                "Swimming",
@@ -543,21 +543,21 @@ private:
                                      "Sight",
                                      "Smell/Taste",
                                      "Touch" };
-        switch (effect.which) {
-        case 0:  return QString("-%1m ").arg(effect.level) + (abbr ? moveAbbr[effect.idx] : movement[effect.idx]);
-        case 1:  return QString("-%1 PER%2 w/").arg(effect.level).arg(abbr ? "" : " Roll") + (abbr ? senseAbbr[effect.idx] : sense[effect.idx]);
-        case 2:  return QString("-%1 PER%2 w/").arg(effect.level).arg(abbr ? "" : " Roll") + (abbr ? senseGroupAbbr[effect.idx] : senseGroup[effect.idx]);
-        case 3:  return QString("-%1 Roll w/").arg(effect.level) + stat[effect.idx];
-        case 4:  return QString("-%1 w/").arg(effect.level) + effect.val;
-        case 5:  return QString("+%1 %2%3").arg(effect.level).arg(abbr ? "Temp. Lvl" : "Temperature Level").arg((effect.level > 1) ? "s" : "");
-        case 6:  return QString("-%1 %2%3").arg(effect.level).arg(abbr ? "Temp. Lvl" : "Temperature Level").arg((effect.level > 1) ? "s" : "");
-        case 7:  return QString("+%1 %2 MOD").arg(effect.level).arg(abbr ? "Rng." : "to Range");
-        case 8:  return QString("-%1 w/").arg(effect.level) + effect.val + "▲";
-        case 9:  return QString("-%1 %2 w/").arg(effect.level).arg(abbr ? "" : "Roll") + stat[effect.idx + 1] + QString(" %1").arg(abbr ? "&" : "and") + " Skills";
-        case 10: return QString("%1 %2").arg(effect.level).arg(abbr ? "Dmg" : "Damage");
-        case 11: return QString("%1 %2").arg(effect.level).arg(abbr ? "TK" : "Telekinetic STR");
-        case 12: return QString("+%1 Wind %3%2").arg(effect.level).arg((effect.level > 1) ? "s" : "").arg(abbr ? "Lvl" : "Level");
-        case 13: return QString("-%1 Wind %3%2").arg(effect.level).arg((effect.level > 1) ? "s" : "").arg(abbr ? "Lvl" : "Level");
+        switch (eff.which) {
+        case 0:  return QString("-%1m ").arg(eff.level) + (abbr ? moveAbbr[eff.idx] : movement[eff.idx]);
+        case 1:  return QString("-%1 PER%2 w/").arg(eff.level).arg(abbr ? "" : " Roll") + (abbr ? senseAbbr[eff.idx] : sense[eff.idx]);
+        case 2:  return QString("-%1 PER%2 w/").arg(eff.level).arg(abbr ? "" : " Roll") + (abbr ? senseGroupAbbr[eff.idx] : senseGroup[eff.idx]);
+        case 3:  return QString("-%1 Roll w/").arg(eff.level) + stat[eff.idx];
+        case 4:  return QString("-%1 w/").arg(eff.level) + eff.val;
+        case 5:  return QString("+%1 %2%3").arg(eff.level).arg(abbr ? "Temp. Lvl" : "Temperature Level").arg((eff.level > 1) ? "s" : "");
+        case 6:  return QString("-%1 %2%3").arg(eff.level).arg(abbr ? "Temp. Lvl" : "Temperature Level").arg((eff.level > 1) ? "s" : "");
+        case 7:  return QString("+%1 %2 MOD").arg(eff.level).arg(abbr ? "Rng." : "to Range");
+        case 8:  return QString("-%1 w/").arg(eff.level) + eff.val + "▲";
+        case 9:  return QString("-%1 %2 w/").arg(eff.level).arg(abbr ? "" : "Roll") + stat[eff.idx + 1] + QString(" %1").arg(abbr ? "&" : "and") + " Skills";
+        case 10: return QString("%1 %2").arg(eff.level).arg(abbr ? "Dmg" : "Damage");
+        case 11: return QString("%1 %2").arg(eff.level).arg(abbr ? "TK" : "Telekinetic STR");
+        case 12: return QString("+%1 Wind %3%2").arg(eff.level).arg((eff.level > 1) ? "s" : "").arg(abbr ? "Lvl" : "Level");
+        case 13: return QString("-%1 Wind %3%2").arg(eff.level).arg((eff.level > 1) ? "s" : "").arg(abbr ? "Lvl" : "Level");
         }
 
         return "";
@@ -571,18 +571,18 @@ private:
         else res += "Change Environment: ";
         QString sep = "";
         for (int i = 0; i < v.mEffects.count(); ++ i) {
-            auto& effect = v.mEffects[i];
-            res += sep + describe(effect, abbr);
+            auto& eff = v.mEffects[i];
+            res += sep + describe(eff, abbr);
             sep = ", ";
         }
         sep = " (";
-        QStringList lasting { "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
+        QStringList lastingStr { "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                               "1 Hour", "6 Hours", "1 Day", "1 Week",
                               "1 Month", "1 Season", "1 Year", "5 Years" };
         QStringList lastingAbbr { "1 Tn", "1 Min", "5 Mins", "20 Mins",
                                   "1 Hr", "6 Hrs", "1 Dy", "1 Wk",
                                   "1 Mth", "3 Mths", "1 Yr", "5 Yrs" };
-        if (v.mLasting != -1) { res += sep + (abbr ? "" : "Long ") + "Lasting: " + (abbr ? lastingAbbr[v.mLasting] : lasting[v.mLasting]); sep = "; "; }
+        if (v.mLasting != -1) { res += sep + (abbr ? "" : "Long ") + "Lasting: " + (abbr ? lastingAbbr[v.mLasting] : lastingStr[v.mLasting]); sep = "; "; }
         if (v.mVarying) { res += sep + "Varying " + (abbr ? "Cbt Eff." : "Combat Effects"); sep = "; "; }
         if (v.mEnvs > 0) { res += sep + " Varying " + (abbr ? "Env." : "Environments") + " (" + v.mWhat + ")"; sep += "; "; }
         if (sep == "; ") res += ")";
@@ -594,16 +594,16 @@ private:
         QString txt = line->text();
         if (!txt.isEmpty() && txt == "0") {
             line->undo();
-            effects& effect = findEffect(line);
-            if (effect.widgets.count() != 0) {
+            effects& eff = findEffect(line);
+            if (eff.widgets.count() != 0) {
                 deleteEffect(line);
                 mLayout->update();
                 return;
             }
         }
         if (txt.isEmpty() || isNumber(txt)) {
-            effects& effect = findEffect(line);
-            effect.level = txt.toInt();
+            effects& eff = findEffect(line);
+            eff.level = txt.toInt();
             return;
         }
         line->undo();
@@ -784,7 +784,7 @@ private:
         res += QString("+%1").arg(v.mDice) + "d6 Entangle";
         if (v.mBody > 0) res += " +" + QString("+%1").arg(v.mBody) + "d6 " + (abbr ? "BODY" : "(BODY Only)");
         if (v.mDef > 0) res += " +" + QString("+%1").arg(v.mDef) + " DEF";
-        QStringList dmg { "",
+        QStringList dmgStr { "",
                           "Both Take Damage",
                           "Takes No Damage From Certain Attacks",
                           "Transparent To All Attacks",
@@ -795,7 +795,7 @@ private:
                               "Trans. To Atks",
                               "Only Tgt can Dmg" };
         if (v.mDmg > 0) {
-            res += "; " + (abbr ? dmgAbbr[v.mDmg] : dmg[v.mDmg]);
+            res += "; " + (abbr ? dmgAbbr[v.mDmg] : dmgStr[v.mDmg]);
             if (v.mDmg == 2) res += (abbr ? " " : " (") + v.mWhat + (abbr ? "" : ")");
         }
         if (!v.mSenses.isEmpty()) {
@@ -1104,31 +1104,31 @@ private:
 #else
         int STR = 0;
 #endif
-        int dice = v.mDice + STR / 15;
+        int diceIdx = v.mDice + STR / 15;
         int rem = STR % 15;
-        int extra = rem / 10 + 1;
-        if (extra == 1) {
-            if (rem >= 5) extra = 1;
-            else extra = 0;
+        int extraIdx = rem / 10 + 1;
+        if (extraIdx == 1) {
+            if (rem >= 5) extraIdx = 1;
+            else extraIdx = 0;
         }
         switch (v.mExtra) {
         case 0: break;
         case 1:
-            switch (extra) {
+            switch (extraIdx) {
             case 0:                    break;
-            case 1: extra = 2;         break;
-            case 2: dice++; extra = 0; break;
+            case 1: extraIdx = 2;         break;
+            case 2: diceIdx++; extraIdx = 0; break;
             }
             break;
         case 2:
-            switch (extra) {
+            switch (extraIdx) {
             case 0:                    break;
-            case 1: dice++; extra = 0; break;
-            case 2: dice++; extra = 1; break;
+            case 1: diceIdx++; extraIdx = 0; break;
+            case 2: diceIdx++; extraIdx = 1; break;
             }
             break;
         }
-        return QString("%1%2d6%3").arg(dice).arg((extra == 2) ? Fraction(1, 2).toString() : "",(extra == 1) ? "+1" : "");
+        return QString("%1%2d6%3").arg(diceIdx).arg((extraIdx == 2) ? Fraction(1, 2).toString() : "",(extraIdx == 1) ? "+1" : "");
     }
 
     QString optOut(bool showEND, bool abbr = false) {
@@ -1485,8 +1485,8 @@ private:
             (v.mTarget >= 1 && v.mWhat.isEmpty())) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        QStringList degree { "Cosmetic", "Minor", "Major", "Severe" };
-        res += QString("%1").arg(v.mDice) + "d6 " + degree[v.mDegree] + " Transformϴ";
+        QStringList degreeStr { "Cosmetic", "Minor", "Major", "Severe" };
+        res += QString("%1").arg(v.mDice) + "d6 " + degreeStr[v.mDegree] + " Transformϴ";
         if (v.mResult >= 1) {
             if (v.mResult == 2) res += "; To Anything";
             else res += "; To " + v.mInto + ", from " + v.mGroup;
@@ -1497,13 +1497,13 @@ private:
         if (v.mTarget == 1) res += (abbr ? "; Slightly Lmt Tgt (" : "; Slightly Limited Target (") + v.mWhat + ")";
         if (v.mTarget == 2) res += (abbr ? "; Lmt Tgt (" : "; Limited Target (") + v.mWhat + ")";
         if (v.mTarget == 3) res += (abbr ? "; V. Lmtd Tgt" : "; Very Limited Target (") + v.mWhat + ")";
-        QStringList rapid { "", "1 Week", "1 Day", "6 Hours", "1 Hour",
+        QStringList rapidStr { "", "1 Week", "1 Day", "6 Hours", "1 Hour",
                             "20 Minutes", "5 Minutes", "1 Minute",
                             "1 Turn" };
         QStringList rapidAbbr { "", "1 Wk", "1 Dy", "6 Hrs", "1 Hr",
                           "20 Mins", "5 Mins", "1 Min",
                           "1 Turn" };
-        if (v.mRapid >= 1) res += "; Rapid " + QString(abbr ? "Heal (" : "Healing (") + (abbr ? rapidAbbr[v.mRapid] : rapid[v.mRapid]) + ")";
+        if (v.mRapid >= 1) res += "; Rapid " + QString(abbr ? "Heal (" : "Healing (") + (abbr ? rapidAbbr[v.mRapid] : rapidStr[v.mRapid]) + ")";
         return res;
     }
 

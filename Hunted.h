@@ -8,15 +8,9 @@
 
 class Hunted: public Complication {
 public:
-    Hunted(): Complication() { }
-    Hunted(const Hunted& ac)
-        : Complication()
-        , v(ac.v) { }
-    Hunted(Hunted&& ac)
-        : Complication()
-        , v(ac.v) { }
+    Hunted() = default;
     Hunted(const QJsonObject& json)
-        : Complication()
+        : Complication(json)
         , v { json["capabilities"].toInt(0)
             , json["easy"].toBool(false)
             , json["frequency"].toInt(0)
@@ -24,16 +18,6 @@ public:
             , json["motivation"].toInt(0)
             , json["nci"].toBool(false)
             , json["who"].toString("") } { }
-    ~Hunted() override { }
-
-    Hunted& operator=(const Hunted& ac) {
-        if (this != &ac) v = ac.v;
-        return *this;
-    }
-    Hunted& operator=(Hunted&& ac) {
-        v = ac.v;
-        return *this;
-    }
 
     QString abbreviation() override { return str(true); }
     QString description() override {
@@ -49,13 +33,14 @@ public:
         static QList<QString> freqSansAbbr { "Infreq.", "Freq.", "V. Freq", "Always" };
         static QList<QString> mtvnAbbr     { "; Watch", "", "; Harsly Pun." };
         if (v.mFrequency < 0 || v.mCapabilities < 0 || v.mMotivation  < 0 || v.mWho.isEmpty()) return "<incomplete>";
-        QString result = QString("Hunted: %1 (%2; %3").arg(v.mWho, abbr ? capaAbbr[v.mCapabilities] : capa[v.mCapabilities],
 #ifndef ISHSC
+        QString result = QString("Hunted: %1 (%2; %3").arg(v.mWho, abbr ? capaAbbr[v.mCapabilities] : capa[v.mCapabilities],
                                                            Sheet::ref().getOption().showFrequencyRolls()
-#else
-                                                           true
-#endif
                                                                ? (abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency]) : (abbr ? freqSansAbbr[v.mFrequency] : freqSans[v.mFrequency]));
+#else
+        QString result = QString("Hunted: %1 (%2; %3").arg(v.mWho, abbr ? capaAbbr[v.mCapabilities] : capa[v.mCapabilities],
+                                                            abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency]);
+#endif
         if (v.mNCI) result += "; NCI";
         if (v.mLimited) result += abbr ? "; Lim. Geo." : "; Limited Geographical Area";
         return result + (abbr ? mtvnAbbr[v.mMotivation] : mtvn[v.mMotivation]) + ")";
@@ -64,12 +49,10 @@ public:
         who           = createLineEdit(parent, layout, "Who is hunting you?");
         capabilities  = createComboBox(parent, layout, "Hunter's Capabilities", { "Less Powerful than PC", "As Powerful as PC", "More Powerful than PC" });
 #ifndef ISHSC
-        if (Sheet::ref().getOption().showFrequencyRolls())
-#endif
-            frequency = createComboBox(parent, layout, "How often do they show up", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
-#ifndef ISHSC
-        else
-            frequency = createComboBox(parent, layout, "How often do they show up", { "Infrequently", "Frequently", "Very Frequently" });
+        if (Sheet::ref().getOption().showFrequencyRolls()) frequency = createComboBox(parent, layout, "How often do they show up", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
+        else frequency = createComboBox(parent, layout, "How often do they show up", { "Infrequently", "Frequently", "Very Frequently" });
+#else
+        frequency = createComboBox(parent, layout, "How often do they show up", { "Infrequently (8-)", "Frequently (11-)", "Very Frequently (14-)" });
 #endif
         easy          = createCheckBox(parent, layout, "PC is easy to find");
         nci           = createCheckBox(parent, layout, "Hunter has extensive Non-combat Influence (NCI)");
@@ -101,7 +84,7 @@ public:
         v.mNCI          = nci->isChecked();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
+        QJsonObject obj     = Complication::toJson();
         obj["name"]         = "Hunted";
         obj["capabilities"] = v.mCapabilities;
         obj["easy"]         = v.mEasy;

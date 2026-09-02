@@ -96,28 +96,28 @@ protected:
 
 class Sheet_UI {
 public:
-    ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
+    ClickableTable* createTableWidget(QWidget* parent, QFont& fontIn, QStringList headers, QList<QStringList> vals, At p, Size s,
                                                   bool selectable = false, bool label = true) {
-        return createTableWidget(parent, font, headers, vals, p, s, "", selectable, label);
+        return createTableWidget(parent, fontIn, headers, vals, p, s, "", selectable, label);
     }
 
     void rebuildTable(QTableWidget* tablewidget, QStringList headers, QList<QStringList> vals, bool selectable = false, bool label = false) {
         font = QFont("Segoe UI", StandardFontSize);
         QFont narrow = font;
         narrow.setStretch(QFont::Stretch::SemiCondensed);
-        QFont narrowTableFont = narrow;
+        QFont narrowTblFont = narrow;
         narrowTableFont.setPointSize(TinyFontSize);
 
         tablewidget->setColumnCount(int(headers.size()));
         tablewidget->setRowCount(int(vals.size()));
         tablewidget->setHorizontalHeaderLabels(headers);
 #ifdef __wasm__
-        int pnt = narrowTableFont.pointSize();
+        int pnt = narrowTblFont.pointSize();
         QFont temp = font;
         temp.setPointSize(pnt * 8 + 0.5); // NOLINT
         tablewidget->setFont(temp);
 #else
-        tablewidget->setFont(narrowTableFont);
+        tablewidget->setFont(narrowTblFont);
 #endif
         tablewidget->setHorizontalHeaderLabels(headers);
         int i = 0;
@@ -160,9 +160,9 @@ private:
         w->setGeometry(r);
     }
 
-    QLabel* createLabel(QWidget* parent, QFont& font, QString val, At p, Size s, bool header = false) {
+    QLabel* createLabel(QWidget* parent, QFont& fontIn, QString val, At p, Size s, bool header = false) {
         QLabel* label = new QLabel(parent);
-        label->setFont(font);
+        label->setFont(fontIn);
         label->setText(val);
         label->setStyleSheet("color: #000; background: transparent;");
         if (s.h() == -1) moveTo(label, p, { s.h(), s.l() });
@@ -173,9 +173,9 @@ private:
         return label;
     }
 
-    ClickableLabel* createImage(QWidget* parent, At p, Size s, const QString image, bool selectable = false) {
+    ClickableLabel* createImage(QWidget* parent, At p, Size s, const QString imageName, bool selectable = false) {
         ClickableLabel* label = createImage(parent, p, s);
-        QPixmap pixmap(image);
+        QPixmap pixmap(imageName);
         pixmap = pixmap.scaled(s.l(), s.h(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
         label->setPixmap(pixmap);
         label->setAlignment(Qt::AlignCenter);
@@ -198,11 +198,11 @@ private:
         return label;
     }
 
-    QLineEdit* createLineEdit(QWidget* parent, QFont& font, At p, Size s, QString w = "") {
-        return createLineEdit(parent, font, "", p, s, w);
+    QLineEdit* createLineEdit(QWidget* parent, QFont& fontIn, At p, Size s, QString w = "") {
+        return createLineEdit(parent, fontIn, "", p, s, w);
     }
 
-    QLineEdit* createLineEdit(QWidget* parent, QFont& font, QString val, At p, Size s, QString w = "") {
+    QLineEdit* createLineEdit(QWidget* parent, QFont& fontIn, QString val, At p, Size s, QString w = "") {
         QString style = "QLineEdit { background: cyan;"
                                  "   color: #000;"
                                  "   border: 1px cyan;"
@@ -213,12 +213,12 @@ private:
                         "           background-color: #333333;"
                         "           color: #ffffff;"
                         "}";
-        return createLineEdit(parent, font, style, val, p, s, w);
+        return createLineEdit(parent, fontIn, style, val, p, s, w);
     }
 
-    QLineEdit* createLineEdit(QWidget* parent, QFont& font, QString style, QString val, At p, Size s, QString w = "") {
+    QLineEdit* createLineEdit(QWidget* parent, QFont& fontIn, QString style, QString val, At p, Size s, QString w = "") {
         QLineEdit* lineedit = new QLineEdit(parent);
-        lineedit->setFont(font);
+        lineedit->setFont(fontIn);
         lineedit->setText(val);
         lineedit->setStyleSheet(style);
         lineedit->setToolTip(w);
@@ -233,11 +233,11 @@ private:
         return lineedit;
     }
 
-    QLineEdit* createNumEdit(QWidget* parent, QFont& font, At p, Size s, QString w = "") {
-        return createNumEdit(parent, font, "", p, s, w);
+    QLineEdit* createNumEdit(QWidget* parent, QFont& fontIn, At p, Size s, QString w = "") {
+        return createNumEdit(parent, fontIn, "", p, s, w);
     }
 
-    QLineEdit* createNumEdit(QWidget* parent, QFont& font, QString val, At p, Size s, QString w = "") {
+    QLineEdit* createNumEdit(QWidget* parent, QFont& fontIn, QString val, At p, Size s, QString w = "") {
         QString style = "QLineEdit { background: cyan;"
                                  "   color: #000;"
                                  "   border: 1px cyan;"
@@ -248,12 +248,12 @@ private:
                         "           background-color: #333333;"
                         "           color: #ffffff;"
                         "}";
-        return createNumEdit(parent, font, style, val, p, s, w);
+        return createNumEdit(parent, fontIn, style, val, p, s, w);
     }
 
-    QLineEdit* createNumEdit(QWidget* parent, QFont& font, QString style, QString val, At p, Size s, QString w = "") {
+    QLineEdit* createNumEdit(QWidget* parent, QFont& fontIn, QString style, QString val, At p, Size s, QString w = "") {
         QLineEdit* lineedit = new QLineEdit(parent);
-        lineedit->setFont(font);
+        lineedit->setFont(fontIn);
         lineedit->setText(val);
         lineedit->setStyleSheet(style);
         lineedit->setToolTip(w);
@@ -283,10 +283,10 @@ private:
         QAction** action;
     };
 
-    QMenu* createMenu(QWidget* parent, QFont& font, QList<menuItems> items) {
+    QMenu* createMenu(QWidget* parent, QFont& fontIn, QList<menuItems> items) {
         QMenu* menu = new QMenu(parent);
         menu->setStyleSheet("QMenu { color: #000; background: #bbb; }");
-        menu->setFont(font);
+        menu->setFont(fontIn);
         for (auto& item: items) {
             if (item.action == nullptr) {
                 menu->addSeparator();
@@ -294,7 +294,7 @@ private:
             }
             QAction*& action = *item.action;
             action = new QAction(item.text);
-            action->setFont(font);
+            action->setFont(fontIn);
             menu->addAction(action);
         }
         return menu;
@@ -312,21 +312,21 @@ private:
         QString header;
     };
 
-    ClickableTable* createTableWidget(QWidget* parent, QFont& font, const QList<ColumnHeader>& headers, QList<QStringList> vals, At p, Size s,
+    ClickableTable* createTableWidget(QWidget* parent, QFont& fontIn, const QList<ColumnHeader>& headers, QList<QStringList> vals, At p, Size s,
                                       QString w = "", bool selectable = false, bool label = true) {
         ClickableTable* tablewidget = new ClickableTable(parent);
         tablewidget->setWordWrap(true);
         tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        QFontMetrics metrics(font);
-        int pnt = font.pointSize();
+        QFontMetrics metrics(fontIn);
+        int pnt = fontIn.pointSize();
         int sz = metrics.lineSpacing();
 #ifdef __wasm__
-        QFont temp = font;
+        QFont temp = fontIn;
         temp.setPointSize(pnt * 8 + 0.5); // NOLINT
         tablewidget->setFont(temp);
 #else
-        tablewidget->setFont(font);
+        tablewidget->setFont(fontIn);
 #endif
         auto verticalHeader = tablewidget->verticalHeader();
         verticalHeader->setVisible(false);
@@ -342,7 +342,7 @@ private:
         horizontalHeader->setMaximumSize(s.l(), sz);
         tablewidget->setSelectionMode(selectable ? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
         tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        QString family = font.family();
+        QString family = fontIn.family();
         if (selectable)
             tablewidget->setStyleSheet("QTableWidget { selection-color: black;"
                                        "   selection-background-color: darkcyan;"
@@ -398,7 +398,7 @@ private:
             ++i;
         }
         tablewidget->setHorizontalHeaderLabels(textHeaders);
-        for (int i = 0; i < vals.size(); ++i) {
+        for (i = 0; i < vals.size(); ++i) {
             for (int j = 0; j < vals[i].size(); ++j) {
                 QTableWidgetItem* lbl = new QTableWidgetItem(vals[i][j]);
                 lbl->setFont(font);
@@ -412,12 +412,12 @@ private:
         }
         tablewidget->setToolTip(w);
         moveTo(tablewidget, p, s);
-        for (int i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
+        for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
 #ifdef __wasm__
-        for (int i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
+        for (i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
 #else
         int total = 0;
-        for (int i = 1; i < tablewidget->columnCount(); ++i) total += tablewidget->columnWidth(i - 1);
+        for (i = 1; i < tablewidget->columnCount(); ++i) total += tablewidget->columnWidth(i - 1);
         tablewidget->setColumnWidth(int(headers.size()) - 1, s.l() - total);
 #endif
         widgets.append(tablewidget);
@@ -425,29 +425,29 @@ private:
         return tablewidget;
     }
 
-    ClickableTable* createTableWidget(QWidget* parent, QFont& font, QStringList headers, QList<QStringList> vals, At p, Size s,
+    ClickableTable* createTableWidget(QWidget* parent, QFont& fontIn, QStringList headers, QList<QStringList> vals, At p, Size s,
                                       QString w, bool selectable = false, bool label = true) {
         QList<ColumnHeader> tableHeaders;
-        QFontMetrics metrics(font);
+        QFontMetrics metrics(fontIn);
         int col = 0;
         for (const auto& hdr: std::as_const(headers)) {
             col = metrics.horizontalAdvance(hdr);
             tableHeaders.append({ col, hdr.trimmed() });
         }
-        return createTableWidget(parent, font, tableHeaders, vals, p, s, w, selectable, label);
+        return createTableWidget(parent, fontIn, tableHeaders, vals, p, s, w, selectable, label);
 #ifdef NOTDEF
         ClickableTable* tablewidget = new ClickableTable(parent);
         tablewidget->setWordWrap(true);
         tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        int pnt = font.pointSize();
+        int pnt = fontIn.pointSize();
         int sz = metrics.lineSpacing();
 #ifdef __wasm__
-        QFont temp = font;
+        QFont temp = fontIn;
         temp.setPointSize(pnt * 8 + 0.5); // NOLINT
         tablewidget->setFont(temp);
 #else
-        tablewidget->setFont(font);
+        tablewidget->setFont(fontIn);
 #endif
         auto verticalHeader = tablewidget->verticalHeader();
         verticalHeader->setVisible(false);
@@ -544,13 +544,13 @@ private:
 #endif
     }
 
-    QTextEdit* createTextEdit(QWidget* parent, QFont& font, QString val, At p, Size s) {
+    QTextEdit* createTextEdit(QWidget* parent, QFont& fontIn, QString val, At p, Size s) {
         return createTextEdit(parent, font, val, p, s, "");
     }
 
-    QTextEdit* createTextEdit(QWidget* parent, QFont& font, QString val, At p, Size s, QString w) {
+    QTextEdit* createTextEdit(QWidget* parent, QFont& fontIn, QString val, At p, Size s, QString w) {
         QTextEdit* textedit = new QTextEdit(parent);
-        textedit->setFont(font);
+        textedit->setFont(fontIn);
         textedit->setHtml(val);
         textedit->setStyleSheet("QTextEdit { "
                                              "  border: 1px transparent;"
@@ -571,12 +571,12 @@ private:
         return textedit;
     }
 
-    QPlainTextEdit* createTextEditor(QWidget* parent, QFont& font, At p, Size s, QString w) {
+    QPlainTextEdit* createTextEditor(QWidget* parent, QFont& fontIn, At p, Size s, QString w) {
         QPlainTextEdit* editwidget = new QPlainTextEdit(parent);
         editwidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         editwidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         editwidget->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-        editwidget->setFont(font);
+        editwidget->setFont(fontIn);
         editwidget->setStyleSheet("QPlainTextEdit { selection-color: white;"
                                                 "   selection-background-color: darkcyan;"
                                                 "   gridline-color: cyan;"

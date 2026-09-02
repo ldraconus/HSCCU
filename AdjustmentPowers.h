@@ -406,13 +406,13 @@ private:
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += "Healing: " + QString("+%1").arg(v.mDice) + "d6 to " + v.mTo;
         if (abbr) {
-            QStringList rate { "", "6 Hrs", "Hr", "20 Mins",
-                             "5 Mins", "Min", "Tn" };
-            if (v.mRate >= 1) res += " (Rpt " + rate[v.mRate] + " On A Tgt)";
+            QStringList rateStr { "", "6 Hrs", "Hr", "20 Mins",
+                                 "5 Mins", "Min", "Tn" };
+            if (v.mRate >= 1) res += " (Rpt " + rateStr[v.mRate] + " On A Tgt)";
         } else {
-            QStringList rate { "", "6 Hours", "Hour", "20 Minutes",
+            QStringList rateStr { "", "6 Hours", "Hour", "20 Minutes",
                                "5 Minutes", "Minute", "Turn" };
-            if (v.mRate >= 1) res += " (Usable Every " + rate[v.mRate] + " On Same Target)";
+            if (v.mRate >= 1) res += " (Usable Every " + rateStr[v.mRate] + " On Same Target)";
         }
         return res;
     }

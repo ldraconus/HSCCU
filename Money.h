@@ -5,38 +5,20 @@
 
 class MoneyComp: public Complication {
 public:
-    MoneyComp(): Complication() { }
-    MoneyComp(const MoneyComp& d)
-        : Complication()
-        , v(d.v) { }
-    MoneyComp(MoneyComp&& d)
-        : Complication()
-        , v(d.v) { }
+    MoneyComp() = default;
     MoneyComp(const QJsonObject& json)
-        : Complication()
+        : Complication(json)
         , v { json["amount"].toInt(0) } { }
-    ~MoneyComp() override { }
-
-    MoneyComp& operator=(const MoneyComp& d) {
-        if (this != &d) {
-            v = d.v;
-        }
-        return *this;
-    }
-    MoneyComp& operator=(MoneyComp&& d) {
-        v = d.v;
-        return *this;
-    }
 
     QString abbreviation() override { return str(true); }
     QString description() override { return str(); }
     QString str(bool abbr = false) {
-        static QList<QString> amount { "Destitute ($3,000 or less)",
+        static QList<QString> amountStr { "Destitute ($3,000 or less)",
                                        "Poor ($10,000 or less)" };
         static QList<QString> amountAbbr { "Destitute",
                                            "Poor" };
         if (v.mAmount < 0) return "<incomplete>";
-        return abbr ? amountAbbr[v.mAmount] : amount[v.mAmount];
+        return abbr ? amountAbbr[v.mAmount] : amountStr[v.mAmount];
     }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         amount = createComboBox(parent, layout, "How Poor is the PC?", { "Destitute ($3,000 or less)", "Poor ($10,000 or less)" });
@@ -54,9 +36,9 @@ public:
         v.mAmount = amount->currentIndex();
     }
     QJsonObject toJson() override {
-        QJsonObject obj;
-        obj["name"]   = "Money";
-        obj["amount"] = v.mAmount;
+        QJsonObject obj = Complication::toJson();
+        obj["name"]     = "Money";
+        obj["amount"]   = v.mAmount;
         return obj;
     }
 

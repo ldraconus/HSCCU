@@ -297,21 +297,21 @@ private:
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1").arg(v.mLevels) + " cp in Duplication▲ (" + QString("%1").arg(v.mLevels * 5) + (abbr ? " cp dups" : " cp duplicates)"); // NOLINT
-        QStringList altered { "",
+        QStringList alteredStr { "",
                               Fraction(1, 4).toString() + (abbr ? "pts different" : " points different"),
                               Fraction(1, 2).toString() + (abbr ? "pts different" : " points different"),
                               abbr ? "All pts can differ" : "All points can be different" };
-        if (v.mAltered > 0) res += (abbr ? "; Altered Dups (" : "; Altered Duplicates (") + altered[v.mAltered] + ")";
+        if (v.mAltered > 0) res += (abbr ? "; Altered Dups (" : "; Altered Duplicates (") + alteredStr[v.mAltered] + ")";
         if (v.mEasy > 0) res += QString(abbr ? "; Easy Recom. " : "; Easy Recombination ") + ((v.mEasy == 1) ? (abbr ? "(" + Fraction(1, 2).toString() + " Phase)" : "(Half Phase)")
                                                                                                              : (abbr ? "(0 Phase)" : "(Zero Phase)"));
         if (v.mRanged) res += abbr ? "; Rngd Recomb." : "; Ranged Recombination";
         if (v.mRapid != 0) res += (abbr ? "; Rapid Dups" : "; Rapid Duplication (") + QString("%1 per Phase)").arg((int) pow(2, v.mRapid));
         if (v.mRecom) res += abbr ? "; Can't Recom." : "; Cannot Recombine";
-        QStringList feedback { "",
+        QStringList feedbackStr { "",
                                abbr ? "Dmg to Base feeds back to dups" : "Damage to Base feeds back to duplicates",
                                "STUN to any affects all",
                                abbr ? "BODY & STUN to any affects all" : "BODY and STUN to any affects all" };
-        if (v.mFeedback > 0) res += "; Feedback (" + feedback[v.mFeedback] + ")";
+        if (v.mFeedback > 0) res += "; Feedback (" + feedbackStr[v.mFeedback] + ")";
         if (v.mAverage) res += "; No Averaging";
         return res;
     }
@@ -470,9 +470,9 @@ private:
         if (v.mSize < 0) return "<incomplete>";
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
-        QStringList size { "Large", "Enormous", "Huge", "Gigantic",
+        QStringList sizeStr { "Large", "Enormous", "Huge", "Gigantic",
                            "Gargantuan", "Colossal" };
-        res += size[v.mSize] + " Growth (";
+        res += sizeStr[v.mSize] + " Growth (";
         res += QString("+%1 STR").arg(SizeMods[v.mSize].mSTR);
         res += QString("; +%1 CON").arg(SizeMods[v.mSize].mCON);
         res += QString("; +%1 PRE").arg(SizeMods[v.mSize].mPRE);
@@ -591,9 +591,9 @@ private:
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("+%1").arg(v.mPoints) + " CP Multiform Into " + v.mForm;
         if (v.mMult > 0) res += QString("; x%1 Forms").arg((int) pow(2, v.mMult));
-        QStringList loss {"",  abbr ? "1 Tn" : "1 Turn", abbr ? "1 Min" : "1 Minute", abbr ? "5 Mins" : "5 Minutes", abbr ? "20 Mins" : "20 Minutes", abbr ? "1 Hr" : "1 Hour",
+        QStringList lossStr {"",  abbr ? "1 Tn" : "1 Turn", abbr ? "1 Min" : "1 Minute", abbr ? "5 Mins" : "5 Minutes", abbr ? "20 Mins" : "20 Minutes", abbr ? "1 Hr" : "1 Hour",
                           abbr ? "6 Hrs" : "6 Hours", "1 Day", abbr ? "1 Wk" : "1 Week" };
-        if (v.mLoss >= 1) res += (abbr ? "; Personality Rolls Ater " : "; Personality Loss Rolls Start Ater ") + loss[v.mLoss];
+        if (v.mLoss >= 1) res += (abbr ? "; Personality Rolls Ater " : "; Personality Loss Rolls Start Ater ") + lossStr[v.mLoss];
         if (v.mInstant) res += abbr ? "Insta Change" : "; Instant Change";
         if (v.mRevert >= 1) res += abbr ? "; Revert If Stunned Or KO'd" : "; Revert To True Form If Stunned Or KO'd";
         return res;
@@ -671,8 +671,8 @@ public:
     Fraction lim() override                                      { return v.mBody ? Fraction(1, 4) : Fraction(0);
                                                                  }
     Points points(bool noStore = false) override               { if (!noStore) store();
-                                                                   QList<Points> change { 0_cp, 0_cp, 3_cp, 5_cp, 10_cp }; // NOLINT
-                                                                   Points pts = change[v.mChange + 1];
+                                                                   QList<Points> changeStr { 0_cp, 0_cp, 3_cp, 5_cp, 10_cp }; // NOLINT
+                                                                   Points pts = changeStr[v.mChange + 1];
                                                                    pts += v.mSight    ?  8_cp : 0_cp; // NOLINT
                                                                    pts += v.mHearing  ?  5_cp : 0_cp; // NOLINT
                                                                    pts += v.mTouch    ?  5_cp : 0_cp; // NOLINT
@@ -780,8 +780,8 @@ private:
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += abbr ? "Shape Shift To " : "Shape Shift Into ";
-        QStringList forms { abbr ? "" : "A Single Shape", abbr ? "" : "Four shapes", abbr ? "" : "A Limited Group", "Any Shape" };
-        if (v.mChange < 3) res += forms[v.mChange] + (abbr ? "" : " (") + v.mForms + (abbr ? "" : ")");
+        QStringList formsStr { abbr ? "" : "A Single Shape", abbr ? "" : "Four shapes", abbr ? "" : "A Limited Group", "Any Shape" };
+        if (v.mChange < 3) res += formsStr[v.mChange] + (abbr ? "" : " (") + v.mForms + (abbr ? "" : ")");
         else res += "Any Shape";
         res += " Affecting ";
         QStringList senses;

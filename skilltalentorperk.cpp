@@ -259,8 +259,6 @@ QMap<QString, SkillTalentOrPerk::enhancerBase*> SkillTalentOrPerk::sEnhancers {
     { SPCS("Well-Connected", WellConnected) }
 };
 
-SkillTalentOrPerk::SkillTalentOrPerk() { }
-
 bool SkillTalentOrPerk::isNumber(QString txt) {
     bool ok;
     txt.toInt(&ok, 10);
@@ -309,7 +307,7 @@ QCheckBox* SkillTalentOrPerk::createCheckBox(QWidget* parent, QVBoxLayout* layou
     return checkBox;
 }
 
-QCheckBox* SkillTalentOrPerk::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (SkillTalentOrPerk::*)(bool)> callback) {
+QCheckBox* SkillTalentOrPerk::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, BoolCallback callback) {
     QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
@@ -336,7 +334,7 @@ QCheckBox* SkillTalentOrPerk::createCheckBox(QWidget* parent, QVBoxLayout* layou
     return checkBox;
 }
 
-QComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (SkillTalentOrPerk::*)(int)> callback) {
+QComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, IntCallback callback) {
     QComboBox* comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setStyleSheet("QComboBox { color: #000; background: #fff; }");
@@ -407,7 +405,7 @@ QLabel* SkillTalentOrPerk::createLabel(QWidget*, QVBoxLayout* layout, QString te
     return label;
 }
 
-QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (SkillTalentOrPerk::*)(QString)> callback) {
+QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, StringCallback callback) {
     QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);
@@ -462,17 +460,17 @@ QList<QString> SkillTalentOrPerk::PerksAvailable() {
 
 
 shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::ByName(QString name) {
-    if (sSkills.find(name) != sSkills.end()) return sSkills[name]->create();
-    else if (sTalents.find(name) != sTalents.end()) return sTalents[name]->create();
-    else if (sPerks.find(name) != sPerks.end()) return sPerks[name]->create();
+         if (sSkills.find(name)    != sSkills.end())    return sSkills[name]->create();
+    else if (sTalents.find(name)   != sTalents.end())   return sTalents[name]->create();
+    else if (sPerks.find(name)     != sPerks.end())     return sPerks[name]->create();
     else if (sEnhancers.find(name) != sEnhancers.end()) return sEnhancers[name]->create();
     else return nullptr;
 }
 
 shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::FromJson(QString name, const QJsonObject& json) {
-    if (sSkills.find(name) != sSkills.end()) { auto x = sSkills[name]->create(json); x->guid(json); return x; }
-    else if (sTalents.find(name) != sTalents.end()) return sTalents[name]->create(json);
-    else if (sPerks.find(name) != sPerks.end()) return sPerks[name]->create(json);
+         if (sSkills.find(name)    != sSkills.end())    return sSkills[name]->create(json);
+    else if (sTalents.find(name)   != sTalents.end())   return sTalents[name]->create(json);
+    else if (sPerks.find(name)     != sPerks.end())     return sPerks[name]->create(json);
     else if (sEnhancers.find(name) != sEnhancers.end()) return sEnhancers[name]->create(json);
     else return nullptr;
 }

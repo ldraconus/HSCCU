@@ -550,17 +550,17 @@ private:
         QString res;
         if (showEND && !nickname().isEmpty()) res = nickname() + " " + end() + " ";
         res += QString("Life Support");
-        QStringList extend { "", "1 END/Turn", "1 END/Minute", "1 END/5 Minutes", "1 End/Hour" };
+        QStringList extendStr { "", "1 END/Turn", "1 END/Minute", "1 END/5 Minutes", "1 End/Hour" };
         QStringList extendAbbr { "", "1 END/Tn", "1 END/Min.", "1 END/5 Mins", "1 End/Hr" };
-        if (v.mExtend > 0) res += (abbr ? "Xtended (" : "; Extended Breating (") + extend[v.mExtend] + ")";
+        if (v.mExtend > 0) res += (abbr ? "Xtended (" : "; Extended Breating (") + extendStr[v.mExtend] + ")";
         if (v.mSelf) res += abbr ? "Self-Cont." : "; Self-Contained Breathing";
         if (!v.mExpand.isEmpty()) res += (abbr ? "XPanded" : "; Expanded Breathing (") + v.mExpand + ")";
-        QStringList eating { "", "1 Meal/Week", "1 Meal/Year", "Need Not Eat/Drink" };
+        QStringList eatingStr { "", "1 Meal/Week", "1 Meal/Year", "Need Not Eat/Drink" };
         QStringList eatingAbbr { "", "1 Meal/Week", "1 Meal/Year", "Need Not Eat/Drink" };
-        if (v.mEating > 0) res += (abbr ? "Dim. Eating (" : "; Diminished Eating (") + (abbr ? eatingAbbr[v.mEating] : eating[v.mEating]) + ")";
-        QStringList sleep { "", "8 Hours/Week", "8 Hours/Year", "Need Not Sleep" };
+        if (v.mEating > 0) res += (abbr ? "Dim. Eating (" : "; Diminished Eating (") + (abbr ? eatingAbbr[v.mEating] : eatingStr[v.mEating]) + ")";
+        QStringList sleepStr { "", "8 Hours/Week", "8 Hours/Year", "Need Not Sleep" };
         QStringList sleepAbbr { "", "8 Hrs/Wk", "8 Hrs/Yr", "No Sleep" };
-        if (v.mSleep > 0) res += abbr ? (v.mSleep == 3 ? "; No Sleep" : "; Dim. Sleep (" + sleepAbbr[v.mSleep] + ")") : "; Diminished Sleep (" + sleep[v.mSleep] + ")";
+        if (v.mSleep > 0) res += abbr ? (v.mSleep == 3 ? "; No Sleep" : "; Dim. Sleep (" + sleepAbbr[v.mSleep] + ")") : "; Diminished Sleep (" + sleepStr[v.mSleep] + ")";
         QString sep = abbr ? "; Safe In " : "; Safe Environment (";
         if (v.mSelpv) { res += sep + (abbr ? "Low Press." : "Low Pressure/Vacuum"); sep = ", "; }
         if (v.mSehp)  { res += sep + (abbr ? "High Press." : "High Pressure");      sep = ", "; }
@@ -568,9 +568,9 @@ private:
         if (v.mSeic)  { res += sep + (abbr ? "Cold" : "Intense Cold");              sep = ", "; }
         if (v.mSeih)  { res += sep + (abbr ? "Heat" : "Intense Heat");              sep = ", "; }
         if (sep == ", ") res += abbr ? "" : ")";
-        QStringList Long { "", "200 Year Lifespan", "400 Year Lifespan", "800 Year Lifespan", "1,600 Year Lifespan", "Immortal" };
+        QStringList LongStr { "", "200 Year Lifespan", "400 Year Lifespan", "800 Year Lifespan", "1,600 Year Lifespan", "Immortal" };
         QStringList LongAbbr { "", "200 Yr Life.", "400 Yr Life.", "800 Yr Life.", "1,600 Yr Life.", "Immortal" };
-        if (v.mLong >= 1) res += "; " + Long[v.mLong];
+        if (v.mLong >= 1) res += "; " + LongStr[v.mLong];
         if (v.mImmun >= 1) {
             if (v.mImmun < 5) res += "; Immune to " + v.mTo;
             else if (v.mImmun == 5) res += abbr ? "; Imm. Nrml Poison" : "; Immune To Terrestrial Poisons";
@@ -747,20 +747,20 @@ private:
         QStringList amicableAbbr { "", "Friend", "Loyal", "Devoted", "Slavish" };
         if (v.mAmi > 0) res += "; Creature(s) are " + amicable[v.mAmi];
         if (v.mTasks > 0) res += QString("; x%1 Tasks").arg((int) pow(2, v.mTasks));
-        QStringList expand { "", "Very Limited Group of Creatures", "Limited Group of Creatures", "Any Creature" };
+        QStringList expandStr { "", "Very Limited Group of Creatures", "Limited Group of Creatures", "Any Creature" };
         QStringList expandAbbr { "", "Very Lim. Group", "Lim. Group", "Any Creature" };
-        if (v.mExpand > 0) res += "; " + (abbr ? expandAbbr[v.mExpand + 1] : expand[v.mExpand + 1]);
+        if (v.mExpand > 0) res += "; " + (abbr ? expandAbbr[v.mExpand + 1] : expandStr[v.mExpand + 1]);
         if (v.mSpec) res += abbr ? "; Specificϴ" : "; Specific Beingϴ";
-        QStringList weak { "", "Weak Willed", "Very Weak Willed" };
+        QStringList weakStr { "", "Weak Willed", "Very Weak Willed" };
         QStringList weakAbbr { "", "Weak Will", "V. Weak Will" };
-        if (v.mWeak > 0) res += "; " + (abbr ? weakAbbr[v.mWeak] : weak[v.mWeak]);
-        QStringList antag { "", "Annoyed", "Hostile", "Violent" };
-        if (v.mAntag > 0) res += "; " + antag[v.mAntag];
+        if (v.mWeak > 0) res += "; " + (abbr ? weakAbbr[v.mWeak] : weakStr[v.mWeak]);
+        QStringList antagLst { "", "Annoyed", "Hostile", "Violent" };
+        if (v.mAntag > 0) res += "; " + antagLst[v.mAntag];
         if (v.mArrive) res += abbr ? "; Arrive By Own Pow." : "; Arrives Under Own Power";
         if (v.mFewer > 0) res += QString("; Tasks/%1").arg((int) pow(2, v.mTasks));
-        QStringList strong { "", "Strong Willed", "Very Strong Willed" };
+        QStringList strongLst { "", "Strong Willed", "Very Strong Willed" };
         QStringList strongAbbr { "", "Str. Will", "V. Str. Will" };
-        if (v.mStrong > 0) res += "; " + (abbr ? strongAbbr[v.mStrong]: strong[v.mStrong]);
+        if (v.mStrong > 0) res += "; " + (abbr ? strongAbbr[v.mStrong]: strongLst[v.mStrong]);
         if (v.mMust) res += abbr ? "; Being Must Be Local" : "; Summoned Being Must Inhabit Locale";
         return res;
     }

@@ -1597,9 +1597,9 @@ void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
         if (row != size) continue;
         if (table.contains(m)) {
             setCell(man, row, 0, m, font);
-            for (int i = 0; i < 4; i++) {
-                QString x = table[m][i];
-                if (i == 3) x = QString(x)
+            for (int j = 0; j < 4; j++) {
+                QString x = table[m][j];
+                if (j == 3) x = QString(x)
                                      .arg(valueToDice(STR),              // 1
                                           KAwSTR(STR),                   // 2
                                           valueToDice(STR + 5))          // 3 NOLINT
@@ -1610,7 +1610,7 @@ void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
                                      .arg(STR)                           // 8
                                      .arg(valueToDice(STR, noD6));       // 9
                 QStringList t = x.split("~");
-                setCell(man, row, i + 1, t[0], font);
+                setCell(man, row, j + 1, t[0], font);
             }
         }
     }
@@ -2514,6 +2514,7 @@ void Sheet::copySkillTalentOrPerk() {
 }
 
 void Sheet::complicationsMenu(QPoint pos) {
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
     auto compMenuDialog = (sDialog.ComplicationsMenu = std::make_shared<ComplicationsMenuDialog>());
 #ifdef __wasm__
     int row = Ui->complications->rowAt(pos.y());
@@ -2531,6 +2532,7 @@ void Sheet::complicationsMenu(QPoint pos) {
     compMenuDialog->setPos(pos);
     aboutToShowComplicationsMenu();
     compMenuDialog->open();
+#endif
 #else
     Ui->complicationsMenu->exec(pos);
 #endif
@@ -3126,7 +3128,7 @@ void Sheet::powersandequipmentMenu(QPoint pos) {
     aboutToShowPowersAndEquipmentMenu();
     powerMenuDialog->open();
 #else
-    Ui->powersandequipmentMenu->exec(mapToGlobal(pos);
+    Ui->powersandequipmentMenu->exec(mapToGlobal(pos));
 #endif
 }
 
@@ -3199,10 +3201,10 @@ void Sheet::printCharacter(Printer* printer) {
 
     if (mOption.showNotesPage()) {
         QString notes = Ui->notes->toPlainText();
-        int max = getPageCount(Ui->notes, scale, &painter);
+        int maxCnt = getPageCount(Ui->notes, scale, &painter);
         offset = QPoint({ 50, 48 }); // NOLINT
-        int page = 0;
-        while (page < max) {
+        int pageCnt = 0;
+        while (pageCnt < maxCnt) {
             printer->newPage();
             painter.drawImage(QPointF { -50.0, -48.0 }, page3.toImage()); // NOLINT
             for (int i = 0; i < Ui->hiddenWidgets.count(); ++i) {
