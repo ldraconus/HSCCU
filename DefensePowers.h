@@ -102,7 +102,7 @@ public:
                                                                    v.mRestr    = restr->isChecked();
                                                                    v.mWhat     = what->text();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["length"]   = v.mLength;
                                                                    obj["height"]   = v.mHeight;
                                                                    obj["thick"]    = v.mHeight;
@@ -218,7 +218,7 @@ public:
                                                                    resist  = createCheckBox(parent, layout, "Nonresitant");
                                                                  }
     Fraction lim() override                                      { return (v.mResist  ? Fraction(1, 4) : Fraction(0)); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (
 #ifndef ISHSC
                                                                               Sheet::ref().character().hasTakesNoSTUN() ? BaseCost15 :
@@ -238,7 +238,7 @@ public:
                                                                    v.mWhat    = what->text();
                                                                    v.mResist  = resist->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dc"]      = v.mDC;
                                                                    obj["against"] = v.mAgainst;
                                                                    obj["what"]    = v.mWhat;
@@ -309,7 +309,7 @@ public:
                                                                    resist  = createCheckBox(parent, layout, "Resistant");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    QList<Points> n { 0_cp, 10_cp, 20_cp, 30_cp }; // NOLINT
                                                                    QList<Points> r { 0_cp, 15_cp, 30_cp, 60_cp }; // NOLINT
                                                                    return (
@@ -332,7 +332,7 @@ public:
                                                                    v.mWhat    = what->text();
                                                                    v.mResist  = resist->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["perc"]    = v.mPerc;
                                                                    obj["against"] = v.mAgainst;
                                                                    obj["what"]    = v.mWhat;
@@ -391,7 +391,7 @@ public:
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return
 #ifndef ISHSC
                                                                        Sheet::ref().character().hasTakesNoSTUN() ? 60_cp : // NOLINT
@@ -401,7 +401,7 @@ public:
                                                                  }
     void     store() override                                    { AllPowers::store();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    return obj;
                                                                  }
 
@@ -438,7 +438,7 @@ public:
                                                                    def = createLineEdit(parent, layout, "Defense?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v._def * (
 #ifndef ISHSC
                                                                               Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
@@ -452,7 +452,7 @@ public:
     void     store() override                                    { AllPowers::store();
                                                                    v._def = def->text().toInt();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["def"] = v._def;
                                                                    return obj;
                                                                  }
@@ -499,7 +499,7 @@ public:
                                                                    pts = createLineEdit(parent, layout, "Points?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v.mPts * (
 #ifndef ISHSC
                                                                               Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
@@ -513,7 +513,7 @@ public:
     void     store() override                                    { AllPowers::store();
                                                                    v.mPts = pts->text().toInt();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["pts"] = v.mPts;
                                                                    return obj;
                                                                  }
@@ -560,7 +560,7 @@ public:
                                                                    put = createComboBox(parent, layout, "Add to?", { "Nothing", "Primary", "Secondary" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v.mDef * (
 #ifndef ISHSC
                                                                               Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
@@ -576,7 +576,7 @@ public:
                                                                    v.mDef = def->text().toInt();
                                                                    v.mPut = put->currentIndex();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["def"] = v.mDef;
                                                                    obj["put"] = v.mPut;
                                                                    return obj;
@@ -627,7 +627,7 @@ public:
                                                                    def = createLineEdit(parent, layout, "Defense?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v.mDef * (
 #ifndef ISHSC
                                                                               Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
@@ -641,7 +641,7 @@ public:
     void     store() override                                    { AllPowers::store();
                                                                    v.mDef = def->text().toInt();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["def"] = v.mDef;
                                                                    return obj;
                                                                  }
@@ -696,7 +696,7 @@ public:
                                                                    protect = createCheckBox(parent, layout, "Protects Carried Items");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    Points defCost = 0_cp;
 #ifndef ISHSC
                                                                    if (Sheet::ref().character().hasTakesNoSTUN()) defCost = (3_cp * (3 * ((v.mPD + v.mED) + 1)) / 2);
@@ -720,7 +720,7 @@ public:
                                                                    v.mImperm  = imperm->isChecked();
                                                                    v.mProtect = protect->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["pd"]      = v.mPD;
                                                                    obj["put"]     = v.mPut;
                                                                    obj["ed"]      = v.mED;

@@ -21,7 +21,7 @@ public:
                                                                  }
     void     store() override                                    { AllPowers::store();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    return obj;
                                                                  }
 
@@ -52,7 +52,7 @@ public:
                                                                  }
     void     store() override                                    { AllPowers::store();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    return obj;
                                                                  }
 
@@ -83,7 +83,7 @@ public:
                                                                  }
     void     store() override                                    { AllPowers::store();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    return obj;
                                                                  }
 
@@ -119,7 +119,7 @@ public:
     void     store() override                                    { AllPowers::store();
                                                                    v.mDamage = damage->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["damage"] = v.mDamage;
                                                                    return obj;
                                                                  }

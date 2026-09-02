@@ -9,31 +9,13 @@
 
 class MiscSkills: public SkillTalentOrPerk {
 public:
-    MiscSkills(): SkillTalentOrPerk() { id({ }); }
+    MiscSkills(): SkillTalentOrPerk() { }
     MiscSkills(QString name)
-        : v { name } { id({ }); }
-    MiscSkills(const MiscSkills& s)
         : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    MiscSkills(MiscSkills&& s)
-        : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    MiscSkills(const QJsonObject& json)
-        : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { id(json); }
-    ~MiscSkills() override { }
-    MiscSkills& operator=(const MiscSkills& s) {
-        if (this != &s) {
-            mGuid = s.mGuid;
-            v.mName = s.v.mName;
-        }
-        return *this;
-    }
-    MiscSkills& operator=(MiscSkills&& s) {
-        mGuid = s.mGuid;
-        v.mName = s.v.mName;
-        return *this;
-    }
+        , v { name } { }
+    MiscSkills(QJsonObject& json)
+        : SkillTalentOrPerk(json)
+        , v { json["name"].toString("") } { }
 
     bool isSkill() override { return true; }
 
@@ -46,9 +28,8 @@ public:
     void    store() override                            { }
 
     QJsonObject toJson() override {
-        QJsonObject obj;
-        obj["id"]   = mGuid;
-        obj["name"] = v.mName;
+        QJsonObject obj = SkillTalentOrPerk::toJson();
+        obj["name"]     = v.mName;
         return obj;
     }
 
@@ -65,21 +46,8 @@ private:
     public:                                          \
         x()                                          \
             : MiscSkills(#x) { }                     \
-        x(const x& s)                                \
-            : MiscSkills(s) { }                      \
-        x(x&& s)                                     \
-            : MiscSkills(s) { }                      \
         x(const QJsonObject& json)                   \
             : MiscSkills(json) { }                   \
-        ~x() override { }                            \
-        x& operator=(const x& s) {                   \
-            if (this != &s) { v._name = s.v._name; } \
-            return *this;                            \
-        }                                            \
-        x& operator=(x&& s) {                        \
-            v._name = s.v._name;                     \
-            return *this;                            \
-        }                                            \
     }
 // NOLINTNEXTLINE
 #define CLASS_SPACE(x, y)                            \
@@ -87,41 +55,17 @@ private:
     public:                                          \
         x()                                          \
             : MiscSkills(y) { }                      \
-        x(const x& s)                                \
-            : MiscSkills(s) { }                      \
-        x(x&& s)                                     \
-            : MiscSkills(s) { }                      \
-        x(const QJsonObject& json)                   \
+        x(QJsonObject& json)                         \
             : MiscSkills(json) { }                   \
-        ~x() override { }                            \
-        x& operator=(const x& s) {                   \
-            if (this != &s) { v._name = s.v._name; } \
-            return *this;                            \
-        }                                            \
-        x& operator=(x&& s) {                        \
-            v._name = s.v._name;                     \
-            return *this;                            \
-        }                                            \
     }
 
 class MSL: public MiscSkills {
 public:
-    MSL(): MiscSkills("Movement Skill Levels")     { }
-    MSL(const MSL& s): MiscSkills(s)               { }
-    MSL(MSL&& s): MiscSkills(s)                    { }
-    MSL(const QJsonObject& json): MiscSkills(json) { v.mPlus = json["plus"].toInt(1);
-                                                     v.mFor  = json["for"].toString("");
-                                                     v.mSize = json["size"].toInt(0);
-    }
-    ~MSL() override { }
-    MSL& operator=(const MSL& s) {
-        if (this != &s) v = s.v;
-        return *this;
-    }
-    MSL& operator=(MSL&& s) {
-        v = s.v;
-        return *this;
-    }
+    MSL(): MiscSkills("Movement Skill Levels") { }
+    MSL(QJsonObject& json): MiscSkills(json)   { v.mPlus = json["plus"].toInt(1);
+                                                 v.mFor  = json["for"].toString("");
+                                                 v.mSize = json["size"].toInt(0);
+                                               }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -184,22 +128,11 @@ private:
 
 class PowerSkill: public MiscSkills {
 public:
-    PowerSkill(): MiscSkills("Power Skill")               { }
-    PowerSkill(const PowerSkill& s): MiscSkills(s)        { }
-    PowerSkill(PowerSkill&& s): MiscSkills(s)             { }
-    PowerSkill(const QJsonObject& json): MiscSkills(json) { v.mWhat = json["what"].toString("");
-                                                            v.mPlus = json["plus"].toInt(0);
-                                                            v.mStat = json["stat"].toInt(-1);
-                                                          }
-    ~PowerSkill() override { }
-    PowerSkill& operator=(const PowerSkill& s) {
-        if (this != &s) v = s.v;
-        return *this;
-    }
-    PowerSkill& operator=(PowerSkill&& s) {
-        v = s.v;
-        return *this;
-    }
+    PowerSkill(): MiscSkills("Power Skill")         { }
+    PowerSkill(QJsonObject& json): MiscSkills(json) { v.mWhat = json["what"].toString("");
+                                                      v.mPlus = json["plus"].toInt(0);
+                                                      v.mStat = json["stat"].toInt(-1);
+                                                    }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "(" + QString("+%1").arg(v.mPlus) + ") ": "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v.mPlus) + ") ": "") + optOut(); }
@@ -261,22 +194,11 @@ private:
 
 class SkillLevels: public MiscSkills {
 public:
-    SkillLevels(): MiscSkills("Skill Levels") { }
-    SkillLevels(const SkillLevels& s): MiscSkills(s)        { }
-    SkillLevels(SkillLevels&& s): MiscSkills(s)             { }
-    SkillLevels(const QJsonObject& json): MiscSkills(json)  { v.mPlus = json["plus"].toInt(1);
-                                                              v.mFor  = json["for"].toString("");
-                                                              v.mSize = json["size"].toInt(0);
-                                                            }
-    ~SkillLevels() override { }
-    SkillLevels& operator=(const SkillLevels& s) {
-        if (this != &s) v = s.v;
-        return *this;
-    }
-    SkillLevels& operator=(SkillLevels&& s) {
-        v = s.v;
-        return *this;
-    }
+    SkillLevels(): MiscSkills("Skill Levels")         { }
+    SkillLevels(QJsonObject& json): MiscSkills(json)  { v.mPlus = json["plus"].toInt(1);
+                                                        v.mFor  = json["for"].toString("");
+                                                        v.mSize = json["size"].toInt(0);
+                                                      }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -290,7 +212,7 @@ public:
                                                                                                                   "Overall" });
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override                { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   QList<Points> size { 0_cp, 2_cp, 3_cp, 4_cp, 6_cp, 10_cp, 12_cp }; // NOLINT
                                                                   return v.mPlus * size[v.mSize + 1]; }
     void    restore() override                                  { vars s = v;

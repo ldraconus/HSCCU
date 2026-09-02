@@ -108,7 +108,7 @@ public:
                                                                    v.mTime   = time->isChecked();
                                                                    v.mVague  = vague->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["what"]   = toArray(v.mWhat);
                                                                    obj["pre"]    = v.mPre;
                                                                    obj["retro"]  = v.mRetro;
@@ -387,7 +387,7 @@ public:
                                                                    v.mTrans  = trans->isChecked();
                                                                    v.mNoDir  = nodir->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["what"]   = toArray(v.mWhat);
                                                                    obj["detect"] = v.mDetect;
                                                                    obj["thing"]  = v.mThing;

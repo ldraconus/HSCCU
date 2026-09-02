@@ -66,7 +66,7 @@ public:
                                                                    v.mRestr = restr->text();
                                                                    v.mSlow  = slow->currentIndex();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["end"]   = v.mEnd;
                                                                    obj["rec"]   = v.mRec;
                                                                    obj["lim"]   = v.mLim;
@@ -137,7 +137,7 @@ public:
     Points   points(bool) override                 { return 0_cp; }
     void     restore() override                    { }
     void     store() override                      { }
-    QJsonObject toJson() const override            { QJsonObject obj = AllPowers::toJson(); return obj; }
+    QJsonObject toJson() override                  { QJsonObject obj = AllPowers::toJson(); return obj; }
 };
 
 class IndependantAdvantage: public AllPowers {
@@ -224,7 +224,7 @@ public:
                                                                    v.mPow = getPower(powIdx);
                                                                    v.mPts = pts->text().toInt();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["mod"]   = v.mMod->toJson();
                                                                    obj["pts"]   = v.mPts;
                                                                    obj["power"] = v.mPow->toJson();
@@ -305,7 +305,7 @@ public:
     void     store() override                                    { AllPowers::store();
                                                                    v.mDice = dice->text().toInt();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"] = v.mDice;
                                                                    return obj;
                                                                  }
@@ -366,7 +366,7 @@ public:
                                                                    v.mBody = body->text().toInt();
                                                                    v.mTime = time->currentIndex();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["body"] = v.mBody;
                                                                    obj["time"] = v.mTime;
                                                                    return obj;
@@ -432,7 +432,7 @@ public:
     void     store() override                                    { AllPowers::store();
                                                                    // clicked stores the skill
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["skill"] = v.mSkill->toJson();
                                                                    return obj;
                                                                  }
@@ -506,7 +506,7 @@ public:
                                                                    v.mFixed = fixed->isChecked();
                                                                    v.mWhere = where->text();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["fixed"] = v.mFixed;
                                                                    obj["where"] = v.mWhere;
                                                                    return obj;

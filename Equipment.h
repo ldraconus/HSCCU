@@ -12,25 +12,7 @@ class Equipment: public AllPowers {
 public:
     Equipment()
         : AllPowers("Equipment") { }
-    Equipment(const Equipment& s)
-        : AllPowers(s) { }
-    Equipment(Equipment&& s)
-        : AllPowers(s) { }
-    Equipment(const QJsonObject& json);
-    ~Equipment() override { }
-
-    Equipment& operator=(const Equipment& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Equipment& operator=(Equipment&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Equipment(QJsonObject& json);
 
     void load(const QJsonObject& json, const QString& name) {
         AllPowers::load(json, name);
@@ -63,7 +45,7 @@ public:
         AllPowers::store();
         v.mExtraNotes = extraNotes->text();
     }
-    QJsonObject toJson() const override {
+    QJsonObject toJson() override {
         QJsonObject obj = AllPowers::toJson();
         obj["cost"] = v.mCost;
         obj["weight"] = v.mWeight;
@@ -105,31 +87,12 @@ class Weapon: public Equipment {
 public:
     Weapon()
         : Equipment() { }
-    Weapon(const Weapon& s)
-        : Equipment(s)
-        , v(s.v) { }
-    Weapon(Weapon&& s)
-        : Equipment(s)
-        , v(s.v) { }
-    Weapon(const QJsonObject& json) {
+    Weapon(QJsonObject& json)
+        : Equipment(json) {
         load(json);
     }
-    ~Weapon() override { }
 
-    Weapon& operator=(const Weapon& s) {
-        if (this != &s) {
-            Equipment::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Weapon& operator=(Weapon&& s) {
-        Equipment::operator=(s);
-        v = s.v;
-        return *this;
-    }
-
-    void load(const QJsonObject& json) {
+    void load(QJsonObject& json) {
         Equipment::load(json, "Weapon");
         v.mTwoHanded = json["twoHanded"].toBool(false);
         v.mWhich = json["which"].toInt(-1);
@@ -188,7 +151,7 @@ public:
         v.mBonusDC = bonusDC->text().toInt();
         v.mBonusOCV = bonusOCV->text().toInt();
     }
-    QJsonObject toJson() const override {
+    QJsonObject toJson() override {
         QJsonObject obj = Equipment::toJson();
         obj["twoHanded"] = v.mTwoHanded;
         obj["which"] = v.mWhich;
@@ -293,25 +256,8 @@ public:
     Armor(Armor&& s)
         : Equipment(s)
         , v(s.v) { }
-    Armor(const QJsonObject& json) { load(json); }
-    ~Armor() override { }
-    Armor& operator=(const Armor& s) {
-        if (this != &s) {
-            Equipment::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Armor& operator=(Armor&& s) {
-        Equipment::operator=(s);
-        v = s.v;
-        return *this;
-    }
-
-    QString nickname() override {
-        auto keys = mArmors.keys();
-        return keys[v.mWhich];
-    }
+    Armor(QJsonObject& json)
+        : Equipment(json) { load(json); }
 
     QString hitLocations() {
         return v.mHitLocations;
@@ -332,7 +278,7 @@ public:
         for (const auto x: std::as_const(arr)) src.push_back(x.toDouble());
         return src;
     }
-    void load(const QJsonObject& json) {
+    void load(QJsonObject& json) {
         Equipment::load(json, "Armor");
         v.mHitLocations = json["hitLocations"].toString("3-18");
         v.mWhich = json["which"].toInt(-1);
@@ -370,7 +316,7 @@ public:
         for (const auto& x: std::as_const(src)) arr.push_back(x);
         return arr;
     }
-    QJsonObject toJson() const override {
+    QJsonObject toJson() override {
         QJsonObject obj = Equipment::toJson();
         obj["hitLocations"] = v.mHitLocations;
         obj["which"] = v.mWhich;
@@ -418,26 +364,8 @@ class Equip: public Equipment {
 public:
     Equip()
         : Equipment() { }
-    Equip(const Equip& s)
-        : Equipment(s)
-        , v(s.v) { }
-    Equip(Equip&& s)
-        : Equipment(s)
-        , v(s.v) { }
-    Equip(const QJsonObject& json) { load(json); }
-    ~Equip() override { }
-    Equip& operator=(const Equip& s) {
-        if (this != &s) {
-            Equipment::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Equip& operator=(Equip&& s) {
-        Equipment::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Equip(QJsonObject& json)
+        : Equipment(json) { load(json); }
 
     QString nickname() override {
         auto keys = mEquip.keys();
@@ -448,7 +376,7 @@ public:
         auto keys = mEquip.keys();
         load(mEquip[keys[idx]]);
     }
-    void load(const QJsonObject& json) {
+    void load(QJsonObject& json) {
         Equipment::load(json, "Equipment");
         v.mWhich = json["which"].toInt(-1);
         v.mNotes = json["notes"].toString();
@@ -473,7 +401,7 @@ public:
         Equipment::store();
         v.mWhich = which->currentIndex();
     }
-    QJsonObject toJson() const override {
+    QJsonObject toJson() override {
         QJsonObject obj = Equipment::toJson();
         obj["which"] = v.mWhich;
         obj["strMin"] = v.mSTRMin;

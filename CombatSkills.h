@@ -5,46 +5,26 @@
 
 class CombatSkills: public SkillTalentOrPerk {
 public:
-    CombatSkills(): SkillTalentOrPerk() { id({ }); }
+    CombatSkills(): SkillTalentOrPerk() { }
     CombatSkills(QString name)
-        : v { name } { id({ }); }
-    CombatSkills(const CombatSkills& s)
         : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    CombatSkills(CombatSkills&& s)
-        : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    CombatSkills(const QJsonObject& json)
-        : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { id(json); }
-    ~CombatSkills() override { }
-
-    CombatSkills& operator=(const CombatSkills& s) {
-        if (this != &s) {
-            mGuid = s.mGuid;
-            v = s.v;
-        }
-        return *this;
-    }
-    CombatSkills& operator=(CombatSkills&& s) {
-        mGuid = s.mGuid;
-        v = s.v;
-        return *this;
-    }
+        , v { name } { }
+    CombatSkills(QJsonObject& json)
+        : SkillTalentOrPerk(json)
+        , v { json["name"].toString("") } { }
 
     bool isSkill() override { return true; }
 
     QString description(bool showRoll = false) override { return showRoll ? v.mName : v.mName; }
-    bool form(QWidget*, QVBoxLayout*) override          { return false; }
+    bool    form(QWidget*, QVBoxLayout*) override       { return false; }
     QString name() override                             { return v.mName; }
-    Points points(bool noStore = false) override        { if (!noStore) store(); return 10_cp; } // NOLINT
-    void restore() override                             { }
+    Points  points(bool noStore = false) override       { if (!noStore) store(); return 10_cp; } // NOLINT
+    void    restore() override                          { }
     QString roll() override                             { return ""; }
     void    store() override                            { }
 
     QJsonObject toJson() override {
-        QJsonObject obj;
-        obj["id"]   = mGuid;
+        QJsonObject obj = SkillTalentOrPerk::toJson();;
         obj["name"] = v.mName;
         return obj;
     }
@@ -61,21 +41,8 @@ private:
     public:                                             \
         x()                                             \
             : CombatSkills(#x) { }                      \
-        x(const x& s)                                   \
-            : CombatSkills(s) { }                       \
-        x(x&& s)                                        \
-            : CombatSkills(s) { }                       \
-        x(const QJsonObject& json)                      \
+        x(QJsonObject& json)                            \
             : CombatSkills(json) { }                    \
-        ~x() override { }                               \
-        x& operator=(const x& s) {                      \
-            if (this != &s) CombatSkills::operator=(s); \
-            return *this;                               \
-        }                                               \
-        x& operator=(x&& s) {                           \
-            CombatSkills::operator=(s);                 \
-            return *this;                               \
-        }                                               \
     };
 // NOLINTNEXTLINE
 #define CLASS_SPACE(x, y)                               \
@@ -83,46 +50,18 @@ private:
     public:                                             \
         x()                                             \
             : CombatSkills(y) { }                       \
-        x(const x& s)                                   \
-            : CombatSkills(s) { }                       \
-        x(x&& s)                                        \
-            : CombatSkills(s) { }                       \
-        x(const QJsonObject& json)                      \
+        x(QJsonObject& json)                            \
             : CombatSkills(json) { }                    \
-        ~x() override { }                               \
-        x& operator=(const x& s) {                      \
-            if (this != &s) CombatSkills::operator=(s); \
-            return *this;                               \
-        }                                               \
-        x& operator=(x&& s) {                           \
-            CombatSkills::operator=(s);                 \
-            return *this;                               \
-        }                                               \
     };
 
 class AutofireSkills: public CombatSkills {
 public:
-    AutofireSkills(): CombatSkills("Autofire Skills")           { }
-    AutofireSkills(const AutofireSkills& s): CombatSkills(s)    { }
-    AutofireSkills(AutofireSkills&& s): CombatSkills(s)         { }
-    AutofireSkills(const QJsonObject& json): CombatSkills(json) { v.mAccurateSprayfire     = json["accurate sprayfire"].toBool(false);
-                                                                  v.mConcentratedSprayfire = json["concetrade sprayfire"].toBool(false);
-                                                                  v.mRapidAutofire         = json["rapid autofire"].toBool(false);
-                                                                  v.mSkipoverSprayfire = json["skipover sprayfire"].toBool(false);
-    }
-    ~AutofireSkills() override { }
-    AutofireSkills& operator=(const AutofireSkills& s) {
-        if (this != &s) {
-            CombatSkills::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    AutofireSkills& operator=(AutofireSkills&& s) {
-        CombatSkills::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    AutofireSkills(): CombatSkills("Autofire Skills")     { }
+    AutofireSkills(QJsonObject& json): CombatSkills(json) { v.mAccurateSprayfire     = json["accurate sprayfire"].toBool(false);
+                                                            v.mConcentratedSprayfire = json["concetrade sprayfire"].toBool(false);
+                                                            v.mRapidAutofire         = json["rapid autofire"].toBool(false);
+                                                            v.mSkipoverSprayfire = json["skipover sprayfire"].toBool(false);
+                                                          }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + CombatSkills::description() + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + CombatSkills::description() + optOut(); }
@@ -190,26 +129,11 @@ private:
 
 class CSL: public CombatSkills {
 public:
-    CSL(): CombatSkills("Combat Skill Levels")       { }
-    CSL(const CSL& s): CombatSkills(s)               { }
-    CSL(CSL&& s): CombatSkills(s)                    { }
-    CSL(const QJsonObject& json): CombatSkills(json) { v.mPlus = json["plus"].toInt(1);
-                                                       v.mFor  = json["for"].toString("");
-                                                       v.mSize = json["size"].toInt(0);
-                                                     }
-    ~CSL() override { }
-    CSL& operator=(const CSL& s) {
-        if (this != &s) {
-            CombatSkills::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    CSL& operator=(CSL&& s) {
-        CombatSkills::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    CSL(): CombatSkills("Combat Skill Levels") { }
+    CSL(QJsonObject& json): CombatSkills(json) { v.mPlus = json["plus"].toInt(1);
+                                                 v.mFor  = json["for"].toString("");
+                                                 v.mSize = json["size"].toInt(0);
+                                               }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -223,7 +147,7 @@ public:
                                                                                                                                     "All Combat" });
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override                { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   QList<Points> size{ 0_cp, 2_cp, 3_cp, 5_cp, 8_cp, 8_cp, 10_cp }; // NOLINT
                                                                   return v.mPlus * size[v.mSize + 1]; }
     void    restore() override                                  { vars s = v;
@@ -281,23 +205,8 @@ private:
 
 class DefenseManeuver: public CombatSkills {
 public:
-    DefenseManeuver(): CombatSkills("Defense Maneuver")       { }
-    DefenseManeuver(const DefenseManeuver& s): CombatSkills(s) { }
-    DefenseManeuver(DefenseManeuver&& s): CombatSkills(s)      { }
-    DefenseManeuver(const QJsonObject& json): CombatSkills(json) { v.mWhich = json["which"].toInt(0); }
-    ~DefenseManeuver() override { }
-    DefenseManeuver& operator=(const DefenseManeuver& s) {
-        if (this != &s) {
-            CombatSkills::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    DefenseManeuver& operator=(DefenseManeuver&& s) {
-        CombatSkills::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    DefenseManeuver(): CombatSkills("Defense Maneuver")    { }
+    DefenseManeuver(QJsonObject& json): CombatSkills(json) { v.mWhich = json["which"].toInt(0); }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -307,7 +216,7 @@ public:
                                                                                                                                       "Defense Maneuver IV" });
                                                                   return true;
                                                                 }
-    Points   points(bool noStore = false) override              { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   QList<Points> which{ 0_cp, 3_cp, 5_cp, 8_cp, 10_cp }; // NOLINT
                                                                   return which[v.mWhich + 1]; }
     void    restore() override                                  { vars s = v;
@@ -347,42 +256,27 @@ private:
 class MartialArts: public CombatSkills {
 public:
     MartialArts(): CombatSkills("Martial Arts")              { }
-    MartialArts(const MartialArts& s): CombatSkills(s)       { }
-    MartialArts(MartialArts&& s): CombatSkills(s)            { }
-    MartialArts(const QJsonObject& json): CombatSkills(json) { v.mChokeHold = json["chokehold"].toBool(false);
-                                                               v.mDefensiveStrike  = json["defensive strike"].toBool(false);
-                                                               v.mKillingStrike    = json["killing strike"].toBool(false);
-                                                               v.mLegSweep         = json["legsweep"].toBool(false);
-                                                               v.mMartialBlock     = json["martial block"].toBool(false);
-                                                               v.mMartialDisarm    = json["martial disarm"].toBool(false);
-                                                               v.mMartialDodge     = json["martial dodge"].toBool(false);
-                                                               v.mMartialEscape    = json["martial escape"].toBool(false);
-                                                               v.mMartialGrab      = json["martial grab"].toBool(false);
-                                                               v.mMartialStrike    = json["martial strike"].toBool(false);
-                                                               v.mMartialThrow     = json["martial throw"].toBool(false);
-                                                               v.mNerveStrike      = json["nerve strike"].toBool(false);
-                                                               v.mOffensiveStrike  = json["offensive strike"].toBool(false);
-                                                               v.mPassingStrike    = json["passing strike"].toBool(false);
-                                                               v.mSacrifceThrow    = json["sacrifce throw"].toBool(false);
-                                                               v.mExtraDamageClass = json["extra damage classes"].toInt(0);
-                                                               v.mWeaponElements   = json["weapon elements"].toInt(0);
-                                                               v.mWeapons          = json["weapons"].toString("");
-                                                               }
-    ~MartialArts() override { }
-    MartialArts& operator=(const MartialArts& s) {
-        if (this != &s) {
-            CombatSkills::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    MartialArts& operator=(MartialArts&& s) {
-        CombatSkills::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    MartialArts(QJsonObject& json): CombatSkills(json) { v.mChokeHold = json["chokehold"].toBool(false);
+                                                         v.mDefensiveStrike  = json["defensive strike"].toBool(false);
+                                                         v.mKillingStrike    = json["killing strike"].toBool(false);
+                                                         v.mLegSweep         = json["legsweep"].toBool(false);
+                                                         v.mMartialBlock     = json["martial block"].toBool(false);
+                                                         v.mMartialDisarm    = json["martial disarm"].toBool(false);
+                                                         v.mMartialDodge     = json["martial dodge"].toBool(false);
+                                                         v.mMartialEscape    = json["martial escape"].toBool(false);
+                                                         v.mMartialGrab      = json["martial grab"].toBool(false);
+                                                         v.mMartialStrike    = json["martial strike"].toBool(false);
+                                                         v.mMartialThrow     = json["martial throw"].toBool(false);
+                                                         v.mNerveStrike      = json["nerve strike"].toBool(false);
+                                                         v.mOffensiveStrike  = json["offensive strike"].toBool(false);
+                                                         v.mPassingStrike    = json["passing strike"].toBool(false);
+                                                         v.mSacrifceThrow    = json["sacrifce throw"].toBool(false);
+                                                         v.mExtraDamageClass = json["extra damage classes"].toInt(0);
+                                                         v.mWeaponElements   = json["weapon elements"].toInt(0);
+                                                         v.mWeapons          = json["weapons"].toString("");
+                                                        }
 
-    QString abbreviation(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(true); }
+    QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { chokehold        = createCheckBox(parent, layout, "Choke Hold");
                                                                   defensivestrike  = createCheckBox(parent, layout, "Defensive Strike");
@@ -404,7 +298,7 @@ public:
                                                                   weapons          = createLineEdit(parent, layout, "Weapons?");
                                                                   return true;
                                                                 }
-    Points   points(bool noStore = false) override              { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   return (v.mChokeHold ? 4_cp : 0_cp) +
                                                                          (v.mDefensiveStrike ? 5_cp : 0_cp) + // NOLINT
                                                                          (v.mKillingStrike ? 4_cp : 0_cp) +
@@ -564,25 +458,10 @@ private:
 class MCSL: public CombatSkills {
 public:
     MCSL(): CombatSkills("Mental Combat Skill Levels") { }
-    MCSL(const MCSL& s): CombatSkills(s)               { }
-    MCSL(MCSL&& s): CombatSkills(s)                    { }
-    MCSL(const QJsonObject& json): CombatSkills(json)  { v.mPlus = json["plus"].toInt(1);
+    MCSL(QJsonObject& json): CombatSkills(json)        { v.mPlus = json["plus"].toInt(1);
                                                          v.mFor  = json["for"].toString("");
                                                          v.mSize = json["size"].toInt(0);
                                                        }
-    ~MCSL() override { }
-    MCSL& operator=(const MCSL& s) {
-        if (this != &s) {
-            CombatSkills::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    MCSL& operator=(MCSL&& s) {
-        CombatSkills::operator=(s);
-        v = s.v;
-        return *this;
-    }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -647,26 +526,11 @@ private:
 
 class PenaltySkillLevels: public CombatSkills {
 public:
-    PenaltySkillLevels(): CombatSkills("Penalty Skill Levels")          { }
-    PenaltySkillLevels(const PenaltySkillLevels& s): CombatSkills(s)    { }
-    PenaltySkillLevels(PenaltySkillLevels&& s): CombatSkills(s)         { }
-    PenaltySkillLevels(const QJsonObject& json): CombatSkills(json) { v.mPlus = json["plus"].toInt(0);
-                                                                      v.mWhat = json["what"].toInt(0);
-                                                                      v.mWith = json["with"].toString("");
-                                                                    }
-    ~PenaltySkillLevels() override { }
-    PenaltySkillLevels& operator=(const PenaltySkillLevels& s) {
-        if (this != &s) {
-            CombatSkills::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    PenaltySkillLevels& operator=(PenaltySkillLevels&& s) {
-        CombatSkills::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    PenaltySkillLevels(): CombatSkills("Penalty Skill Levels") { }
+    PenaltySkillLevels(QJsonObject& json): CombatSkills(json)  { v.mPlus = json["plus"].toInt(0);
+                                                                 v.mWhat = json["what"].toInt(0);
+                                                                 v.mWith = json["with"].toString("");
+                                                               }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -679,7 +543,7 @@ public:
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
                                                                   return true;
                                                                 }
-    Points   points(bool noStore = false) override              { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   QList<Points> what{ 0_cp, 1_cp, 2_cp, 3_cp, 2_cp, 3_cp };
                                                                   return v.mPlus * what[v.mWhat + 1]; }
     void    restore() override                                  { vars s = v;
@@ -739,25 +603,10 @@ CLASS_SPACE(TwoWeaponFighting, "Two-Weapon Fighting");
 
 class WeaponFamiliarity: public CombatSkills {
 public:
-    WeaponFamiliarity(): CombatSkills("Weapon Familiarity")        { }
-    WeaponFamiliarity(const WeaponFamiliarity& s): CombatSkills(s) { }
-    WeaponFamiliarity(WeaponFamiliarity&& s): CombatSkills(s)      { }
-    WeaponFamiliarity(const QJsonObject& json): CombatSkills(json) { v.mWhat = json["what"].toInt(0);
-                                                                     v.mWith = json["with"].toString("");
-                                                                   }
-    ~WeaponFamiliarity() override { }
-    WeaponFamiliarity& operator=(const WeaponFamiliarity& s) {
-        if (this != &s) {
-            CombatSkills::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    WeaponFamiliarity& operator=(WeaponFamiliarity&& s) {
-        CombatSkills::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    WeaponFamiliarity(): CombatSkills("Weapon Familiarity")  { }
+    WeaponFamiliarity(QJsonObject& json): CombatSkills(json) { v.mWhat = json["what"].toInt(0);
+                                                               v.mWith = json["with"].toString("");
+                                                             }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -766,7 +615,7 @@ public:
                                                                   with = createLineEdit(parent, layout, "Applies to what?");
                                                                   return true;
                                                                 }
-    Points   points(bool noStore = false) override              { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   QList<Points> what{ 0_cp, 1_cp, 2_cp };
                                                                   return what[v.mWhat + 1]; }
     void    restore() override                                  { vars s = v;

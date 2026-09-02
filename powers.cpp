@@ -709,7 +709,7 @@ shared_ptr<Power> Power::ByName(QString name) {
     return nullptr;
 }
 
-shared_ptr<Power> Power::FromJson(QString name, const QJsonObject& json) {
+shared_ptr<Power> Power::FromJson(QString name, QJsonObject& json) {
     shared_ptr<Power> power;
     if (mAdjustmentPower.contains(name))     power = statics.powers[mAdjustmentPower[name]]->create(json);
     if (mAttackPower.contains(name))         power = statics.powers[mAttackPower[name]]->create(json);

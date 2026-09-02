@@ -9,48 +9,28 @@
 
 class BackgroundSkill: public SkillTalentOrPerk {
 public:
-    BackgroundSkill(): SkillTalentOrPerk() { id({ }); }
+    BackgroundSkill(): SkillTalentOrPerk() { }
     BackgroundSkill(QString name)
-        : v { name } { id({ }); }
-    BackgroundSkill(const BackgroundSkill& s)
         : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    BackgroundSkill(BackgroundSkill&& s)
-        : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    BackgroundSkill(const QJsonObject& json)
-        : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { id(json); }
-    ~BackgroundSkill() override { }
-
-    BackgroundSkill& operator=(const BackgroundSkill& s) {
-        if (this != &s) {
-            mGuid = s.mGuid;
-            v = s.v;
-        }
-        return *this;
-    }
-    BackgroundSkill& operator=(BackgroundSkill&& s) {
-        v = s.v;
-        mGuid = s.mGuid;
-        return *this;
-    }
+        , v { name } { }
+    BackgroundSkill(QJsonObject& json)
+        : SkillTalentOrPerk(json)
+        , v { json["name"].toString("") } { }
 
     bool isSkill() override { return true; }
 
     QString abbreviation(bool showRoll = false) override { return description(showRoll); }
     QString description(bool showRoll = false) override  { return showRoll ? v.mName : v.mName; }
-    bool form(QWidget*, QVBoxLayout*) override           { return true; }
+    bool    form(QWidget*, QVBoxLayout*) override        { return true; }
     QString name() override                              { return v.mName; }
-    Points points(bool noStore = false) override         { return noStore ? 0_cp : 0_cp; }
-    void restore() override                              { }
+    Points  points(bool noStore = false) override        { return noStore ? 0_cp : 0_cp; }
+    void    restore() override                           { }
     QString roll() override                              { return ""; }
     void    store() override                             { }
 
     QJsonObject toJson() override {
-        QJsonObject obj;
-        obj["id"]   = mGuid;
-        obj["name"] = v.mName;
+        QJsonObject obj = SkillTalentOrPerk::toJson();
+        obj["name"]     = v.mName;
         return obj;
     }
 
@@ -65,43 +45,23 @@ private:
     class x: public BackgroundSkill {\
     public:\
         x(): BackgroundSkill(#x) { }\
-        x(const x& s): BackgroundSkill(s) { }\
-        x(x&& s): BackgroundSkill(s) { }\
-        x(const QJsonObject& json): BackgroundSkill(json) { }\
+        x(QJsonObject& json): BackgroundSkill(json) { }\
     };
 // NOLINTNEXTLINE
 #define CLASS_SPACE(x,y)\
     class x: public BackgroundSkill {\
     public:\
         x(): BackgroundSkill(y) { }\
-        x(const x& s): BackgroundSkill(s) { }\
-        x(x&& s): BackgroundSkill(s) { }\
-        x(const QJsonObject& json): BackgroundSkill(json) { }\
+        x(QJsonObject& json): BackgroundSkill(json) { }\
     };
 
 class KS: public BackgroundSkill {
 public:
-    KS(): BackgroundSkill("Knowledge Skill")           { }
-    KS(const KS& s): BackgroundSkill(s)                { }
-    KS(KS&& s): BackgroundSkill(s)                     { }
-    KS(const QJsonObject& json): BackgroundSkill(json) { v.mIntRoll = json["introll"].toBool(false);
-                                                         v.mPlus    = json["plus"].toInt(1);
-                                                         v.mFor     = json["for"].toString("");
-                                                         v.mType    = json["type"].toInt(0);
-    }
-    ~KS() override { }
-
-    KS& operator=(const KS& s) {
-        if (this != &s) {
-            BackgroundSkill::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    KS& operator=(KS&& s) {
-        BackgroundSkill::operator=(s);
-        v = s.v;
-        return *this;
+    KS(): BackgroundSkill("Knowledge Skill")     { }
+    KS(QJsonObject& json): BackgroundSkill(json) { v.mIntRoll = json["introll"].toBool(false);
+                                                   v.mPlus    = json["plus"].toInt(1);
+                                                   v.mFor     = json["for"].toString("");
+                                                   v.mType    = json["type"].toInt(0);
     }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? (
@@ -124,7 +84,7 @@ public:
                                                                   forwhat = createLineEdit(parent, layout, "Applies to what?");
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override                { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v.mPlus * 2_cp + (v.mIntRoll ? 3_cp : 2_cp);
 #ifndef ISHSC
                                                                   if (Sheet::ref().character().hasScholar()  && (v.mType == 1 || v.mType == 4)) pts -= 1_cp;
@@ -201,26 +161,10 @@ private:
 class Language: public BackgroundSkill {
 public:
     Language(): BackgroundSkill("Language")            { }
-    Language(const Language& s): BackgroundSkill(s)    { }
-    Language(Language&& s): BackgroundSkill(s)         { }
-    Language(const QJsonObject& json): BackgroundSkill(json) { v.mWhich    = json["which"].toString("");
-                                                               v.mLevel    = json["level"].toInt(0);
-                                                               v.mLiterate = json["literate"].toBool(false);
-                                                             }
-    ~Language() override { }
-
-    Language& operator=(const Language& s) {
-        if (this != &s) {
-            BackgroundSkill::operator=(s);
-            v = s.v;
-       }
-       return *this;
-    }
-    Language& operator=(Language&& s) {
-        BackgroundSkill::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Language(QJsonObject& json): BackgroundSkill(json) { v.mWhich    = json["which"].toString("");
+                                                         v.mLevel    = json["level"].toInt(0);
+                                                         v.mLiterate = json["literate"].toBool(false);
+                                                       }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -276,27 +220,11 @@ private:
 
 class PS: public BackgroundSkill {
 public:
-    PS(): BackgroundSkill("Professional Skill")           { }
-    PS(const PS& s): BackgroundSkill(s)    { }
-    PS(PS&& s): BackgroundSkill(s)         { }
-    PS(const QJsonObject& json): BackgroundSkill(json) { v.mWhat = json["what"].toString("");
-                                                         v.mPlus = json["plus"].toInt(0);
-                                                         v.mStat = json["stat"].toInt(-1);
-                                                       }
-    ~PS() override { }
-
-    PS& operator=(const PS& s) {
-        if (this != &s) {
-            BackgroundSkill::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    PS& operator=(PS&& s) {
-        BackgroundSkill::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    PS(): BackgroundSkill("Professional Skill")  { }
+    PS(QJsonObject& json): BackgroundSkill(json) { v.mWhat = json["what"].toString("");
+                                                   v.mPlus = json["plus"].toInt(0);
+                                                   v.mStat = json["stat"].toInt(-1);
+                                                 }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v.mPlus) + ") ": "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createLineEdit(parent, layout, "What profession?");
@@ -304,7 +232,7 @@ public:
                                                                   stat = createComboBox(parent, layout, "Base on a stat?", { "", "STR", "DEX", "CON", "INT", "EGO", "PRE"});
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override              { if (!noStore) store();
+    Points   points(bool noStore = false) override              { if (!noStore) store();
                                                                   auto pts = v.mPlus * 1_cp + (2_cp + ((v.mStat >= 1) ? 1_cp : 0_cp));
 #ifndef ISHSC
                                                                   if (Sheet::ref().character().hasJackOfAllTrades()) pts -= 1_cp;
@@ -367,27 +295,11 @@ private:
 
 class SS: public BackgroundSkill {
 public:
-    SS(): BackgroundSkill("Science Skill")           { }
-    SS(const SS& s): BackgroundSkill(s)    { }
-    SS(SS&& s): BackgroundSkill(s)         { }
-    SS(const QJsonObject& json): BackgroundSkill(json) { v.mWhat = json["what"].toString("");
-                                                         v.mPlus = json["plus"].toInt(0);
-                                                         v.mInt  = json["int"].toBool(false);
-                                                       }
-    ~SS() override { }
-
-    SS& operator=(const SS& s) {
-        if (this != &s) {
-            BackgroundSkill::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    SS& operator=(SS&& s) {
-        BackgroundSkill::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    SS(): BackgroundSkill("Science Skill")       { }
+    SS(QJsonObject& json): BackgroundSkill(json) { v.mWhat = json["what"].toString("");
+                                                   v.mPlus = json["plus"].toInt(0);
+                                                   v.mInt  = json["int"].toBool(false);
+                                                 }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v.mPlus) + ") ": "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what    = createLineEdit(parent, layout, "What profession?");
@@ -458,26 +370,11 @@ private:
 
 class TF: public BackgroundSkill {
 public:
-    TF(): BackgroundSkill("Transport Familiarity")     { }
-    TF(const TF& s): BackgroundSkill(s)                { }
-    TF(TF&& s): BackgroundSkill(s)                     { }
-    TF(const QJsonObject& json): BackgroundSkill(json) { v.mWhat = json["what"].toInt(0);
-                                                         v.mWith = json["with"].toString("");
-                                                       }
-    ~TF() override { }
+    TF(): BackgroundSkill("Transport Familiarity") { }
+    TF(QJsonObject& json): BackgroundSkill(json)   { v.mWhat = json["what"].toInt(0);
+                                                     v.mWith = json["with"].toString("");
+                                                   }
 
-    TF& operator=(const TF& s) {
-        if (this != &s) {
-            BackgroundSkill::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    TF& operator=(TF&& s) {
-        BackgroundSkill::operator=(s);
-        v = s.v;
-        return *this;
-    }
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { what = createComboBox(parent, layout, "Familar with?", { "One class of conveyances",

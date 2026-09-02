@@ -4,7 +4,8 @@ QMap<QString, QJsonObject> Armor::mArmors;   // NOLINT
 QMap<QString, QJsonObject> Weapon::mWeapons; // NOLINT
 QMap<QString, QJsonObject> Equip::mEquip;    // NOLINT
 
-Equipment::Equipment(const QJsonObject& json) {
+Equipment::Equipment(QJsonObject& json)
+    : AllPowers(json) {
     QString type;
     QString name = json["powerName"].toString("");
     if (Equip::catalog().find(name) != Equip::catalog().end()) type = "Equip";

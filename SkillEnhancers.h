@@ -5,31 +5,13 @@
 
 class SkillEnhancers: public SkillTalentOrPerk {
 public:
-    SkillEnhancers(): SkillTalentOrPerk() { id({ }); }
+    SkillEnhancers(): SkillTalentOrPerk() { }
     SkillEnhancers(QString name)
-        : v { name } { id({ }); }
-    SkillEnhancers(const SkillEnhancers& s)
         : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    SkillEnhancers(SkillEnhancers&& s)
-        : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    SkillEnhancers(const QJsonObject& json)
-        : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { id(json); }
-
-    virtual SkillEnhancers& operator=(const SkillEnhancers& s) {
-        if (this != &s) {
-            mGuid = s.mGuid;
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual SkillEnhancers& operator=(SkillEnhancers&& s) {
-        mGuid = s.mGuid;
-        v = s.v;
-        return *this;
-    }
+        , v { name } { }
+    SkillEnhancers(QJsonObject& json)
+        : SkillTalentOrPerk(json)
+        , v { json["name"].toString("") } { }
 
     bool isSkill() override { return true; }
 
@@ -42,8 +24,7 @@ public:
     void     store() override                      { }
 
     QJsonObject toJson() override {
-        QJsonObject obj;
-        obj["id"]   = mGuid;
+        QJsonObject obj = SkillTalentOrPerk::toJson();
         obj["name"] = v.mName;
         return obj;
     }
@@ -57,9 +38,7 @@ private:
 class BlankSkill: public SkillEnhancers {
 public:
     BlankSkill(): SkillEnhancers("Blank Line") { }
-    BlankSkill(const BlankSkill& s): SkillEnhancers(s) { }
-    BlankSkill(BlankSkill&& s): SkillEnhancers(s) { }
-    BlankSkill(const QJsonObject& json): SkillEnhancers(json) { }
+    BlankSkill(QJsonObject& json): SkillEnhancers(json) { }
 
     QString  description(bool) override            { return "-"; }
     Points   points(bool) override                 { return 0_cp; }
@@ -72,17 +51,13 @@ public:
     class x: public SkillEnhancers {\
     public:\
         x(): SkillEnhancers(#x) { }\
-        x(const x& s): SkillEnhancers(s) { }\
-        x(x&& s): SkillEnhancers(s) { }\
-        x(const QJsonObject& json): SkillEnhancers(json) { }\
+        x(QJsonObject& json): SkillEnhancers(json) { }\
     };
 #define CLASS_SPACE(x,y)\
     class x: public SkillEnhancers {\
     public:\
         x(): SkillEnhancers(y) { }\
-        x(const x& s): SkillEnhancers(s) { }\
-        x(x&& s): SkillEnhancers(s) { }\
-        x(const QJsonObject& json): SkillEnhancers(json) { }\
+        x(QJsonObject& json): SkillEnhancers(json) { }\
     };
 
 CLASS_SPACE(JackOfAllTrades, "Jack Of All Trades");

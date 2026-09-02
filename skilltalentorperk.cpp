@@ -467,7 +467,7 @@ shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::ByName(QString name) {
     else return nullptr;
 }
 
-shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::FromJson(QString name, const QJsonObject& json) {
+shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::FromJson(QString name, QJsonObject& json) {
          if (sSkills.find(name)    != sSkills.end())    return sSkills[name]->create(json);
     else if (sTalents.find(name)   != sTalents.end())   return sTalents[name]->create(json);
     else if (sPerks.find(name)     != sPerks.end())     return sPerks[name]->create(json);

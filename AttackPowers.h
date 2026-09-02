@@ -37,7 +37,7 @@ public:
                                                                    v.mPdEd = pded->currentIndex();
                                                                    v.mStun = stun->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"] = v.mDice;
                                                                    obj["pded"] = v.mPdEd;
                                                                    obj["stun"] = v.mStun;
@@ -155,7 +155,7 @@ public:
                                                                    mData = true;
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    QJsonArray arr;
                                                                    for (auto& eff: std::as_const(v.mEffects)) {
                                                                        QJsonObject objItm;
@@ -689,7 +689,7 @@ public:
                                                                    v.mVuln   = vuln->currentIndex();
                                                                    v.mVulnTo = vulnTo->text();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"]   = v.mDice;
                                                                    obj["pded"]   = v.mBody;
                                                                    obj["def"]    = v.mDef;
@@ -842,7 +842,7 @@ public:
                                                                    v.mIndTgt    = indTgt->text();
                                                                    v.mIndNonTgt = indNonTgt->text();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"]      = v.mDice;
                                                                    obj["tgt"]       = v.mTgt;
                                                                    obj["nonTgt"]    = v.mNonTgt;
@@ -915,7 +915,7 @@ public:
     void     store() override                                    { AllPowers::store();
                                                                    v.mDice = dice->text().toInt();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"] = v.mDice;
                                                                    return obj;
                                                                  }
@@ -992,7 +992,7 @@ public:
                                                                    v.mDecr  = decr->currentIndex();
                                                                    v.mStr   = str->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["range"] = v.mRange;
                                                                    obj["dice"]  = v.mDice;
                                                                    obj["extra"] = v.mExtra;
@@ -1110,7 +1110,7 @@ public:
                                                                    v.mAny      = any->isChecked();
                                                                    v.mFeedback = feedback->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["points"]   = v.mPoints;
                                                                    obj["any"]      = v.mAny;
                                                                    obj["feedback"] = v.mFeedback;
@@ -1188,7 +1188,7 @@ public:
                                                                    v.mLimit = limit->currentIndex();
                                                                    v._what  = what->text();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["str"]   = v.mStr;
                                                                    obj["fine"]  = v.mFine;
                                                                    obj["whole"] = v.mWhole;
@@ -1315,7 +1315,7 @@ public:
                                                                    v.mWhat    = what->text();
                                                                    v.mRapid   = rapid->currentIndex();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"]    = v.mDice;
                                                                    obj["into"]    = v.mInto;
                                                                    obj["degree"]  = v.mDegree;

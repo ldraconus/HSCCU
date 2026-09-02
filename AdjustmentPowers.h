@@ -12,7 +12,6 @@ public:
                                                      v.mDefensive = json["defensive"].toInt(0);
                                                      v.mVarying   = json["varying"].toBool(false);
                                                    }
-    ~Absorption() override { }
 
     Fraction adv() override                                      { return def(); }
     QString  abbreviation(bool showEnd = false) override         { return optOut(showEnd, true); }
@@ -44,7 +43,7 @@ public:
                                                                    v.mDefensive = defensive->currentIndex();
                                                                    v.mVarying   = varying->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["body"]      = v.mBody;
                                                                    obj["to"]        = v.mTo;
                                                                    obj["defensive"] = v.mDefensive;
@@ -122,7 +121,6 @@ public:
                                               v.mBoost = json["boost"].toBool(false);
                                               v.mWho   = json["who"].toInt(0);
                                             }
-    ~Aid() override { }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -150,7 +148,7 @@ public:
                                                                    v.mWho   = who->currentIndex();
                                                                    v.mBoost = boost->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"]  = v.mDice;
                                                                    obj["to"]    = v.mTo;
                                                                    obj["who"]   = v.mWho;
@@ -221,7 +219,6 @@ public:
                                                 v.mFrom     = json["from"].toString("");
                                                 v.mSuppress = json["suppress"].toBool(false);
                                               }
-    ~Drain() override { }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -246,7 +243,7 @@ public:
                                                                    v.mFrom     = from->text();
                                                                    v.mSuppress = suppress->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"]     = v.mDice;
                                                                    obj["from"]     = v.mFrom;
                                                                    obj["suppress"] = v.mSuppress;
@@ -291,7 +288,6 @@ public:
                                                   v.mTo   = json["to"].toString("");
                                                   v.mRate = json["rate"].toInt(-1);
                                                 }
-    ~Healing() override { }
 
     Fraction adv() override                                      { return def(); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -317,7 +313,7 @@ public:
                                                                    v.mTo   = to->text();
                                                                    v.mRate = rate->currentIndex();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["dice"] = v.mDice;
                                                                    obj["to"]   = v.mTo;
                                                                    obj["rate"] = v.mRate;

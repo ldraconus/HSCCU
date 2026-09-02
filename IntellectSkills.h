@@ -9,59 +9,39 @@
 
 class IntellectSkills: public SkillTalentOrPerk {
 public:
-    IntellectSkills(): SkillTalentOrPerk() { id({ }); }
+    IntellectSkills(): SkillTalentOrPerk() { }
     IntellectSkills(QString name)
-        : v { name, "", 0 } {id({ }); }
-    IntellectSkills(const IntellectSkills& s)
         : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    IntellectSkills(IntellectSkills&& s)
-        : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    IntellectSkills(const QJsonObject& json)
-        : SkillTalentOrPerk()
-        , v { json["name"].toString(""), json["topic"].toString(""), json["plus"].toInt(0) } { id(json); }
-    ~IntellectSkills() override { }
-
-    IntellectSkills& operator=(const IntellectSkills& s) {
-        if (this != &s) {
-            mGuid = s.mGuid;
-            v = s.v;
-        }
-        return *this;
-    }
-    IntellectSkills& operator=(IntellectSkills&& s) {
-        mGuid = s.mGuid;
-        v = s.v;
-        return *this;
-    }
+        , v { name, "", 0 } { }
+    IntellectSkills(QJsonObject& json)
+        : SkillTalentOrPerk(json)
+        , v { json["name"].toString(""), json["topic"].toString(""), json["plus"].toInt(0) } { }
 
     bool isSkill() override { return true; }
 
-    QString abbreviation(bool showRoll = false) override     { return description(showRoll); }
-    QString description(bool showRoll = false) override      { return v.mName + " (" + (v.mTopic.isEmpty() ? "" : v.mTopic + "; ") +
-                                                                                       (showRoll ? roll() : "+" + QString("%1").arg(v.mPlus)) + ")"; }
-    bool form(QWidget* parent, QVBoxLayout* layout) override { topic = createLineEdit(parent, layout, "Specific Topic?");
-                                                               plus  = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
-                                                               return true; }
-    QString name() override                                  { return v.mName; }
-    Points points(bool noStore = false) override             { if (!noStore) store(); return 3_cp + v.mPlus * 2_cp; }
-    void restore() override                                  { vars s = v;
-                                                               topic->setText(v.mTopic);
-                                                               plus->setText(QString("%1").arg(s.mPlus));
-                                                               v = s; }
-    QString roll() override                                  { return
+    QString abbreviation(bool showRoll = false) override        { return description(showRoll); }
+    QString description(bool showRoll = false) override         { return v.mName + " (" + (v.mTopic.isEmpty() ? "" : v.mTopic + "; ") +
+                                                                                          (showRoll ? roll() : "+" + QString("%1").arg(v.mPlus)) + ")"; }
+    bool    form(QWidget* parent, QVBoxLayout* layout) override { topic = createLineEdit(parent, layout, "Specific Topic?");
+                                                                  plus  = createLineEdit(parent, layout, "Pluses?", std::mem_fn(&SkillTalentOrPerk::numeric));
+                                                                  return true; }
+    QString name() override                                     { return v.mName; }
+    Points  points(bool noStore = false) override               { if (!noStore) store(); return 3_cp + v.mPlus * 2_cp; }
+    void    restore() override                                  { vars s = v;
+                                                                  topic->setText(v.mTopic);
+                                                                  plus->setText(QString("%1").arg(s.mPlus));
+                                                                  v = s; }
+    QString roll() override                                     { return
 #ifndef ISHSC
-                                                                   add(Sheet::ref().character().INT().roll(), v.mPlus); }
+                                                                    add(Sheet::ref().character().INT().roll(), v.mPlus); }
 #else
-                                                                   QString("+%1").arg(v._plus); }
+                                                                    QString("+%1").arg(v._plus); }
 #endif
-    void    store() override                                 { v.mTopic = topic->text();
-                                                               v.mPlus  = plus->text().toInt(0); }
+    void    store() override                                    { v.mTopic = topic->text();
+                                                                  v.mPlus  = plus->text().toInt(0); }
 
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["id"]    = mGuid;
         obj["name"]  = v.mName;
         obj["topic"] = v.mTopic;
         obj["plus"]  = v.mPlus;
@@ -90,44 +70,22 @@ private:
     class x: public IntellectSkills {\
     public:\
         x(): IntellectSkills(#x) { }\
-        x(const x& s): IntellectSkills(s) { }\
-        x(x&& s): IntellectSkills(s) { }\
-        x(const QJsonObject& json): IntellectSkills(json) { }\
-        ~x() override { } \
-        x& operator=(const x&) { return *this; } \
-        x& operator=(x&&) { return *this; } \
+        x(QJsonObject& json): IntellectSkills(json) { }\
     };
 // NOLINTNEXTLINE
 #define CLASS_SPACE(x,y)\
     class x: public IntellectSkills {\
     public:\
         x(): IntellectSkills(y) { }\
-        x(const x& s): IntellectSkills(s) { }\
-        x(x&& s): IntellectSkills(s) { }\
-        x(const QJsonObject& json): IntellectSkills(json) { }\
-        ~x() override { } \
-        x& operator=(const x&) { return *this; } \
-        x& operator=(x&&) { return *this; } \
+        x(QJsonObject& json): IntellectSkills(json) { }\
     };
 
 class Analyze: public IntellectSkills {
 public:
-    Analyze(): IntellectSkills("Analyze")                   { }
-    Analyze(const Analyze& s): IntellectSkills(s)           { }
-    Analyze(Analyze&& s): IntellectSkills(s)                { }
-    Analyze(const QJsonObject& json): IntellectSkills(json) {
+    Analyze(): IntellectSkills("Analyze")             { }
+    Analyze(QJsonObject& json): IntellectSkills(json) {
         v.mPlus    = json["plus"].toInt(1);
         v.mWhat    = json["what"].toString("");
-    }
-    ~Analyze() override { }
-
-    Analyze& operator=(const Analyze& s) {
-        if (this != &s) v = s.v;
-        return *this;
-    }
-    Analyze& operator=(Analyze&& s) {
-        v = s.v;
-        return *this;
     }
 
     QString abbreviation(bool showRoll = false) override { return str(showRoll, true); }
@@ -145,7 +103,7 @@ public:
         what = createLineEdit(parent, layout, "Analyze what?");
         return true;
     }
-    Points points(bool noStore = false) override              {
+    Points   points(bool noStore = false) override              {
         if (!noStore) store();
         auto pts = v.mPlus * 2_cp + 3_cp;
         if (pts < 1_cp) pts = 1_cp;

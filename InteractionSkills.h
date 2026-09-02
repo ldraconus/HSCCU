@@ -9,31 +9,13 @@
 
 class InteractionSkills: public SkillTalentOrPerk {
 public:
-    InteractionSkills(): SkillTalentOrPerk() { id({ }); }
+    InteractionSkills(): SkillTalentOrPerk() { }
     InteractionSkills(QString name)
-        : v { name, 0 } { id({ }); }
-    InteractionSkills(const InteractionSkills& s)
         : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    InteractionSkills(InteractionSkills&& s)
-        : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    InteractionSkills(const QJsonObject& json)
-        : SkillTalentOrPerk()
-        , v { json["name"].toString(""), json["plus"].toInt(0) } { id(json); }
-    ~InteractionSkills() override { }
-    InteractionSkills& operator=(const InteractionSkills& s) {
-        if (this != &s) {
-            mGuid = s.mGuid;
-            v = s.v;
-        }
-        return *this;
-    }
-    InteractionSkills& operator=(InteractionSkills&& s) {
-        mGuid = s.mGuid;
-        v = s.v;
-        return *this;
-    }
+        , v { name, 0 } { }
+    InteractionSkills(QJsonObject& json)
+        : SkillTalentOrPerk(json)
+        , v { json["name"].toString(""), json["plus"].toInt(0) } { }
 
     bool isSkill() override { return true; }
 
@@ -77,24 +59,14 @@ private:
     class x: public InteractionSkills {\
     public:\
         x(): InteractionSkills(#x) { }\
-        x(const x& s): InteractionSkills(s) { }\
-        x(x&& s): InteractionSkills(s) { }\
-        x(const QJsonObject& json): InteractionSkills(json) { }\
-        ~x() override { } \
-        x& operator=(const x&) { return *this; } \
-        x& operator=(x&&) { return *this; } \
+        x(QJsonObject& json): InteractionSkills(json) { }\
     };
 // NOLINTNEXTLINE
 #define CLASS_SPACE(x,y)\
     class x: public InteractionSkills {\
     public:\
         x(): InteractionSkills(y) { }\
-        x(const x& s): InteractionSkills(s) { }\
-        x(x&& s): InteractionSkills(s) { }\
-        x(const QJsonObject& json): InteractionSkills(json) { }\
-        ~x() override { } \
-        x& operator=(const x&) { return *this; } \
-        x& operator=(x&&) { return *this; } \
+        x(QJsonObject& json): InteractionSkills(json) { }\
     };
 
 CLASS(Acting);

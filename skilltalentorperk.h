@@ -56,8 +56,8 @@ public:
     public:
         skillBase() = default;
 
-        virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
-        virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create()                  = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) = 0;
     };
 
     template <typename T>
@@ -65,16 +65,15 @@ public:
     public:
         skill() = default;
 \
-        shared_ptr<SkillTalentOrPerk> create() override                        { auto x = make_shared<T>();     x->id();     return x; }
-        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
+        shared_ptr<SkillTalentOrPerk> create() override                  { auto x = make_shared<T>();     x->id();     return x; }
+        shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
     };
 
     class perkBase {
     public:
         perkBase() = default;
-
-        virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
-        virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create()                  = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) = 0;
     };
 
     template <typename T>
@@ -82,16 +81,16 @@ public:
     public:
         perk() = default;
 
-        shared_ptr<SkillTalentOrPerk> create() override                        { auto x = make_shared<T>();     x->id();     return x; }
-        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
+        shared_ptr<SkillTalentOrPerk> create() override                  { auto x = make_shared<T>();     x->id();     return x; }
+        shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
     };
 
     class talentBase {
     public:
         talentBase() = default;
 
-        virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
-        virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create()                  = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) = 0;
     };
 
     template <typename T>
@@ -99,16 +98,16 @@ public:
     public:
         talent() = default;
 
-        shared_ptr<SkillTalentOrPerk> create() override                        { auto x = make_shared<T>();     x->id();     return x; }
-        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
+        shared_ptr<SkillTalentOrPerk> create() override                  { auto x = make_shared<T>();     x->id();     return x; }
+        shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
     };
 
     class enhancerBase {
     public:
         enhancerBase() = default;
 
-        virtual shared_ptr<SkillTalentOrPerk> create()                        = 0;
-        virtual shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create()                  = 0;
+        virtual shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) = 0;
     };
 
     template <typename T>
@@ -116,11 +115,12 @@ public:
     public:
         enhancer() = default;
 
-        shared_ptr<SkillTalentOrPerk> create() override                        { auto x = make_shared<T>();     x->id();     return x; }
-        shared_ptr<SkillTalentOrPerk> create(const QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
+        shared_ptr<SkillTalentOrPerk> create() override                  { auto x = make_shared<T>();     x->id();     return x; }
+        shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { auto x = make_shared<T>(json); x->id(json); return x; }
     };
 
-    SkillTalentOrPerk() = default;
+    SkillTalentOrPerk()                  { id(); }
+    SkillTalentOrPerk(QJsonObject& json) { id(json); }
 
     static const bool NoStore = true;
     static const bool ShowRoll = true;
@@ -158,7 +158,7 @@ public:
     static QList<QString>      PerksAvailable();
 
     static shared_ptr<SkillTalentOrPerk> ByName(QString);
-    static shared_ptr<SkillTalentOrPerk> FromJson(QString, const QJsonObject&);
+    static shared_ptr<SkillTalentOrPerk> FromJson(QString, QJsonObject&);
 
     bool isNumber(QString);
 
@@ -167,7 +167,7 @@ public:
 protected:
     QString mGuid;
 
-    void    id(const QJsonObject& json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces); }
+    void    id(const QJsonObject json = { }) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces); }
 
 private:
     static QMap<QString, skillBase*>    sSkills;    // NOLINT

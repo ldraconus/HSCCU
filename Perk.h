@@ -8,22 +8,13 @@
 
 class Perks: public SkillTalentOrPerk {
 public:
-    Perks(): SkillTalentOrPerk() { id({ }); }
+    Perks(): SkillTalentOrPerk() { }
     Perks(QString name)
-        : v { name } { id({ }); }
-    Perks(const Perks& s)
         : SkillTalentOrPerk()
-        , v(s.v) { mGuid= s.mGuid; }
-    Perks(Perks&& s)
-        : SkillTalentOrPerk()
-        , v(s.v) { mGuid= s.mGuid; }
-    Perks(const QJsonObject& json)
-        : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { id(json); }
-    ~Perks() override { }
-
-    Perks& operator=(const Perks& s) = delete;
-    Perks& operator=(Perks&& s) = delete;
+        , v { name } {  }
+    Perks(QJsonObject& json)
+        : SkillTalentOrPerk(json)
+        , v { json["name"].toString("") } { }
 
     bool isPerk() override { return true; }
 
@@ -53,33 +44,23 @@ private:
     class x: public AgilitySkills {\
     public:\
         x(): AgilitySkills(#x) { }\
-        x(const x& s): AgilitySkills(s) { }\
-        x(x&& s): AgilitySkills(s) { }\
-        x(const QJsonObject& json): AgilitySkills(json) { }\
+        x(QJsonObject& json): AgilitySkills(json) { }\
     };
 // NOLINTNEXTLINE
 #define CLASS_SPACE(x,y)\
     class x: public AgilitySkills {\
     public:\
         x(): AgilitySkills(y) { }\
-        x(const x& s): AgilitySkills(s) { }\
-        x(x&& s): AgilitySkills(s) { }\
-        x(const QJsonObject& json): AgilitySkills(json) { }\
+        x(QJsonObject& json): AgilitySkills(json) { }\
     };
 
 class Access: public Perks {
 public:
-    Access(): Perks("Access") { }
-    Access(const Access& s): Perks(s)             { }
-    Access(Access&& s): Perks(s)                  { }
-    Access(const QJsonObject& json): Perks(json)  { v.mCost = json["cost"].toInt(1);
-                                                    v.mFor  = json["for"].toString("");
-                                                    v.mHide = json["hide"].toInt(0);
-    }
-    ~Access() override { }
-
-    Access& operator=(const Access&) = delete;
-    Access& operator=(Access&&) = delete;
+    Access(): Perks("Access")               { }
+    Access(QJsonObject& json): Perks(json)  { v.mCost = json["cost"].toInt(1);
+                                              v.mFor  = json["for"].toString("");
+                                              v.mHide = json["hide"].toInt(0);
+                                            }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -88,7 +69,7 @@ public:
                                                                   hide    = createLineEdit(parent, layout, "Bonus to hiding access", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override                { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   return (v.mCost + 1) * 1_cp + v.mHide; }
     void    restore() override                                  { vars s = v;
                                                                   cost->setCurrentIndex(s.mCost);
@@ -136,22 +117,16 @@ private:
 class Anonymity: public Perks {
 public:
     Anonymity(): Perks("Anonymity")                  { }
-    Anonymity(const Anonymity& s): Perks(s)          { }
-    Anonymity(Anonymity&& s): Perks(s)               { }
-    Anonymity(const QJsonObject& json)
+    Anonymity(QJsonObject& json)
         : Perks(json) {
         v.mExtra = json["extra"].toInt(1);
     }
-    ~Anonymity() override { }
-
-    Anonymity& operator=(const Anonymity&) = delete;
-    Anonymity& operator=(Anonymity&&) = delete;
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { extra = createLineEdit(parent, layout, "Extra cost", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override                { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   return 3_cp + v.mExtra; }
     void    restore() override                                  { vars s = v;
                                                                   extra->setText(QString("%1").arg(s.mExtra));
@@ -185,16 +160,10 @@ private:
 
 class ComputerLink: public Perks {
 public:
-    ComputerLink(): Perks("Computer Link")              { }
-    ComputerLink(const ComputerLink& s): Perks(s)       { }
-    ComputerLink(ComputerLink&& s): Perks(s)            { }
-    ComputerLink(const QJsonObject& json): Perks(json)  { v.mValue = json["value"].toInt(1);
-        v.mFor = json["for"].toString("");
-    }
-    ~ComputerLink() override { }
-
-    ComputerLink& operator=(const ComputerLink&) = delete;
-    ComputerLink& operator=(ComputerLink&&) = delete;
+    ComputerLink(): Perks("Computer Link")        { }
+    ComputerLink(QJsonObject& json): Perks(json)  { v.mValue = json["value"].toInt(1);
+                                                    v.mFor = json["for"].toString("");
+                                                  }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -202,7 +171,7 @@ public:
                                                                   value   = createLineEdit(parent, layout, "Bonus for value", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override                { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   return v.mValue + 1_cp; }
     void    restore() override                                  { vars s = v;
                                                                   value->setText(QString("%1").arg(s.mValue));
@@ -246,20 +215,16 @@ public:
     Contact(): Perks("Contact")                   { }
     Contact(const Contact& s): Perks(s)           { }
     Contact(Contact&& s): Perks(s)                { }
-    Contact(const QJsonObject& json): Perks(json) { v.mBase     = json["base"].toInt(0);
-                                                    v.mPlus     = json["plus"].toInt(0);
-                                                    v.mLimited  = json["limited"].toBool(false);
-                                                    v.mWho      = json["who"].toString("");
-                                                    v.mUseful   = json["useful"].toInt(0);
-                                                    v.mAccess   = json["access"].toBool(false);
-                                                    v.mContacts = json["contacts"].toBool(false);
-                                                    v.mRelate   = json["relate"].toInt(0);
-                                                    v.mOrg = json["org"].toBool(false);
-    }
-    ~Contact() override { }
-
-    Contact& operator=(const Contact&) = delete;
-    Contact& operator=(Contact&&) = delete;
+    Contact(QJsonObject& json): Perks(json) { v.mBase     = json["base"].toInt(0);
+                                              v.mPlus     = json["plus"].toInt(0);
+                                              v.mLimited  = json["limited"].toBool(false);
+                                              v.mWho      = json["who"].toString("");
+                                              v.mUseful   = json["useful"].toInt(0);
+                                              v.mAccess   = json["access"].toBool(false);
+                                              v.mContacts = json["contacts"].toBool(false);
+                                              v.mRelate   = json["relate"].toInt(0);
+                                              v.mOrg = json["org"].toBool(false);
+                                            }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? roll() + " " : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
@@ -281,7 +246,7 @@ public:
                                                                   org = createCheckBox(parent, layout, "Contact is an organization");
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override                { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   auto pts = (v.mBase + 1_cp + v.mPlus - (v.mLimited ? 1_cp : 0_cp) + (v.mUseful > 0 ? 1_cp * v.mUseful: 0_cp) + (v.mAccess ? 1_cp : 0_cp) +
                                                                           (v.mContacts ? 1_cp : 0_cp) + ((v.mRelate == 0) ? -2 : v.mRelate - 1)) * (v.mOrg ? 3_cp : 1_cp);
 #ifndef ISHSC
@@ -376,23 +341,15 @@ private:
 
 class DeepCover: public Perks {
 public:
-    DeepCover(): Perks("Deep Cover")                 { }
-    DeepCover(const DeepCover& s): Perks(s)          { }
-    DeepCover(DeepCover&& s): Perks(s)               { }
-    DeepCover(const QJsonObject& json)
-        : Perks(json) {
-        v.mAs = json["as"].toString("");
-    }
-    ~DeepCover() override { }
-
-    DeepCover& operator=(const DeepCover&) = delete;
-    DeepCover& operator=(DeepCover&&) = delete;
+    DeepCover(): Perks("Deep Cover")          { }
+    DeepCover(QJsonObject& json): Perks(json) { v.mAs = json["as"].toString("");
+                                              }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { as = createLineEdit(parent, layout, "What is the cover identity?");
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override                { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   return 2_cp; }
     void    restore() override                                  { vars s = v; as->setText(v.mAs); v = s;
                                                                 }
@@ -419,16 +376,10 @@ private:
 
 class Favor: public Perks {
 public:
-    Favor(): Perks("Favor")                     { }
-    Favor(const Favor& s): Perks(s)             { }
-    Favor(Favor&& s): Perks(s)                  { }
-    Favor(const QJsonObject& json): Perks(json) { v.mWho  = json["who"].toString("");
-        v.mCost = json["cost"].toInt(1);
-    }
-    ~Favor() override { }
-
-    Favor& operator=(const Favor&) = delete;
-    Favor& operator=(Favor&&) = delete;
+    Favor(): Perks("Favor")               { }
+    Favor(QJsonObject& json): Perks(json) { v.mWho  = json["who"].toString("");
+                                            v.mCost = json["cost"].toInt(1);
+                                          }
 
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { who  = createLineEdit(parent, layout, "Who owes the favor?");
@@ -484,17 +435,11 @@ private:
 
 class Follower: public Perks {
 public:
-    Follower(): Perks("Follower")                  { }
-    Follower(const Follower& s): Perks(s)          { }
-    Follower(Follower&& s): Perks(s)               { }
-    Follower(const QJsonObject& json): Perks(json) { v.mWho  = json["who"].toString("");
-                                                     v.mPnts = json["pnts"].toInt(1);
-                                                     v.mMult = json["mult"].toInt(0);
-    }
-    ~Follower() override { }
-
-    Follower& operator=(const Follower&) = delete;
-    Follower& operator=(Follower&&) = delete;
+    Follower(): Perks("Follower")            { }
+    Follower(QJsonObject& json): Perks(json) { v.mWho  = json["who"].toString("");
+                                               v.mPnts = json["pnts"].toInt(1);
+                                               v.mMult = json["mult"].toInt(0);
+                                             }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { who  = createLineEdit(parent, layout, "Who is/are the follower(s)?");
@@ -502,7 +447,7 @@ public:
                                                                   mult = createLineEdit(parent, layout, "How many multiples of followers?", std::mem_fn(&SkillTalentOrPerk::numeric));
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override                { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   return (v.mPnts + 3) / 5 + v.mMult * 5_cp; } // NOLINT
     void    restore() override                                  { vars s= v;
                                                                   who->setText(s.mWho);
@@ -549,18 +494,10 @@ private:
 
 class FringeBenefit: public Perks {
 public:
-    FringeBenefit(): Perks("Fringe Benefit")            { }
-    FringeBenefit(const FringeBenefit& s): Perks(s)     { }
-    FringeBenefit(FringeBenefit&& s): Perks(s)          { }
-    FringeBenefit(const QJsonObject& json)
-        : Perks(json) {
-        v.mCost = json["cost"].toInt(1);
-        v.mFor = json["for"].toString("");
-    }
-    ~FringeBenefit() override { }
-
-    FringeBenefit& operator=(const FringeBenefit&) = delete;
-    FringeBenefit& operator=(FringeBenefit&&) = delete;
+    FringeBenefit(): Perks("Fringe Benefit")      { }
+    FringeBenefit(QJsonObject& json): Perks(json) { v.mCost = json["cost"].toInt(1);
+                                                    v.mFor = json["for"].toString("");
+                                                  }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -609,17 +546,9 @@ private:
 
 class Money: public Perks {
 public:
-    Money(): Perks("Money")                     { }
-    Money(const Money& s): Perks(s)             { }
-    Money(Money&& s): Perks(s)                  { }
-    Money(const QJsonObject& json)
-        : Perks(json) {
-        v.mAmount = json["amount"].toInt(0);
-    }
-    ~Money() override { }
-
-    Money& operator=(const Money&) = delete;
-    Money& operator=(Money&&) = delete;
+    Money(): Perks("Money")               { }
+    Money(QJsonObject& json): Perks(json) { v.mAmount = json["amount"].toInt(0);
+                                          }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -637,7 +566,7 @@ public:
                                                                                                                                                 });
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override                { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   return ((v.mAmount < 0) ? 0_cp : ((v.mAmount < 10) ? (v.mAmount + 1) * 1_cp : 15_cp)); } // NOLINT
     void    restore() override                                  { vars s = v; amount->setCurrentIndex(s.mAmount); v = s;
                                                                 }
@@ -677,17 +606,11 @@ private:
 
 class PositiveReputation: public Perks {
 public:
-    PositiveReputation(): Perks("Positive Reputation")        { }
-    PositiveReputation(const PositiveReputation& s): Perks(s) { }
-    PositiveReputation(PositiveReputation&& s): Perks(s)      { }
-    PositiveReputation(const QJsonObject& json): Perks(json)  { v.mLvl  = json["level"].toInt(1);
-                                                                v.mFor  = json["for"].toString("");
-                                                                v.mKnown = json["known"].toInt(0);
-    }
-    ~PositiveReputation() override { }
-
-    PositiveReputation& operator=(const PositiveReputation&) = delete;
-    PositiveReputation& operator=(PositiveReputation&&) = delete;
+    PositiveReputation(): Perks("Positive Reputation") { }
+    PositiveReputation(QJsonObject& json): Perks(json) { v.mLvl  = json["level"].toInt(1);
+                                                         v.mFor  = json["for"].toString("");
+                                                         v.mKnown = json["known"].toInt(0);
+                                                       }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -698,7 +621,7 @@ public:
                                                                   known   = createComboBox(parent, layout, "How well known?", { "8-", "11-", "14-"});
                                                                   return true;
                                                                 }
-    Points points(bool noStore = false) override                { if (!noStore) store();
+    Points  points(bool noStore = false) override               { if (!noStore) store();
                                                                   return (v.mLvl + 1_cp) + v.mKnown - 1_cp; }
     void    restore() override                                  { vars s = v;
                                                                   level->setCurrentIndex(s.mLvl);
@@ -743,17 +666,11 @@ private:
 
 class VehiclesAndBases: public Perks {
 public:
-    VehiclesAndBases(): Perks("Vehicles And Bases")        { }
-    VehiclesAndBases(const VehiclesAndBases& s): Perks(s)  { }
-    VehiclesAndBases(VehiclesAndBases&& s): Perks(s)       { }
-    VehiclesAndBases(const QJsonObject& json): Perks(json) { v.mWhat = json["what"].toString("");
-                                                             v.mPnts = json["pnts"].toInt(1);
-                                                             v.mMult = json["mult"].toInt(0);
-    }
-    ~VehiclesAndBases() override { }
-
-    VehiclesAndBases& operator=(const VehiclesAndBases&) = delete;
-    VehiclesAndBases& operator=(VehiclesAndBases&&) = delete;
+    VehiclesAndBases(): Perks("Vehicles And Bases")  { }
+    VehiclesAndBases(QJsonObject& json): Perks(json) { v.mWhat = json["what"].toString("");
+                                                       v.mPnts = json["pnts"].toInt(1);
+                                                       v.mMult = json["mult"].toInt(0);
+                                                     }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }

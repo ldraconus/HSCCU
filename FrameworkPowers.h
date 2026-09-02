@@ -56,7 +56,7 @@ public:
                                                                     }
     void        store() override                                    { v.mPowerName = powerName->text();
                                                                     }
-    QJsonObject toJson() const override                             { QJsonObject obj = Power::toJson();
+    QJsonObject toJson() override                                   { QJsonObject obj = Power::toJson();
                                                                       obj["name"]      = v.mName;
                                                                       obj["powerName"] = v.mPowerName;
                                                                       obj["guid"]      = id();
@@ -123,7 +123,7 @@ public:
                                                                  }
     void     store() override                                    { FrameworkPowers::store();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = FrameworkPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = FrameworkPowers::toJson();
                                                                    return obj;
                                                                  }
 
@@ -231,7 +231,7 @@ public:
                                                                    pnts = createLineEdit(parent, layout, "Points in the pool?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return Points(v.mPoints); }
     void     restore() override                                  { vars s = v;
                                                                    FrameworkPowers::restore();
@@ -241,7 +241,7 @@ public:
     void     store() override                                    { FrameworkPowers::store();
                                                                    v.mPoints = pnts->text().toInt();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = FrameworkPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = FrameworkPowers::toJson();
                                                                    obj["points"] = v.mPoints;
                                                                    return obj;
                                                                  }
@@ -414,7 +414,7 @@ public:
                                                                           ((v.mOne == 1)   ? Fraction(1, 2)              : Fraction(0)) +
                                                                           ((v.mOne == 2)   ? Fraction(1)                 : Fraction(0)) +
                                                                           ((v.mOne == 3)   ? Fraction(1, Fraction(1, 2)) : Fraction(0)); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v.mControl + 1_cp) / 2; }
     void     restore() override                                  { vars s = v;
                                                                    FrameworkPowers::restore();
@@ -446,7 +446,7 @@ public:
                                                                    v.mOne     = one->currentIndex();
                                                                    v.mPower   = powr->text();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = FrameworkPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = FrameworkPowers::toJson();
                                                                    obj["pool"]    = v.mPool;
                                                                    obj["control"] = v.mControl;
                                                                    obj["time"]    = v.mTime;

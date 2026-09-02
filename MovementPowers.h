@@ -117,7 +117,7 @@ public:
                                                                    v.mTimWhr = timWhr->text();
                                                                    v.mSpan   = span->currentIndex();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["time"]   = v.mTime;
                                                                    obj["numDim"] = v.mNumDim;
                                                                    obj["dim"]    = v.mDim;
@@ -256,7 +256,7 @@ public:
                                                                    v.mInstant = instant->isChecked();
                                                                    v.mSpeed   = speed->text().toInt();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["speed"]   = v.mSpeed;
                                                                    obj["instant"] = v.mInstant;
                                                                    return obj;
@@ -334,7 +334,7 @@ public:
                                                                    v.mSurface = surface->isChecked();
                                                                    v.mHover   = hover->currentIndex();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["speed"]   = v.mSpeed;
                                                                    obj["glide"]   = v.mGlide;
                                                                    obj["surface"] = v.mSurface;
@@ -413,7 +413,7 @@ public:
                                                                    v.mSpeed    = speed->text().toInt();
                                                                    v.mAccurate = accurate->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["speed"]    = v.mSpeed;
                                                                    obj["accurate"] = v.mAccurate;
                                                                    obj["limit"]    = v.mLimit;
@@ -488,7 +488,7 @@ public:
                                                                    v.mCorrect = correct->isChecked();
                                                                    v.mTerrain = terrain->text();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["speed"]   = v.mSpeed;
                                                                    obj["correct"] = v.mCorrect;
                                                                    obj["terrain"] = v.mTerrain;
@@ -557,7 +557,7 @@ public:
                                                                    v.mSpeed   = speed->text().toInt();
                                                                    v.mSurface = surface->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["speed"]   = v.mSpeed;
                                                                    obj["surface"] = v.mSurface;
                                                                    return obj;
@@ -618,7 +618,7 @@ public:
     void     store() override                                    { AllPowers::store();
                                                                    v.mSpeed   = speed->text().toInt();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["speed"]   = v.mSpeed;
                                                                    return obj;
                                                                  }
@@ -694,7 +694,7 @@ public:
                                                                    v.mFixed = fixed->currentIndex();
                                                                    v.mPass  = pass->isChecked();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["speed"] = v.mSpeed;
                                                                    obj["veloc"] = v.mVeloc;
                                                                    obj["safe"]  = v.mSafe;
@@ -787,7 +787,7 @@ public:
                                                                    v.mLimit = limit->currentIndex();
                                                                    v.mTo  = to->text();
                                                                  }
-    QJsonObject toJson() const override                          { QJsonObject obj = AllPowers::toJson();
+    QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
                                                                    obj["speed"]  = v.mSpeed;
                                                                    obj["pd"]     = v.mPD;
                                                                    obj["fillin"] = v.mFillIn;

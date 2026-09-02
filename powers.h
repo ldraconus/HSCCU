@@ -93,8 +93,8 @@ public:
         allBase() { }
         allBase(allBase*) { }
 
-        virtual shared_ptr<Power> create() const                        = 0;
-        virtual shared_ptr<Power> create(const QJsonObject& json) const = 0;
+        virtual shared_ptr<Power> create() const                  = 0;
+        virtual shared_ptr<Power> create(QJsonObject& json) const = 0;
     };
 
     template <typename T>
@@ -102,15 +102,13 @@ public:
     public:
         allPower(): allBase()                   { }
         allPower(allPower* b): allBase(b)       { }
-        ~allPower();
 
-        shared_ptr<Power> create() const override                        { return make_shared<T>(); }
-        shared_ptr<Power> create(const QJsonObject& json) const override { return make_shared<T>(json); }
+        shared_ptr<Power> create() const override                  { return make_shared<T>(); }
+        shared_ptr<Power> create(QJsonObject& json) const override { return make_shared<T>(json); }
     };
 
     Power()                  { id({ }); }
     Power(QJsonObject& json) { id(json); }
-    virtual ~Power()         { }
 
     static const bool NoStore = true;
     static const bool ShowEND = true;
@@ -127,7 +125,7 @@ public:
     virtual void        store()                         { }
     virtual bool        varying()                       { return false; }
 
-    virtual QJsonObject toJson() const           { QJsonObject obj;
+    virtual QJsonObject toJson()                 { QJsonObject obj;
                                                    QJsonObject mods;
                                                    obj["id"] = mGuid;
                                                    for (const auto& mod: std::as_const(mAdvantagesList))  mods[mod->name()] = mod->toJson();
@@ -207,6 +205,7 @@ public:
     Points acting(Fraction a = Fraction(0), Points mod = 0_cp);
     Points active();
 
+    QList<shared_ptr<Modifier>>& modifiers()       { return mModifiers; }
     QList<shared_ptr<Modifier>>& advantagesList()  { return mAdvantagesList; }
     QList<shared_ptr<Modifier>>& limitationsList() { return mLimitationsList; }
 
@@ -240,7 +239,7 @@ public:
     static QList<QString>    StandardPowers();
 
     static shared_ptr<Power> ByName(QString);
-    static shared_ptr<Power> FromJson(QString, const QJsonObject&);
+    static shared_ptr<Power> FromJson(QString, QJsonObject&);
 
     bool isNumber(QString);
 
@@ -347,7 +346,6 @@ public:
         , v { name, "" }         { }
     AllPowers(QJsonObject& json)
         : Power(json)            { load(json); }
-    ~AllPowers() override        { }
 
     void load(const QJsonObject& json, const QString& name = "") {
         if (name.isEmpty()) v.mName = json["name"].toString();
@@ -384,7 +382,7 @@ public:
     void        store() override                                    { v.mPowerName = powerName ? powerName->text() : "";
                                                                       if (varies != nullptr) v.mVaries = varies->isChecked();
                                                                     }
-    QJsonObject toJson() const override                             { QJsonObject obj  = Power::toJson();
+    QJsonObject toJson() override                                   { QJsonObject obj  = Power::toJson();
                                                                       obj["name"]      = v.mName;
                                                                       obj["powerName"] = v.mPowerName;
                                                                       obj["varies"]    = v.mVaries;

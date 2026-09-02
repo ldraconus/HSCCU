@@ -73,7 +73,8 @@ void PowerDialog::restore(const QJsonObject& json) {
     } else {
     //   set up the dummy power
     }
-    std::shared_ptr<Power> power = Power::FromJson(json["name"].toString(), json);
+    auto obj = json;
+    std::shared_ptr<Power> power = Power::FromJson(json["name"].toString(), obj);
     powerorequipment(power);
 }
 
@@ -580,7 +581,8 @@ void PowerDialog::newLimitation(bool) {
 }
 
 void PowerDialog::setupPower(shared_ptr<Power>& power) {
-    power = Power::FromJson(mPower->name(), mPower->toJson());
+    auto obj = mPower->toJson();
+    power = Power::FromJson(mPower->name(), obj);
     if (mEquipment) return;
     power->modifiers().clear();
     for (const auto& mod: std::as_const(power->advantagesList())) {

@@ -8,33 +8,13 @@
 
 class AgilitySkills: public SkillTalentOrPerk {
 public:
-    AgilitySkills(): SkillTalentOrPerk() { id({ }); }
+    AgilitySkills(): SkillTalentOrPerk() { }
     AgilitySkills(QString name)
         : SkillTalentOrPerk()
-        , v { name, 0 } { id({ }); }
-    AgilitySkills(const AgilitySkills& s)
-        : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    AgilitySkills(AgilitySkills&& s)
-        : SkillTalentOrPerk()
-        , v(s.v) { mGuid = s.mGuid; }
-    AgilitySkills(const QJsonObject& json)
-        : SkillTalentOrPerk()
-        , v { json["name"].toString(""), json["plus"].toInt(0) } { id(json); }
-    ~AgilitySkills() override { }
-
-    AgilitySkills& operator=(const AgilitySkills& s) {
-        if (this != &s) {
-            mGuid = s.mGuid;
-            v = s.v;
-        }
-        return *this;
-    }
-    AgilitySkills& operator=(AgilitySkills&& s) {
-        mGuid = s.mGuid;
-        v = s.v;
-        return *this;
-    }
+        , v { name, 0 } { }
+    AgilitySkills(QJsonObject& json)
+        : SkillTalentOrPerk(json)
+        , v { json["name"].toString(""), json["plus"].toInt(0) } { }
 
     bool isSkill() override { return true; }
 
@@ -51,10 +31,9 @@ public:
     void     store() override                                    { v.mPlus = plus->text().toInt(0); }
 
     QJsonObject toJson() override {
-        QJsonObject obj;
-        obj["id"]   = mGuid;
-        obj["name"] = v.mName;
-        obj["plus"] = v.mPlus;
+        QJsonObject obj = SkillTalentOrPerk::toJson();
+        obj["name"]     = v.mName;
+        obj["plus"]     = v.mPlus;
         return obj;
     }
 
@@ -79,21 +58,8 @@ private:
     public:                                              \
         x()                                              \
             : AgilitySkills(#x) { }                      \
-        x(const x& s)                                    \
-            : AgilitySkills(s) { }                       \
-        x(x&& s)                                         \
-            : AgilitySkills(s) { }                       \
-        x(const QJsonObject& json)                       \
+        x(QJsonObject& json)                             \
             : AgilitySkills(json) { }                    \
-        ~x() { }                                         \
-        x& operator=(const x& s) {                       \
-            if (this != &s) AgilitySkills::operator=(s); \
-            return *this;                                \
-        }                                                \
-        x& operator=(x&& s) {                            \
-            AgilitySkills::operator=(s);                 \
-            return *this;                                \
-        }                                                \
     };
 // NOLINTNEXTLINE
 #define CLASS_SPACE(x, y)                                \
@@ -101,21 +67,8 @@ private:
     public:                                              \
         x()                                              \
             : AgilitySkills(y) { }                       \
-        x(const x& s)                                    \
-            : AgilitySkills(s) { }                       \
-        x(x&& s)                                         \
-            : AgilitySkills(s) { }                       \
-        x(const QJsonObject& json)                       \
+        x(QJsonObject& json)                             \
             : AgilitySkills(json) { }                    \
-        ~x() { }                                         \
-        x& operator=(const x& s) {                       \
-            if (this != &s) AgilitySkills::operator=(s); \
-            return *this;                                \
-        }                                                \
-        x& operator=(x&& s) {                            \
-            AgilitySkills::operator=(s);                 \
-            return *this;                                \
-        }                                                \
     };
 
 CLASS(Acrobatics);
