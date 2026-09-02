@@ -56,6 +56,7 @@ public:
 
     void setEquipment() { mEquipment = true; }
 
+
 protected:
     void showEvent(QShowEvent* event) override { Dialog::showEvent(event); mOk->setEnabled(false); }
 

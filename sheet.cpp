@@ -574,9 +574,9 @@ void Sheet::closeDialogs(QMouseEvent* me) {
 #endif
     if (sDialog.Print             != nullptr) closeDialog(sDialog.Print,             me);
     if (sDialog.Option            != nullptr) closeDialog(sDialog.Option,            me);
-    if (sDialog.Complications     != nullptr) { closeDialog(sDialog.Complications,   me); sDialog.Complications = nullptr; }
-    if (sDialog.Power             != nullptr) { closeDialog(sDialog.Power,           me); sDialog.Power         = nullptr; }
-    if (sDialog.Skill             != nullptr) { closeDialog(sDialog.Skill,           me); sDialog.Skill         = nullptr; }
+    if (sDialog.Complications     != nullptr) closeDialog(sDialog.Complications,     me);
+    if (sDialog.Power             != nullptr) closeDialog(sDialog.Power,             me);
+    if (sDialog.Skill             != nullptr) closeDialog(sDialog.Skill,             me);
 }
 
 void Sheet::mousePressEvent(QMouseEvent* me) {
@@ -651,7 +651,6 @@ void Sheet::addPower(shared_ptr<Power> power) {
     updatePower(power);
     updateDisplay();
     mChanged = true;
-    sDialog.Power = nullptr;
 }
 
 void Sheet::fixButtonBox(QDialogButtonBox *bb) {
@@ -2902,7 +2901,6 @@ void Sheet::acceptComplication() {
 
     updateDisplay();
     mChanged = true;
-    sDialog.Complications = nullptr;
 }
 
 void Sheet:: newComplication() {
@@ -2954,7 +2952,6 @@ void Sheet::acceptNewSkill() {
 
     updateDisplay();
     mChanged = true;
-    sDialog.Skill = nullptr;
 }
 
 void Sheet::newSkillTalentOrPerk() {

@@ -28,6 +28,12 @@ PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
 
     ui->setupUi(this);
 
+    connect(this, &QDialog::finished, this, [this]() {
+        Sheet& s = Sheet::ref();
+        Sheet::sDialog.Power.reset();
+        mPtr = nullptr;
+    });
+
     setStyleSheet("color: #000; background: #fff;");
 
     ui->powerTypeComboBox->addItem("Adjustment Powers");
@@ -748,6 +754,7 @@ void PowerDialog::pickType(int type) {
 
     Power::ClearForm(layout);
 }
+
 
 PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
     QJsonObject obj = s->toJson();
