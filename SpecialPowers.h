@@ -12,28 +12,14 @@
 
 class EnduranceReserve: public AllPowers {
 public:
-    EnduranceReserve(): AllPowers("Endurance Reserve")         { }
-    EnduranceReserve(const EnduranceReserve& s): AllPowers(s)  { }
-    EnduranceReserve(EnduranceReserve&& s): AllPowers(s)       { }
-    EnduranceReserve(const QJsonObject& json): AllPowers(json) { v.mEnd   = json["end"].toInt(0);
-                                                                     v.mRec   = json["rec"].toInt(0);
-                                                                     v.mLim   = json["lim"].toInt(0);
-                                                                     v.mWhat  = json["what"].toString();
-                                                                     v.mRestr = json["restr"].toString();
-                                                                     v.mSlow  = json["slow"].toInt(0);
-                                                                   }
-    virtual EnduranceReserve& operator=(const EnduranceReserve& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual EnduranceReserve& operator=(EnduranceReserve&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    EnduranceReserve(): AllPowers("Endurance Reserve")   { }
+    EnduranceReserve(QJsonObject& json): AllPowers(json) { v.mEnd   = json["end"].toInt(0);
+                                                           v.mRec   = json["rec"].toInt(0);
+                                                           v.mLim   = json["lim"].toInt(0);
+                                                           v.mWhat  = json["what"].toString();
+                                                           v.mRestr = json["restr"].toString();
+                                                           v.mSlow  = json["slow"].toInt(0);
+                                                         }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -54,7 +40,7 @@ public:
                                                                                             "1 Century" });
                                                                  }
     Fraction lim() override                                      { return (v.mRestr.isEmpty() ? Fraction(0) : Fraction(1, 4)); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    QList<Fraction> limitF { { 0, 1 }, { 0, 1 },
                                                                        { 2, { 0, 1 } }, { 1, { 3, 4 } }, { 1, { 1, 2 } }, { 1, { 1, 4 } },
                                                                        { 1, { 0, 1 } },      { 3, 4 },        { 1, 2 },        { 1, 4 }
@@ -140,13 +126,8 @@ private:
 
 class Blank: public AllPowers {
 public:
-    Blank(): AllPowers("Blank Line")                { }
-    Blank(const Blank& s): AllPowers(s)             { }
-    Blank(Blank&& s): AllPowers(s)                  { }
-    Blank(const QJsonObject& json): AllPowers(json) { }
-
-    virtual Blank& operator=(const Blank& s) { if (this != &s) AllPowers::operator=(s); return *this; }
-    virtual Blank& operator=(Blank&& s)      {  AllPowers::operator=(s); return *this; }
+    Blank(): AllPowers("Blank Line")          { }
+    Blank(QJsonObject& json): AllPowers(json) { }
 
     Fraction adv() override                        { return Fraction(0); }
     QString  description(bool) override            { return "-"; }
@@ -199,29 +180,15 @@ private:
     }
 
 public:
-    IndependantAdvantage(): AllPowers("Independant Advantage")        { }
-    IndependantAdvantage(const IndependantAdvantage& s): AllPowers(s) { }
-    IndependantAdvantage(IndependantAdvantage&& s): AllPowers(s)      { }
-    IndependantAdvantage(const QJsonObject& json): AllPowers(json)    { auto modObj = json["mod"].toObject();
-                                                                        QString name = modObj["name"].toString();
-                                                                        v.mMod = Modifiers::ByName(name)->create(json["mod"].toObject());
-                                                                        v.mPts = json["pts"].toInt(0);
-                                                                        auto power = json["power"].toObject();
-                                                                        name = power["name"].toString();
-                                                                        v.mPow = Power::FromJson(name, power);
-                                                                      }
-    virtual IndependantAdvantage& operator=(const IndependantAdvantage& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual IndependantAdvantage& operator=(IndependantAdvantage&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    IndependantAdvantage(): AllPowers("Independant Advantage")  { }
+    IndependantAdvantage(QJsonObject& json): AllPowers(json)    { auto modObj = json["mod"].toObject();
+                                                                  QString name = modObj["name"].toString();
+                                                                  v.mMod = Modifiers::ByName(name)->create(json["mod"].toObject());
+                                                                  v.mPts = json["pts"].toInt(0);
+                                                                  auto power = json["power"].toObject();
+                                                                  name = power["name"].toString();
+                                                                  v.mPow = Power::FromJson(name, power);
+                                                                }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -233,7 +200,7 @@ public:
                                                                    pow = createComboBox(parent, layout, "or Power?", getPowers());
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    if (v.mMod == nullptr) return 0_cp;
                                                                    if (v.mMod->isAdder()) return v.mMod->points(Modifier::NoStore);
                                                                    else if (v.mPow != nullptr) {
@@ -316,23 +283,9 @@ private:
 
 class Luck: public AllPowers {
 public:
-    Luck(): AllPowers("Luck")                      { }
-    Luck(const Luck& s): AllPowers(s)              { }
-    Luck(Luck&& s): AllPowers(s)                   { }
-    Luck(const QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
-                                                       }
-    virtual Luck& operator=(const Luck& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual Luck& operator=(Luck&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Luck(): AllPowers("Luck")                { }
+    Luck(QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
+                                             }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -341,7 +294,7 @@ public:
                                                                    dice = createLineEdit(parent, layout, "Dice?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return 5_cp * v.mDice;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -385,24 +338,10 @@ private:
 
 class Regeneration: public AllPowers {
 public:
-    Regeneration(): AllPowers("Regeneration")              { }
-    Regeneration(const Regeneration& s): AllPowers(s)      { }
-    Regeneration(Regeneration&& s): AllPowers(s)           { }
-    Regeneration(const QJsonObject& json): AllPowers(json) { v.mBody = json["body"].toInt(0);
-                                                             v.mTime = json["time"].toInt(0);
-                                                           }
-    virtual Regeneration& operator=(const Regeneration& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual Regeneration& operator=(Regeneration&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Regeneration(): AllPowers("Regeneration")        { }
+    Regeneration(QJsonObject& json): AllPowers(json) { v.mBody = json["body"].toInt(0);
+                                                       v.mTime = json["time"].toInt(0);
+                                                     }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -414,7 +353,7 @@ public:
                                                                                                                    "Hour", "Turn" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v.mBody * v.mTime * 2_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -467,25 +406,11 @@ private:
 
 class Skill: public AllPowers {
 public:
-    Skill(): AllPowers("Skill")                     { }
-    Skill(const Skill& s): AllPowers(s)             { }
-    Skill(Skill&& s): AllPowers(s)                  { }
-    Skill(const QJsonObject& json): AllPowers(json) { auto skill = json["skill"].toObject();
-                                                          QString name = skill["name"].toString();
-                                                          v.mSkill = SkillTalentOrPerk::FromJson(name, skill);
-                                                        }
-    virtual Skill& operator=(const Skill& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual Skill& operator=(Skill&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Skill(): AllPowers("Skill")               { }
+    Skill(QJsonObject& json): AllPowers(json) { auto skill = json["skill"].toObject();
+                                                QString name = skill["name"].toString();
+                                                v.mSkill = SkillTalentOrPerk::FromJson(name, skill);
+                                              }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -495,7 +420,7 @@ public:
                                                                    skll = createPushButton(parent, layout, "Skill, Talent, or Perk?", std::mem_fn(&Power::clicked));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    if (v.mSkill) return v.mSkill->points(SkillTalentOrPerk::NoStore);
                                                                    else return 0_cp;
                                                                  }
@@ -554,24 +479,10 @@ private:
 
 class TeleportLocation: public AllPowers {
 public:
-    TeleportLocation(): AllPowers("Teleport Location")         { }
-    TeleportLocation(const TeleportLocation& s): AllPowers(s)  { }
-    TeleportLocation(TeleportLocation&& s): AllPowers(s)       { }
-    TeleportLocation(const QJsonObject& json): AllPowers(json) { v.mFixed = json["fixed"].toInt(0);
-                                                                 v.mWhere = json["where"].toString();
-                                                               }
-    virtual TeleportLocation& operator=(const TeleportLocation& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual TeleportLocation& operator=(TeleportLocation&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    TeleportLocation(): AllPowers("Teleport Location")   { }
+    TeleportLocation(QJsonObject& json): AllPowers(json) { v.mFixed = json["fixed"].toInt(0);
+                                                           v.mWhere = json["where"].toString();
+                                                         }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -582,7 +493,7 @@ public:
                                                                    where = createLineEdit(parent, layout, "Where?");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v.mFixed ? 1_cp : 5_cp);
                                                                  }
     void     restore() override                                  { vars s = v;

@@ -6,27 +6,11 @@
 
 class DensityIncrease: public AllPowers {
 public:
-    DensityIncrease(): AllPowers("Density Increase")          { }
-    DensityIncrease(const DensityIncrease& s): AllPowers(s)   { }
-    DensityIncrease(DensityIncrease&& s): AllPowers(s)        { }
-    DensityIncrease(const QJsonObject& json): AllPowers(json) { v.mLevels = json["levels"].toInt(0);
-                                                                v.mNoPdEd = json["nopded"].toBool(false);
-                                                                v.mNoStr  = json["nostr"].toBool(false);
-                                                              }
-    ~DensityIncrease() override { }
-
-    DensityIncrease& operator=(const DensityIncrease& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    DensityIncrease& operator=(DensityIncrease&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    DensityIncrease(): AllPowers("Density Increase")    { }
+    DensityIncrease(QJsonObject& json): AllPowers(json) { v.mLevels = json["levels"].toInt(0);
+                                                          v.mNoPdEd = json["nopded"].toBool(false);
+                                                          v.mNoStr  = json["nostr"].toBool(false);
+                                                        }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -38,7 +22,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v.mNoPdEd ? Fraction(1, 4) : Fraction(0)) +
                                                                           (v.mNoStr  ? Fraction(1)    : Fraction(0)); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return v.mLevels * 4_cp; }
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -101,27 +85,11 @@ private:
 
 class Desolidification: public AllPowers {
 public:
-    Desolidification(): AllPowers("Desolidificationϴ")         { }
-    Desolidification(const Desolidification& s): AllPowers(s)  { }
-    Desolidification(Desolidification&& s): AllPowers(s)       { }
-    Desolidification(const QJsonObject& json): AllPowers(json) { v.mSolid   = json["solid"].toBool(false);
-                                                                 v.mProtect = json["protect"].toBool(false);
-                                                                 v.mAffect  = json["affect"].toString();
-                                                               }
-    ~Desolidification() override { }
-
-    Desolidification& operator=(const Desolidification& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Desolidification& operator=(Desolidification&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Desolidification(): AllPowers("Desolidificationϴ")   { }
+    Desolidification(QJsonObject& json): AllPowers(json) { v.mSolid   = json["solid"].toBool(false);
+                                                           v.mProtect = json["protect"].toBool(false);
+                                                           v.mAffect  = json["affect"].toString();
+                                                         }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -179,32 +147,16 @@ private:
 
 class Duplication: public AllPowers {
 public:
-    Duplication(): AllPowers("Duplication▲")              { }
-    Duplication(const Duplication& s): AllPowers(s)       { }
-    Duplication(Duplication&& s): AllPowers(s)            { }
-    Duplication(const QJsonObject& json): AllPowers(json) { v.mLevels   = json["levels"].toInt(0);
-                                                            v.mAltered  = json["altered"].toInt(0);
-                                                            v.mEasy     = json["easy"].toInt(0);
-                                                            v.mRanged   = json["ranged"].toBool(false);
-                                                            v.mRapid    = json["rapid"].toInt(0);
-                                                            v.mRecom    = json["recom"].toBool(false);
-                                                            v.mFeedback = json["feedback"].toInt(0);
-                                                            v.mAverage  = json["average"].toBool(false);
-                                                          }
-    ~Duplication() override { }
-
-    Duplication& operator=(const Duplication& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Duplication& operator=(Duplication&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Duplication(): AllPowers("Duplication▲")        { }
+    Duplication(QJsonObject& json): AllPowers(json) { v.mLevels   = json["levels"].toInt(0);
+                                                      v.mAltered  = json["altered"].toInt(0);
+                                                      v.mEasy     = json["easy"].toInt(0);
+                                                      v.mRanged   = json["ranged"].toBool(false);
+                                                      v.mRapid    = json["rapid"].toInt(0);
+                                                      v.mRecom    = json["recom"].toBool(false);
+                                                      v.mFeedback = json["feedback"].toInt(0);
+                                                      v.mAverage  = json["average"].toBool(false);
+                                                    }
 
     Fraction adv() override                                      { return ((v.mAltered == 1) ? Fraction(1, 4) : Fraction(0)) +
                                                                           ((v.mAltered == 2) ? Fraction(1, 2) : Fraction(0)) +
@@ -235,7 +187,7 @@ public:
     Fraction lim() override                                      { return ((v.mFeedback == 1) ? Fraction(1, 4) : Fraction(0)) +
                                                                           ((v.mFeedback == 2) ? Fraction(1, 2) : Fraction(0)) +
                                                                           ((v.mFeedback == 3) ? Fraction(1)    : Fraction(0)); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return v.mLevels + v.mEasy * 5_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -328,25 +280,10 @@ private:
 
 class ExtraLimbs: public AllPowers {
 public:
-    ExtraLimbs(): AllPowers("Extra Limbs")               { }
-    ExtraLimbs(const ExtraLimbs& s): AllPowers(s)        { }
-    ExtraLimbs(ExtraLimbs&& s): AllPowers(s)             { }
-    ExtraLimbs(const QJsonObject& json): AllPowers(json) { v.mLimbs   = json["limbs"].toInt(0);
-                                                           v.mLimited = json["limited"].toBool(false);
-                                                         }
-    ~ExtraLimbs() override { }
-    ExtraLimbs& operator=(const ExtraLimbs& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    ExtraLimbs& operator=(ExtraLimbs&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    ExtraLimbs(): AllPowers("Extra Limbs")         { }
+    ExtraLimbs(QJsonObject& json): AllPowers(json) { v.mLimbs   = json["limbs"].toInt(0);
+                                                     v.mLimited = json["limited"].toBool(false);
+                                                   }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -405,24 +342,9 @@ private:
 
 class Growth: public AllPowers {
 public:
-    Growth(): AllPowers("Growth")                    { }
-    Growth(const Growth& s): AllPowers(s)            { }
-    Growth(Growth&& s): AllPowers(s)                 { }
-    Growth(const QJsonObject& json): AllPowers(json) { v.mSize = json["size"].toInt(0);
-                                                     }
-    ~Growth() override { }
-    Growth& operator=(const Growth& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Growth& operator=(Growth&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Growth(): AllPowers("Growth")              { }
+    Growth(QJsonObject& json): AllPowers(json) { v.mSize = json["size"].toInt(0);
+                                               }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -491,30 +413,14 @@ private:
 
 class Multiform: public AllPowers {
 public:
-    Multiform(): AllPowers("Multiform")                 { }
-    Multiform(const Multiform& s): AllPowers(s)         { }
-    Multiform(Multiform&& s): AllPowers(s)              { }
-    Multiform(const QJsonObject& json): AllPowers(json) { v.mPoints  = json["points"].toInt(0);
-                                                          v.mForm    = json["form"].toString();
-                                                          v.mMult    = json["mult"].toInt(0);
-                                                          v.mInstant = json["instant"].toBool(false);
-                                                          v.mLoss    = json["loss"].toInt(0);
-                                                          v.mRevert  = json["revert"].toInt(0);
-                                                        }
-    ~Multiform() override { }
-    Multiform& operator=(const Multiform& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Multiform& operator=(Multiform&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
-
+    Multiform(): AllPowers("Multiform")           { }
+    Multiform(QJsonObject& json): AllPowers(json) { v.mPoints  = json["points"].toInt(0);
+                                                    v.mForm    = json["form"].toString();
+                                                    v.mMult    = json["mult"].toInt(0);
+                                                    v.mInstant = json["instant"].toBool(false);
+                                                    v.mLoss    = json["loss"].toInt(0);
+                                                    v.mRevert  = json["revert"].toInt(0);
+                                                  }
     Fraction adv() override                                      { return ((v.mRevert == 5) ? Fraction(1)                        : Fraction(0)) +   // NOLINT
                                                                           ((v.mRevert == 4) ? Fraction(1, 2)                     : Fraction(0)) +
                                                                           ((v.mLoss >= 1) ? (2 - (v.mLoss - 1) * Fraction(1, 4)) : Fraction(0)); }
@@ -538,7 +444,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return ((v.mRevert == 1) ? Fraction(1)    : Fraction(0)) +
                                                                           ((v.mRevert == 2) ? Fraction(1, 2) : Fraction(0)); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return (v.mPoints + 2_cp) / 5 + (v.mInstant ? 5_cp : 0_cp) + v.mMult * 5_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -612,38 +518,23 @@ private:
 
 class ShapeShift: public AllPowers {
 public:
-    ShapeShift(): AllPowers("Shape Shift")               { }
-    ShapeShift(const ShapeShift& s): AllPowers(s)        { }
-    ShapeShift(ShapeShift&& s): AllPowers(s)             { }
-    ShapeShift(const QJsonObject& json): AllPowers(json) { v.mChange   = json["change"].toInt(0);
-                                                           v.mForms    = json["forms"].toString();
-                                                           v.mSight    = json["sight"].toBool(false);
-                                                           v.mHearing  = json["hearing"].toBool(false);
-                                                           v.mTouch    = json["touch"].toBool(false);
-                                                           v.mMental   = json["mental"].toBool(false);
-                                                           v.mRadio    = json["radio"].toBool(false);
-                                                           v.mSmell    = json["smell"].toBool(false);
-                                                           v.mClair    = json["clair"].toBool(false);
-                                                           v.mSpatial  = json["spatial"].toBool(false);
-                                                           v.mCellular = json["cellular"].toBool(false);
-                                                           v.mImitate  = json["imitate"].toBool(false);
-                                                           v.mInstant  = json["instant"].toBool(false);
-                                                           v.mMakeover = json["makeover"].toBool(false);
-                                                           v.mBody     = json["body"].toBool(false);}
-    ~ShapeShift() override { }
-    ShapeShift& operator=(const ShapeShift& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    ShapeShift& operator=(ShapeShift&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
-
+    ShapeShift(): AllPowers("Shape Shift")         { }
+    ShapeShift(QJsonObject& json): AllPowers(json) { v.mChange   = json["change"].toInt(0);
+                                                     v.mForms    = json["forms"].toString();
+                                                     v.mSight    = json["sight"].toBool(false);
+                                                     v.mHearing  = json["hearing"].toBool(false);
+                                                     v.mTouch    = json["touch"].toBool(false);
+                                                     v.mMental   = json["mental"].toBool(false);
+                                                     v.mRadio    = json["radio"].toBool(false);
+                                                     v.mSmell    = json["smell"].toBool(false);
+                                                     v.mClair    = json["clair"].toBool(false);
+                                                     v.mSpatial  = json["spatial"].toBool(false);
+                                                     v.mCellular = json["cellular"].toBool(false);
+                                                     v.mImitate  = json["imitate"].toBool(false);
+                                                     v.mInstant  = json["instant"].toBool(false);
+                                                     v.mMakeover = json["makeover"].toBool(false);
+                                                     v.mBody     = json["body"].toBool(false);}
+\
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -670,7 +561,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return v.mBody ? Fraction(1, 4) : Fraction(0);
                                                                  }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    QList<Points> changeStr { 0_cp, 0_cp, 3_cp, 5_cp, 10_cp }; // NOLINT
                                                                    Points pts = changeStr[v.mChange + 1];
                                                                    pts += v.mSight    ?  8_cp : 0_cp; // NOLINT
@@ -822,26 +713,11 @@ private:
 
 class Shrinking: public AllPowers {
 public:
-    Shrinking(): AllPowers("Shrinking")                 { }
-    Shrinking(const Shrinking& s): AllPowers(s)         { }
-    Shrinking(Shrinking&& s): AllPowers(s)              { }
-    Shrinking(const QJsonObject& json): AllPowers(json) { v.mLevels = json["levels"].toInt(0);
-                                                          v.mMass   = json["mass"].toBool(false);
-                                                          v.mPerc   = json["perc"].toBool(false);
-                                                        }
-    ~Shrinking() override { }
-    Shrinking& operator=(const Shrinking& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Shrinking& operator=(Shrinking&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Shrinking(): AllPowers("Shrinking")           { }
+    Shrinking(QJsonObject& json): AllPowers(json) { v.mLevels = json["levels"].toInt(0);
+                                                    v.mMass   = json["mass"].toBool(false);
+                                                    v.mPerc   = json["perc"].toBool(false);
+                                                  }
 
     Fraction adv() override                                      { return Fraction(1, 2) * (v.mMass + 1);
                                                                  }
@@ -921,34 +797,19 @@ private:
 
 class Stretching: public AllPowers {
 public:
-    Stretching(): AllPowers("Stretching")                { }
-    Stretching(const Stretching& s): AllPowers(s)        { }
-    Stretching(Stretching&& s): AllPowers(s)             { }
-    Stretching(const QJsonObject& json): AllPowers(json) { v.mMeters  = json["meters"].toInt(0);
-                                                           v.mDistort = json["distort"].toInt(0);
-                                                           v.mSpace   = json["space"].toBool(false);
-                                                           v.mNonCom  = json["noncom"].toInt(0);
-                                                           v.mDirect  = json["direct"].toBool(false);
-                                                           v.mDamage  = json["damage"].toBool(false);
-                                                           v.mLimit   = json["limit"].toBool(false);
-                                                           v.mParts   = json["parts"].toString();
-                                                           v.mNonOn   = json["nonon"].toBool(false);
-                                                           v.mCause   = json["cause"].toBool(false);
-                                                           v.mRange   = json["range"].toBool(false);
-                                                         }
-    ~Stretching() override { }
-    Stretching& operator=(const Stretching& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Stretching& operator=(Stretching&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Stretching(): AllPowers("Stretching")          { }
+    Stretching(QJsonObject& json): AllPowers(json) { v.mMeters  = json["meters"].toInt(0);
+                                                     v.mDistort = json["distort"].toInt(0);
+                                                     v.mSpace   = json["space"].toBool(false);
+                                                     v.mNonCom  = json["noncom"].toInt(0);
+                                                     v.mDirect  = json["direct"].toBool(false);
+                                                     v.mDamage  = json["damage"].toBool(false);
+                                                     v.mLimit   = json["limit"].toBool(false);
+                                                     v.mParts   = json["parts"].toString();
+                                                     v.mNonOn   = json["nonon"].toBool(false);
+                                                     v.mCause   = json["cause"].toBool(false);
+                                                     v.mRange   = json["range"].toBool(false);
+                                                   }
 
     Fraction adv() override                                      { return (v.mSpace ? Fraction(1, 4) : Fraction(0)); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }

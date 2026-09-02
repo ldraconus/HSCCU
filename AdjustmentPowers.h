@@ -6,28 +6,13 @@
 
 class Absorption: public AllPowers {
 public:
-    Absorption(): AllPowers("Absorption▲")               { }
-    Absorption(const Absorption& s): AllPowers(s)        { }
-    Absorption(Absorption&& s): AllPowers(s)             { }
-    Absorption(const QJsonObject& json): AllPowers(json) { v.mBody      = json["body"].toInt(0);
-                                                           v.mTo        = json["to"].toString("");
-                                                           v.mDefensive = json["defensive"].toInt(0);
-                                                           v.mVarying   = json["varying"].toBool(false);
-                                                         }
+    Absorption(): AllPowers("Absorption▲")         { }
+    Absorption(QJsonObject& json): AllPowers(json) { v.mBody      = json["body"].toInt(0);
+                                                     v.mTo        = json["to"].toString("");
+                                                     v.mDefensive = json["defensive"].toInt(0);
+                                                     v.mVarying   = json["varying"].toBool(false);
+                                                   }
     ~Absorption() override { }
-
-    Absorption& operator=(const Absorption& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Absorption& operator=(Absorption&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
 
     Fraction adv() override                                      { return def(); }
     QString  abbreviation(bool showEnd = false) override         { return optOut(showEnd, true); }
@@ -131,28 +116,13 @@ private:
 
 class Aid: public AllPowers {
 public:
-    Aid(): AllPowers("Aid")                       { }
-    Aid(const Aid& s): AllPowers(s)               { }
-    Aid(Aid&& s): AllPowers(s)                    { }
-    Aid(const QJsonObject& json): AllPowers(json) { v.mDice  = json["dice"].toInt(0);
-                                                    v.mTo    = json["to"].toString("");
-                                                    v.mBoost = json["boost"].toBool(false);
-                                                    v.mWho   = json["who"].toInt(0);
-                                                  }
+    Aid(): AllPowers("Aid")                 { }
+    Aid(QJsonObject& json): AllPowers(json) { v.mDice  = json["dice"].toInt(0);
+                                              v.mTo    = json["to"].toString("");
+                                              v.mBoost = json["boost"].toBool(false);
+                                              v.mWho   = json["who"].toInt(0);
+                                            }
     ~Aid() override { }
-
-    Aid& operator=(const Aid& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Aid& operator=(Aid&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -164,7 +134,7 @@ public:
                                                                    who   = createComboBox(parent, layout, "Who to aid?", { "Aid Anyone", "Only Others", "Only Self" });
                                                                  }
     Fraction lim() override                                      { return def(); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return v.mDice * 6_cp; } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();
@@ -246,27 +216,12 @@ private:
 
 class Drain: public AllPowers {
 public:
-    Drain(): AllPowers("Drain")                     { }
-    Drain(const Drain& s): AllPowers(s)             { }
-    Drain(Drain&& s): AllPowers(s)                  { }
-    Drain(const QJsonObject& json): AllPowers(json) { v.mDice     = json["body"].toInt(0);
-                                                      v.mFrom     = json["from"].toString("");
-                                                      v.mSuppress = json["suppress"].toBool(false);
-                                                    }
+    Drain(): AllPowers("Drain")               { }
+    Drain(QJsonObject& json): AllPowers(json) { v.mDice     = json["body"].toInt(0);
+                                                v.mFrom     = json["from"].toString("");
+                                                v.mSuppress = json["suppress"].toBool(false);
+                                              }
     ~Drain() override { }
-
-    Drain& operator=(const Drain& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Drain& operator=(Drain&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -331,27 +286,12 @@ private:
 
 class Healing: public AllPowers {
 public:
-    Healing(): AllPowers("Healing")                   { }
-    Healing(const Healing& s): AllPowers(s)           { }
-    Healing(Healing&& s): AllPowers(s)                { }
-    Healing(const QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
-                                                        v.mTo   = json["to"].toString("");
-                                                        v.mRate = json["rate"].toInt(-1);
-                                                      }
+    Healing(): AllPowers("Healing")             { }
+    Healing(QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
+                                                  v.mTo   = json["to"].toString("");
+                                                  v.mRate = json["rate"].toInt(-1);
+                                                }
     ~Healing() override { }
-
-    Healing& operator=(const Healing& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Healing& operator=(Healing&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
 
     Fraction adv() override                                      { return def(); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -363,7 +303,7 @@ public:
                                                                                                                                     "5 Minutes", "1 Minute", "Turn" });
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return Points(v.mDice * 10); } // NOLINT
     void     restore() override                                  { vars s = v;
                                                                    AllPowers::restore();

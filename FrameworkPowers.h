@@ -10,32 +10,15 @@
 
 class FrameworkPowers: public Power {
 public:
-    FrameworkPowers()
-        : Power() { }
+    FrameworkPowers(): Power() { }
     FrameworkPowers(QString name)
         : Power()
         , v { name, "", { } } { }
-    FrameworkPowers(const FrameworkPowers& s)
-        : Power(s)
-        , v(s.v) { }
-    FrameworkPowers(FrameworkPowers&& s)
-        : Power(s)
-        , v(s.v) { }
-    FrameworkPowers(const QJsonObject& json)
-        : Power()
+    FrameworkPowers(QJsonObject& json)
+        : Power(json)
         , v { json["name"].toString(),
               json["powerName"].toString(""),
               { } } { loadPowers(json["powers"].toArray()); }
-    ~FrameworkPowers() override { }
-
-    FrameworkPowers& operator=(const FrameworkPowers& s) {
-        if (this != &s) v = s.v;
-        return *this;
-    }
-    FrameworkPowers& operator=(FrameworkPowers&& s) {
-        v = s.v;
-        return *this;
-    }
 
     QString abbreviation(bool roll = false) override { return roll ? "" : ""; }
     QString description(bool roll = false) override { return roll ? "" : ""; }
@@ -122,18 +105,8 @@ private:
 
 class Group: public FrameworkPowers {
 public:
-    Group(): FrameworkPowers("Group")                     { }
-    Group(const Group& s): FrameworkPowers(s)             { }
-    Group(Group&& s): FrameworkPowers(s)                  { }
-    Group(const QJsonObject& json): FrameworkPowers(json) { }
-    ~Group() override { }
-
-    Group& operator=(const Group&) {
-        return *this;
-    }
-    Group& operator=(Group&&) {
-        return *this;
-    }
+    Group(): FrameworkPowers("Group")               { }
+    Group(QJsonObject& json): FrameworkPowers(json) { }
 
     bool isValid(shared_ptr<Power>) override { return true; }
 
@@ -239,21 +212,9 @@ private:
 
 class Multipower: public FrameworkPowers {
 public:
-    Multipower(): FrameworkPowers("Multipower")                { }
-    Multipower(const Multipower& s): FrameworkPowers(s)        { }
-    Multipower(Multipower&& s): FrameworkPowers(s)             { }
-    Multipower(const QJsonObject& json): FrameworkPowers(json) { v.mPoints = json["points"].toInt(0);
-                                                               }
-    ~Multipower() override { }
-
-    Multipower& operator=(const Multipower& s) {
-        if (this != &s) v = s.v;
-        return *this;
-    }
-    Multipower& operator=(Multipower&& s) {
-        v = s.v;
-        return *this;
-    }
+    Multipower(): FrameworkPowers("Multipower")          { }
+    Multipower(QJsonObject& json): FrameworkPowers(json) { v.mPoints = json["points"].toInt(0);
+                                                         }
 
     bool isMultipower() override { return true; }
     bool isValid(shared_ptr<Power> power) override {
@@ -389,32 +350,20 @@ private:
 
 class VPP: public FrameworkPowers {
 public:
-    VPP(): FrameworkPowers("Variable Power Pool")       { }
-    VPP(const VPP& s): FrameworkPowers(s)               { }
-    VPP(VPP&& s): FrameworkPowers(s)                    { }
-    VPP(const QJsonObject& json): FrameworkPowers(json) { v.mPool    = json["pool"].toInt(0);
-                                                          v.mControl = json["control"].toInt(0);
-                                                          v.mTime    = json["time"].toInt(0);
-                                                          v.mNoSkill = json["noSkill"].toBool(false);
-                                                          v.mGiven   = json["given"].toBool(false);
-                                                          v.mCirc    = json["circ"].toString();
-                                                          v.mHow     = json["how"].toBool(false);
-                                                          v.mWhen2   = json["when2"].toBool(false);
-                                                          v.mClass   = json["class"].toInt(0);
-                                                          v.mWhat    = json["what"].toString();
-                                                          v.mOne     = json["one"].toInt(0);
-                                                          v.mPower   = json["power"].toString();
-                                                        }
-    ~VPP() override { }
-
-    VPP& operator=(const VPP& s) {
-        if (this != &s) v = s.v;
-        return *this;
-    }
-    VPP& operator=(VPP&& s) {
-        v = s.v;
-        return *this;
-    }
+    VPP(): FrameworkPowers("Variable Power Pool") { }
+    VPP(QJsonObject& json): FrameworkPowers(json) { v.mPool    = json["pool"].toInt(0);
+                                                    v.mControl = json["control"].toInt(0);
+                                                    v.mTime    = json["time"].toInt(0);
+                                                    v.mNoSkill = json["noSkill"].toBool(false);
+                                                    v.mGiven   = json["given"].toBool(false);
+                                                    v.mCirc    = json["circ"].toString();
+                                                    v.mHow     = json["how"].toBool(false);
+                                                    v.mWhen2   = json["when2"].toBool(false);
+                                                    v.mClass   = json["class"].toInt(0);
+                                                    v.mWhat    = json["what"].toString();
+                                                    v.mOne     = json["one"].toInt(0);
+                                                    v.mPower   = json["power"].toString();
+                                                  }
 
     bool isVPP() override { return true; }
     bool isValid(shared_ptr<Power> power) override {

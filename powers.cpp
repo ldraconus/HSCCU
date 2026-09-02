@@ -307,9 +307,6 @@ QTableWidget* Power::createLimitations(QWidget*, QVBoxLayout*) {
 #endif
 }
 
-Power::Power() {
-}
-
 int Power::doubling() {
     int dbl = 1;
     for (const auto& mod: std::as_const(mModifiers)) {
@@ -546,7 +543,7 @@ QTreeWidget* Power::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<
     return tree;
 }
 
-std::map<QWidget*, QLineEdit*> Power::_labeledEdits;
+std::map<QWidget*, QLineEdit*> Power::mLabeledEdits;
 
 QWidget* Power::createLabeledEdit(QWidget* parent, QVBoxLayout* layout, QString label, lineEditCallback callback, int before) {
     QWidget* wdgt = createLabeledEdit(parent, layout, label, before);
@@ -574,7 +571,7 @@ QWidget* Power::createLabeledEdit(QWidget* parent, QVBoxLayout* layout, QString 
     horizontalLayout->addWidget(lineEdit);
 
     QWidget* sp = static_cast<QWidget*>(labledEdit);
-    _labeledEdits[sp] = lineEdit;
+    mLabeledEdits[sp] = lineEdit;
 
     if (before == -1) layout->addWidget(labledEdit);
     else layout->insertWidget(before, labledEdit);

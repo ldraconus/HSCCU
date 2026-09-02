@@ -6,26 +6,18 @@
 
 class ExtraDimensionalMovement: public AllPowers {
 public:
-    ExtraDimensionalMovement(): AllPowers("Extra-Dimensional Movementϴ")      { }
-    ExtraDimensionalMovement(const ExtraDimensionalMovement& s): AllPowers(s) { }
-    ExtraDimensionalMovement(ExtraDimensionalMovement&& s): AllPowers(s)      { }
-    ExtraDimensionalMovement(const QJsonObject& json)
-        : AllPowers(json) {
-        v.mTime = json["time"].toBool(false);
-        v.mNumDim = json["numDim"].toInt(0);
-        v.mDim = json["dim"].toString();
-        v.mLoc = json["loc"].toInt(0);
-        v.mWhere = json["where"].toString();
-        v.mWhen = json["when"].toInt(0);
-        v.mMoment = json["moment"].toString();
-        v.mSpan = json["span"].toInt(0);
-        v.mTimLoc = json["timLoc"].toInt(0);
-        v.mTimWhr = json["timWhr"].toString();
-    }
-    ~ExtraDimensionalMovement() override { }
-
-    ExtraDimensionalMovement& operator=(const ExtraDimensionalMovement&) = delete;
-    ExtraDimensionalMovement& operator=(ExtraDimensionalMovement&&) = delete;
+    ExtraDimensionalMovement(): AllPowers("Extra-Dimensional Movementϴ") { }
+    ExtraDimensionalMovement(QJsonObject& json): AllPowers(json) { v.mTime = json["time"].toBool(false);
+                                                                   v.mNumDim = json["numDim"].toInt(0);
+                                                                   v.mDim = json["dim"].toString();
+                                                                   v.mLoc = json["loc"].toInt(0);
+                                                                   v.mWhere = json["where"].toString();
+                                                                   v.mWhen = json["when"].toInt(0);
+                                                                   v.mMoment = json["moment"].toString();
+                                                                   v.mSpan = json["span"].toInt(0);
+                                                                   v.mTimLoc = json["timLoc"].toInt(0);
+                                                                   v.mTimWhr = json["timWhr"].toString();
+                                                                 }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -62,7 +54,7 @@ public:
                                                                    timWhr = createLineEdit(parent, layout, "Where?");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    auto pts = 20_cp; // NOLINT
                                                                    if (v.mTime) {
                                                                        pts += 20_cp; // NOLINT
@@ -235,16 +227,10 @@ private:
 
 class FTLTravel: public AllPowers {
 public:
-    FTLTravel(): AllPowers("FTL Travel")                { }
-    FTLTravel(const FTLTravel& s): AllPowers(s)         { }
-    FTLTravel(FTLTravel&& s): AllPowers(s)              { }
-    FTLTravel(const QJsonObject& json): AllPowers(json) { v.mSpeed   = json["speed"].toInt(0);
-                                                          v.mInstant = json["instant"].toBool(false);
-                                                        }
-    ~FTLTravel() override { }
-
-    FTLTravel& operator=(const FTLTravel&) = delete;
-    FTLTravel& operator=(FTLTravel&&) = delete;
+    FTLTravel(): AllPowers("FTL Travel")          { }
+    FTLTravel(QJsonObject& json): AllPowers(json) { v.mSpeed   = json["speed"].toInt(0);
+                                                    v.mInstant = json["instant"].toBool(false);
+                                                  }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -254,7 +240,7 @@ public:
                                                                    instant = createCheckBox(parent, layout, "Instant Lightspeed");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    Points pts = (v.mInstant ? 20_cp : 10_cp); // NOLINT
                                                                    int steps = (int) (log((double) v.mSpeed) / log(2.0)); // NOLINT
                                                                    pts = pts + steps * 2_cp;
@@ -310,17 +296,12 @@ private:
 
 class Flight: public AllPowers {
 public:
-    Flight(): AllPowers("Flight")                    { }
-    Flight(const Flight& s): AllPowers(s)            { }
-    Flight(Flight&& s): AllPowers(s)                 { }
-    Flight(const QJsonObject& json): AllPowers(json) { v.mSpeed   = json["speed"].toInt(0);
-                                                       v.mHover   = json["hover"].toInt(0);
-                                                       v.mGlide   = json["glide"].toBool(false);
-                                                       v.mSurface = json["surface"].toBool(false);
-                                                     }
-    ~Flight() override { }
-    virtual Flight& operator=(const Flight&) = delete;
-    virtual Flight& operator=(Flight&&) = delete;
+    Flight(): AllPowers("Flight")              { }
+    Flight(QJsonObject& json): AllPowers(json) { v.mSpeed   = json["speed"].toInt(0);
+                                                 v.mHover   = json["hover"].toInt(0);
+                                                 v.mGlide   = json["glide"].toBool(false);
+                                                 v.mSurface = json["surface"].toBool(false);
+                                               }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -336,7 +317,7 @@ public:
                                                                           (v.mSurface   ? Fraction(1, 4)            : Fraction(0)) +
                                                                           (v.mHover > 0 ? v.mHover * Fraction(1, 4) : Fraction(0));
                                                                  }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v.mSpeed * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -401,17 +382,11 @@ private:
 
 class Leaping: public AllPowers {
 public:
-    Leaping(): AllPowers("Leaping")                   { }
-    Leaping(const Leaping& s): AllPowers(s)           { }
-    Leaping(Leaping&& s): AllPowers(s)                { }
-    Leaping(const QJsonObject& json): AllPowers(json) { v.mSpeed    = json["speed"].toInt(0);
-                                                        v.mAccurate = json["accurate"].toBool(false);
-                                                        v.mLimit = json["limit"].toInt(0);
-                                                      }
-    ~Leaping() override { }
-
-    Leaping& operator=(const Leaping& s) = delete;
-    Leaping& operator=(Leaping&& s) = delete;
+    Leaping(): AllPowers("Leaping")             { }
+    Leaping(QJsonObject& json): AllPowers(json) { v.mSpeed    = json["speed"].toInt(0);
+                                                  v.mAccurate = json["accurate"].toBool(false);
+                                                  v.mLimit = json["limit"].toInt(0);
+                                                }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -423,7 +398,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v.mLimit > 0 ? Fraction(1) : Fraction(0));
                                                                  }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v.mSpeed + 1) / 2 * 1_cp + v.mAccurate * 5_cp; // NOLINT
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -482,17 +457,11 @@ private:
 
 class Running: public AllPowers {
 public:
-    Running(): AllPowers("Running")                   { }
-    Running(const Running& s): AllPowers(s)           { }
-    Running(Running&& s): AllPowers(s)                { }
-    Running(const QJsonObject& json): AllPowers(json) { v.mSpeed   = json["speed"].toInt(0);
-                                                        v.mCorrect = json["hover"].toBool(false);
-                                                        v.mTerrain = json["terrain"].toString();
-    }
-    ~Running() override { }
-
-    Running& operator=(const Running& s) = delete;
-    Running& operator=(Running&& s) = delete;
+    Running(): AllPowers("Running")             { }
+    Running(QJsonObject& json): AllPowers(json) { v.mSpeed   = json["speed"].toInt(0);
+                                                  v.mCorrect = json["hover"].toBool(false);
+                                                  v.mTerrain = json["terrain"].toString();
+                                                }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -504,7 +473,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v.mCorrect ? Fraction(1, 2) : Fraction(0));
                                                                  }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v.mSpeed * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -561,18 +530,10 @@ private:
 
 class Swimming: public AllPowers {
 public:
-    Swimming(): AllPowers("Swimming")                  { }
-    Swimming(const Swimming& s): AllPowers(s)          { }
-    Swimming(Swimming&& s): AllPowers(s)               { }
-    Swimming(const QJsonObject& json)
-        : AllPowers(json) {
-        v.mSpeed = json["speed"].toInt(0);
-        v.mSurface = json["surface"].toBool(false);
-    }
-    ~Swimming() override { }
-
-    Swimming& operator=(const Swimming& s) = delete;
-    Swimming& operator=(Swimming&& s) = delete;
+    Swimming(): AllPowers("Swimming")            { }
+    Swimming(QJsonObject& json): AllPowers(json) { v.mSpeed = json["speed"].toInt(0);
+                                                   v.mSurface = json["surface"].toBool(false);
+                                                 }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -583,7 +544,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v.mSurface ? Fraction(1, 2) : Fraction(0));
                                                                  }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v.mSpeed + 1) / 2 * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -635,17 +596,9 @@ private:
 
 class Swinging: public AllPowers {
 public:
-    Swinging(): AllPowers("Swinging")                  { }
-    Swinging(const Swinging& s): AllPowers(s)          { }
-    Swinging(Swinging&& s): AllPowers(s)               { }
-    Swinging(const QJsonObject& json)
-        : AllPowers(json) {
-        v.mSpeed = json["speed"].toInt(0);
-    }
-    ~Swinging() override { }
-
-    Swinging& operator=(const Swinging& s) = delete;
-    Swinging& operator=(Swinging&& s) = delete;
+    Swinging(): AllPowers("Swinging")            { }
+    Swinging(QJsonObject& json): AllPowers(json) { v.mSpeed = json["speed"].toInt(0);
+                                                 }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
@@ -654,7 +607,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return Fraction(0);
                                                                  }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return (v.mSpeed + 1) / 2 * 1_cp;
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -700,18 +653,13 @@ private:
 
 class Teleportation: public AllPowers {
 public:
-    Teleportation(): AllPowers("Teleportation")             { }
-    Teleportation(const Teleportation& s): AllPowers(s)     { }
-    Teleportation(Teleportation&& s): AllPowers(s)          { }
-    Teleportation(const QJsonObject& json): AllPowers(json) { v.mSpeed = json["speed"].toInt(0);
-                                                              v.mVeloc = json["veloc"].toBool(false);
-                                                              v.mSafe  = json["safe"].toBool(false);
-                                                              v.mFixed = json["fixed"].toInt(0);
-                                                              v.mPass = json["pass"].toBool(false);
-    }
-    ~Teleportation() override { }
-    Teleportation& operator=(const Teleportation& s) = delete;
-    Teleportation& operator=(Teleportation&& s) = delete;
+    Teleportation(): AllPowers("Teleportation")       { }
+    Teleportation(QJsonObject& json): AllPowers(json) { v.mSpeed = json["speed"].toInt(0);
+                                                        v.mVeloc = json["veloc"].toBool(false);
+                                                        v.mSafe  = json["safe"].toBool(false);
+                                                        v.mFixed = json["fixed"].toInt(0);
+                                                        v.mPass = json["pass"].toBool(false);
+                                                      }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -727,7 +675,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return ((v.mFixed > -1) ? v.mFixed * Fraction(1, 2) : Fraction(0)) + (v.mPass ? Fraction(1, 4) : Fraction(0));
                                                                  }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v.mSpeed * 1_cp + (v.mVeloc ? 10_cp : 0_cp) + (v.mSafe ? 5_cp : 0_cp); // NOLINT
                                                                  }
     void     restore() override                                  { vars s = v;
@@ -798,19 +746,13 @@ private:
 
 class Tunneling: public AllPowers {
 public:
-    Tunneling(): AllPowers("Tunneling")                 { }
-    Tunneling(const Tunneling& s): AllPowers(s)         { }
-    Tunneling(Tunneling&& s): AllPowers(s)              { }
-    Tunneling(const QJsonObject& json): AllPowers(json) { v.mSpeed  = json["speed"].toInt(0);
-                                                          v.mPD     = json["pd"].toInt(0);
-                                                          v.mFillIn = json["fillin"].toBool(false);
-                                                          v.mLimit  = json["limit"].toInt(0);
-                                                          v.mTo = json["to"].toString();
-                                                        }
-    ~Tunneling() override { }
-
-    Tunneling& operator=(const Tunneling& s) = delete;
-    Tunneling& operator=(Tunneling&& s) = delete;
+    Tunneling(): AllPowers("Tunneling")           { }
+    Tunneling(QJsonObject& json): AllPowers(json) { v.mSpeed  = json["speed"].toInt(0);
+                                                    v.mPD     = json["pd"].toInt(0);
+                                                    v.mFillIn = json["fillin"].toBool(false);
+                                                    v.mLimit  = json["limit"].toInt(0);
+                                                    v.mTo = json["to"].toString();
+                                                  }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -826,7 +768,7 @@ public:
                                                                  }
     Fraction lim() override                                      { return (v.mLimit != -1) ? v.mLimit * Fraction(1, 2) : Fraction(0);
                                                                  }
-    Points points(bool noStore = false) override                 { if (!noStore) store();
+    Points   points(bool noStore = false) override               { if (!noStore) store();
                                                                    return v.mSpeed * 1_cp + v.mPD * 2_cp + (v.mFillIn ? 10_cp : 0_cp); // NOLINT
                                                                  }
     void     restore() override                                  { vars s = v;

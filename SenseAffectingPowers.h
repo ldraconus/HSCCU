@@ -50,26 +50,10 @@ QString abbrSense(const QStringList& str) {
 
 class Darkness: public AllPowers {
 public:
-    Darkness(): AllPowers("Darkness")                  { }
-    Darkness(const Darkness& s): AllPowers(s)          { }
-    Darkness(Darkness&& s): AllPowers(s)               { }
-    Darkness(const QJsonObject& json): AllPowers(json) {
-        v.mRad  = json["speed"].toInt(0);
-        v.mWhat = toStringList(json["what"].toArray());
-    }
-    ~Darkness() override { }
-    Darkness& operator=(const Darkness& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Darkness& operator=(Darkness&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Darkness(): AllPowers("Darkness")            { }
+    Darkness(QJsonObject& json): AllPowers(json) { v.mRad  = json["speed"].toInt(0);
+                                                   v.mWhat = toStringList(json["what"].toArray());
+                                                 }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -192,29 +176,14 @@ private:
 
 class Images: public AllPowers {
 public:
-    Images(): AllPowers("Images")                    { }
-    Images(const Images& s): AllPowers(s)            { }
-    Images(Images&& s): AllPowers(s)                 { }
-    Images(const QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
-                                                       v.mPer    = json["per"].toInt(0);
-                                                       v.mDiff   = json["diff"].toInt(0);
-                                                       v.mOnly   = json["only"].toBool(false);
-                                                       v.mSet    = json["set"].toBool(false);
-                                                       v.mEfect = json["effect"].toString();
-                                                     }
-    ~Images() override { }
-    Images& operator=(const Images& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Images& operator=(Images&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Images(): AllPowers("Images")              { }
+    Images(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
+                                                 v.mPer    = json["per"].toInt(0);
+                                                 v.mDiff   = json["diff"].toInt(0);
+                                                 v.mOnly   = json["only"].toBool(false);
+                                                 v.mSet    = json["set"].toBool(false);
+                                                 v.mEfect = json["effect"].toString();
+                                               }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -385,28 +354,13 @@ private:
 
 class Invisibility: public AllPowers {
 public:
-    Invisibility(): AllPowers("Invisibility")              { }
-    Invisibility(const Invisibility& s): AllPowers(s)      { }
-    Invisibility(Invisibility&& s): AllPowers(s)           { }
-    Invisibility(const QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
-                                                             v.mNo     = json["no"].toBool(false);
-                                                             v.mBright = json["bright"].toBool(false);
-                                                             v.mCham   = json["cham"].toBool(false);
-                                                             v.mNot    = json["not"].toBool(false);
-                                                           }
-    ~Invisibility() override { }
-    Invisibility& operator=(const Invisibility& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Invisibility& operator=(Invisibility&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Invisibility(): AllPowers("Invisibility")        { }
+    Invisibility(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
+                                                       v.mNo     = json["no"].toBool(false);
+                                                       v.mBright = json["bright"].toBool(false);
+                                                       v.mCham   = json["cham"].toBool(false);
+                                                       v.mNot    = json["not"].toBool(false);
+                                                     }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }

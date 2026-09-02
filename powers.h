@@ -21,12 +21,12 @@
 
 class Power {
 protected:
-    typedef std::_Mem_fn<void (Power::*)(int)>            lineEditCallback;
-    typedef std::_Mem_fn<void (Power::*)(bool)>           checkBoxCallback;
-    typedef std::_Mem_fn<void (Power::*)(int)>            comboBoxCallback;
-    typedef std::_Mem_fn<void (Power::*)(int,int)>        activatedCallback;
-    typedef std::_Mem_fn<void (Power::*)(void)>           pushButtonCallback;
-    typedef std::_Mem_fn<void (Power::*)(int, int, bool)> treeCallback;
+    typedef std::function<void (Power*, int)>            lineEditCallback;
+    typedef std::function<void (Power*, bool)>           checkBoxCallback;
+    typedef std::function<void (Power*, int)>            comboBoxCallback;
+    typedef std::function<void (Power*, int, int)>       activatedCallback;
+    typedef std::function<void (Power*)>                 pushButtonCallback;
+    typedef std::function<void (Power*, int, int, bool)> treeCallback;
 
     QCheckBox*   createCheckBox(QWidget*, QVBoxLayout*, QString, checkBoxCallback, int before = -1);
     QCheckBox*   createCheckBox(QWidget*, QVBoxLayout*, QString, int before = -1);
@@ -43,7 +43,7 @@ protected:
     QWidget*     createLabeledEdit(QWidget*, QVBoxLayout*, QString, lineEditCallback callback, int before = -1);
     QWidget*     createLabeledEdit(QWidget*, QVBoxLayout*, QString, int before = -1);
 
-    static std::map<QWidget*, QLineEdit*> _labeledEdits;
+    static std::map<QWidget*, QLineEdit*> mLabeledEdits;
 
     QTableWidget* createAdvantages(QWidget* parent, QVBoxLayout* layout);
     QTableWidget* createLimitations(QWidget* parent, QVBoxLayout* layout);
@@ -56,6 +56,7 @@ protected:
     std::map<QLineEdit*,   lineEditCallback>   mCallbacksEdit;
     std::map<QTreeWidget*, treeCallback>       mCallbacksTree;
     std::map<QPushButton*, pushButtonCallback> mCallbacksBtn;
+
     void empty(bool) { }
 
     QString add(QString n, int p) {
@@ -82,15 +83,14 @@ protected:
     int    mRow    = -1;
 
 public:
-    QLineEdit* labeledEdit(QWidget* w)       { return _labeledEdits[w]; }
-    bool       labeledEditExists(QWidget* w) { return _labeledEdits.find(w) != _labeledEdits.end(); }
+    QLineEdit* labeledEdit(QWidget* w)       { return mLabeledEdits[w]; }
+    bool       labeledEditExists(QWidget* w) { return mLabeledEdits.find(w) != mLabeledEdits.end(); }
 
     bool hasModifier(QString);
 
     class allBase {
     public:
         allBase() { }
-        allBase(const allBase&) { }
         allBase(allBase*) { }
 
         virtual shared_ptr<Power> create() const                        = 0;
@@ -101,63 +101,16 @@ public:
     class allPower: public allBase {
     public:
         allPower(): allBase()                   { }
-        allPower(const allPower& b): allBase(b) { }
-        allPower(allPower&& b): allBase(b)      { }
         allPower(allPower* b): allBase(b)       { }
         ~allPower();
-
-        allPower& operator=(const allPower&) = delete;
-        allPower& operator=(allPower&&) = delete;
 
         shared_ptr<Power> create() const override                        { return make_shared<T>(); }
         shared_ptr<Power> create(const QJsonObject& json) const override { return make_shared<T>(json); }
     };
 
-    Power();
-    Power(const Power& p)
-        : mAdvantagesList(p.mAdvantagesList)
-        , mLimitationsList(p.mLimitationsList)
-        , mInMultipower(p.mInMultipower)
-        , mSender(p.mSender)
-        , mParent(p.mParent)
-        , mRow(p.mRow)
-        , mGuid(p.mGuid)
-        , mModifiers(p.mModifiers) { Power(); }
-    Power(Power&& p)
-        : mAdvantagesList(p.mAdvantagesList)
-        , mLimitationsList(p.mLimitationsList)
-        , mInMultipower(p.mInMultipower)
-        , mSender(p.mSender)
-        , mParent(p.mParent)
-        , mRow(p.mRow)
-        , mGuid(p.mGuid)
-        , mModifiers(p.mModifiers) { Power(); }
-    virtual ~Power() { }
-
-    Power& operator=(const Power& s) {
-        if (this != &s) {
-            mAdvantagesList = s.mAdvantagesList;
-            mLimitationsList = s.mLimitationsList;
-            mInMultipower = s.mInMultipower;
-            mSender = s.mSender;
-            mParent = s.mParent;
-            mRow = s.mRow;
-            mGuid = s.mGuid;
-            mModifiers = s.mModifiers;
-        }
-        return *this;
-    }
-    Power& operator=(Power&& s) {
-        mAdvantagesList = s.mAdvantagesList;
-        mLimitationsList = s.mLimitationsList;
-        mInMultipower = s.mInMultipower;
-        mSender = s.mSender;
-        mParent = s.mParent;
-        mRow = s.mRow;
-        mGuid = s.mGuid;
-        mModifiers = s.mModifiers;
-        return *this;
-    }
+    Power()                  { id({ }); }
+    Power(QJsonObject& json) { id(json); }
+    virtual ~Power()         { }
 
     static const bool NoStore = true;
     static const bool ShowEND = true;
@@ -256,7 +209,6 @@ public:
 
     QList<shared_ptr<Modifier>>& advantagesList()  { return mAdvantagesList; }
     QList<shared_ptr<Modifier>>& limitationsList() { return mLimitationsList; }
-    QList<shared_ptr<Modifier>>& modifiers()       { return mModifiers; }
 
     QWidget* sender() { return mSender; }
 
@@ -271,7 +223,7 @@ public:
 
     static QList<QString>    Available();
     static void              ClearForm(QVBoxLayout*);
-    static void              ClearLabeledEdits() { _labeledEdits.clear(); }
+    static void              ClearLabeledEdits() { mLabeledEdits.clear(); }
     static bool              LoadEquipment();
     static QList<QString>    AdjustmentPowers();
     static QList<QString>    AttackPowers();
@@ -295,6 +247,8 @@ public:
 private:
     QList<shared_ptr<Modifier>> mModifiers;
     QString                     mGuid;
+
+    void id(const QJsonObject& json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid().toString(QUuid::WithoutBraces); }
 
     static const QMap<QString, QString> mAdjustmentPower;
     static const QMap<QString, QString> mAttackPower;
@@ -387,32 +341,13 @@ protected:
     }
 
 public:
-    AllPowers(): Power() { }
+    AllPowers(): Power()         { }
     AllPowers(QString name)
         : Power()
-        , v { name, "" } { }
-    AllPowers(const AllPowers& s)
-        : Power(s)
-        , v(s.v) { }
-    AllPowers(AllPowers&& s)
-        : Power(s)
-        , v(s.v) { }
-    AllPowers(const QJsonObject& json)
-        : Power() { load(json); }
-    ~AllPowers() override { }
-
-    AllPowers& operator=(const AllPowers& s) {
-        if (this != &s) {
-            Power::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    AllPowers& operator=(AllPowers&& s) {
-        Power::operator=(s);
-        v = s.v;
-        return *this;
-    }
+        , v { name, "" }         { }
+    AllPowers(QJsonObject& json)
+        : Power(json)            { load(json); }
+    ~AllPowers() override        { }
 
     void load(const QJsonObject& json, const QString& name = "") {
         if (name.isEmpty()) v.mName = json["name"].toString();
@@ -449,7 +384,7 @@ public:
     void        store() override                                    { v.mPowerName = powerName ? powerName->text() : "";
                                                                       if (varies != nullptr) v.mVaries = varies->isChecked();
                                                                     }
-    QJsonObject toJson() const override                             { QJsonObject obj = Power::toJson();
+    QJsonObject toJson() const override                             { QJsonObject obj  = Power::toJson();
                                                                       obj["name"]      = v.mName;
                                                                       obj["powerName"] = v.mPowerName;
                                                                       obj["varies"]    = v.mVaries;

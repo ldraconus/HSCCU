@@ -8,37 +8,23 @@ extern QString abbrSense(const QStringList& str);
 
 class Clairsentience: public AllPowers {
 public:
-    Clairsentience(): AllPowers("Clairsentienceϴ")           { }
-    Clairsentience(const Clairsentience& s): AllPowers(s)    { }
-    Clairsentience(Clairsentience&& s): AllPowers(s)         { }
-    Clairsentience(const QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
-                                                                   v.mPre    = json["pre"].toBool(false);
-                                                                   v.mRetro  = json["retro"].toBool(false);
-                                                                   v.mMult   = json["mult"].toInt(0);
-                                                                   v.mMobile = json["mobile"].toInt(0);
-                                                                   v.mAttack = json["attack"].toBool(false);
-                                                                   v.mBlack  = json["black"].toBool(false);
-                                                                   v.mFixed  = json["fixed"].toBool(false);
-                                                                   v.mOnly   = json["only"].toInt(0);
-                                                                   v.mCrit   = json["crit"].toString();
-                                                                   v.mOne    = json["one"].toBool(false);
-                                                                   v.mPorr   = json["porr"].toBool(false);
-                                                                   v.mDreams = json["dreams"].toBool(false);
-                                                                   v.mTime   = json["time"].toBool(false);
-                                                                   v.mVague  = json["vague"].toBool(false);
-                                                                 }
-    virtual Clairsentience& operator=(const Clairsentience& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual Clairsentience& operator=(Clairsentience&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Clairsentience(): AllPowers("Clairsentienceϴ")     { }
+    Clairsentience(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
+                                                         v.mPre    = json["pre"].toBool(false);
+                                                         v.mRetro  = json["retro"].toBool(false);
+                                                         v.mMult   = json["mult"].toInt(0);
+                                                         v.mMobile = json["mobile"].toInt(0);
+                                                         v.mAttack = json["attack"].toBool(false);
+                                                         v.mBlack  = json["black"].toBool(false);
+                                                         v.mFixed  = json["fixed"].toBool(false);
+                                                         v.mOnly   = json["only"].toInt(0);
+                                                         v.mCrit   = json["crit"].toString();
+                                                         v.mOne    = json["one"].toBool(false);
+                                                         v.mPorr   = json["porr"].toBool(false);
+                                                         v.mDreams = json["dreams"].toBool(false);
+                                                         v.mTime   = json["time"].toBool(false);
+                                                         v.mVague  = json["vague"].toBool(false);
+                                                       }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -259,46 +245,32 @@ private:
 
 class EnhancedSenses: public AllPowers {
 public:
-    EnhancedSenses(): AllPowers("Enhanced Senses")           { }
-    EnhancedSenses(const EnhancedSenses& s): AllPowers(s)    { }
-    EnhancedSenses(EnhancedSenses&& s): AllPowers(s)         { }
-    EnhancedSenses(const QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
-                                                                   v.mDetect = json["detect"].toInt(0);
-                                                                   v.mThing  = json["thing"].toString();
-                                                                   v.mEnhanc = json["enhanc"].toInt(0);
-                                                                   v.mSenses = json["senses"].toString();
-                                                                   v.mAmount = json["amount"].toInt(0);
-                                                                   v.mSpatl  = json["spatl"].toBool(false);
-                                                                   v.mAdj    = json["adj"].toInt(0);
-                                                                   v.mAnlz   = json["anlz"].toBool(false);
-                                                                   v.mConc   = json["conc"].toInt(0);
-                                                                   v.mDiscr  = json["discr"].toBool(false);
-                                                                   v.mDim    = json["dim"].toInt(0);
-                                                                   v.mWhich  = json["which"].toString();
-                                                                   v.mIncr   = json["incr"].toInt(0);
-                                                                   v.mMic    = json["mic"].toInt(0);
-                                                                   v.mPen    = json["pen"].toInt(0);
-                                                                   v.mRange  = json["range"].toBool(false);
-                                                                   v.mRapid  = json["rapid"].toInt(0);
-                                                                   v.mSense  = json["sense"].toBool(false);
-                                                                   v.mTarget = json["target"].toBool(false);
-                                                                   v.mTele   = json["tele"].toInt(0);
-                                                                   v.mTrack  = json["track"].toBool(false);
-                                                                   v.mTrans  = json["trans"].toBool(false);
-                                                                   v.mNoDir  = json["nodir"].toBool(false);
-                                                                 }
-    virtual EnhancedSenses& operator=(const EnhancedSenses& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    virtual EnhancedSenses& operator=(EnhancedSenses&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    EnhancedSenses(): AllPowers("Enhanced Senses")     { }
+    EnhancedSenses(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
+                                                         v.mDetect = json["detect"].toInt(0);
+                                                         v.mThing  = json["thing"].toString();
+                                                         v.mEnhanc = json["enhanc"].toInt(0);
+                                                         v.mSenses = json["senses"].toString();
+                                                         v.mAmount = json["amount"].toInt(0);
+                                                         v.mSpatl  = json["spatl"].toBool(false);
+                                                         v.mAdj    = json["adj"].toInt(0);
+                                                         v.mAnlz   = json["anlz"].toBool(false);
+                                                         v.mConc   = json["conc"].toInt(0);
+                                                         v.mDiscr  = json["discr"].toBool(false);
+                                                         v.mDim    = json["dim"].toInt(0);
+                                                         v.mWhich  = json["which"].toString();
+                                                         v.mIncr   = json["incr"].toInt(0);
+                                                         v.mMic    = json["mic"].toInt(0);
+                                                         v.mPen    = json["pen"].toInt(0);
+                                                         v.mRange  = json["range"].toBool(false);
+                                                         v.mRapid  = json["rapid"].toInt(0);
+                                                         v.mSense  = json["sense"].toBool(false);
+                                                         v.mTarget = json["target"].toBool(false);
+                                                         v.mTele   = json["tele"].toInt(0);
+                                                         v.mTrack  = json["track"].toBool(false);
+                                                         v.mTrans  = json["trans"].toBool(false);
+                                                         v.mNoDir  = json["nodir"].toBool(false);
+                                                       }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }

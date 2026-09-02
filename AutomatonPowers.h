@@ -5,20 +5,8 @@
 
 class CannotBeStunned: public AllPowers {
 public:
-    CannotBeStunned(): AllPowers("Cannot Be Stunnedϴ")        { }
-    CannotBeStunned(const CannotBeStunned& s): AllPowers(s)   { }
-    CannotBeStunned(CannotBeStunned&& s): AllPowers(s)        { }
-    CannotBeStunned(const QJsonObject& json): AllPowers(json) { }
-    ~CannotBeStunned() override { }
-
-    CannotBeStunned& operator=(const CannotBeStunned& s) {
-        if (this != &s) AllPowers::operator=(s);
-        return *this;
-    }
-    CannotBeStunned& operator=(CannotBeStunned&& s) {
-        AllPowers::operator=(s);
-        return *this;
-    }
+    CannotBeStunned(): AllPowers("Cannot Be Stunnedϴ")  { }
+    CannotBeStunned(QJsonObject& json): AllPowers(json) { }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -48,23 +36,12 @@ private:
 
 class DoesNotBleed: public AllPowers {
 public:
-    DoesNotBleed(): AllPowers("Does Not Bleedϴ")           { }
-    DoesNotBleed(const DoesNotBleed& s): AllPowers(s)      { }
-    DoesNotBleed(DoesNotBleed&& s): AllPowers(s)           { }
-    DoesNotBleed(const QJsonObject& json): AllPowers(json) { }
-    ~DoesNotBleed() override { }
-
-    DoesNotBleed& operator=(const DoesNotBleed& s) {
-        if (this != &s) AllPowers::operator=(s);
-        return *this;
-    }
-    DoesNotBleed& operator=(DoesNotBleed&& s) {
-        AllPowers::operator=(s);
-        return *this;
-    }
+    DoesNotBleed(): AllPowers("Does Not Bleedϴ")     { }
+    DoesNotBleed(QJsonObject& json): AllPowers(json) { }
 
     Fraction adv() override                                      { return Fraction(0); }
-    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
@@ -90,23 +67,12 @@ private:
 
 class NoHitLocations: public AllPowers {
 public:
-    NoHitLocations(): AllPowers("No Hit Locationsϴ")         { }
-    NoHitLocations(const NoHitLocations& s): AllPowers(s)    { }
-    NoHitLocations(NoHitLocations&& s): AllPowers(s)         { }
-    NoHitLocations(const QJsonObject& json): AllPowers(json) { }
-    ~NoHitLocations() override { }
-
-    NoHitLocations& operator=(const NoHitLocations& s) {
-        if (this != &s) AllPowers::operator=(s);
-        return *this;
-    }
-    NoHitLocations& operator=(NoHitLocations&& s) {
-        AllPowers::operator=(s);
-        return *this;
-    }
+    NoHitLocations(): AllPowers("No Hit Locationsϴ")   { }
+    NoHitLocations(QJsonObject& json): AllPowers(json) { }
 
     Fraction adv() override                                      { return Fraction(0); }
-    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }    QString  description(bool showEND = false) override          { return optOut(showEND); }
+    QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
+    QString  description(bool showEND = false) override          { return optOut(showEND); }
     QString  end() override                                      { return noEnd(); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                  }
@@ -132,25 +98,9 @@ private:
 
 class TakesNoSTUN: public AllPowers {
 public:
-    TakesNoSTUN(): AllPowers("Takes No STUNϴ")            { }
-    TakesNoSTUN(const TakesNoSTUN& s): AllPowers(s)       { }
-    TakesNoSTUN(TakesNoSTUN&& s): AllPowers(s)            { }
-    TakesNoSTUN(const QJsonObject& json): AllPowers(json) { v.mDamage = json["damage"].toBool(false);
-                                                          }
-    ~TakesNoSTUN() override { }
-
-    TakesNoSTUN& operator=(const TakesNoSTUN& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    TakesNoSTUN& operator=(TakesNoSTUN&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    TakesNoSTUN(): AllPowers("Takes No STUNϴ")      { }
+    TakesNoSTUN(QJsonObject& json): AllPowers(json) { v.mDamage = json["damage"].toBool(false);
+                                                    }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }

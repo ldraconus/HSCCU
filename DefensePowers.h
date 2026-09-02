@@ -12,38 +12,23 @@ constexpr Points BaseCost15 = 15_cp;
 
 class Barrier: public AllPowers {
 public:
-    Barrier(): AllPowers("Barrier")                   { }
-    Barrier(const Barrier& s): AllPowers(s)           { }
-    Barrier(Barrier&& s): AllPowers(s)                { }
-    Barrier(const QJsonObject& json): AllPowers(json) { v.mLength   = json["length"].toInt(0);
-                                                        v.mHeight   = json["height"].toInt(0);
-                                                        v.mThick    = json["thick"].toInt(0);
-                                                        v.mBody     = json["body"].toInt(0);
-                                                        v.mPD       = json["pd"].toInt(0);
-                                                        v.mED       = json["ed"].toInt(0);
-                                                        v.mPut      = json["put"].toBool(false);
-                                                        v.mConfig   = json["config"].toBool(false);
-                                                        v.mAnchor   = json["anchor"].toBool(false);
-                                                        v.mTrans    = json["trans"].toInt(0);
-                                                        v.mTo       = json["to"].toString();
-                                                        v.mEnglobe  = json["englobe"].toBool(false);
-                                                        v.mFeedback = json["feedback"].toBool(false);
-                                                        v.mRestr    = json["restr"].toBool(false);
-                                                        v.mWhat     = json["what"].toString();
-                                                      }
-    ~Barrier() override { }
-    Barrier& operator=(const Barrier& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    Barrier& operator=(Barrier&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    Barrier(): AllPowers("Barrier")             { }
+    Barrier(QJsonObject& json): AllPowers(json) { v.mLength   = json["length"].toInt(0);
+                                                  v.mHeight   = json["height"].toInt(0);
+                                                  v.mThick    = json["thick"].toInt(0);
+                                                  v.mBody     = json["body"].toInt(0);
+                                                  v.mPD       = json["pd"].toInt(0);
+                                                  v.mED       = json["ed"].toInt(0);
+                                                  v.mPut      = json["put"].toBool(false);
+                                                  v.mConfig   = json["config"].toBool(false);
+                                                  v.mAnchor   = json["anchor"].toBool(false);
+                                                  v.mTrans    = json["trans"].toInt(0);
+                                                  v.mTo       = json["to"].toString();
+                                                  v.mEnglobe  = json["englobe"].toBool(false);
+                                                  v.mFeedback = json["feedback"].toBool(false);
+                                                  v.mRestr    = json["restr"].toBool(false);
+                                                  v.mWhat     = json["what"].toString();
+                                                }
 
     Fraction adv() override                                      { return (v.mConfig      ? Fraction(1, 4) : Fraction(0)) +
                                                                           ((v.mTrans > 0) ? v.mTrans * Fraction(1, 2) : Fraction(0)); }
@@ -72,7 +57,7 @@ public:
     Fraction lim() override                                      { return (v.mEnglobe  ? Fraction(1, 4) : Fraction(0)) +
                                                                           (v.mFeedback ? Fraction(1)    : Fraction(0)) +
                                                                           (v.mRestr    ? Fraction(1, 4) : Fraction(0)); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    Points defCost = 0_cp;
 #ifndef ISHSC
                                                                    if (Sheet::ref().character().hasTakesNoSTUN()) defCost = 3_cp * (3_cp * ((v.mPD + v.mED) / 2));
@@ -212,28 +197,12 @@ private:
 
 class DamageNegation: public AllPowers {
 public:
-    DamageNegation(): AllPowers("Damage Negation▲")          { }
-    DamageNegation(const DamageNegation& s): AllPowers(s)    { }
-    DamageNegation(DamageNegation&& s): AllPowers(s)         { }
-    DamageNegation(const QJsonObject& json): AllPowers(json) { v.mDC      = json["dc"].toInt(0);
-                                                               v.mAgainst = json["against"].toInt(0);
-                                                               v.mWhat    = json["what"].toString();
-                                                               v.mResist  = json["rests"].toBool(false);
-                                                             }
-    ~DamageNegation() override { }
-
-    DamageNegation& operator=(const DamageNegation& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    DamageNegation& operator=(DamageNegation&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    DamageNegation(): AllPowers("Damage Negation▲")    { }
+    DamageNegation(QJsonObject& json): AllPowers(json) { v.mDC      = json["dc"].toInt(0);
+                                                         v.mAgainst = json["against"].toInt(0);
+                                                         v.mWhat    = json["what"].toString();
+                                                         v.mResist  = json["rests"].toBool(false);
+                                                       }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -319,28 +288,12 @@ private:
 
 class DamageResistance: public AllPowers {
 public:
-    DamageResistance(): AllPowers("Damage Resistance▲")        { }
-    DamageResistance(const DamageResistance& s): AllPowers(s)  { }
-    DamageResistance(DamageResistance&& s): AllPowers(s)       { }
-    DamageResistance(const QJsonObject& json): AllPowers(json) { v.mPerc    = json["perc"].toInt(0);
-                                                                 v.mAgainst = json["against"].toInt(0);
-                                                                 v.mWhat    = json["what"].toString();
-                                                                 v.mResist  = json["rests"].toBool(false);
-                                                               }
-    ~DamageResistance() override { }
-
-    DamageResistance& operator=(const DamageResistance& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    DamageResistance& operator=(DamageResistance&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    DamageResistance(): AllPowers("Damage Resistance▲")  { }
+    DamageResistance(QJsonObject& json): AllPowers(json) { v.mPerc    = json["perc"].toInt(0);
+                                                           v.mAgainst = json["against"].toInt(0);
+                                                           v.mWhat    = json["what"].toString();
+                                                           v.mResist  = json["rests"].toBool(false);
+                                                         }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -356,7 +309,7 @@ public:
                                                                    resist  = createCheckBox(parent, layout, "Resistant");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    QList<Points> n { 0_cp, 10_cp, 20_cp, 30_cp }; // NOLINT
                                                                    QList<Points> r { 0_cp, 15_cp, 30_cp, 60_cp }; // NOLINT
                                                                    return (
@@ -429,22 +382,8 @@ private:
 
 class Deflection: public AllPowers {
 public:
-    Deflection(): AllPowers("Deflection▲")        { }
-    Deflection(const Deflection& s): AllPowers(s)  { }
-    Deflection(Deflection&& s): AllPowers(s)       { }
-    Deflection(const QJsonObject& json): AllPowers(json) { }
-    ~Deflection() override { }
-
-    Deflection& operator=(const Deflection& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-        }
-        return *this;
-    }
-    Deflection& operator=(Deflection&& s) {
-        AllPowers::operator=(s);
-        return *this;
-    }
+    Deflection(): AllPowers("Deflection▲")         { }
+    Deflection(QJsonObject& json): AllPowers(json) { }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -487,24 +426,9 @@ private:
 
 class FlashDefense: public AllPowers {
 public:
-    FlashDefense(): AllPowers("Flash Defense")             { }
-    FlashDefense(const FlashDefense& s): AllPowers(s)      { }
-    FlashDefense(FlashDefense&& s): AllPowers(s)           { }
-    FlashDefense(const QJsonObject& json): AllPowers(json) { v._def = json["def"].toInt(0);
-                                                           }
-    ~FlashDefense() override { }
-    FlashDefense& operator=(const FlashDefense& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    FlashDefense& operator=(FlashDefense&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    FlashDefense(): AllPowers("Flash Defense")       { }
+    FlashDefense(QJsonObject& json): AllPowers(json) { v._def = json["def"].toInt(0);
+                                                     }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return (showEND ? "" : "") + optOut(showEND, true); }
@@ -563,24 +487,9 @@ private:
 
 class KnockbackResistance: public AllPowers {
 public:
-    KnockbackResistance(): AllPowers("Knockback Resistance")        { }
-    KnockbackResistance(const KnockbackResistance& s): AllPowers(s) { }
-    KnockbackResistance(KnockbackResistance&& s): AllPowers(s)      { }
-    KnockbackResistance(const QJsonObject& json): AllPowers(json)   { v.mPts = json["pts"].toInt(0);
-                                                                    }
-    ~KnockbackResistance() override { }
-    KnockbackResistance& operator=(const KnockbackResistance& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    KnockbackResistance& operator=(KnockbackResistance&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    KnockbackResistance(): AllPowers("Knockback Resistance")  { }
+    KnockbackResistance(QJsonObject& json): AllPowers(json)   { v.mPts = json["pts"].toInt(0);
+                                                              }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -590,7 +499,7 @@ public:
                                                                    pts = createLineEdit(parent, layout, "Points?", std::mem_fn(&Power::numeric));
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }
-    Points points(bool noStore = false) override               { if (!noStore) store();
+    Points points(bool noStore = false) override                 { if (!noStore) store();
                                                                    return v.mPts * (
 #ifndef ISHSC
                                                                               Sheet::ref().character().hasTakesNoSTUN() ? 3_cp :
@@ -637,25 +546,10 @@ private:
 
 class MentalDefense: public AllPowers {
 public:
-    MentalDefense(): AllPowers("Mental Defense")            { }
-    MentalDefense(const MentalDefense& s): AllPowers(s)     { }
-    MentalDefense(MentalDefense&& s): AllPowers(s)          { }
-    MentalDefense(const QJsonObject& json): AllPowers(json) { v.mDef = json["def"].toInt(0);
-                                                              v.mPut = json["put"].toInt(1);
-                                                            }
-    ~MentalDefense() override { }
-    MentalDefense& operator=(const MentalDefense& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    MentalDefense& operator=(MentalDefense&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    MentalDefense(): AllPowers("Mental Defense")      { }
+    MentalDefense(QJsonObject& json): AllPowers(json) { v.mDef = json["def"].toInt(0);
+                                                        v.mPut = json["put"].toInt(1);
+                                                      }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -721,24 +615,9 @@ private:
 
 class PowerDefense: public AllPowers {
 public:
-    PowerDefense(): AllPowers("Power Defense")             { }
-    PowerDefense(const PowerDefense& s): AllPowers(s)      { }
-    PowerDefense(PowerDefense&& s): AllPowers(s)           { }
-    PowerDefense(const QJsonObject& json): AllPowers(json) { v.mDef = json["def"].toInt(0);
-                                                           }
-    ~PowerDefense() override { }
-    PowerDefense& operator=(const PowerDefense& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    PowerDefense& operator=(PowerDefense&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    PowerDefense(): AllPowers("Power Defense")       { }
+    PowerDefense(QJsonObject& json): AllPowers(json) { v.mDef = json["def"].toInt(0);
+                                                     }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -797,28 +676,13 @@ private:
 
 class ResistantDefense: public AllPowers {
 public:
-    ResistantDefense(): AllPowers("Resistant Defense")         { }
-    ResistantDefense(const ResistantDefense& s): AllPowers(s)  { }
-    ResistantDefense(ResistantDefense&& s): AllPowers(s)       { }
-    ResistantDefense(const QJsonObject& json): AllPowers(json) { v.mPD      = json["pd"].toInt(0);
-                                                                 v.mED      = json["ed"].toInt(0);
-                                                                 v.mImperm  = json["imperm"].toBool(false);
-                                                                 v.mProtect = json["protect"].toBool(false);
-                                                                 v.mPut     = json["put"].toInt(0);
-                                                               }
-    ~ResistantDefense() override { }
-    ResistantDefense& operator=(const ResistantDefense& s) {
-        if (this != &s) {
-            AllPowers::operator=(s);
-            v = s.v;
-        }
-        return *this;
-    }
-    ResistantDefense& operator=(ResistantDefense&& s) {
-        AllPowers::operator=(s);
-        v = s.v;
-        return *this;
-    }
+    ResistantDefense(): AllPowers("Resistant Defense")   { }
+    ResistantDefense(QJsonObject& json): AllPowers(json) { v.mPD      = json["pd"].toInt(0);
+                                                           v.mED      = json["ed"].toInt(0);
+                                                           v.mImperm  = json["imperm"].toBool(false);
+                                                           v.mProtect = json["protect"].toBool(false);
+                                                           v.mPut     = json["put"].toInt(0);
+                                                         }
 
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
