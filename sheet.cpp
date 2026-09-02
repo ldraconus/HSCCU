@@ -3128,7 +3128,7 @@ void Sheet::powersandequipmentMenu(QPoint pos) {
     aboutToShowPowersAndEquipmentMenu();
     powerMenuDialog->open();
 #else
-    Ui->powersandequipmentMenu->exec(mapToGlobal(pos));
+    Ui->powersandequipmentMenu->exec(pos);
 #endif
 }
 
@@ -3285,7 +3285,8 @@ void Sheet::skillstalentsandperksMenu(QPoint pos) {
     skillMenuDialog->setPos(pos);
     aboutToShowSkillsPerksAndTalentsMenu();
     skillMenuDialog->open();
-    Ui->skillstalentsandperksMenu->exec(mapToGlobal(pos + Ui->image->pos() - QPoint(0, ui->scrollArea->verticalScrollBar()->value())));
+#else
+    Ui->skillstalentsandperksMenu->exec(pos);
 #endif
 }
 

@@ -68,7 +68,7 @@ public:
 protected:
     QString mGuid;
 
-    void id(const QJsonObject& json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid().toString(QUuid::WithoutBraces); }
+    void id(const QJsonObject& json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces); }
 };
 
 class BlankComp: public Complication {

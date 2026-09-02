@@ -247,7 +247,7 @@ private:
     QList<shared_ptr<Modifier>> mModifiers;
     QString                     mGuid;
 
-    void id(const QJsonObject& json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid().toString(QUuid::WithoutBraces); }
+    void id(const QJsonObject& json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces); }
 
     static const QMap<QString, QString> mAdjustmentPower;
     static const QMap<QString, QString> mAttackPower;
