@@ -387,7 +387,7 @@ QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QStrin
     return checkBox;
 }
 
-QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (ModifierBase::*)(bool)> callback) {
+QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt, std::function<void (ModifierBase*, bool)> callback) {
     QCheckBox* checkBox = new QCheckBox(layout->parentWidget());
     checkBox->setText(prompt);
     checkBox->setChecked(false);
@@ -414,7 +414,7 @@ QCheckBox* Modifier::createCheckBox(QWidget* parent, QVBoxLayout* layout, QStrin
     return checkBox;
 }
 
-QComboBox* Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::_Mem_fn<void (ModifierBase::*)(int)> callback) {
+QComboBox* Modifier::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, std::function<void (ModifierBase*, int)> callback) {
     QComboBox* comboBox = new QComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setPlaceholderText(prompt);
@@ -484,7 +484,7 @@ QLabel* Modifier::createLabel(QWidget*, QVBoxLayout* layout, QString text) {
     return label;
 }
 
-QLineEdit* Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::_Mem_fn<void (ModifierBase::*)(QString)> callback) {
+QLineEdit* Modifier::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt, std::function<void (ModifierBase*, QString)> callback) {
     QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);
@@ -515,7 +515,7 @@ static QTreeWidgetItem* createTWItem(QString str) {
     return item;
 }
 
-QTreeWidget* Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<QString, QStringList> options, std::_Mem_fn<void (ModifierBase::*)(int, int, bool)> callback) {
+QTreeWidget* Modifier::createTreeWidget(QWidget* parent, QVBoxLayout* layout, QMap<QString, QStringList> options, std::function<void (ModifierBase*, int, int, bool)> callback) {
     QTreeWidget* tree = new QTreeWidget(layout->parentWidget());
     QStringList keys = options.keys();
     double height = 0.0;

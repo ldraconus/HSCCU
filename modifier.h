@@ -131,10 +131,10 @@ private:
     base*         mBase = nullptr;
 
  protected:
-    QMap<QCheckBox*,   std::_Mem_fn<void (ModifierBase::*)(bool)>>            mCallbacksCB; // NNOLINT
-    QMap<QComboBox*,   std::_Mem_fn<void (ModifierBase::*)(int)>>             mCallbacksCBox; // NOLINT
-    QMap<QLineEdit*,   std::_Mem_fn<void (ModifierBase::*)(QString)>>         mCallbacksEdit; // NOLINT
-    QMap<QTreeWidget*, std::_Mem_fn<void (ModifierBase::*)(int, int, bool)>>  mCallbacksTree; // NOLINT
+    QMap<QCheckBox*,   std::function<void (ModifierBase*, bool)>>            mCallbacksCB; // NNOLINT
+    QMap<QComboBox*,   std::function<void (ModifierBase*, int)>>             mCallbacksCBox; // NOLINT
+    QMap<QLineEdit*,   std::function<void (ModifierBase*, QString)>>         mCallbacksEdit; // NOLINT
+    QMap<QTreeWidget*, std::function<void (ModifierBase*, int, int, bool)>>  mCallbacksTree; // NOLINT
     void empty(bool) { }
 
 public:
@@ -147,14 +147,14 @@ public:
 
 class Modifier: public ModifierBase {
 protected:
-    QCheckBox*   createCheckBox(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (ModifierBase::*)(bool)>);
+    QCheckBox*   createCheckBox(QWidget*, QVBoxLayout*, QString, std::function<void (ModifierBase*, bool)>);
     QCheckBox*   createCheckBox(QWidget*, QVBoxLayout*, QString);
-    QComboBox*   createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, std::_Mem_fn<void (ModifierBase::*)(int)>);
+    QComboBox*   createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, std::function<void (ModifierBase*, int)>);
     QComboBox*   createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
     QLabel*      createLabel(QWidget*, QVBoxLayout*, QString);
-    QLineEdit*   createLineEdit(QWidget*, QVBoxLayout*, QString, std::_Mem_fn<void (ModifierBase::*)(QString)>);
+    QLineEdit*   createLineEdit(QWidget*, QVBoxLayout*, QString, std::function<void (ModifierBase*, QString)>);
     QLineEdit*   createLineEdit(QWidget*, QVBoxLayout*, QString);
-    QTreeWidget* createTreeWidget(QWidget*, QVBoxLayout*, QMap<QString, QStringList>, std::_Mem_fn<void (ModifierBase::*)(int, int, bool)>);
+    QTreeWidget* createTreeWidget(QWidget*, QVBoxLayout*, QMap<QString, QStringList>, std::function<void (ModifierBase*, int, int, bool)>);
     QTreeWidget* createTreeWidget(QWidget*, QVBoxLayout*, QMap<QString, QStringList>);
 
     QJsonArray toArray(QStringList list) {

@@ -23,7 +23,7 @@ public:
                                                                    defensive = createComboBox(parent, layout, "Defensive Absorption?", { "Non-Defensive",
                                                                                                                                          "Normal Defense",
                                                                                                                                          "Resistant Defense" },
-                                                                                              std::mem_fn(&Power::index));
+                                                                                              &Power::index);
                                                                    varying   = createCheckBox(parent, layout, "Varying Effect");
                                                                  }
     Fraction lim() override                                      { return Fraction(0); }

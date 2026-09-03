@@ -133,9 +133,9 @@ public:
     QString description(bool showEND = false) override { return optOut(showEND); }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         Equipment::form(parent, layout);
-        which = createComboBox(parent, layout, "Pick a weapon", mWeapons.keys(), std::mem_fn(&Power::index));
-        bonusDC = createLineEdit(parent, layout, "Bonus Damage Classes", std::mem_fn(&Power::numeric));
-        bonusOCV = createLineEdit(parent, layout, "Bonus to Hit", std::mem_fn(&Power::numeric));
+        which = createComboBox(parent, layout, "Pick a weapon", mWeapons.keys(), &Power::index);
+        bonusDC = createLineEdit(parent, layout, "Bonus Damage Classes", &Power::numeric);
+        bonusOCV = createLineEdit(parent, layout, "Bonus to Hit", &Power::numeric);
     }
     void restore() override {
         vars s = v;
@@ -291,9 +291,9 @@ public:
     QString description(bool showEND = false) override { return optOut(showEND); }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         Equipment::form(parent, layout);
-        which = createComboBox(parent, layout, "Pick an armor", mArmors.keys(), std::mem_fn(&Power::index));
+        which = createComboBox(parent, layout, "Pick an armor", mArmors.keys(), &Power::index);
         type = createComboBox(parent, layout, "Type of armor?", {"Heavy Cloth", "Padded Cloth", "Woven Cord", "Heavy Animal Hides", "Soft Leather", "Heavy Leather", "Cuir-Bouilli", "Studded Soft Leather", "Ring Armor (Soft Leather)", "Bezainted Soft Leather", "Jazeraint Soft Leather", "Studded Heavy Leather", "Ring Armor (Heavy Leather)", "Bezainted Heavy Leather", "Jazeraint Heavy Leather", "Studded Cuir-Bouilli", "Ring Armor (Cuir-Bouilli)", "Bezainted Cuir-Bouilli", "Jazeraint Cuir-Bouilli", "Brigandine", "Lamellar (Splint Armor)", "Banded Mail", "Chainmail", "Double Mail/Bar Mail", "Reinforced Chainmail", "Plate And Chain", "Plate Armor", "Field Plate Armor", "Full Plate Armor"});
-        bonus = createLineEdit(parent, layout, "Bonus DEF?", std::mem_fn(&Power::numeric));
+        bonus = createLineEdit(parent, layout, "Bonus DEF?", &Power::numeric);
     }
     Fraction lim() override { return Fraction(0); }
     Points points(bool) override { return 0_cp; }
@@ -387,7 +387,7 @@ public:
     QString description(bool showEND = false) override { return optOut(showEND); }
     void form(QWidget* parent, QVBoxLayout* layout) override {
         Equipment::form(parent, layout);
-        which = createComboBox(parent, layout, "Pick some equipment", mEquip.keys(), std::mem_fn(&Power::index));
+        which = createComboBox(parent, layout, "Pick some equipment", mEquip.keys(), &Power::index);
     }
     Fraction lim() override { return Fraction(0); }
     Points points(bool) override { return 0_cp; }

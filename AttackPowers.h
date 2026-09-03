@@ -18,7 +18,7 @@ public:
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   dice = createLineEdit(parent, layout, "Dice of Damage?", std::mem_fn(&Power::numeric));
+                                                                   dice = createLineEdit(parent, layout, "Dice of Damage?", &Power::numeric);
                                                                    pded = createComboBox(parent, layout, "Versus?", { "PD", "ED" });
                                                                    stun = createCheckBox(parent, layout, "STUN Only");
                                                                  }
@@ -135,7 +135,7 @@ public:
                                                                                                                           "Increate Wind Level",
                                                                                                                           "Decrease Wind Level"
                                                                                                                         },
-                                                                                             std::mem_fn(&Power::activate));
+                                                                                             &Power::activate);
                                                                    lasting = createComboBox(parent, layout, "Lasting?", { "", "1 Turn", "1 Minute", "5 Minutes", "20 Minutes",
                                                                                                                           "1 Hour", "6 Hours", "1 Day", "1 Week",
                                                                                                                           "1 Month", "1 Season", "1 Year", "5 Years" });
@@ -300,7 +300,7 @@ private:
                                                                                          "Teleportation",
                                                                                          "Tunneling"
                                                                                        }, idx));
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Movement Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Movement Penalty?", &Power::numeric, idx + 1));
                 if (mData) v.mEffects.emplaceBack(0, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(0, -1, 0, widgets);
@@ -325,7 +325,7 @@ private:
                                                                                  "Normal Taste",
                                                                                  "Normal Touch"
                                                                                }, idx));
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "PER Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "PER Roll Penalty?", &Power::numeric, idx + 1));
                 if (mData) v.mEffects.emplaceBack(1, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(1, -1, 0, widgets);
@@ -340,7 +340,7 @@ private:
                                                                                        "Smell/Taste",
                                                                                        "Touch"
                                                                                      }, idx));
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "PER Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "PER Roll Penalty?", &Power::numeric, idx + 1));
                 if (mData) v.mEffects.emplaceBack(2, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(2, -1, 0, widgets);
@@ -355,7 +355,7 @@ private:
                                                                                            "EGO",
                                                                                            "PRE"
                                                                                           }, idx));
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Characteristic Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Characteristic Roll Penalty?", &Power::numeric, idx + 1));
                 if (mData) v.mEffects.emplaceBack(3, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(3, -1, 0, widgets);
@@ -363,28 +363,28 @@ private:
         case 5:  // Skill Roll
             if (mCreate) {
                 widgets.emplaceBack(createLineEdit(mParent, mLayout, "Skills?", idx));
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Skill Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Skill Roll Penalty?", &Power::numeric, idx + 1));
                 if (mData) v.mEffects.emplaceBack(4, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(4, -1, 0, widgets);
             break;
         case 6:  // Increase Temperature
             if (mCreate) {
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Temperature Levels Increase?", std::mem_fn(&Power::numeric), idx));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Temperature Levels Increase?", &Power::numeric, idx));
                 if (mData) v.mEffects.emplaceBack(5, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(5, -1, 0, widgets);
             break;
         case 7:  // Decrease Temperature
             if (mCreate) {
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Temperature Levels Decrease?", std::mem_fn(&Power::numeric), idx));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Temperature Levels Decrease?", &Power::numeric, idx));
                 if (mData) v.mEffects.emplaceBack(6, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(6, -1, 0, widgets);
             break;
         case 8:  // Range Modifier
             if (mCreate) {
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Range Modifier Penalty?", std::mem_fn(&Power::numeric), idx));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Range Modifier Penalty?", &Power::numeric, idx));
                 if (mData) v.mEffects.emplaceBack(7, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(7, -1, 0, widgets);
@@ -392,7 +392,7 @@ private:
         case 9:  // Negative Combat Modifier▲
             if (mCreate) {
                 widgets.emplaceBack(createLineEdit(mParent, mLayout, "Combat Modifier▲?", idx));
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Penalty?", &Power::numeric, idx + 1));
                 if (mData) v.mEffects.emplaceBack(8, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(8, -1, 0, widgets);
@@ -407,35 +407,35 @@ private:
                                                                                            "EGO",
                                                                                            "PRE"
                                                                                           }, idx));
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Characteristicc & Skill Roll Penalty?", std::mem_fn(&Power::numeric), idx + 1));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Characteristicc & Skill Roll Penalty?", &Power::numeric, idx + 1));
                 if (mData) v.mEffects.emplaceBack(9, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(9, -1, 0, widgets);
             break;
         case 11: // Damage
             if (mCreate) {
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Damage Points?", std::mem_fn(&Power::numeric), idx));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Damage Points?", &Power::numeric, idx));
                 if (mData) v.mEffects.emplaceBack(10, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(10, -1, 0, widgets);
             break;
         case 12: // Telekinesis
             if (mCreate) {
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Telekinetic STR?", std::mem_fn(&Power::numeric), idx));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Telekinetic STR?", &Power::numeric, idx));
                 if (mData) v.mEffects.emplaceBack(11, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(11, -1, 0, widgets);
             break;
         case 13: // Increase Wind Level
             if (mCreate) {
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Wind Increase?", std::mem_fn(&Power::numeric), idx));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Wind Increase?", &Power::numeric, idx));
                 if (mData) v.mEffects.emplaceBack(12, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(12, -1, 0, widgets);
             break;
         case 14: // Decrease Wind Level
             if (mCreate) {
-                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Wind Decrease?", std::mem_fn(&Power::numeric), idx));
+                widgets.emplaceBack(createLineEdit(mParent, mLayout, "Wind Decrease?", &Power::numeric, idx));
                 if (mData) v.mEffects.emplaceBack(13, -1, 0, widgets);
                 else v.mEffects[mIndex].widgets = widgets;
             } else if (mData) v.mEffects.emplaceBack(13, -1, 0, widgets);
@@ -608,9 +608,9 @@ public:
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   dice   = createLineEdit(parent, layout, "Dice of Entangle?", std::mem_fn(&Power::numeric));
-                                                                   body   = createLineEdit(parent, layout, "Additional BODY dice?", std::mem_fn(&Power::numeric));
-                                                                   def    = createLineEdit(parent, layout, "Additional Defense?", std::mem_fn(&Power::numeric));
+                                                                   dice   = createLineEdit(parent, layout, "Dice of Entangle?", &Power::numeric);
+                                                                   body   = createLineEdit(parent, layout, "Additional BODY dice?", &Power::numeric);
+                                                                   def    = createLineEdit(parent, layout, "Additional Defense?", &Power::numeric);
                                                                    dmg    = createComboBox(parent, layout, "Damage Allocation?", { "Entagle Takes Damage And Acts As rDEF For Target",
                                                                                                                                    "Entangle And Target Both Take Damage",
                                                                                                                                    "Entangle Takes No Damage From Certain Attacks",
@@ -810,7 +810,7 @@ public:
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   dice      = createLineEdit(parent, layout, "Dice of Damage?", std::mem_fn(&Power::numeric));
+                                                                   dice      = createLineEdit(parent, layout, "Dice of Damage?", &Power::numeric);
                                                                    tgt       = createLineEdit(parent, layout, "Targeting Sense Groups?");
                                                                    indTgt    = createLineEdit(parent, layout, "Targeting Senses?");
                                                                    nonTgt    = createLineEdit(parent, layout, "Non-Targeting Sense Groups?");
@@ -902,7 +902,7 @@ public:
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   dice = createLineEdit(parent, layout, "Dice of Damage?", std::mem_fn(&Power::numeric));
+                                                                   dice = createLineEdit(parent, layout, "Dice of Damage?", &Power::numeric);
                                                                  }
     Fraction lim() override                                      { return Fraction(1, 4); }
     Points points(bool noStore = false) override                 { if (!noStore) store();
@@ -962,10 +962,10 @@ public:
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
                                                                    range = createCheckBox(parent, layout, "Ranged");
-                                                                   dice  = createLineEdit(parent, layout, "Dice of Damage?", std::mem_fn(&Power::numeric));
+                                                                   dice  = createLineEdit(parent, layout, "Dice of Damage?", &Power::numeric);
                                                                    extra = createComboBox(parent, layout, "Partial Dice?", { "", "+1", Fraction(1, 2).toString() + "d6" });
                                                                    pded  = createComboBox(parent, layout, "Versus?", { "PD", "ED" });
-                                                                   incr  = createLineEdit(parent, layout, "STUN Multiplier Increases?", std::mem_fn(&Power::numeric));
+                                                                   incr  = createLineEdit(parent, layout, "STUN Multiplier Increases?", &Power::numeric);
                                                                    decr  = createComboBox(parent, layout, "STUN Multiplier Decreases?", { "None", "1x", "2x" });
                                                                    str   = createCheckBox(parent, layout, "No STR Bonus");
                                                                  }
@@ -1091,7 +1091,7 @@ public:
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   point    = createLineEdit(parent, layout, "Active Points Reflected?", std::mem_fn(&Power::numeric));
+                                                                   point    = createLineEdit(parent, layout, "Active Points Reflected?", &Power::numeric);
                                                                    any      = createCheckBox(parent, layout, "Any Target");
                                                                    feedback = createCheckBox(parent, layout, "Feedback");
                                                                  }
@@ -1162,7 +1162,7 @@ public:
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   STR   = createLineEdit(parent, layout, "Strength?", std::mem_fn(&Power::numeric));
+                                                                   STR   = createLineEdit(parent, layout, "Strength?", &Power::numeric);
                                                                    fine  = createCheckBox(parent, layout, "Fine Manipulation");
                                                                    whole = createCheckBox(parent, layout, "Affects Whole Object");
                                                                    limit = createComboBox(parent, layout, "Only Works On?", { "Everything", "Limited Group", "Very Limited Group" });
@@ -1258,7 +1258,7 @@ public:
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
     QString  description(bool showEND = false) override          { return optOut(showEND); }
     void     form(QWidget* parent, QVBoxLayout* layout) override { AllPowers::form(parent, layout);
-                                                                   dice    = createLineEdit(parent, layout, "Dice of Transform?", std::mem_fn(&Power::numeric));
+                                                                   dice    = createLineEdit(parent, layout, "Dice of Transform?", &Power::numeric);
                                                                    into    = createLineEdit(parent, layout, "Into?");
                                                                    degree  = createComboBox(parent, layout, "Degree?", { "Cosmetic", "Minor", "Major", "Severe" });
                                                                    result  = createComboBox(parent, layout, "Improved Results?", { "None", "Limited Group", "Any" });
