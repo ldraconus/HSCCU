@@ -23,7 +23,11 @@ public:
     ComplicationsDialog& operator=(const ComplicationsDialog&) = delete;
     ComplicationsDialog& operator=(ComplicationsDialog&&) = delete;
 
+    void        restore(const QJsonObject& json) override;
+    QJsonObject save() override;
+
     shared_ptr<Complication> complication() { return mComplication; }
+
     ComplicationsDialog& complication(shared_ptr<Complication>& c);
 
 protected:

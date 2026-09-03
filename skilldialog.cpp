@@ -34,6 +34,18 @@ SkillDialog::~SkillDialog() {
     delete ui;
 }
 
+void SkillDialog::restore(const QJsonObject& json) {
+    auto obj = json;
+    std::shared_ptr<SkillTalentOrPerk> skill = SkillTalentOrPerk::FromJson(json["name"].toString(), obj);
+    skilltalentorperk(skill);
+}
+
+QJsonObject SkillDialog::save() {
+    QJsonObject json = mSkillTalentOrPerk->toJson();
+    json["index"] = dynamic_cast<SkillTalentOrPerk*>(mSkillTalentOrPerk.get())->id();
+    return json;
+}
+
 QLabel* SkillDialog::createLabel(QVBoxLayout* parent, QString text, bool wordWrap = false) {
     QLabel* label = new QLabel();
     if (label != nullptr) {

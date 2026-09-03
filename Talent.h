@@ -416,8 +416,8 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  QList<Points> circ { 0_cp, 12_cp, 16_cp, 19_cp };
-                                                                  return circ[v.mCirc + 1] * v.mMult; }
+                                                                  QList<Points> crc { 0_cp, 12_cp, 16_cp, 19_cp };
+                                                                  return crc[v.mCirc + 1] * v.mMult; }
     void    restore() override                                  { vars s = v;
                                                                   mult->setText(QString("%1").arg(s.mMult));
                                                                   circ->setCurrentIndex(s.mCirc);
@@ -485,8 +485,8 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  QList<Points> size { 0_cp, 5_cp, 3_cp, 2_cp };
-                                                                  return size[v.mSize + 1]; }
+                                                                  QList<Points> sz { 0_cp, 5_cp, 3_cp, 2_cp };
+                                                                  return sz[v.mSize + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   sense->setText(s.mSense);
                                                                   size->setCurrentIndex(s.mSize);
@@ -924,8 +924,8 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points> wpns { 0_cp, 12_cp, 16_cp, 19_cp };
-                                                                  return wpns[v.mWpns + 1] * v.mMult; }
+                                                                  QList<Points> wpn { 0_cp, 12_cp, 16_cp, 19_cp };
+                                                                  return wpn[v.mWpns + 1] * v.mMult; }
     void    restore() override                                  { vars s = v;
                                                                   mult->setText(QString("%1").arg(s.mMult));
                                                                   wpns->setCurrentIndex(s.mWpns);

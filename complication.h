@@ -55,6 +55,8 @@ public:
         return obj;
     }
 
+    QString id() { return mGuid; }
+
     void callback(QCheckBox*);
     void callback(QLineEdit*);
     void createForm(QWidget*, QVBoxLayout*);

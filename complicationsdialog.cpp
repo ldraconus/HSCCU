@@ -43,6 +43,18 @@ ComplicationsDialog::~ComplicationsDialog() {
     delete ui;
 }
 
+void ComplicationsDialog::restore(const QJsonObject& json) {
+    auto obj = json;
+    std::shared_ptr<Complication> comp = Complication::FromJson(json["name"].toString(), obj);
+    complication(comp);
+}
+
+QJsonObject ComplicationsDialog::save() {
+    QJsonObject json = mComplication->toJson();
+    json["index"] = dynamic_cast<Complication*>(mComplication.get())->id();
+    return json;
+}
+
 ComplicationsDialog& ComplicationsDialog::complication(shared_ptr<Complication>& c) {
     QJsonObject obj = c->toJson();
     QString name = obj["name"].toString();

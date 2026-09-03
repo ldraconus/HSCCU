@@ -20,6 +20,10 @@ public:
 
     shared_ptr<SkillTalentOrPerk> skilltalentorperk() { return mSkillTalentOrPerk; }
 
+    void        restore(const QJsonObject& json) override;
+    QJsonObject save() override;
+
+
     SkillDialog& skilltalentorperk(shared_ptr<SkillTalentOrPerk> s);
 
 protected:

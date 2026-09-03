@@ -148,8 +148,8 @@ public:
                                                                   return true;
                                                                 }
     Points   points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points> size{ 0_cp, 2_cp, 3_cp, 5_cp, 8_cp, 8_cp, 10_cp }; // NOLINT
-                                                                  return v.mPlus * size[v.mSize + 1]; }
+                                                                  QList<Points> sz{ 0_cp, 2_cp, 3_cp, 5_cp, 8_cp, 8_cp, 10_cp }; // NOLINT
+                                                                  return v.mPlus * sz[v.mSize + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s.mPlus));
                                                                   size->setCurrentIndex(s.mSize);
@@ -217,8 +217,8 @@ public:
                                                                   return true;
                                                                 }
     Points  points(bool noStore = false) override               { if (!noStore) store();
-                                                                  QList<Points> which{ 0_cp, 3_cp, 5_cp, 8_cp, 10_cp }; // NOLINT
-                                                                  return which[v.mWhich + 1]; }
+                                                                  QList<Points> whch{ 0_cp, 3_cp, 5_cp, 8_cp, 10_cp }; // NOLINT
+                                                                  return whch[v.mWhich + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   which->setCurrentIndex(s.mWhich);
                                                                   v = s;
@@ -473,8 +473,8 @@ public:
                                                                   return true;
                                                                 }
     Points   points(bool noStore = false) override              { if (!noStore) store();
-                                                                  QList<Points> size{ 0_cp, 1_cp, 3_cp, 6_cp }; // NOLINT
-                                                                  return v.mPlus * size[v.mSize + 1]; }
+                                                                  QList<Points> sz{ 0_cp, 1_cp, 3_cp, 6_cp }; // NOLINT
+                                                                  return v.mPlus * sz[v.mSize + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(v.mPlus));
                                                                   size->setCurrentIndex(v.mSize);
@@ -544,8 +544,8 @@ public:
                                                                   return true;
                                                                 }
     Points  points(bool noStore = false) override               { if (!noStore) store();
-                                                                  QList<Points> what{ 0_cp, 1_cp, 2_cp, 3_cp, 2_cp, 3_cp };
-                                                                  return v.mPlus * what[v.mWhat + 1]; }
+                                                                  QList<Points> wht{ 0_cp, 1_cp, 2_cp, 3_cp, 2_cp, 3_cp };
+                                                                  return v.mPlus * wht[v.mWhat + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s.mPlus));
                                                                   what->setCurrentIndex(s.mWhat);
@@ -616,8 +616,8 @@ public:
                                                                   return true;
                                                                 }
     Points  points(bool noStore = false) override               { if (!noStore) store();
-                                                                  QList<Points> what{ 0_cp, 1_cp, 2_cp };
-                                                                  return what[v.mWhat + 1]; }
+                                                                  QList<Points> wht{ 0_cp, 1_cp, 2_cp };
+                                                                  return wht[v.mWhat + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   what->setCurrentIndex(s.mWhat);
                                                                   with->setText(s.mWith);

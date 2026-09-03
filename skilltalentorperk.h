@@ -167,7 +167,7 @@ public:
 protected:
     QString mGuid;
 
-    void    id(const QJsonObject json = { }) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces); }
+    void    id(const QJsonObject json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces); }
 
 private:
     static QMap<QString, skillBase*>    sSkills;    // NOLINT

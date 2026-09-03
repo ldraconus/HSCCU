@@ -321,13 +321,13 @@ private:
         res += "Contact: " + v.mWho;
         QString sep = " (";
         if (v.mLimited) { res += sep + (abbr ? "Lim." : "Limited"); sep = "; "; }
-        QStringList useful { "Useful", abbr ? "V. Useful" : "Very Useful", "More Userful", abbr ? "Xtreme. Useful" : "Extremely Useful" };
-        res += sep + useful[v.mUseful];
+        QStringList sfl { "Useful", abbr ? "V. Useful" : "Very Useful", "More Userful", abbr ? "Xtreme. Useful" : "Extremely Useful" };
+        res += sep + sfl[v.mUseful];
         sep = "; ";
         if (v.mAccess) res += sep + "Access";
         if (v.mContacts) res += sep + "Contacts";
-        QStringList relate { abbr ? "Unfriend." : "Unfriendly", "Neutral", "Good", abbr ? "V. Good" : "Very Good", "Slavishly Loyal" };
-        res += sep + relate[v.mRelate];
+        QStringList rlt { abbr ? "Unfriend." : "Unfriendly", "Neutral", "Good", abbr ? "V. Good" : "Very Good", "Slavishly Loyal" };
+        res += sep + rlt[v.mRelate];
         if (v.mOrg) res += sep + (abbr ? "Organ." :"Organization");
         return res + ")";
     }
@@ -587,7 +587,7 @@ private:
 
     QString optOut(bool abbr = false) {
         if (v.mAmount < 0) return "<incomplete>";
-        QStringList amount { "Well Off ($100,000 or less)",
+        QStringList mnt { "Well Off ($100,000 or less)",
                              "Well Off ($200,000 or less)",
                              "Well Off ($300,000 or less)",
                              "Well Off ($400,000 or less)",
@@ -600,7 +600,7 @@ private:
                              "Filthy Rich (Unlimited)"
                            };
         if (abbr) return (v.mAmount < 5 ? "Well Off" : (v.mAmount < 10 ? "Wealthy" : "Filthry Rich"));
-        return amount[v.mAmount];
+        return mnt[v.mAmount];
     }
 };
 
@@ -629,8 +629,8 @@ public:
                                                                   forwhat->setText(s.mFor);
                                                                   v = s;
                                                                 }
-    QString roll() override                                     { QStringList known { "8-", "11-", "14-"};
-                                                                  return known[v.mKnown];
+    QString roll() override                                     { QStringList knwn { "8-", "11-", "14-"};
+                                                                  return knwn[v.mKnown];
                                                                 }
     void    store() override                                    { v.mLvl  = level->currentIndex();
                                                                   v.mFor  = forwhat->text();
@@ -657,10 +657,10 @@ private:
     QString optOut(bool abbr = false) {
         if (v.mLvl < 0 || v.mKnown < 0 || v.mFor.isEmpty()) return "<incomplete>";
         QString res = (abbr ? "Pos. Rep.: " : "Positive Reputation: ") + v.mFor;
-        QStringList level { abbr ? "Small-Med. Group" : "Small To Medium Size Group",
+        QStringList lvl { abbr ? "Small-Med. Group" : "Small To Medium Size Group",
                             abbr ? "Med. Group" : "Medium Sized Group",
                             abbr ? "Lrg. " : "Large group" };
-        return res + " (Known to a " + level[v.mLvl] + ")";
+        return res + " (Known to a " + lvl[v.mLvl] + ")";
     }
 };
 

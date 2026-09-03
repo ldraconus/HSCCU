@@ -76,8 +76,8 @@ public:
                                                                   return true;
                                                                 }
     Points points(bool noStore = false) override                { if (!noStore) store();
-                                                                  QList<Points> size { 0_cp, 2_cp, 3_cp };
-                                                                  return v.mPlus * size[v.mSize + 1]; }
+                                                                  QList<Points> sz { 0_cp, 2_cp, 3_cp };
+                                                                  return v.mPlus * sz[v.mSize + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s.mPlus));
                                                                   size->setCurrentIndex(s.mSize);
@@ -181,8 +181,8 @@ private:
 
     QString optOut(bool abbr = false) {
         if (v.mPlus <= 0 || v.mWhat.isEmpty() || v.mStat < 1) return "<incomplete>";
-        QStringList stat { "", " (STR", " (DEX", " (CON", " (INT", " (EGO", " (PRE" };
-        return QString(abbr ? "+%1 w/" : "+%1 With ").arg(v.mPlus) + v.mWhat + stat[v.mStat] + ((v.mStat != 0) ? " Based)" : "");
+        QStringList stt { "", " (STR", " (DEX", " (CON", " (INT", " (EGO", " (PRE" };
+        return QString(abbr ? "+%1 w/" : "+%1 With ").arg(v.mPlus) + v.mWhat + stt[v.mStat] + ((v.mStat != 0) ? " Based)" : "");
     }
 
     void numeric(QString) override {
@@ -213,8 +213,8 @@ public:
                                                                   return true;
                                                                 }
     Points  points(bool noStore = false) override               { if (!noStore) store();
-                                                                  QList<Points> size { 0_cp, 2_cp, 3_cp, 4_cp, 6_cp, 10_cp, 12_cp }; // NOLINT
-                                                                  return v.mPlus * size[v.mSize + 1]; }
+                                                                  QList<Points> sz { 0_cp, 2_cp, 3_cp, 4_cp, 6_cp, 10_cp, 12_cp }; // NOLINT
+                                                                  return v.mPlus * sz[v.mSize + 1]; }
     void    restore() override                                  { vars s = v;
                                                                   plus->setText(QString("%1").arg(s.mPlus));
                                                                   size->setCurrentIndex(s.mSize);
