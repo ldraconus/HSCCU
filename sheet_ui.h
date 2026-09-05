@@ -173,6 +173,31 @@ private:
         return label;
     }
 
+    QLabel* createLabel(QWidget* parent, QFont& fontIn, QString val, At p, QString max, bool header = false) {
+        QFontMetrics headerMetrics(fontIn);
+        int w = headerMetrics.horizontalAdvance(max);
+        int h = headerMetrics.height();
+        return createLabel(parent, fontIn, val, p, { w, h }, header);
+    }
+
+    QLabel* createLabel(QWidget* parent, QFont& fontIn, QString val, At p, bool header = false) {
+        QFontMetrics headerMetrics(fontIn);
+        int w = headerMetrics.horizontalAdvance(val);
+        int h = headerMetrics.height();
+        return createLabel(parent, fontIn, val, p, { w, h }, header);
+    }
+
+    void createBlockHeader(QWidget* parent, QFont& fontIn, int blockX, int y, int width, const QString& str) {
+        QFontMetrics headerMetrics(fontIn);
+        int w = headerMetrics.horizontalAdvance(str);
+        int h = headerMetrics.ascent();
+        int x = (width - w) / 2 + blockX;
+        createLabel(parent, fontIn, str, { x, y }, { w, h }); // NOLINT
+#if !defined(unix)
+        createLabel(parent, fontIn, str, { x - 1, y }, { w, h }); // NOLINT
+#endif
+    }
+
     ClickableLabel* createImage(QWidget* parent, At p, Size s, const QString imageName, bool selectable = false) {
         ClickableLabel* label = createImage(parent, p, s);
         QPixmap pixmap(imageName);
@@ -320,7 +345,7 @@ private:
         tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         QFontMetrics metrics(fontIn);
         int pnt = fontIn.pointSize();
-        int sz = metrics.lineSpacing();
+        int sz = metrics.height();
 #ifdef __wasm__
         QFont temp = fontIn;
         temp.setPointSize(pnt * 8 + 0.5); // NOLINT
@@ -435,113 +460,6 @@ private:
             tableHeaders.append({ col, hdr.trimmed() });
         }
         return createTableWidget(parent, fontIn, tableHeaders, vals, p, s, w, selectable, label);
-#ifdef NOTDEF
-        ClickableTable* tablewidget = new ClickableTable(parent);
-        tablewidget->setWordWrap(true);
-        tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-        tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        int pnt = fontIn.pointSize();
-        int sz = metrics.lineSpacing();
-#ifdef __wasm__
-        QFont temp = fontIn;
-        temp.setPointSize(pnt * 8 + 0.5); // NOLINT
-        tablewidget->setFont(temp);
-#else
-        tablewidget->setFont(fontIn);
-#endif
-        auto verticalHeader = tablewidget->verticalHeader();
-        verticalHeader->setVisible(false);
-        verticalHeader->setMinimumSectionSize(sz);
-        verticalHeader->setMaximumSectionSize(selectable ? s.l() : sz);
-        verticalHeader->setDefaultSectionSize(sz);
-        verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
-        auto horizontalHeader = tablewidget->horizontalHeader();
-        horizontalHeader->setStretchLastSection(true);
-        horizontalHeader->setMaximumSectionSize(s.l());
-        horizontalHeader->setDefaultSectionSize(10); // NOLINT
-        horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
-        horizontalHeader->setMaximumSize(s.l(), sz);
-        tablewidget->setSelectionMode(selectable ? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
-        tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        QString family = font.family();
-        if (selectable)
-            tablewidget->setStyleSheet("QTableWidget { selection-color: black;"
-                                                   "   selection-background-color: darkcyan;"
-                                                   "   gridline-color: cyan;"
-                                                   "   background-color: cyan;"
-                                                   "   border: 1px cyan;"
-                                                   "   border-style: none;"
-                                         + QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
-                                                   "   color: black;"
-                                                   " } "
-                                       "QHeaderView::section { background-color: white;"
-                                                           "   border-style: none;"
-                                                           "   color: black;" +
-                                                   QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
-                                                           " } "
-                                       "QTableWidget::item:selected { background: darkcyan; "
-                                                                  "   color: black; "
-                                                                  "   border: 1px darkcyan; "
-                                                                  "   border-style: none; "
-                                       "} "
-                                       "QToolTip { border: 1px solid #555555;"
-                                       "           padding: 3px;"
-                                       "           background-color: #333333;"
-                                       "           color: #ffffff;"
-                                       "}");
-        else
-            tablewidget->setStyleSheet("QTableWidget { selection-color: transparent;"
-                                                   "   selection-background-color: transparent;"
-                                                   "   gridline-color: transparent;"
-                                                   "   border: 1px transparent;;"
-                                                   "   border-style: none;"
-                                                   "   background-color: transparent;"
-                                                   "   color: black;" +
-                                           QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
-                                                   " } "
-                                       "QHeaderView::section { background-color: white;"
-                                                           "   border-style: none;"
-                                                           "   color: black;" +
-                                                   QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
-                                                           " }"
-                                       "QToolTip { border: 1px solid #555555;"
-                                       "           padding: 3px;"
-                                       "           background-color: #333333;"
-                                       "           color: #ffffff;"
-                                       "}");
-        tablewidget->setColumnCount(int(headers.size()));
-        tablewidget->setRowCount(int(vals.size()));
-        tablewidget->setHorizontalHeaderLabels(headers);
-        int i = 0;
-        for (i = 0; i < vals.size(); ++i) {
-            for (int j = 0; j < vals[i].size(); ++j) {
-                    QTableWidgetItem* lbl = new QTableWidgetItem(vals[i][j]);
-                    lbl->setFont(font);
-                    lbl->setBackground(QBrush(Qt::transparent));
-                    lbl->setForeground(Qt::black);
-                    lbl->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
-                    if (selectable) lbl->setFlags(Qt::ItemIsSelectable);
-                    else lbl->setFlags(Qt::NoItemFlags);
-                    tablewidget->setItem(i, j, lbl);
-            }
-        }
-        tablewidget->setToolTip(w);
-        moveTo(tablewidget, p, s);
-        for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
-#ifdef __wasm__
-        for (i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
-#else
-        int total = 0;
-        for (i = 1; i < tablewidget->columnCount(); ++i) {
-            tablewidget->resizeColumnToContents(i - 1);
-            total += tablewidget->columnWidth(i - 1);
-        }
-        tablewidget->setColumnWidth(int(headers.size()) - 1, s.l() - total);
-#endif
-        widgets.append(tablewidget);
-
-        return tablewidget;
-#endif
     }
 
     QTextEdit* createTextEdit(QWidget* parent, QFont& fontIn, QString val, At p, Size s) {
@@ -769,23 +687,25 @@ public:
     Sheet_UI& operator=(const Sheet_UI&) = default;
     Sheet_UI& operator=(Sheet_UI&&) = default;
 
-    static constexpr int StandardFontSize = 11;
     static constexpr int TinyFontSize = 10;
 #if defined(Q_OS_ANDROID)
+    static constexpr int StandardFontSize   = 11;
     static constexpr int SmallFontPointSize = 8;
-    static constexpr int LargeBoldFontSize = 16;
-    static constexpr int HeaderFontSize    = 14;
-    static constexpr int TableFontSize     = 12;
+    static constexpr int LargeBoldFontSize  = 16;
+    static constexpr int HeaderFontSize     = 14;
+    static constexpr int TableFontSize      = 13;
 #elif defined(unix)
+    static constexpr int StandardFontSize   = 11;
     static constexpr int SmallFontPointSize = 7;
-    static constexpr int LargeBoldFontSize = 16;
-    static constexpr int HeaderFontSize    = 14;
-    static constexpr int TableFontSize     = StandardFontSize;
+    static constexpr int LargeBoldFontSize  = 16;
+    static constexpr int HeaderFontSize     = 14;
+    static constexpr int TableFontSize      = StandardFontSize;
 #else
+    static constexpr int StandardFontSize   = 11;
     static constexpr int SmallFontPointSize = 8;
-    static constexpr int LargeBoldFontSize = 15;
-    static constexpr int HeaderFontSize    = 14;
-    static constexpr int TableFontSize     = StandardFontSize;
+    static constexpr int LargeBoldFontSize  = 15;
+    static constexpr int HeaderFontSize     = 14;
+    static constexpr int TableFontSize      = StandardFontSize;
 #endif
 
     void setupUi(QWidget* widget, QWidget* hidden) {
@@ -818,20 +738,6 @@ public:
         QFont largeNarrowFont = largeFont;
         largeNarrowFont.setStretch(QFont::Stretch::SemiCondensed);
 
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        headerFont = largeBoldFont;
-        headerFont.setPointSize(HeaderFontSize);
-        headerFont.setStretch(QFont::Stretch::SemiCondensed);
-#elif defined(Q_OS_ANDROID)
-        headerFont = largeBoldFont;
-        headerFont.setPointSize(HeaderFontSize);
-        headerFont.setStretch(QFont::Stretch::SemiCondensed);
-#else
-        headerFont = largeBoldFont;
-        headerFont.setPointSize(HeaderFontSize);
-        headerFont.setStretch(QFont::Stretch::SemiCondensed);
-#endif
-
         QFont tableFont = font;
         tableFont.setPointSize(TableFontSize);
         tableFont.setStretch(QFont::Stretch::SemiCondensed);
@@ -845,6 +751,7 @@ public:
         smallfont = font;
         smallfont.setPointSize(SmallFontPointSize);
         smallfont.setStretch(QFont::Stretch::SemiCondensed);
+        QFontMetrics smallFontMetrics(smallfont);
 
         QFont smallBoldFont = smallfont;
         smallBoldFont.setPointSize(StandardFontSize);
@@ -861,6 +768,14 @@ public:
         smallBoldWideFont.setPointSize(SmallFontPointSize);
         smallBoldWideFont.setStretch(QFont::Stretch::Expanded);
 
+#if defined(unix) && !defined(Q_OS_ANDROID)
+        headerFont = smallBoldWideFont;
+#else
+        headerFont = largeBoldFont;
+        headerFont.setPointSize(HeaderFontSize);
+        headerFont.setStretch(QFont::Stretch::SemiCondensed);
+#endif
+
         QFont tinyFont = smallfont;
         tinyFont.setPointSize(TinyFontSize);
         tinyFont.setStretch(QFont::Stretch::ExtraCondensed);
@@ -868,9 +783,9 @@ public:
         QFont tinyBoldFont = tinyFont;
         tinyBoldFont.setBold(true);
 
-        createLabel(widget, largeNarrowBoldFont, "Character Name",       { 61, 76 },  { 175, 27 }); // NOLINT
-        createLabel(widget, largeNarrowFont,     "Alternate Identities", { 61, 105 }, { 175, 27 }); // NOLINT
-        createLabel(widget, largeNarrowFont,     "Player Name",          { 61, 135 }, { 175, 27 }); // NOLINT
+        createLabel(widget, largeNarrowBoldFont, "Character Name",       { 61, 76 }); // NOLINT
+        createLabel(widget, largeNarrowFont,     "Alternate Identities", { 61, 105 }); // NOLINT
+        createLabel(widget, largeNarrowFont,     "Player Name",          { 61, 135 }); // NOLINT
 
         charactername = createLineEdit(widget, largeBoldFont, { 190,  75 }, { 438, 27 }, "Characters superhero name"); // NOLINT
 #if (defined(__wasm__) || defined(unix)) && !defined(Q_OS_ANDROID)
@@ -889,37 +804,28 @@ public:
         QFontMetrics headerMetrics(headerFont);
 #endif
 
-        int w = headerMetrics.horizontalAdvance("CHARACTERISTICS");
-        int x = (295 - w) / 2 + 72;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "CHARACTERISTICS", { x, 197 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "CHARACTERISTICS", { x, 195 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "CHARACTERISTICS", { x, 195 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "CHARACTERISTICS", { x - 1, 195 }, { w, 20 }); // NOLINT
-#endif
-        createLabel(widget, smallBoldFont, "Val",    { 91, 223 },  { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "Char",   { 139, 223 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "Points", { 199, 223 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "Roll",   { 267, 223 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "STR",  { 139, 247 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "DEX",  { 139, 272 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "CON",  { 139, 296 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "INT",  { 139, 321 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "EGO",  { 139, 345 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "PRE",  { 139, 370 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "OCV",  { 139, 401 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "DCV",  { 139, 426 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "OMCV", { 139, 451 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "DMCV", { 139, 476 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "SPD",  { 139, 501 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "PD",   { 139, 531 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "ED",   { 139, 556 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "REC",  { 139, 581 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "END",  { 139, 606 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "BODY", { 139, 631 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "STUN", { 139, 656 }, { 100, 22 }); // NOLINT
+        createBlockHeader(widget, headerFont, 72, 197, 295, "CHARACTERISTICS");
+        createLabel(widget, smallBoldFont, "Val",    { 91,  223 }); // NOLINT
+        createLabel(widget, smallBoldFont, "Char",   { 139, 223 }); // NOLINT
+        createLabel(widget, smallBoldFont, "Points", { 199, 223 }); // NOLINT
+        createLabel(widget, smallBoldFont, "Roll",   { 267, 223 }); // NOLINT
+        createLabel(widget, smallBoldFont, "STR",    { 139, 247 }); // NOLINT
+        createLabel(widget, smallBoldFont, "DEX",    { 139, 272 }); // NOLINT
+        createLabel(widget, smallBoldFont, "CON",    { 139, 296 }); // NOLINT
+        createLabel(widget, smallBoldFont, "INT",    { 139, 321 }); // NOLINT
+        createLabel(widget, smallBoldFont, "EGO",    { 139, 345 }); // NOLINT
+        createLabel(widget, smallBoldFont, "PRE",    { 139, 370 }); // NOLINT
+        createLabel(widget, smallBoldFont, "OCV",    { 139, 401 }); // NOLINT
+        createLabel(widget, smallBoldFont, "DCV",    { 139, 426 }); // NOLINT
+        createLabel(widget, smallBoldFont, "OMCV",   { 139, 451 }); // NOLINT
+        createLabel(widget, smallBoldFont, "DMCV",   { 139, 476 }); // NOLINT
+        createLabel(widget, smallBoldFont, "SPD",    { 139, 501 }); // NOLINT
+        createLabel(widget, smallBoldFont, "PD",     { 139, 531 }); // NOLINT
+        createLabel(widget, smallBoldFont, "ED",     { 139, 556 }); // NOLINT
+        createLabel(widget, smallBoldFont, "REC",    { 139, 581 }); // NOLINT
+        createLabel(widget, smallBoldFont, "END",    { 139, 606 }); // NOLINT
+        createLabel(widget, smallBoldFont, "BODY",   { 139, 631 }); // NOLINT
+        createLabel(widget, smallBoldFont, "STUN",   { 139, 656 }); // NOLINT
 
         strval     = createNumEdit(widget, font, "10", { 79, 248 }, { 45, 20 }, "Strength: 1 point"); // NOLINT
         dexval     = createNumEdit(widget, font, "10", { 79, 273 }, { 45, 20 }, "Dexterity: 2 points"); // NOLINT
@@ -938,48 +844,39 @@ public:
         endval     = createNumEdit(widget, font, "20", { 79, 607 }, { 45, 20 }, "Endurance: 1 point gets 5 points of END"); // NOLINT
         bodyval    = createNumEdit(widget, font, "10", { 79, 632 }, { 45, 20 }, "Body: 1 point"); // NOLINT
         stunval    = createNumEdit(widget, font, "20", { 79, 657 }, { 45, 20 }, "Stun: 1 point gets 2 points of STUN"); // NOLINT
-        strpoints  = createLabel(widget, font,   "0", { 199, 248 }, 20); // NOLINT
-        dexpoints  = createLabel(widget, font,   "0", { 199, 273 }, 20); // NOLINT
-        conpoints  = createLabel(widget, font,   "0", { 199, 297 }, 20); // NOLINT
-        intpoints  = createLabel(widget, font,   "0", { 199, 322 }, 20); // NOLINT
-        egopoints  = createLabel(widget, font,   "0", { 199, 346 }, 20); // NOLINT
-        prepoints  = createLabel(widget, font,   "0", { 199, 371 }, 20); // NOLINT
-        ocvpoints  = createLabel(widget, font,   "0", { 199, 402 }, 20); // NOLINT
-        dcvpoints  = createLabel(widget, font,   "0", { 199, 427 }, 20); // NOLINT
-        omcvpoints = createLabel(widget, font,   "0", { 199, 452 }, 20); // NOLINT
-        dmcvpoints = createLabel(widget, font,   "0", { 199, 477 }, 20); // NOLINT
-        spdpoints  = createLabel(widget, font,   "0", { 199, 502 }, 20); // NOLINT
-        pdpoints   = createLabel(widget, font,   "0", { 199, 532 }, 20); // NOLINT
-        edpoints   = createLabel(widget, font,   "0", { 199, 557 }, 20); // NOLINT
-        recpoints  = createLabel(widget, font,   "0", { 199, 582 }, 20); // NOLINT
-        endpoints  = createLabel(widget, font,   "0", { 199, 607 }, 20); // NOLINT
-        bodypoints = createLabel(widget, font,   "0", { 199, 632 }, 20); // NOLINT
-        stunpoints = createLabel(widget, font,   "0", { 199, 657 }, 20); // NOLINT
-        strroll    = createLabel(widget, font, "11-", { 269, 248 }, { 75, 20 }); // NOLINT
-        dexroll    = createLabel(widget, font, "11-", { 269, 273 }, { 75, 20 }); // NOLINT
-        conroll    = createLabel(widget, font, "11-", { 269, 297 }, { 75, 20 }); // NOLINT
-        introll    = createLabel(widget, font, "11-", { 269, 322 }, { 75, 20 }); // NOLINT
-        egoroll    = createLabel(widget, font, "11-", { 269, 347 }, { 75, 20 }); // NOLINT
-        preroll    = createLabel(widget, font, "11-", { 269, 372 }, { 75, 20 }); // NOLINT
+        strpoints  = createLabel(widget, font,   "0", { 199, 248 }, "000"); // NOLINT
+        dexpoints  = createLabel(widget, font,   "0", { 199, 273 }, "000"); // NOLINT
+        conpoints  = createLabel(widget, font,   "0", { 199, 297 }, "000"); // NOLINT
+        intpoints  = createLabel(widget, font,   "0", { 199, 322 }, "000"); // NOLINT
+        egopoints  = createLabel(widget, font,   "0", { 199, 346 }, "000"); // NOLINT
+        prepoints  = createLabel(widget, font,   "0", { 199, 371 }, "000"); // NOLINT
+        ocvpoints  = createLabel(widget, font,   "0", { 199, 402 }, "000"); // NOLINT
+        dcvpoints  = createLabel(widget, font,   "0", { 199, 427 }, "000"); // NOLINT
+        omcvpoints = createLabel(widget, font,   "0", { 199, 452 }, "000"); // NOLINT
+        dmcvpoints = createLabel(widget, font,   "0", { 199, 477 }, "000"); // NOLINT
+        spdpoints  = createLabel(widget, font,   "0", { 199, 502 }, "000"); // NOLINT
+        pdpoints   = createLabel(widget, font,   "0", { 199, 532 }, "000"); // NOLINT
+        edpoints   = createLabel(widget, font,   "0", { 199, 557 }, "000"); // NOLINT
+        recpoints  = createLabel(widget, font,   "0", { 199, 582 }, "000"); // NOLINT
+        endpoints  = createLabel(widget, font,   "0", { 199, 607 }, "0000"); // NOLINT
+        bodypoints = createLabel(widget, font,   "0", { 199, 632 }, "000"); // NOLINT
+        stunpoints = createLabel(widget, font,   "0", { 199, 657 }, "0000"); // NOLINT
+        strroll    = createLabel(widget, font, "11-", { 269, 248 }, "00-/00-"); // NOLINT
+        dexroll    = createLabel(widget, font, "11-", { 269, 273 }, "00-/00-"); // NOLINT
+        conroll    = createLabel(widget, font, "11-", { 269, 297 }, "00-/00-"); // NOLINT
+        introll    = createLabel(widget, font, "11-", { 269, 322 }, "00-/00-"); // NOLINT
+        egoroll    = createLabel(widget, font, "11-", { 269, 347 }, "00-/00-"); // NOLINT
+        preroll    = createLabel(widget, font, "11-", { 269, 372 }, "00-/00-"); // NOLINT
 
-        createLabel(widget, smallBoldFont, "Total Cost", { 276, 631 }, { 75, 22 }); // NOLINT
-        totalcost  = createLabel(widget, font,   "0", { 276, 657 }, { 75, 20 }); // NOLINT
+        createLabel(widget, smallBoldFont, "Total Cost", { 276, 631 }); // NOLINT
+        totalcost  = createLabel(widget, font,   "0", { 276, 657 }, "0000"); // NOLINT
 
-        w = headerMetrics.horizontalAdvance("CURRENT STATUS");
-        x = (243 - w) / 2 + 394;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "CURRENT STATUS", { x, 197 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "CURRENT STATUS", { x, 195 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "CURRENT STATUS", { x, 195 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "CURRENT STATUS", { x - 1, 195 }, { w, 20 }); // NOLINT
-#endif
-        createLabel(widget, smallBoldFont, "Maximum", { 454, 222 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "Current", { 542, 222 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "END",  { 394, 245 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "BODY", { 394, 270 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldFont, "STUN", { 394, 294 }, { 100, 22 }); // NOLINT
+        createBlockHeader(widget, headerFont, 394, 197, 243, "CURRENT STATUS");
+        createLabel(widget, smallBoldFont, "Maximum", { 454, 222 }); // NOLINT
+        createLabel(widget, smallBoldFont, "Current", { 542, 222 }); // NOLINT
+        createLabel(widget, smallBoldFont, "END",  { 394, 245 }); // NOLINT
+        createLabel(widget, smallBoldFont, "BODY", { 394, 270 }); // NOLINT
+        createLabel(widget, smallBoldFont, "STUN", { 394, 294 }); // NOLINT
 
         QString style = "QLineEdit { background: palegreen;"
                                  "   color: #000;"
@@ -991,87 +888,69 @@ public:
                         "           color: #ffffff;"
                         "}";
 
-        maximumend  = createLabel(widget, font, "20", { 454, 247 }, 20); // NOLINT
-        maximumbody = createLabel(widget, font, "10", { 454, 272 }, 20); // NOLINT
-        maximumstun = createLabel(widget, font, "20", { 454, 296 }, 20); // NOLINT
+        maximumend  = createLabel(widget, font, "20", { 454, 247 }, "0000"); // NOLINT
+        maximumbody = createLabel(widget, font, "10", { 454, 272 }, "000"); // NOLINT
+        maximumstun = createLabel(widget, font, "20", { 454, 296 }, "0000"); // NOLINT
         currentend  = createLineEdit(widget, font, style, "20", { 542, 247 }, { 97, 20 }, "You can keep track of your current END here"); // NOLINT
         currentbody = createLineEdit(widget, font, style, "10", { 542, 272 }, { 97, 20 }, "You can keep track of your current BODY here"); // NOLINT
         currentstun = createLineEdit(widget, font, style, "20", { 542, 296 }, { 97, 20 }, "You can keep track of your current STUN here"); // NOLINT
 
-        w = headerMetrics.horizontalAdvance("VITAL INFORMATION");
-        x = (243 - w) / 2 + 394;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "VITAL INFORMATION", { x, w }, { 155, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "VITAL INFORMATION", { x, 346 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "VITAL INFORMATION", { x, 346 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "VITAL INFORMATION", { x - 1, 346 }, { w, 20 }); // NOLINT
-#endif
-        createLabel(widget, smallBoldNarrowFont, "HTH Damage",      { 397, 375 }, { 100, 22 }); // NOLINT
+        createBlockHeader(widget, headerFont, 394, 348, 243, "VITAL INFORMATION");
+        createLabel(widget, smallBoldNarrowFont, "HTH Damage",      { 397, 375 }); // NOLINT
 #ifdef __wasm__
-        createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 486, 375 }, { 65, 22 }); // NOLINT
+        createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 486, 375 }); // NOLINT
 #else
-        createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 496, 375 }, { 65, 22 }); // NOLINT
+        createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 496, 375 }); // NOLINT
 #endif
-        createLabel(widget, smallNarrowFont,     "Lift",            { 397, 399 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallNarrowFont,     "STR END Cost",    { 510, 399 }, { 85, 22 }); // NOLINT
-        createLabel(widget, font,                "1",               { 451, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, font,                "2",               { 464, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, font,                "3",               { 478, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, font,                "4",               { 492, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, font,                "5",               { 506, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, font,                "6",               { 520, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, font,                "7",               { 533, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, font,                "8",               { 547, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, font,                "9",               { 561, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, font,               "10",               { 575, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, font,               "11",               { 597, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, font,               "12",               { 619, 425 }, { 20, 20}); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Phases",          { 397, 442 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Base OCV",        { 395, 469 }, { 75, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Base DCV",        { 515, 469 }, { 75, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Base OMCV",       { 395, 494 }, { 80, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Base DMCV",       { 515, 494 }, { 80, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Presence Attack", { 395, 661 }, { 150, 22 }); // NOLINT
+        createLabel(widget, smallNarrowFont,     "Lift",            { 397, 399 }); // NOLINT
+        createLabel(widget, smallNarrowFont,     "STR END Cost",    { 510, 399 }); // NOLINT
+        createLabel(widget, font,                "1",               { 451, 425 }); // NOLINT
+        createLabel(widget, font,                "2",               { 464, 425 }); // NOLINT
+        createLabel(widget, font,                "3",               { 478, 425 }); // NOLINT
+        createLabel(widget, font,                "4",               { 492, 425 }); // NOLINT
+        createLabel(widget, font,                "5",               { 506, 425 }); // NOLINT
+        createLabel(widget, font,                "6",               { 520, 425 }); // NOLINT
+        createLabel(widget, font,                "7",               { 533, 425 }); // NOLINT
+        createLabel(widget, font,                "8",               { 547, 425 }); // NOLINT
+        createLabel(widget, font,                "9",               { 561, 425 }); // NOLINT
+        createLabel(widget, font,               "10",               { 575, 425 }); // NOLINT
+        createLabel(widget, font,               "11",               { 597, 425 }); // NOLINT
+        createLabel(widget, font,               "12",               { 619, 425 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Phases",          { 397, 442 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Base OCV",        { 395, 469 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Base DCV",        { 515, 469 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Base OMCV",       { 395, 494 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Base DMCV",       { 515, 494 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Presence Attack", { 395, 661 }); // NOLINT
 #ifdef __wasm__
-        createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 500, 661 }, { 65, 22 }); // NOLINT
+        createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 500, 661 }); // NOLINT
 #else
-        createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 510, 661 }, { 55, 22 }); // NOLINT
+        createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 510, 661 }); // NOLINT
 #endif
 
-        hthdamage         = createLabel(widget, font,   "2d6", { 551, 376 }, { 70, 20 }); // NOLINT
-        lift              = createLabel(widget, font, "100kg", { 420, 401 }, { 75, 20 }); // NOLINT
-        strendcost        = createLabel(widget, font,     "1", { 603, 401 }, { 45, 20}); // NOLINT
-        phases.append(      createLabel(widget, font,      "", { 451, 444 }, { 20, 20})); // NOLINT
-        phases.append(      createLabel(widget, font,      "", { 464, 444 }, { 20, 20})); // NOLINT
-        phases.append(      createLabel(widget, font,      "", { 478, 444 }, { 20, 20})); // NOLINT
-        phases.append(      createLabel(widget, font,      "", { 492, 444 }, { 20, 20})); // NOLINT
-        phases.append(      createLabel(widget, font,      "", { 506, 444 }, { 20, 20})); // NOLINT
-        phases.append(      createLabel(widget, font,     "X", { 520, 444 }, { 20, 20})); // NOLINT
-        phases.append(      createLabel(widget, font,      "", { 533, 444 }, { 20, 20})); // NOLINT
-        phases.append(      createLabel(widget, font,      "", { 547, 444 }, { 20, 20})); // NOLINT
-        phases.append(      createLabel(widget, font,      "", { 561, 444 }, { 20, 20})); // NOLINT
-        phases.append(      createLabel(widget, font,      "", { 580, 444 }, { 20, 20})); // NOLINT
-        phases.append(      createLabel(widget, font,      "", { 602, 444 }, { 20, 20})); // NOLINT
-        phases.append(      createLabel(widget, font,     "X", { 624, 444 }, { 20, 20})); // NOLINT
-        baseocv           = createLabel(widget, font,     "3", { 469, 471 }, { 35, 20}); // NOLINT
-        basedcv           = createLabel(widget, font,     "3", { 589, 471 }, { 35, 20}); // NOLINT
-        baseomcv          = createLabel(widget, font,     "3", { 483, 496 }, { 35, 20}); // NOLINT
-        basedmcv          = createLabel(widget, font,     "3", { 603, 496 }, { 35, 20}); // NOLINT
+        hthdamage         = createLabel(widget, font,   "2d6", { 551, 376 }, "00d6+0"); // NOLINT
+        lift              = createLabel(widget, font, "100kg", { 420, 401 }, "00000000"); // NOLINT
+        strendcost        = createLabel(widget, font,     "1", { 603, 401 }, "00"); // NOLINT
+        phases.append(      createLabel(widget, font,      "", { 451, 444 }, "X")); // NOLINT
+        phases.append(      createLabel(widget, font,      "", { 464, 444 }, "X")); // NOLINT
+        phases.append(      createLabel(widget, font,      "", { 478, 444 }, "X")); // NOLINT
+        phases.append(      createLabel(widget, font,      "", { 492, 444 }, "X")); // NOLINT
+        phases.append(      createLabel(widget, font,      "", { 506, 444 }, "X")); // NOLINT
+        phases.append(      createLabel(widget, font,     "X", { 520, 444 }, "X")); // NOLINT
+        phases.append(      createLabel(widget, font,      "", { 533, 444 }, "X")); // NOLINT
+        phases.append(      createLabel(widget, font,      "", { 547, 444 }, "X")); // NOLINT
+        phases.append(      createLabel(widget, font,      "", { 561, 444 }, "X")); // NOLINT
+        phases.append(      createLabel(widget, font,      "", { 580, 444 }, "X")); // NOLINT
+        phases.append(      createLabel(widget, font,      "", { 602, 444 }, "X")); // NOLINT
+        phases.append(      createLabel(widget, font,     "X", { 624, 444 }, "X")); // NOLINT
+        baseocv           = createLabel(widget, font,     "3", { 469, 471 }, "00"); // NOLINT
+        basedcv           = createLabel(widget, font,     "3", { 589, 471 }, "00"); // NOLINT
+        baseomcv          = createLabel(widget, font,     "3", { 483, 496 }, "00"); // NOLINT
+        basedmcv          = createLabel(widget, font,     "3", { 603, 496 }, "00"); // NOLINT
         combatskilllevels = createTextEdit(widget, narrow, "<b>Combat Skill Levels</b> ", { 392, 520 }, { 244, 145 }); // NOLINT
-        presenceattack    = createLabel(widget, font,   "2d6", { 573, 663 }, { 70, 20 }); // NOLINT
+        presenceattack    = createLabel(widget, font,   "2d6", { 573, 663 }, "00s6+0"); // NOLINT
 
-        w = headerMetrics.horizontalAdvance("MOVEMENT");
-        x = (251 - w) / 2 + 679;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "MOVEMENT", { x, 197 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "MOVEMENT", { x, 195 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "MOVEMENT", { x, 195 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "MOVEMENT", { x - 1, 195 }, { w, 20 }); // NOLINT
-#endif
+        createBlockHeader(widget, headerFont, 679, 198, 251, "MOVEMENT");
         createLabel(widget, smallNarrowFont, "Movement SFX", { 678, 420 }, { 100, 22 }); // NOLINT
 
         movement    = createTableWidget(widget, narrowTableFont,
@@ -1082,16 +961,7 @@ public:
                                           { "V. Leap (2m)", "2m",            "4m" } }, { 675, 225 }, { 260, 195 }); // NOLINT
         movementsfx = createLabel(widget, font, "", { 775, 423 }, 20); // NOLINT
 
-        w = headerMetrics.horizontalAdvance("RANGE MODIFIERS");
-        x = (243 - w) / 2 + 679;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "RANGE MODIFIERS", { x, 475 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "RANGE MODIFIERS", { x, 473 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "RANGE MODIFIERS", { x, 473 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "RANGE MODIFIERS", { x - 1, 473 }, { w, 20 }); // NOLINT
-#endif
+        createBlockHeader(widget, headerFont, 679, 475, 243, "RANGE MODIFIERS");
         createLabel(widget, tinyBoldFont, "Range(m)", { 678, 502 }, { 52, 20 }); // NOLINT
         createLabel(widget, tinyFont,     "0-8",      { 737, 502 }, { 40, 20 }); // NOLINT
         createLabel(widget, tinyFont,     "9-16",     { 760, 502 }, { 40, 20 }); // NOLINT
@@ -1112,17 +982,8 @@ public:
         imageMenu = createMenu(image, font, { { "New Image",   &newImage   },
                                               { "Clear Image", &clearImage } } );
 
-        w = headerMetrics.horizontalAdvance("ATTACKS & MANEUVERS");
-        x = (295 - w) / 2 + 72;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "ATTACKS & MANEUVERS", { x, 714 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "ATTACKS & MANEUVERS", { x, 711 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "ATTACKS & MANEUVERS", { x, 711 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "ATTACKS & MANEUVERS", { x - 1, 711 }, { w, 20 }); // NOLINT
-#endif
-        attacksandmaneuvers = createTableWidget(widget, smallfont,
+        createBlockHeader(widget, headerFont, 72, 714, 295, "ATTACKS & MANEUVERS");
+        attacksandmaneuvers = createTableWidget(widget, narrowTableFont,
                                                 { { 65, "Maneuver" }, { 34, "Phase" }, { 28, "OCV" }, { 26, "DCV" }, { 135, "Effects" } },
                                                 { { "Block",            "½",             "+0",          "+0",          "Block, abort"              },
                                                   { "Brace",            "0",             "+2",          "½",           "+2 OCV vs R Mod"           },
@@ -1146,17 +1007,7 @@ public:
                                                   { "Trip",             "½",             "-1",          "-2",          "Knock target prone"        }
                                                 }, { 69, 739 }, { 295, 495 }); // NOLINT
 
-        w = headerMetrics.horizontalAdvance("DEFENSES");
-        x = (243 - w) / 2 + 394;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "DEFENSES", { x, 714 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "DEFENSES", { x, 711 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "DEFENSES", { x, 711 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "DEFENSES", { x - 1, 711 }, { w, 20 }); // NOLINT
-#endif
-
+        createBlockHeader(widget, headerFont, 394, 714, 243, "DEFENSES");
         defenses = createTableWidget(widget, narrowTableFont,
                                      { { 108, "Type" },   { 142, "Amount/Effect" } },
                                      { { "Normal PD",      "2" },
@@ -1167,56 +1018,29 @@ public:
                                        { "Power Defense",  "0" },
                                        { "Flash Defense",  "0" } }, { 392, 739 }, { 249, 270 }); // NOLINT
 
-        w = headerMetrics.horizontalAdvance("SENSES");
-        x = (243 - w) / 2 + 394;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "SENSES", { x, 1039 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "SENSES", { x, 1037 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "SENSES", { x, 1037 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "SENSES", { x - 1, 1037 }, { w, 20 }); // NOLINT
-#endif
-        createLabel(widget, smallBoldNarrowFont, "Perception Roll", { 395, 1065 }, { 105, 20 }); // NOLINT
-        createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 496, 1065 }, {  60, 20 }); // NOLINT
-        perceptionroll = createLabel(widget, font, "11-", { 569, 1066 }, { 50, 20 }); // NOLINT
+        createBlockHeader(widget, headerFont, 394, 1040, 243, "SENSES");
+        createLabel(widget, smallBoldNarrowFont, "Perception Roll", { 395, 1065 }, "-00"); // NOLINT
+        createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 496, 1065 }, "00"); // NOLINT
+        perceptionroll = createLabel(widget, font, "11-", { 569, 1066 }, "-00"); // NOLINT
         enhancedandunusualsenses = createTextEdit(widget, font, "<b>Enhanced and Unusual Senses</b>", { 390, 1083 }, { 249, 150 }); // NOLINT
 
-        w = headerMetrics.horizontalAdvance("EXPERIENCE POINTS");
-        x = (243 - w) / 2 + 679;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "EXPERIENCE POINTS", { x, 1107 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "EXPERIENCE POINTS", { x, 1105 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "EXPERIENCE POINTS", { x, 1105 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "EXPERIENCE POINTS", { x - 1, 1105 }, { w, 20 }); // NOLINT
-#endif
-        createLabel(widget, smallBoldNarrowFont, "Total Points",            { 675, 1133 }, { 170, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Total Experience Earned", { 675, 1156 }, { 170, 22 }); // NOLINT
-        createLabel(widget, smallNarrowFont,     "Experience Spent",        { 675, 1181 }, { 170, 22 }); // NOLINT
-        createLabel(widget, smallNarrowFont,     "Experience Unspent",      { 675, 1206 }, { 170, 22 }); // NOLINT
+        createBlockHeader(widget, headerFont, 679, 1108, 243, "EXPERIENCE POINTS");
+        createLabel(widget, smallBoldNarrowFont, "Total Points",            { 675, 1133 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Total Experience Earned", { 675, 1156 }); // NOLINT
+        createLabel(widget, smallNarrowFont,     "Experience Spent",        { 675, 1181 }); // NOLINT
+        createLabel(widget, smallNarrowFont,     "Experience Unspent",      { 675, 1206 }); // NOLINT
 
-        totalpoints           = createLabel(widget, font, "0/325", { 855, 1135 }, { 80, 20 }); // NOLINT
+        totalpoints           = createLabel(widget, font, "0/325", { 855, 1135 }, "0000"); // NOLINT
         totalexperienceearned = createLineEdit(widget, font,  "0", { 853, 1158 }, { 80, 20 }, "How much experience your character has earned"); // NOLINT
-        experiencespent       = createLabel(widget, font,     "0", { 855, 1183 }, { 80, 20 }); // NOLINT
-        experienceunspent     = createLabel(widget, font,   "325", { 855, 1207 }, { 80, 20 }); // NOLINT
+        experiencespent       = createLabel(widget, font,     "0", { 855, 1183 }, "000"); // NOLINT
+        experienceunspent     = createLabel(widget, font,   "325", { 855, 1207 }, "0000"); // NOLINT
 
-        w = headerMetrics.horizontalAdvance("CHARACTER INFORMATION");
-        x = (259 - w) / 2 + 72;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "CHARACTER INFORMATION", { x, 1363 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "CHARACTER INFORMATION", { x, 1361 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "CHARACTER INFORMATION", { x, 1361 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "CHARACTER INFORMATION", { x - 1, 1361 }, { w, 20 }); // NOLINT
-#endif
-        createLabel(widget, smallBoldNarrowFont, "Character Name", {  66, 1388 }, { 150, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Height",         {  66, 1413 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Weight",         { 196, 1413 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Hair Color",     {  66, 1439 }, { 100, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Eye Color",      { 196, 1439 }, { 100, 22 }); // NOLINT
+        createBlockHeader(widget, headerFont, 72, 1363, 259, "CHARACTER INFORMATION");
+        createLabel(widget, smallBoldNarrowFont, "Character Name", {  66, 1388 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Height",         {  66, 1413 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Weight",         { 196, 1413 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Hair Color",     {  66, 1439 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Eye Color",      { 196, 1439 }); // NOLINT
 
         charactername2 = createLabel(widget, font, "", { 184, 1388 }, 20); // NOLINT
         height    = createLineEdit(widget, font,    "2m", { 124, 1414 }, { 72, 20 }, "Your characters height (certain powers may override)"); // NOLINT
@@ -1226,37 +1050,19 @@ public:
 
         banner2 = createImage(widget, { 360, 1376 } , { 293, 109 }, ":/gfx/HeroSystem-Banner.png", false); // NOLINT
 
-        w = headerMetrics.horizontalAdvance("CAMPAIGN INFORMATION");
-        x = (257 - w) / 2 + 678;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "CAMPAIGN INFORMATION", { x, 1363 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "CAMPAIGN INFORMATION", { x, 1361 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "CAMPAIGN INFORMATION", { x, 1361 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "CAMPAIGN INFORMATION", { x - 1, 1361 }, { w, 20 }); // NOLINT
-#endif
-        createLabel(widget, smallBoldNarrowFont, "Campaign Name", { 672, 1389 }, { 200, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Genre",         { 672, 1413 }, { 200, 22 }); // NOLINT
-        createLabel(widget, smallBoldNarrowFont, "Gamemaster",    { 672, 1439 }, { 200, 22 }); // NOLINT
+        createBlockHeader(widget, headerFont, 678, 1363, 257, "CAMPAIGN INFORMATION");
+        createLabel(widget, smallBoldNarrowFont, "Campaign Name", { 672, 1389 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Genre",         { 672, 1413 }); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Gamemaster",    { 672, 1439 }); // NOLINT
         campaignname = createLineEdit(widget, font, "", { 788, 1391 }, { 145, 20 }, "The campaign your character is playing in"); // NOLINT
         genre        = createLineEdit(widget, font, "", { 721, 1416 }, { 213, 20 }, "The kind of game (street level, superhero, galactic, etc)"); // NOLINT
         gamemaster   = createLineEdit(widget, font, "", { 764, 1441 }, { 170, 20 }, "Who is running the game for your character"); // NOLINT
 
-        w = headerMetrics.horizontalAdvance("SKILLS, PERKS, & TALENTS");
-        x = (259 - w) / 2 + 72;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "SKILLS, PERKS, & TALENTS", { x, 1497 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "SKILLS, PERKS, & TALENTS", { x, 1494 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "SKILLS, PERKS, & TALENTS", { x, 1494 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "SKILLS, PERKS, & TALENTS", { x - 1, 1494 }, { w, 20 }); // NOLINT
-#endif
-        createLabel(widget, smallBoldNarrowFont, "Total Skills,Perks, & Talents Cost", { 112, 2057 }, { 220, 22 }); // NOLINT
+        createBlockHeader(widget, headerFont, 72, 1496, 259, "SKILLS, PERKS, & TALENTS");
+        createLabel(widget, smallBoldNarrowFont, "Total Skills,Perks, & Talents Cost", { 112, 2057 }); // NOLINT
         skillstalentsandperks         = createTableWidget(widget, tableFont, { { 42, "Cost" }, { 179, "Name" }, { 38, "Roll" } },
                                                   { }, { 73, 1521 }, { 265, 535 }, "Things your character is skilled at or has a gift for", Selectable); // NOLINT
-        totalskillstalentsandperkscost = createLabel(widget, font, "0", { 73, 2058 }, { 40, 20 }); // NOLINT
+        totalskillstalentsandperkscost = createLabel(widget, font, "0", { 73, 2058 }, "000"); // NOLINT
         skillstalentsandperksMenu      = createMenu(skillstalentsandperks, font, { { "New",       &newSkillTalentOrPerk },
                                                                                    { "Edit",      &editSkillTalentOrPerk },
                                                                                    { "Delete",    &deleteSkillTalentOrPerk },
@@ -1268,20 +1074,11 @@ public:
                                                                                    { "Move Up",   &moveSkillTalentOrPerkUp },
                                                                                    { "Move Down", &moveSkillTalentOrPerkDown } } );
 
-        w = headerMetrics.horizontalAdvance("COMPLICATIONS");
-        x = (259 - w) / 2 + 72;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "COMPLICATIONS", { x, 2105 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "COMPLICATIONS", { x, 2102 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "COMPLICATIONS", { x, 2102 }, { w, 20 }); // NOLINT
-        createLabel(widget, headerFont, "COMPLICATIONS", { x - 1, 2102 }, { w, 20 }); // NOLINT
-#endif
-        createLabel(widget, smallBoldNarrowFont, "Total Complications Points", { 117, 2512 }, { 200, 22 }); // NOLINT
+        createBlockHeader(widget, headerFont, 72, 2104, 259, "COMPLICATIONS");
+        createLabel(widget, smallBoldNarrowFont, "Total Complications Points", { 117, 2512 }); // NOLINT
         complications        = createTableWidget(widget, tableFont, { { 41, "Pts" }, { 221, "Complication" } },
                                                  { }, { 73, 2130 }, { 265, 383 }, "The things that make life difficult for your character", Selectable); // NOLINT
-        totalcomplicationpts = createLabel(widget, font, "0/75", { 73, 2513 }, { 45, 20 }); // NOLINT
+        totalcomplicationpts = createLabel(widget, font, "0/75", { 73, 2513 }, "000/000"); // NOLINT
         complicationsMenu    = createMenu(complications, font, { { "New",       &newComplication },
                                                                  { "Edit",      &editComplication },
                                                                  { "Delete",    &deleteComplication },
@@ -1293,23 +1090,14 @@ public:
                                                                  { "Move Up",   &moveComplicationUp },
                                                                  { "Move Down", &moveComplicationDown } } );
 
-        w = headerMetrics.horizontalAdvance("POWERS AND EQUIPMENT");
-        x = (564 - w) / 2 + 369;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(widget, smallBoldWideFont, "POWERS AND EQUIPMENT", { x, 1497 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(widget, headerFont, "POWERS AND EQUIPMENT", { x, 1495 }, { w, 20 }); // NOLINT
-#else
-        createLabel(widget, headerFont, "POWERS AND EQUIPMENT", { x, 1495 }, { x, 20 }); // NOLINT
-        createLabel(widget, headerFont, "POWERS AND EQUIPMENT", { x - 1, 1495 }, { w, 20 }); // NOLINT
-#endif
-        createLabel(widget, smallBoldNarrowFont, "Total Powers/Equipment Cost", { 410, 2510 }, { 300, 22 }); // NOLINT
+        createBlockHeader(widget, headerFont, 369, 1498, 564, "POWERS AND EQUIPMENT");
+        createLabel(widget, smallBoldNarrowFont, "Total Powers/Equipment Cost", { 410, 2510 }); // NOLINT
 
         QFontMetrics metrics(tableFont);
         powersandequipment          = createTableWidget(widget, tableFont,
                                                         { { 43, "Cost" }, { 107, "Name" }, { 378, "Power/Equipment" }, { 42, "END" } },
                                                         { }, { 367, 1522 }, { 570, 991 }, "Special powers and equipment for your character", Selectable); // NOLINT
-        totalpowersandequipmentcost = createLabel(widget, font, "0", { 367, 2511 }, { 40, 20 }); // NOLINT
+        totalpowersandequipmentcost = createLabel(widget, font, "0", { 367, 2511 }, "0000"); // NOLINT
         powersandequipmentMenu      = createMenu(powersandequipment, font, { { "New",       &newPowerOrEquipment },
                                                                              { "Edit",      &editPowerOrEquipment },
                                                                              { "Delete",    &deletePowerOrEquipment },
@@ -1327,89 +1115,30 @@ public:
         layout = new QGridLayout();
         hidden->setLayout(layout);
 
-        w = headerMetrics.horizontalAdvance("KNOCKBACK MODIFIERS");
-        x = (249 - w) / 2 + 75;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(hidden, smallBoldWideFont, "KNOCKBACK MODIFIERS", { x, 85 }, { w, 17 });
-#elif defined(Q_OS_ANDROID)
-        createLabel(hidden, headerFont, "KNOCKBACK MODIFIERS", { x, 82 }, { w, 20 }); // NOLINT
-#else
-        createLabel(hidden, headerFont, "KNOCKBACK MODIFIERS", { x, 82 }, { w, 20 }); // NOLINT
-        createLabel(hidden, headerFont, "KNOCKBACK MODIFIERS", { x - 1, 82 }, { w, 20 }); // NOLINT
-#endif
-
         banner3 = createImage(hidden, { 360, 76 } , { 293, 109 }, ":/gfx/HeroSystem-Banner.png", false); // NOLINT
-
-        w = headerMetrics.horizontalAdvance("WALL BODY");
-        x = (256 - w) / 2 + 680;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(hidden, smallBoldWideFont, "WALL BODY", { x, 82 }, { w, 17 });
-#elif defined(Q_OS_ANDROID)
-        createLabel(hidden, headerFont, "WALL BODY", { x, 79 }, { w, 20 }); // NOLINT
-#else
-        createLabel(hidden, headerFont, "WALL BODY", { x 79 }, { w, 20 }); // NOLINT
-        createLabel(hidden, headerFont, "WALL BODY", { x - 1, 79 }, { w, 20 }); // NOLINT
-#endif
-
-        w = headerMetrics.horizontalAdvance("NOTES");
-        x = (569 - w) / 2 + 366;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(hidden, smallBoldWideFont, "NOTES", { x, 202 }, { w, 17 });
-#elif defined(Q_OS_ANDROID)
-        createLabel(hidden, headerFont, "NOTES", { x, 200 }, { w, 20 }); // NOLINT
-#else
-        createLabel(hidden, headerFont, "NOTES", { x, 200 }, { w, 20 }); // NOLINT
-        createLabel(hidden, headerFont, "NOTES", { x - 1, 200 }, { w, 20 }); // NOLINT
-#endif
         notes = createTextEditor(hidden, tableFont, { 365, 229 }, { 575, 1008 }, "Game notes"); // NOLINT
 
-        w = headerMetrics.horizontalAdvance("HIT LOCATION CHART");
-        x = (249 - w) / 2 + 75;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(hidden, smallBoldWideFont, "HIT LOCATION CHART", { x, 248 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(hidden, headerFont, "HIT LOCATION CHART", { x, 245 }, { w, 20 }); // NOLINT
-#else
-        createLabel(hidden, headerFont, "HIT LOCATION CHART", { x, 245 }, { w, 20 }); // NOLINT
-        createLabel(hidden, headerFont, "HIT LOCATION CHART", { x - 1, 245 }, { w, 20 }); // NOLINT
-#endif
+        head      = createLabel(hidden, font, "0", { 281, 310 }, "00"); // NOLINT
+        hands     = createLabel(hidden, font, "0", { 281, 332 }, "00"); // NOLINT
+        arms      = createLabel(hidden, font, "0", { 281, 355 }, "00"); // NOLINT
+        shoulders = createLabel(hidden, font, "0", { 281, 378 }, "00"); // NOLINT
+        chest     = createLabel(hidden, font, "0", { 281, 399 }, "00"); // NOLINT
+        stomach   = createLabel(hidden, font, "0", { 281, 422 }, "00"); // NOLINT
+        vitals    = createLabel(hidden, font, "0", { 281, 444 }, "00"); // NOLINT
+        thighs    = createLabel(hidden, font, "0", { 281, 466 }, "00"); // NOLINT
+        legs      = createLabel(hidden, font, "0", { 281, 488 }, "00"); // NOLINT
+        feet      = createLabel(hidden, font, "0", { 281, 510 }, "00"); // NOLINT
 
-        head      = createLabel(hidden, font, "0", { 281, 310 }, { 40, 20 }); // NOLINT
-        hands     = createLabel(hidden, font, "0", { 281, 332 }, { 40, 20 }); // NOLINT
-        arms      = createLabel(hidden, font, "0", { 281, 355 }, { 40, 20 }); // NOLINT
-        shoulders = createLabel(hidden, font, "0", { 281, 378 }, { 40, 20 }); // NOLINT
-        chest     = createLabel(hidden, font, "0", { 281, 399 }, { 40, 20 }); // NOLINT
-        stomach   = createLabel(hidden, font, "0", { 281, 422 }, { 40, 20 }); // NOLINT
-        vitals    = createLabel(hidden, font, "0", { 281, 444 }, { 40, 20 }); // NOLINT
-        thighs    = createLabel(hidden, font, "0", { 281, 466 }, { 40, 20 }); // NOLINT
-        legs      = createLabel(hidden, font, "0", { 281, 488 }, { 40, 20 }); // NOLINT
-        feet      = createLabel(hidden, font, "0", { 281, 510 }, { 40, 20 }); // NOLINT
+        averageDEF = createLabel(hidden, font, "0",  { 281, 540 }, "00"); // NOLINT
+        DCVmod     = createLabel(hidden, font, "+0", { 158, 565 }, "+00"); // NOLINT
+        armorNotes = createLabel(hidden, font, "",   { 158, 590 }, "MMMMMMMMMMMMMMMMMMMMMMMMMMMM"); // NOLINT
 
-        averageDEF = createLabel(hidden, font, "0",  { 281, 540 }, { 40, 20 }); // NOLINT
-        DCVmod     = createLabel(hidden, font, "+0", { 158, 565 }, { 40, 20 }); // NOLINT
-        armorNotes = createLabel(hidden, font, "",   { 158, 590 }, { 40, 20 }); // NOLINT
-
-        w = headerMetrics.horizontalAdvance("COMBAT MODIFIERS");
-        x = (249 - w) / 2 + 75;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(hidden, smallBoldWideFont, "COMBAT MODIFIERS", { x, 671 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(hidden, headerFont, "COMBAT MODIFIERS", { x, 669 }, { w, 20 }); // NOLINT
-#else
-        createLabel(hidden, headerFont, "COMBAT MODIFIERS", { x, 669 }, { w, 20 }); // NOLINT
-        createLabel(hidden, headerFont, "COMBAT MODIFIERS", { x - 1, 669 }, { w, 20 }); // NOLINT
-#endif
-
-        w = headerMetrics.horizontalAdvance("SKILL MODIFIERS");
-        x = (249 - w) / 2 + 75;
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        createLabel(hidden, smallBoldWideFont, "SKILL MODIFIERS", { x, 884 }, { w, 17 }); // NOLINT
-#elif defined(Q_OS_ANDROID)
-        createLabel(hidden, headerFont, "SKILL MODIFIERS", { x, 882 }, { w, 20 }); // NOLINT
-#else
-        createLabel(hidden, headerFont, "SKILL MODIFIERS", { 115x 882 }, { 275, 20 }); // NOLINT
-        createLabel(hidden, headerFont, "SKILL MODIFIERS", { x - 1, 882 }, { w, 20 }); // NOLINT
-#endif
+        createBlockHeader(hidden, headerFont, 75,  85,  249, "KNOCKBACK MODIFIERS");
+        createBlockHeader(hidden, headerFont, 680, 82,  256, "WALL BODY");
+        createBlockHeader(hidden, headerFont, 366, 202, 569, "NOTES");
+        createBlockHeader(hidden, headerFont, 75,  248, 249, "HIT LOCATION CHART");
+        createBlockHeader(hidden, headerFont, 75,  671, 249, "COMBAT MODIFIERS");
+        createBlockHeader(hidden, headerFont, 75,  884, 249, "SKILL MODIFIERS");
 
         hidden->setVisible(false);
     }
