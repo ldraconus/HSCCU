@@ -6,13 +6,14 @@
 #include <functional>
 
 #include <QCheckBox>
-#include <QComboBox>
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QObject>
 #include <QUuid>
 #include <QVBoxLayout>
+
+#include "combobox.h"
 
 class SkillTalentOrPerk {
 private:
@@ -25,14 +26,14 @@ protected:
 
     QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString, BoolCallback);
     QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString);
-    QComboBox* createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, IntCallback);
-    QComboBox* createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
+    ComboBox*  createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, IntCallback);
+    ComboBox*  createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
     QLabel*    createLabel(QWidget*, QVBoxLayout*, QString);
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, StringCallback);
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString);
 
     QMap<QCheckBox*, BoolCallback>   mCallbacksCB;
-    QMap<QComboBox*, IntCallback>    mCallbacksCBox;
+    QMap<ComboBox*,  IntCallback>    mCallbacksCBox;
     QMap<QLineEdit*, StringCallback> mCallbacksEdit;
 
     void empty(bool)      { }

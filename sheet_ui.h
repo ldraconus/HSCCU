@@ -343,9 +343,11 @@ private:
         tablewidget->setWordWrap(true);
         tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         tablewidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        tablewidget->setAlternatingRowColors(true);
         QFontMetrics metrics(fontIn);
-        int pnt = fontIn.pointSize();
         int sz = metrics.height();
+        QFont boldFont(fontIn);
+        boldFont.setBold(true);
 #ifdef __wasm__
         QFont temp = fontIn;
         temp.setPointSize(pnt * 8 + 0.5); // NOLINT
@@ -365,26 +367,27 @@ private:
         horizontalHeader->setDefaultSectionSize(10); // NOLINT
         horizontalHeader->setDefaultAlignment(Qt::AlignLeft);
         horizontalHeader->setMaximumSize(s.l(), sz);
+        horizontalHeader->setFont(boldFont);
         tablewidget->setSelectionMode(selectable ? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
         tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        QString family = fontIn.family();
-        if (selectable)
-            tablewidget->setStyleSheet("QTableWidget { selection-color: black;"
+        if (selectable) {
+            QPalette pal = tablewidget->palette();
+            tablewidget->setPalette(pal);
+            tablewidget->setStyleSheet("QTableWidget { selection-color: white;"
                                        "   selection-background-color: darkcyan;"
                                        "   gridline-color: cyan;"
-                                       "   background-color: cyan;"
                                        "   border: 1px cyan;"
                                        "   border-style: none;"
-                                       + QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
                                        "   color: black;"
+                                       "   background-color: cyan;"
+                                       "   alternate-background-color: #A0FFFF; "
                                        " } "
                                        "QHeaderView::section { background-color: white;"
                                        "   border-style: none;"
-                                       "   color: black;" +
-                                       QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
+                                       "   color: black;"
                                        " } "
                                        "QTableWidget::item:selected { background: darkcyan; "
-                                       "   color: black; "
+                                       "   color: white; "
                                        "   border: 1px darkcyan; "
                                        "   border-style: none; "
                                        "} "
@@ -393,26 +396,30 @@ private:
                                        "           background-color: #333333;"
                                        "           color: #ffffff;"
                                        "}");
-        else
+        } else {
+            QPalette pal = tablewidget->palette();
+            pal.setColor(QPalette::Base, QColor(0xFF, 0xFF, 0xFF));
+            pal.setColor(QPalette::AlternateBase, QColor(0xF2, 0xF2, 0xF2));
+            tablewidget->setPalette(pal);
             tablewidget->setStyleSheet("QTableWidget { selection-color: transparent;"
                                        "   selection-background-color: transparent;"
                                        "   gridline-color: transparent;"
                                        "   border: 1px transparent;;"
                                        "   border-style: none;"
-                                       "   background-color: transparent;"
-                                       "   color: black;" +
-                                       QString("   font: %2pt \"%1\";").arg(family).arg(pnt) + // NOLINT
+                                       "   color: black;"
+                                       "   background-color: white;"
+                                       "   alternate-background-color: #F2F2F2; "
                                        " } "
                                        "QHeaderView::section { background-color: white;"
                                        "   border-style: none;"
-                                       "   color: black;" +
-                                       QString("   font: bold %2pt \"%1\";").arg(family).arg(pnt) +
+                                       "   color: black;"
                                        " }"
                                        "QToolTip { border: 1px solid #555555;"
                                        "           padding: 3px;"
                                        "           background-color: #333333;"
                                        "           color: #ffffff;"
                                        "}");
+        }
         tablewidget->setColumnCount(int(headers.size()));
         tablewidget->setRowCount(int(vals.size()));
         QStringList textHeaders;
@@ -438,13 +445,9 @@ private:
         tablewidget->setToolTip(w);
         moveTo(tablewidget, p, s);
         for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
-#ifdef __wasm__
-        for (i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
-#else
         int total = 0;
         for (i = 1; i < tablewidget->columnCount(); ++i) total += tablewidget->columnWidth(i - 1);
         tablewidget->setColumnWidth(int(headers.size()) - 1, s.l() - total);
-#endif
         widgets.append(tablewidget);
 
         return tablewidget;
@@ -959,23 +962,23 @@ public:
                                           { "Swim (4m)",    "4m",            "8m" },
                                           { "H. Leap (4m)", "4m",            "8m" },
                                           { "V. Leap (2m)", "2m",            "4m" } }, { 675, 225 }, { 260, 195 }); // NOLINT
-        movementsfx = createLabel(widget, font, "", { 775, 423 }, 20); // NOLINT
+        movementsfx = createLabel(widget, font, "", { 775, 423 }, "XXXXXXXXXXXXXXXXXXXX"); // NOLINT
 
         createBlockHeader(widget, headerFont, 679, 475, 243, "RANGE MODIFIERS");
-        createLabel(widget, tinyBoldFont, "Range(m)", { 678, 502 }, { 52, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "0-8",      { 737, 502 }, { 40, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "9-16",     { 760, 502 }, { 40, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "17-32",    { 788, 502 }, { 40, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "33-64",    { 822, 502 }, { 40, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "65-128",   { 858, 502 }, { 40, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "128-256",  { 898, 502 }, { 40, 20 }); // NOLINT
-        createLabel(widget, tinyBoldFont, "OCV Mod",  { 680, 522 }, { 52, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "-0",       { 741, 522 }, { 30, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "-2",       { 766, 522 }, { 30, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "-4",       { 796, 522 }, { 30, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "-6",       { 830, 522 }, { 30, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "-8",       { 868, 522 }, { 30, 20 }); // NOLINT
-        createLabel(widget, tinyFont,     "-10",      { 909, 522 }, { 30, 20 }); // NOLINT
+        createLabel(widget, tinyBoldFont, "Range(m)", { 678, 502 }, "Range(m)"); // NOLINT
+        createLabel(widget, tinyFont,     "0-8",      { 737, 502 }, "0-8"); // NOLINT
+        createLabel(widget, tinyFont,     "9-16",     { 760, 502 }, "9-16"); // NOLINT
+        createLabel(widget, tinyFont,     "17-32",    { 788, 502 }, "17-32"); // NOLINT
+        createLabel(widget, tinyFont,     "33-64",    { 822, 502 }, "33-64"); // NOLINT
+        createLabel(widget, tinyFont,     "65-128",   { 858, 502 }, "65-128"); // NOLINT
+        createLabel(widget, tinyFont,     "128-256",  { 898, 502 }, "128-256"); // NOLINT
+        createLabel(widget, tinyBoldFont, "OCV Mod",  { 680, 522 }, "OCV Mod"); // NOLINT
+        createLabel(widget, tinyFont,     "-0",       { 741, 522 }, "-0"); // NOLINT
+        createLabel(widget, tinyFont,     "-2",       { 766, 522 }, "-2"); // NOLINT
+        createLabel(widget, tinyFont,     "-4",       { 796, 522 }, "-4"); // NOLINT
+        createLabel(widget, tinyFont,     "-6",       { 830, 522 }, "-6"); // NOLINT
+        createLabel(widget, tinyFont,     "-8",       { 868, 522 }, "-8"); // NOLINT
+        createLabel(widget, tinyFont,     "-10",      { 909, 522 }, "-10"); // NOLINT
 
         image     = createImage(widget, { 663, 555 }, { 285, 533 }, Selectable); // NOLINT
 
@@ -984,7 +987,7 @@ public:
 
         createBlockHeader(widget, headerFont, 72, 714, 295, "ATTACKS & MANEUVERS");
         attacksandmaneuvers = createTableWidget(widget, narrowTableFont,
-                                                { { 65, "Maneuver" }, { 34, "Phase" }, { 28, "OCV" }, { 26, "DCV" }, { 135, "Effects" } },
+                                                { { 85, "Maneuver" }, { 34, "Phase" }, { 28, "OCV" }, { 26, "DCV" }, { 135, "Effects" } },
                                                 { { "Block",            "½",             "+0",          "+0",          "Block, abort"              },
                                                   { "Brace",            "0",             "+2",          "½",           "+2 OCV vs R Mod"           },
                                                   { "Disarm",           "½",             "-2",          "+0",          "Disarm, 10 v. STR"         },
@@ -1042,7 +1045,7 @@ public:
         createLabel(widget, smallBoldNarrowFont, "Hair Color",     {  66, 1439 }); // NOLINT
         createLabel(widget, smallBoldNarrowFont, "Eye Color",      { 196, 1439 }); // NOLINT
 
-        charactername2 = createLabel(widget, font, "", { 184, 1388 }, 20); // NOLINT
+        charactername2 = createLabel(widget, font, "", { 184, 1388 }, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); // NOLINT
         height    = createLineEdit(widget, font,    "2m", { 124, 1414 }, { 72, 20 }, "Your characters height (certain powers may override)"); // NOLINT
         weight    = createLineEdit(widget, font, "100kg", { 249, 1414 }, { 76, 20 }, "Your characters weight (certain powers may override)"); // NOLINT
         haircolor = createLineEdit(widget, font,      "", { 139, 1440 }, { 58, 20 }, "Your characters hair color"); // NOLINT

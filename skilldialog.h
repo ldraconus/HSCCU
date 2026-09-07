@@ -23,7 +23,6 @@ public:
     void        restore(const QJsonObject& json) override;
     QJsonObject save() override;
 
-
     SkillDialog& skilltalentorperk(shared_ptr<SkillTalentOrPerk> s);
 
 protected:
@@ -35,8 +34,9 @@ private:
     static const bool WordWrap = true;
 
     QLabel*            mDescription;
-    QLabel*            mPoints;
     QPushButton*       mOk;
+    QLabel*            mPoints;
+    bool               mRestoring = false;
     bool               mSkipUpdate = false;
 
     shared_ptr<SkillTalentOrPerk> mSkillTalentOrPerk = nullptr;

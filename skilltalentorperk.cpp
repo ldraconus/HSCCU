@@ -334,8 +334,8 @@ QCheckBox* SkillTalentOrPerk::createCheckBox(QWidget* parent, QVBoxLayout* layou
     return checkBox;
 }
 
-QComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, IntCallback callback) {
-    QComboBox* comboBox = new QComboBox(layout->parentWidget());
+ComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options, IntCallback callback) {
+    ComboBox* comboBox = new ComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setStyleSheet("QComboBox { color: #000; background: #fff; }");
     comboBox->setPlaceholderText(prompt);
@@ -360,14 +360,15 @@ QComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layou
                     "  color: black;"
                     "  background: white;"
                     "}";
-    comboBox->setStyleSheet(style);    layout->addWidget(comboBox);
+    comboBox->setStyleSheet(style);
+    layout->addWidget(comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
     mCallbacksCBox.insert(mCallbacksCBox.cend(), comboBox, callback);
     return comboBox;
 }
 
-QComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options) {
-    QComboBox* comboBox = new QComboBox(layout->parentWidget());
+ComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layout, QString prompt, QList<QString> options) {
+    ComboBox* comboBox = new ComboBox(layout->parentWidget());
     comboBox->addItems(options);
     comboBox->setStyleSheet("QComboBox { color: #000; background: #fff; }");
     comboBox->setPlaceholderText(prompt);

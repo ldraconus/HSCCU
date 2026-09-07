@@ -259,7 +259,7 @@ Sheet::Sheet(QWidget *parent)
 
     ui->setupUi(this);
     ui->scrollAreaWidgetContents->setStyleSheet("background: #fff");
-    ui->scrollArea->setStyleSheet("color: #000; background: #fff");
+    ui->scrollArea->setStyleSheet("color: #000; background: #fff ");
 
     Ui->setupUi(ui->label, ui->optLabel);
 
@@ -1879,15 +1879,16 @@ void Sheet::recoverState() {
     mFilename = state["filename"].toString();
     mChanged = state["dirty"].toBool();
     if (state.contains("power") && state["power"].isObject()) {
+        sDialog.Power = std::shared_ptr<PowerDialog> (new PowerDialog(this), [](PowerDialog* d) { d->deleteLater(); });
         sDialog.Power = std::make_shared<PowerDialog>(this);
         sDialog.Power->restore(state["power]"].toObject());
         sDialog.Power->open();
     } else if (state.contains("complications") && state["complications"].isObject()) {
-        sDialog.Complications = std::make_shared<ComplicationsDialog>(this);
+        sDialog.Complications = std::shared_ptr<ComplicationsDialog> (new ComplicationsDialog(this), [](ComplicationsDialog* d) { d->deleteLater(); });
         sDialog.Complications->restore(state["complications"].toObject());
         sDialog.Complications->open();
     } else if (state.contains("skill") && state["skill"].isObject()) {
-        sDialog.Skill = std::make_shared<SkillDialog>(this);
+        auto skillDlg = (sDialog.Skill = std::shared_ptr<SkillDialog> (new SkillDialog(this), [](SkillDialog* d) { d->deleteLater(); }));
         sDialog.Skill->restore(state["skill"].toObject());
         sDialog.Skill->open();
     }
@@ -2514,7 +2515,7 @@ void Sheet::copySkillTalentOrPerk() {
 
 void Sheet::complicationsMenu(QPoint pos) {
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
-    auto compMenuDialog = (sDialog.ComplicationsMenu = std::make_shared<ComplicationsMenuDialog>());
+    auto compMenuDialog = (sDialog.ComplicationsMenu = std::shared_ptr<ComplicationsMenuDialog> (new ComplicationsMenuDialog(this), [](ComplicationsMenuDialog* d) { d->deleteLater(); }));
 #ifdef __wasm__
     int row = Ui->complications->rowAt(pos.y());
     Ui->complications->selectRow(row);
@@ -2524,7 +2525,7 @@ void Sheet::complicationsMenu(QPoint pos) {
     aboutToShowComplicationsMenu();
     compMenuDialog->open();
 #elif defined(Q_OS_ANDROID)
-    int row = Ui->complications->rowAt(pos.y());
+    int row = Ui->complications->rowAt(Ui->complications->viewport()->mapFromGlobal(pos).y());
     Ui->complications->selectRow(row);
     closeDialogs(nullptr);
     compMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -2657,7 +2658,7 @@ void Sheet::editComplication() {
     shared_ptr<Complication> complication = mCharacter.complications()[row];
     if (complication == nullptr) return;
 
-    auto compDlg = (sDialog.Complications = std::make_shared<ComplicationsDialog>(this));
+    auto compDlg = (sDialog.Complications = std::shared_ptr<ComplicationsDialog> (new ComplicationsDialog(this), [](ComplicationsDialog* d) { d->deleteLater(); }));
     compDlg = make_shared<ComplicationsDialog>(this);
     compDlg->complication(complication);
     connect(compDlg.get(), SIGNAL(accepted()), this, SLOT(doneEditComplication()));
@@ -2680,7 +2681,7 @@ void Sheet::editPowerOrEquipment() {
     if (work == nullptr) return;
 
     work->parent(power->parent());
-    auto powerDlg = (sDialog.Power = std::make_shared<PowerDialog>(this, power));
+    auto powerDlg = (sDialog.Power = std::shared_ptr<PowerDialog> (new PowerDialog(this), [](PowerDialog* d) { d->deleteLater(); }));
     powerDlg->powerorequipment(work);
     powerDlg->open();
 }
@@ -2692,7 +2693,7 @@ void Sheet::editSkillstalentsandperks() {
     shared_ptr<SkillTalentOrPerk> skilltalentorperk = mCharacter.skillsTalentsOrPerks()[row];
     if (skilltalentorperk == nullptr) return;
 
-    auto skillDlg = (sDialog.Skill = std::make_shared<SkillDialog>(this));
+    auto skillDlg = (sDialog.Skill = std::shared_ptr<SkillDialog> (new SkillDialog(this), [](SkillDialog* d) { d->deleteLater(); }));
     skillDlg = make_shared<SkillDialog>(this);
     skillDlg->skilltalentorperk(skilltalentorperk);
     connect(skillDlg.get(), SIGNAL(accepted()), this, SLOT(doneEditSkill()));
@@ -2712,14 +2713,14 @@ void Sheet::eyeColorChanged(QString txt) {
 #ifdef __wasm__
 void Sheet::editMenu(bool) {
     closeDialogs(nullptr);
-    auto editMenuDialog = (sDialog.editMenu = std::make_shared<EditMenuDialog>());
+    auto editMenuDialog = (sDialog.EditMenu = std::shared_ptr<EditMenuDialog> (new EditMenuDialog(this), [](EditMenuDialog* d) { d->deleteLater(); }));
     editMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     editMenuDialog->open();
 }
 
 void Sheet::fileMenu(bool) {
     closeDialogs(nullptr);
-    auto fileMenuDialog = (sDialog.fileMenu = std::make_shared<FileMenuDialog>());
+    auto fileMenuDialog = (sDialog.FileMenu = std::shared_ptr<FileMenuDialog> (new FileMenuDialog(this), [](FileMenuDialog* d) { d->deleteLater(); }));
     fileMenuDialog->setSave(mChanged);
     fileMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     fileMenuDialog->open();
@@ -2727,14 +2728,14 @@ void Sheet::fileMenu(bool) {
 #endif
 void Sheet::imgMenu(bool) {
     closeDialogs(nullptr);
-    auto imgMenuDialog = (sDialog.ImgMenu = std::make_shared<ImgMenuDialog>());
+    auto imgMenuDialog = (sDialog.ImgMenu = std::shared_ptr<ImgMenuDialog> (new ImgMenuDialog(this), [](ImgMenuDialog* d) { d->deleteLater(); }));
     imgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     imgMenuDialog->open();
 }
 
 void Sheet::powerMenu(bool) {
     closeDialogs(nullptr);
-    auto powerMenuDialog = (sDialog.PowerMenu = std::make_shared<PowerMenuDialog>());
+    auto powerMenuDialog = (sDialog.PowerMenu = std::shared_ptr<PowerMenuDialog> (new PowerMenuDialog(this), [](PowerMenuDialog* d) { d->deleteLater(); }));
     aboutToShowPowersAndEquipmentMenu();
     powerMenuDialog->setPos(QPoint());
     powerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -2752,7 +2753,7 @@ void Sheet::stpMenu(bool) {
 
 void Sheet::compMenu(bool) {
     closeDialogs(nullptr);
-    auto compMenuDialog = (sDialog.ComplicationsMenu = std::make_shared<ComplicationsMenuDialog>());
+    auto compMenuDialog = (sDialog.ComplicationsMenu = std::shared_ptr<ComplicationsMenuDialog> (new ComplicationsMenuDialog(this), [](ComplicationsMenuDialog* d) { d->deleteLater(); }));
     aboutToShowComplicationsMenu();
     compMenuDialog->setPos(QPoint());
     compMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -2798,7 +2799,7 @@ void Sheet::hairColorChanged(QString txt) {
 void Sheet::imageMenu(QPoint pos) {
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
     closeDialogs(nullptr);
-    auto imgMenuDialog = (sDialog.ImgMenu = std::make_shared<ImgMenuDialog>());
+    auto imgMenuDialog = (sDialog.ImgMenu = std::shared_ptr<ImgMenuDialog> (new ImgMenuDialog(this), [](ImgMenuDialog* d) { d->deleteLater(); }));
     imgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     imgMenuDialog->setPos(pos);
     imgMenuDialog->open();
@@ -2904,7 +2905,7 @@ void Sheet::acceptComplication() {
 }
 
 void Sheet:: newComplication() {
-    auto compDlg = (sDialog.Complications = std::make_shared<ComplicationsDialog>(this));
+    auto compDlg = (sDialog.Complications = std::shared_ptr<ComplicationsDialog> (new ComplicationsDialog(this), [](ComplicationsDialog* d) { d->deleteLater(); }));
     connect(compDlg.get(), SIGNAL(accepted()), this, SLOT(acceptComplication()));
 
 #ifdef __wasm__
@@ -2938,7 +2939,7 @@ void Sheet::newPowerOrEquipment() {
         }
     }
 
-    auto powerDlg = (sDialog.Power = make_shared<PowerDialog>(this));
+    auto powerDlg = (sDialog.Power = std::shared_ptr<PowerDialog> (new PowerDialog(this), [](PowerDialog* d) { d->deleteLater(); }));
     if (framework) powerDlg->multipower();
     powerDlg->open();
 }
@@ -2955,7 +2956,7 @@ void Sheet::acceptNewSkill() {
 }
 
 void Sheet::newSkillTalentOrPerk() {
-    auto skillDlg = (sDialog.Skill = std::make_shared<SkillDialog>(this));
+    auto skillDlg = (sDialog.Skill = std::shared_ptr<SkillDialog> (new SkillDialog(this), [](SkillDialog* d){ d->deleteLater(); }));
     connect(skillDlg.get(), SIGNAL(accepted()), this, SLOT(acceptNewSkill()));
     skillDlg->open();
 }
@@ -3116,10 +3117,10 @@ void Sheet::playerNameChanged(QString txt) {
 
 void Sheet::powersandequipmentMenu(QPoint pos) {
 #if defined( __wasm__) || defined(Q_OS_ANDROID)
-    int row = Ui->powersandequipment->rowAt(pos.y());
+    int row = Ui->powersandequipment->rowAt(Ui->powersandequipment->viewport()->mapFromGlobal(pos).y());
     Ui->powersandequipment->selectRow(row);
     closeDialogs(nullptr);
-    auto powerMenuDialog = (sDialog.PowerMenu = make_shared<PowerMenuDialog>());
+    auto powerMenuDialog = (sDialog.PowerMenu = std::shared_ptr<PowerMenuDialog> (new PowerMenuDialog(this), [](PowerMenuDialog* d) { d->deleteLater(); }));
     powerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     powerMenuDialog->setPos(pos);
     aboutToShowPowersAndEquipmentMenu();
@@ -3132,7 +3133,7 @@ void Sheet::powersandequipmentMenu(QPoint pos) {
 void Sheet::printSheet() {
     bool saveChanged = mChanged;
 
-    auto printDlg = (sDialog.Print = make_shared<PrintDialog>(this));
+    auto printDlg = (sDialog.Print = std::shared_ptr<PrintDialog> (new PrintDialog(this), [](PrintDialog* d) { d->deleteLater(); }));
     printDlg->open();
 
     mChanged = saveChanged; // lots of changed signals get passed around but the character really didn't change
@@ -3274,10 +3275,10 @@ void Sheet::saveAs() {
 
 void Sheet::skillstalentsandperksMenu(QPoint pos) {
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
-    int row = Ui->skillstalentsandperks->rowAt(pos.y());
+    int row = Ui->skillstalentsandperks->rowAt(Ui->skillstalentsandperks->viewport()->mapFromGlobal(pos).y());
     Ui->skillstalentsandperks->selectRow(row);
     closeDialogs(nullptr);
-    auto skillMenuDialog = (sDialog.SkillMenu = make_shared<SkillMenuDialog>());
+    auto skillMenuDialog = (sDialog.SkillMenu = std::shared_ptr<SkillMenuDialog> (new SkillMenuDialog(this), [](SkillMenuDialog* d) { d->deleteLater(); }));
     skillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     skillMenuDialog->setPos(pos);
     aboutToShowSkillsPerksAndTalentsMenu();

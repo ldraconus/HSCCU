@@ -15,14 +15,14 @@ SkillDialog::SkillDialog(QWidget *parent) :
     ui->setupUi(this);
 
     connect(this, &QDialog::finished, this, [this]() {
-        Sheet& s = Sheet::ref();
-        Sheet::sDialog.Skill.reset();
+        Sheet::sDialog.Skill = nullptr;
     });
 
     setStyleSheet("color: #000; background: #fff;");
+    mSkipUpdate = true;
 
-    connect(ui->skillTalentOrPerkComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(pickType(int)));
-    connect(ui->availableComboBox,         SIGNAL(currentIndexChanged(int)), this, SLOT(pickOne(int)));
+    connect(ui->skillTalentOrPerkComboBox, SIGNAL(activated(int)), this, SLOT(pickType(int)));
+    connect(ui->availableComboBox,         SIGNAL(activated(int)), this, SLOT(pickOne(int)));
 
     Sheet::ref().fixButtonBox(ui->buttonBox);
 
@@ -35,9 +35,11 @@ SkillDialog::~SkillDialog() {
 }
 
 void SkillDialog::restore(const QJsonObject& json) {
+    if (!mRestoring) return;
     auto obj = json;
     std::shared_ptr<SkillTalentOrPerk> skill = SkillTalentOrPerk::FromJson(json["name"].toString(), obj);
     skilltalentorperk(skill);
+    mRestoring = false;
 }
 
 QJsonObject SkillDialog::save() {

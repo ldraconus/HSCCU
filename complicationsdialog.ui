@@ -17,7 +17,7 @@
    <string>Pick A Complication</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="build/QT_Release/.qt/rcc/res.qrc">
+   <iconset resource="build/Qt_6_12_0_for_Android_arm64_v8a_Release/.qt/rcc/res.qrc">
     <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
   </property>
   <property name="styleSheet">
@@ -31,7 +31,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QComboBox" name="comboBox">
+    <widget class="ComboBox" name="comboBox">
      <property name="styleSheet">
       <string notr="true">QComboBox { color: black; background: cyan; }
 QComboBox QAbstractItemView {
@@ -109,8 +109,15 @@ QComboBox QAbstractItemView:disabled {
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ComboBox</class>
+   <extends>QComboBox</extends>
+   <header>combobox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
-  <include location="build/QT_Release/.qt/rcc/res.qrc"/>
+  <include location="build/Qt_6_12_0_for_Android_arm64_v8a_Release/.qt/rcc/res.qrc"/>
  </resources>
  <connections>
   <connection>

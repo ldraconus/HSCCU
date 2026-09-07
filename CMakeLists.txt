@@ -24,6 +24,7 @@ set(source_files
     main.cpp
     character.cpp
     characteristic.cpp
+    combobox.cpp
     complication.cpp
     complicationsdialog.cpp
     Equipment.cpp
@@ -52,6 +53,7 @@ set(header_files
     character.h
     characteristic.h
     CombatSkills.h
+    combobox.h
     complication.h
     complicationsdialog.h
     CustomSkill.h
