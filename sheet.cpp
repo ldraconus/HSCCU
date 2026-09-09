@@ -59,19 +59,34 @@
 
 Sheet* Sheet::sSheet = nullptr; // NOLINT
 shared_ptr<class QMessageBox> Msg::Box; // NOLINT
-std::function<void()> Msg::mCancel; // NOLINT
-std::function<void()> Msg::mNo; // NOLINT
-std::function<void()> Msg::mOk; // NOLINT
-std::function<void ()> Msg::mYes; // NOLINT
+std::function<void()>         Msg::mCancel; // NOLINT
+std::function<void()>         Msg::mNo; // NOLINT
+std::function<void()>         Msg::mOk; // NOLINT
+std::function<void()>         Msg::mYes; // NOLINT
 
 Msg msngr; // NOLINT
 
 void Msg::button(QAbstractButton* btn) {
-    QString txt = btn->text();
-    if (txt == "Cancel") Msg::mCancel();
-    else if (txt == "&No") Msg::mNo();
-    else if (txt == "&Ok") Msg::mOk();
-    else if (txt == "&Yes") Msg::mYes();
+    switch (Msg::Box->standardButton(btn)) {
+    case QMessageBox::Yes:
+        qWarning() << "calling YES";
+        Msg::mYes();
+        break;
+
+    case QMessageBox::No:
+        qWarning() << "calling NO";
+        Msg::mNo();
+        break;
+
+    case QMessageBox::Cancel:
+        qWarning() << "calling CANCEL";
+        Msg::mCancel();
+        break;
+
+    default:
+        qWarning() << "Unexpected QMessageBox button:" << Msg::Box->standardButton(btn);
+        break;
+    }
 }
 
 // --- [static functions] ----------------------------------------------------------------------------------
@@ -121,7 +136,7 @@ void OK(const QString& msg, std::function<void ()> ok, const QString& title) {
     Msg::Box->open();
 }
 
-void OKCancel(const QString& msg, std::function<void ()> ok, const QString& title) {
+void OKCancel(const QString& msg, std::function<void ()> ok, std::function<void ()> cancel, const QString& title) {
     Msg::Box = make_shared<QMessageBox>();
     Msg::Box->connect(Msg::Box.get(), SIGNAL(buttonClicked(QAbstractButton*)), &msngr, SLOT(button(QAbstractButton*)));
     Msg::mOk = ok;
@@ -342,21 +357,33 @@ Sheet::Sheet(QWidget *parent)
     updateBanner();
 
 #if !defined(__wasm__)
-    connect(ui->menu_File,         &QMenu::aboutToShow, this, &Sheet::aboutToShowFileMenu);
-    connect(ui->menu_File,         &QMenu::aboutToHide, this, &Sheet::aboutToHideFileMenu);
-    connect(ui->action_New,        &QAction::triggered, this, &Sheet::newchar);
-    connect(ui->action_Open,       &QAction::triggered, this, &Sheet::open);
-    connect(ui->action_Save,       &QAction::triggered, this, &Sheet::save);
-    connect(ui->actionSave_As,     &QAction::triggered, this, &Sheet::saveAs);
-    connect(ui->action_Print,      &QAction::triggered, this, &Sheet::printSheet);
-    connect(ui->actionE_xit,       &QAction::triggered, this, &Sheet::exitClicked);
-
+    connect(ui->menu_File,     &QMenu::aboutToShow, this, &Sheet::aboutToShowFileMenu);
+    connect(ui->menu_File,     &QMenu::aboutToHide, this, &Sheet::aboutToHideFileMenu);
+#ifdef Q_OS_ANDROID
+    connect(ui->action_New,    &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::newchar();        }); }, Qt::QueuedConnection);
+    connect(ui->action_Open,   &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::open();           }); }, Qt::QueuedConnection);
+    connect(ui->action_Save,   &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::save();           }); }, Qt::QueuedConnection);
+    connect(ui->actionSave_As, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::saveAs();         }); }, Qt::QueuedConnection);
+    connect(ui->action_Print,  &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::printSheet();     }); }, Qt::QueuedConnection);
+    connect(ui->actionE_xit,   &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::exitClicked();    }); }, Qt::QueuedConnection);
+    connect(ui->actionOptions, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::options();        }); }, Qt::QueuedConnection);
+    connect(ui->actionOptions, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::cutCharacter();   }); }, Qt::QueuedConnection);
+    connect(ui->action_Paste,  &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::pasteCharacter(); }); }, Qt::QueuedConnection);
+#else
+    connect(ui->action_New,    &QAction::triggered, this, &Sheet::newchar);
+    connect(ui->action_Open,   &QAction::triggered, this, &Sheet::open);
+    connect(ui->action_Save,   &QAction::triggered, this, &Sheet::save);
+    connect(ui->actionSave_As, &QAction::triggered, this, &Sheet::saveAs);
+    connect(ui->action_Print,  &QAction::triggered, this, &Sheet::printSheet);
+    connect(ui->actionE_xit,   &QAction::triggered, this, &Sheet::exitClicked);
+    connect(ui->actionOptions, &QAction::triggered, this, &Sheet::options);
+    connect(ui->action_Cut,    &QAction::triggered, this, &Sheet::cutCharacter);
+    connect(ui->action_Paste,  &QAction::triggered, this, &Sheet::pasteCharacter);
+#endif
     connect(ui->menu_Edit,     &QMenu::aboutToShow, this, &Sheet::aboutToShowEditMenu);
     connect(ui->menu_Edit,     &QMenu::aboutToHide, this, &Sheet::aboutToHideEditMenu);
-    connect(ui->action_Cut,    &QAction::triggered, this, &Sheet::cutCharacter);
     connect(ui->actionC_opy,   &QAction::triggered, this, &Sheet::copyCharacter);
-    connect(ui->action_Paste,  &QAction::triggered, this, &Sheet::pasteCharacter);
-    connect(ui->actionOptions, &QAction::triggered, this, &Sheet::options);
+
 #else
     fileButton = createToolBarItem(ui->menuBar, "File", "File menu");
     connect(fileButton, &QToolButton::clicked, this, &Sheet::fileMenu);
@@ -518,7 +545,11 @@ Sheet::Sheet(QWidget *parent)
 
 #ifndef __wasm__
 #ifdef Q_OS_ANDROID
-    connect(qApp, &QGuiApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) { if (state == Qt::ApplicationSuspended) saveRecoveryState(); });
+    connect(qApp, &QGuiApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+        if (state == Qt::ApplicationInactive ||
+            state == Qt::ApplicationHidden ||
+            state == Qt::ApplicationSuspended) saveRecoveryState();
+    });
     recoverState();
 #else
     QStringList args = qApp->arguments(); // NOLINT
@@ -585,26 +616,6 @@ void Sheet::mousePressEvent(QMouseEvent* me) {
 
 void Sheet::showEvent(QShowEvent* se) {
     QMainWindow::showEvent(se);
-
-    qDebug() << "MainWindow:" << size() << geometry();
-
-    if (windowHandle()) {
-        qDebug() << "QWindow:" << windowHandle()->size();
-        qDebug() << "safe area:" << windowHandle()->safeAreaMargins();
-    }
-
-    qDebug() << "scrollArea:"
-             << "visible:" << ui->scrollArea->horizontalScrollBar()->isVisible()
-             << "enabled:" << ui->scrollArea->horizontalScrollBar()->isEnabled();
-
-    qDebug() << "parent:"
-             << ui->scrollArea->geometry();
-
-    qDebug() << "menuBar:"
-             << menuBar()
-             << "visible:" << menuBar()->isVisible()
-             << "hidden:" << menuBar()->isHidden()
-             << "geometry:" << menuBar()->geometry();
 }
 
 void Sheet::closeEvent(QCloseEvent* event) {
@@ -1851,9 +1862,19 @@ bool Sheet::recoverSession(QJsonDocument& json) {
     QDir().mkpath(path);
     QString stateFile(path + "/HSCCU.state");
 
+    qWarning() << "HSCCU: Trying to recover state from: " + path + "/HSCCU.state";
+
     QFile file(stateFile);
-    if (!file.exists()) return false;
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+    if (!file.exists()) {
+        qWarning() << "HSCCU: file does not exist (QFile.exixst())";
+        return false;
+    }
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "HSCCU: cannot open file for reading";
+        return false;
+    }
+
+    qWarning() << "HSCCU: state file found and opened";
 
     QByteArray data(file.readAll());
     file.close();
@@ -1861,11 +1882,14 @@ bool Sheet::recoverSession(QJsonDocument& json) {
 
     QString jsonStr(data);
     json = QJsonDocument::fromJson(jsonStr.toUtf8());
+
+    qWarning() << "HSCCU: json found: " + jsonStr.left(30);
     return true;
 }
 
 void Sheet::recoverState() {
     QJsonDocument inState;
+    qWarning() << "Trying to recover state";
     if (!recoverSession(inState)) return;
     if (!inState.isObject()) return;
     QJsonObject state(inState.object());
@@ -1878,6 +1902,7 @@ void Sheet::recoverState() {
     mCharacter.fromJson(mOption, character);
     mFilename = state["filename"].toString();
     mChanged = state["dirty"].toBool();
+    updateDisplay();
     if (state.contains("power") && state["power"].isObject()) {
         sDialog.Power = std::shared_ptr<PowerDialog> (new PowerDialog(this), [](PowerDialog* d) { d->deleteLater(); });
         sDialog.Power = std::make_shared<PowerDialog>(this);
@@ -1915,11 +1940,17 @@ void Sheet::saveSession(const QJsonObject& json) {
     QDir().mkpath(path);
     path += "/HSCCU.state";
 
+    qWarning() << "HSCCU: Saving state to: " + path;
+
     QSaveFile file(path);
-    if (!file.open(QIODevice::WriteOnly)) return;
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "HSCCU: Could not save state/open failed";
+        return;
+    }
 
     file.write(state.toJson());
     file.commit();
+    qWarning() << "HSCCU: Done saving state";
 }
 
 int Sheet::searchImprovedNoncombatMovement(QString name) {
@@ -2306,6 +2337,7 @@ void Sheet::aboutToHideEditMenu() {
 void Sheet::aboutToHideFileMenu() {
     ui->action_Save->setEnabled(true);
 }
+
 #endif
 
 void Sheet::aboutToShowComplicationsMenu() {
@@ -3244,6 +3276,7 @@ void Sheet::save() {
         return;
     }
 
+    qWarning() << "mFilename is " + mFilename;
     if (!mCharacter.store(mOption, mDir + "/" + mFilename))
         OK("Can't save to \"" + mFilename + ".hsccu\" in the \"" + mDir + "\" folder.", std::bind(&Sheet::doNothing, this));
     else mChanged = false;

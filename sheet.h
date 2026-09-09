@@ -432,11 +432,10 @@ class Msg: public QObject {
 
 public:
     static shared_ptr<class QMessageBox> Box; // NOLINT
-
-    static std::function<void ()> mCancel; // NOLINT
-    static std::function<void ()> mNo; // NOLINT
-    static std::function<void ()> mOk; // NOLINT
-    static std::function<void ()> mYes; // NOLINT
+    static std::function<void ()> mCancel;    // NOLINT
+    static std::function<void ()> mNo;        // NOLINT
+    static std::function<void ()> mOk;        // NOLINT
+    static std::function<void ()> mYes;       // NOLINT
 
 public slots:
     void button(QAbstractButton*);

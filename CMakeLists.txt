@@ -32,6 +32,7 @@ set(source_files
     main.cpp
     modifier.cpp
     modifiersdialog.cpp
+    MsgDialog.cpp
     option.cpp
     optiondialog.cpp
     powerdialog.cpp
@@ -75,6 +76,7 @@ set(header_files
     modifiersdialog.h
     Money.h
     MovementPowers.h
+    MsgDialog.h
     NegativeReputation.h
     option.h
     optiondialog.h
@@ -105,6 +107,7 @@ set(header_files
 set(form_files
     complicationsdialog.ui
     modifiersdialog.ui
+    MsgDialog.ui
     optiondialog.ui
     powerdialog.ui
     printdialog.ui
@@ -298,8 +301,6 @@ elseif(ANDROID)
         skillmenudialog.cpp
         skillmenudialog.h
         skillmenudialog.ui
-        wasm.h
-        wasm.ui
     )
 
 elseif(UNIX)

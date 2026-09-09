@@ -243,6 +243,8 @@ bool Character::store(Option& opt, QString filename) {
     QString data = json.toJson();
     QFileDialog::saveFileContent(data.toUtf8(), filename + ".hsccu");
 #else
+
+    qWarning() << "Filename is now " + filename;
     QFile file(filename + ".hsccu");
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) return false;
     QTextStream out(&file);
