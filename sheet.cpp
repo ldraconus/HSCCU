@@ -120,7 +120,7 @@ void YesNoCancel(const QString& msg, std::function<void()> yes, std::function<vo
     Msg::Box->setIcon(QMessageBox::Question);
     Msg::Box->setText(title.isEmpty() ? "Are you really sure?" : title);
     Msg::Box->setInformativeText(msg);
-    Msg::Box->setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    Msg::Box->setStandardButtons({ QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel });
     Msg::Box->setDefaultButton(QMessageBox::Cancel);
     Msg::Box->open();
 }
@@ -2921,6 +2921,7 @@ void Sheet::erase() {
     Ui->notes->setPlainText("");
     updateDisplay();
     mChanged = false;
+    mFilename.clear();
 }
 
 void Sheet::saveThenErase() {

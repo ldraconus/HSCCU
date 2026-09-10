@@ -241,7 +241,7 @@ bool Character::store(Option& opt, QString filename) {
 #else
 bool Character::store(Option& opt, QUrl filename) {
     QJsonDocument json = toJson(opt);
-    QFile file(filename.toString());
+    QFile file(filename.isLocalFile() ? filename.toLocalFile() : filename.toString());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) return false;
     QTextStream out(&file);
     out << json.toJson();
