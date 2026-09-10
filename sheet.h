@@ -130,20 +130,20 @@ public:
         QLabel*         mRoll           = nullptr;
     };
 
-    Sheet_UI* getUi() { return Ui; }
+    Sheet_UI* getUi() { return mUI; }
 
     static const bool WordWrap = true;
 
 #if __wasm__
     Ui::wasm* UI() { return ui; }
 #else
-    Ui::Sheet* UI() { return ui; }
+    Ui::Sheet* UI() { return mUi; }
 #endif
 
     Option& option() { return mOption; }
 
 #if !defined(__wasm__)
-    Ui::Sheet* ui = nullptr;
+    Ui::Sheet* mUi = nullptr;
 #else
     Ui::wasm* ui = nullptr;
 #endif
@@ -195,7 +195,7 @@ public:
 #endif
 
 private:
-    Sheet_UI*    Ui = nullptr;
+    Sheet_UI*    mUI = nullptr;
     bool         mExpired = true;
     bool         mRunning = false;
     QPointF      mTouchStart;

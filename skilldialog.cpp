@@ -146,7 +146,18 @@ SkillDialog& SkillDialog::skilltalentorperk(shared_ptr<SkillTalentOrPerk> s) {
     }
 
     mSkillTalentOrPerk = s;
-    try { mSkillTalentOrPerk->createForm(this, layout); } catch (...) { accept(); return *this; }
+//    try { mSkillTalentOrPerk->createForm(this, layout); } catch (...) { accept(); return *this; }
+      try {
+        mSkillTalentOrPerk->createForm(this, layout);
+      } catch (const std::exception& e) {
+          qWarning() << "skilltalentorperk(" + s->name() + ") threw " + e.what();
+          accept();
+          return *this;
+      } catch (...) {
+          qWarning() << "skilltalentorperk(" + s->name() + ") threw unknown exception.";
+          accept();
+          return *this;
+      }
 
     createLabel(layout, "");
     mPoints      = createLabel(layout, "-1 Points");
