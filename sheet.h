@@ -214,7 +214,11 @@ private:
 
     Character mCharacter;
     QString   mDir;
+#ifdef __was__
     QString   mFilename;
+#else
+    QUrl      mFilename;
+#endif
     QFont     mFont;
     Option    mOption;
     bool      mSaveChanged = false;
@@ -249,6 +253,7 @@ private:
 #else
     void               fileOpen(const QByteArray&, QString);
 #endif
+    void               finishLoad();
     QString            formatLift(int);
     QString            getCharacter();
     int                getPageCount(QPlainTextEdit*, double, QPainter*);
@@ -260,11 +265,11 @@ private:
     void               justClose();
     QString            KAwSTR(int);
 
-    void               loadImage(QPixmap&, QString);
+    void               loadImage(QPixmap&, QUrl);
 #ifdef __wasm__
     void               loadImage(const QByteArray&, QString);
 #endif
-    void               loadImage(QString);
+    void               loadImage(QUrl);
     void               paste();
     void               putPower(int, shared_ptr<Power>);
     void               preparePrint(QPlainTextEdit*);
@@ -304,9 +309,8 @@ private:
     void               setDefense(cCharacteristicDef&, int, int, QLineEdit*);
     void               setDefense(int, int, int, int);
     void               setMaximum(cCharacteristicDef&, QLabel*, QLineEdit*);
-#ifndef __wasm
+#if !defined(__wasm__) && !defined (Q_OS_ANDROID)
     void               doLoadImage();
-    void               skipLoadImage();
 #endif
     void               updateBanner();
     void               updateCharacteristics();

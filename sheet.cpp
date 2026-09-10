@@ -36,6 +36,7 @@
 #include <QDirIterator>
 #include <QFileDialog>
 #include <QFontDatabase>
+#include <QImageReader>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
@@ -922,19 +923,11 @@ int Sheet::displayPowerAndEquipment(int& row, shared_ptr<Power> pe) {
     return pts.toInt();
 }
 
-#ifndef __wasm__
-void Sheet::doLoadImage() {
-    loadImage(mCharacter.image());
-    mSaveChanged = mChanged;
-    skipLoadImage();
-}
-
-void Sheet::skipLoadImage() {
+void Sheet::finishLoad() {
     Ui->notes->setPlainText(mCharacter.notes());
     updateDisplay();
     mChanged = mSaveChanged;
 }
-#endif
 
 void Sheet::updateBanner() {
     QPixmap pixmap(mOption.banner());
@@ -954,29 +947,39 @@ void Sheet::fileOpen(const QByteArray& data, QString filename) {
         mDir = mFilename.left(sep);
         mFilename = mFilename.mid(sep + 1);
     }
-    mCharacter.load(mOption, data);
-    Ui->notes->setPlainText(mCharacter.notes());
-    updateDisplay();
-    mChanged = false;
+
+    if (!mCharacter.load(mOption, data)) OK("Can't load \"" + mFilename.toString() +"\".", std::bind(&Sheet::doNothing, this));
+    else {
+        mSaveChanged = false;
+        finishLoad();
+    }
 }
-#else
+
+#elif defined(Q_OS_ANDROID)
 void Sheet::fileOpen() {
     Power::Equipment(); // pre-load equipment if needed
 
-    auto ext = mFilename.lastIndexOf(".hsccu");
-    if (ext != -1) mFilename = mFilename.left(ext);
-
-    auto sep = mFilename.lastIndexOf("/");
-    if (sep != -1) {
-        mDir = mFilename.left(sep);
-        mFilename = mFilename.mid(sep + 1);
-    }
-
-    if (!mCharacter.load(mOption, mDir + "/" + mFilename))
-        OK("Can't load \"" + mFilename + ".hsccu\" from the \"" + mDir + "\" folder.", std::bind(&Sheet::doNothing, this));
+    if (!mCharacter.load(mOption, mFilename)) OK("Can't load \"" + mFilename.toString() +"\".", std::bind(&Sheet::doNothing, this));
     else {
         mSaveChanged = false;
-        QFileInfo imageFile(mCharacter.image());
+        finishLoad(); // timestamp don't make sense on android
+    }
+}
+
+#else
+void Sheet::doLoadImage() {
+    loadImage(mCharacter.image());
+    mSaveChanged = mChanged;
+    finishLoad();
+}
+
+void Sheet::fileOpen() {
+    Power::Equipment(); // pre-load equipment if needed
+
+    if (!mCharacter.load(mOption, mFilename)) OK("Can't load \"" + mFilename.toString() +"\".", std::bind(&Sheet::doNothing, this));
+    else {
+        mSaveChanged = false;
+        QFileInfo imageFile(mCharacter.image().isLocalFile() ? mCharacter.image().toLocalFile() : mCharacter.image().toString());
         if (imageFile.exists()) {
             qulonglong then(mCharacter.imageDate());
             qulonglong file(imageFile.lastModified().toSecsSinceEpoch());
@@ -984,9 +987,9 @@ void Sheet::fileOpen() {
                                    "Do you want to update the image in\n"
                                    "the character sheet?",
                                    std::bind(&Sheet::doLoadImage, this),
-                                   std::bind(&Sheet::skipLoadImage, this));
-            else skipLoadImage();
-        } else skipLoadImage();
+                                   std::bind(&Sheet::finishLoad, this));
+            else finishLoad();
+        } else finishLoad();
     }
 }
 #endif
@@ -1189,7 +1192,7 @@ void Sheet::hitLocations(std::shared_ptr<Power>& pe) {
     for (const auto& x: std::as_const(locations)) if (def > mHitLocations[x]) mHitLocations[x] = def; // NOLINT
 }
 
-void Sheet::loadImage(QPixmap& pixmap, QString filename) {
+void Sheet::loadImage(QPixmap& pixmap, QUrl filename) {
     clearImage();
     QPixmap scaled = pixmap.scaledToWidth(Ui->image->width());
     if (scaled.height() > Ui->image->height()) scaled = pixmap.scaledToHeight(Ui->image->height());
@@ -1201,7 +1204,7 @@ void Sheet::loadImage(QPixmap& pixmap, QString filename) {
     scaled.save(&buffer, "PNG");
     buffer.close();
     mCharacter.imageData() = sync;
-    QFileInfo imageFile(filename);
+    QFileInfo imageFile(filename.isLocalFile() ? filename.toLocalFile() : filename.toString());
     QDateTime tm = imageFile.lastModified();
     mCharacter.imageDate() = tm.toSecsSinceEpoch();
     mChanged = true;
@@ -1215,10 +1218,21 @@ void Sheet::loadImage(const QByteArray& data, QString filename) {
 }
 #endif
 
-void Sheet::loadImage(QString filename) {
-    QPixmap pixmap;
-    pixmap.load(filename);
-    loadImage(pixmap, filename);
+void Sheet::loadImage(QUrl url) {
+    QString source = url.isLocalFile() ? url.toLocalFile() : url.toString();
+    QFile file(source);
+
+    if (!file.open(QIODevice::ReadOnly)) return;
+
+    QImageReader reader(&file);
+    reader.setAutoTransform(true);
+
+    QImage image = reader.read();
+
+    if (image.isNull()) return;
+
+    QPixmap pixmap = QPixmap::fromImage(image);
+    loadImage(pixmap, url);
 }
 
 void Sheet::preparePrint(QPlainTextEdit* txt) {
@@ -1923,7 +1937,7 @@ void Sheet::saveRecoveryState() {
     QJsonObject state;
 
     state["character"]  = mCharacter.toJson(mOption).object();
-    state["filename"]   = mFilename;
+    state["filename"]   = mFilename.toString();
     state["dirty"]      = mChanged;
          if (sDialog.Power)         state["power"]         = sDialog.Power->powerorequipment()->toJson();
     else if (sDialog.Complications) state["complications"] = sDialog.Complications->complication()->toJson();
@@ -2952,7 +2966,7 @@ void Sheet::newImage() {
         loadImage(fileContent, fileName);
     });
 #else
-    QString filename = QFileDialog::getOpenFileName(this, "New Image", mDir, "Images (*.png *.xpm *jpg)");
+    QUrl filename = QFileDialog::getOpenFileUrl(this, "New Image", QUrl(), "Images (*.png *.xpm *.jpg *.jpeg *.bmp *.webp)");
     if (filename.isEmpty()) return;
     loadImage(filename);
 #endif
@@ -3003,7 +3017,8 @@ void Sheet::doOpen() {
         fileOpen(fileContent, fileName);
     });
 #else
-    QString filename = QFileDialog::getOpenFileName(this, "Open File", mDir, "Characters (*.hsccu)");
+    if (mFilename.isEmpty()) mFilename = QUrl::fromLocalFile(mDir + "/" + mCharacter.characterName() + ".hsccu");
+    QUrl filename = QFileDialog::getOpenFileUrl(this, "Open File", mFilename, "Characters (*.hsccu)");
     if (filename.isEmpty()) return;
     mFilename = filename;
 
@@ -3269,16 +3284,14 @@ void Sheet::save() {
 
 #ifndef __wasm__
     if (mFilename.isEmpty()) {
-        QString oldname = mFilename;
-        mFilename = Ui->charactername->text();
+        QUrl oldname = mFilename;
+        mFilename = QUrl::fromLocalFile(mDir + "/" + Ui->charactername->text() + ".hsccu");
         saveAs();
         if (mFilename.isEmpty()) mFilename = oldname;
         return;
     }
 
-    qWarning() << "mFilename is " + mFilename;
-    if (!mCharacter.store(mOption, mDir + "/" + mFilename))
-        OK("Can't save to \"" + mFilename + ".hsccu\" in the \"" + mDir + "\" folder.", std::bind(&Sheet::doNothing, this));
+    if (!mCharacter.store(mOption, mFilename)) OK("Can't save to \"" + mFilename.toString() + "\" in the \"" + mDir + "\" folder.", std::bind(&Sheet::doNothing, this));
     else mChanged = false;
 #else
     if (mFilename.isEmpty()) mFilename = Ui->charactername->text();
@@ -3291,18 +3304,18 @@ void Sheet::save() {
 }
 
 void Sheet::saveAs() {
-    QString oldname = mFilename;
+#ifdef __wasm__
+    QUrl oldname = mFilename;
     mFilename = QFileDialog::getSaveFileName(this, "Save File", mDir, "Characters (*.hsccu)");
-    if (mFilename.isEmpty()) return;
-
-    auto ext = mFilename.lastIndexOf(".hsccu");
-    if (ext != -1) mFilename = mFilename.left(ext);
-
-    auto sep = mFilename.lastIndexOf("/");
-    if (sep != -1) {
-        mDir = mFilename.left(sep);
-        mFilename = mFilename.mid(sep + 1);
+#endif
+    QUrl oldname = mFilename;
+    if (mFilename.isEmpty()) mFilename = QUrl::fromLocalFile(mDir + "/" + mCharacter.characterName() + ".hsccu");
+    mFilename = QFileDialog::getSaveFileUrl(this, "Save File", mFilename, "Characters (*.hsccu)");
+    if (mFilename.isEmpty()) {
+        mFilename = oldname;
+        return;
     }
+
     try { save(); } catch (...) { mFilename = oldname; }
 }
 

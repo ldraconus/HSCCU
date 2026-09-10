@@ -210,12 +210,8 @@ void Character::fromJson(Option&, QJsonDocument& doc) {
 bool Character::load(Option& opt, const QByteArray& data) {
     QJsonDocument json = QJsonDocument::fromJson(data);
 #else
-bool Character::load(Option& opt, QString filename) {
-#ifndef ISHSC
-    QFile file(filename + ".hsccu");
-#else
-    QFile file(filename);
-#endif
+bool Character::load(Option& opt, QUrl filename) {
+    QFile file(filename.isLocalFile() ? filename.toLocalFile() : filename.toString());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
 
     QByteArray data(file.readAll());
@@ -237,15 +233,15 @@ void Character::paste(Option& opt, QJsonDocument& doc) {
     fromJson(opt, doc);
 }
 
+#ifdef __wasm__
 bool Character::store(Option& opt, QString filename) {
     QJsonDocument json = toJson(opt);
-#ifdef __wasm__
     QString data = json.toJson();
     QFileDialog::saveFileContent(data.toUtf8(), filename + ".hsccu");
 #else
-
-    qWarning() << "Filename is now " + filename;
-    QFile file(filename + ".hsccu");
+bool Character::store(Option& opt, QUrl filename) {
+    QJsonDocument json = toJson(opt);
+    QFile file(filename.toString());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) return false;
     QTextStream out(&file);
     out << json.toJson();
@@ -302,7 +298,7 @@ QJsonDocument Character::toJson(Option& opt) {
     top.insert("skillsTalentsOrPerks", skillsTalentsOrPerks);
 
     QJsonObject image;
-    image["filename"] = mImage;
+    image["filename"] = mImage.isLocalFile() ? mImage.toLocalFile() : mImage.toString();
     image["datestamp"] = (qint64) mImageDate;
     QString x = mImageData.toHex().toStdString().c_str();
     image["data"] = x;

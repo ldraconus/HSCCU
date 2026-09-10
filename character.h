@@ -1,5 +1,4 @@
-#ifndef CHARACTER_H
-#define CHARACTER_H
+#pragma once
 
 #include "shared.h"
 
@@ -103,7 +102,11 @@ public:
     std::shared_ptr<Complication>         findComplication(const QString& guid) { return nullptr; }
     std::shared_ptr<Power>                findPower(const QString& guid)        { for (const auto& power: as_const(mPowers)) if (power->id() == guid) return power; return nullptr; }
     std::shared_ptr<SkillTalentOrPerk>    findSkill(const QString& guid)        { return nullptr; }
+#ifdef __wasm__
     QString&                              image()                               { return mImage; }
+#else
+    QUrl&                                 image()                               { return mImage; }
+#endif
     qulonglong&                           imageDate()                           { return mImageDate; }
     QByteArray&                           imageData()                           { return mImageData; }
     QString&                              notes()                               { return mNotes; }
@@ -121,13 +124,14 @@ public:
 
     QJsonDocument copy(Option&);
     void          erase();
-#ifdef __EMSCRIPTEN__
-    bool          load(Option&, const QByteArray&);
-#else
-    bool          load(Option&, QString);
-#endif
     void          paste(Option&, QJsonDocument&);
+#ifdef __wasm__
+    bool          load(Option&, const QByteArray&);
     bool          store(Option&, QString);
+#else
+    bool          load(Option&, QUrl);
+    bool          store(Option&, QUrl);
+#endif
 
 private:
     Characteristic mSTR;
@@ -194,7 +198,11 @@ private:
     QString mPlayerName    = "";
     Points  mXP            = 0_cp;
 
+#ifdef __wasm__
     QString    mImage     = "";
+#else
+    QUrl       mImage;
+#endif
     qulonglong mImageDate = 0;
     QByteArray mImageData;
 
@@ -203,4 +211,3 @@ public:
     QJsonDocument toJson(Option&);
 };
 
-#endif // CHARACTER_H
