@@ -2693,7 +2693,6 @@ void Sheet::editComplication() {
     if (complication == nullptr) return;
 
     auto compDlg = (sDialog.Complications = std::shared_ptr<ComplicationsDialog> (new ComplicationsDialog(this), [](ComplicationsDialog* d) { d->deleteLater(); }));
-    compDlg = make_shared<ComplicationsDialog>(this);
     compDlg->complication(complication);
     connect(compDlg.get(), SIGNAL(accepted()), this, SLOT(doneEditComplication()));
 
@@ -2728,7 +2727,6 @@ void Sheet::editSkillstalentsandperks() {
     if (skilltalentorperk == nullptr) return;
 
     auto skillDlg = (sDialog.Skill = std::shared_ptr<SkillDialog> (new SkillDialog(this), [](SkillDialog* d) { d->deleteLater(); }));
-    skillDlg = make_shared<SkillDialog>(this);
     skillDlg->skilltalentorperk(skilltalentorperk);
     connect(skillDlg.get(), SIGNAL(accepted()), this, SLOT(doneEditSkill()));
 
