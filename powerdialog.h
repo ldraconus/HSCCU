@@ -19,7 +19,7 @@ class PowerDialog : public Dialog {
     Q_OBJECT
 
 public:
-    explicit PowerDialog(QWidget *parent = nullptr, shared_ptr<Power>& save = _dummy);
+    explicit PowerDialog(QWidget *parent = nullptr, shared_ptr<Power>& save = mDummy);
     PowerDialog(const PowerDialog&) = delete;
     PowerDialog(PowerDialog&&) = delete;
     ~PowerDialog() override;
@@ -33,7 +33,7 @@ public:
     QTableWidget* createAdvantages(QWidget* parent, QVBoxLayout* layout);
     QTableWidget* createLimitations(QWidget* parent, QVBoxLayout* layout);
 
-    PowerDialog&  powerorequipment(shared_ptr<class Power> s);
+    PowerDialog&  powerorequipment(shared_ptr<class Power>& s);
 
     Ui::PowerDialog* UI() { return ui; }
 
@@ -63,7 +63,7 @@ protected:
 private:
     Ui::PowerDialog *ui;
 
-    static shared_ptr<Power> _dummy; // NOLINT
+    static shared_ptr<Power> mDummy; // NOLINT
     static const bool WordWrap = true;
 
     bool                        mAccepted = false;

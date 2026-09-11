@@ -17,7 +17,7 @@
 #include <QTimer>
 
 PowerDialog*      PowerDialog::mPtr = nullptr; // NOLINT
-shared_ptr<Power> PowerDialog::_dummy = nullptr; // NOLINT
+shared_ptr<Power> PowerDialog::mDummy = nullptr; // NOLINT
 
 PowerDialog::PowerDialog(QWidget *parent, shared_ptr<Power>& save)
     : Dialog(parent)
@@ -73,12 +73,6 @@ PowerDialog::~PowerDialog() {
 }
 
 void PowerDialog::restore(const QJsonObject& json) {
-    if (json.contains("saved")) {
-    //   get the power with that index
-    //   set it as save
-    } else {
-    //   set up the dummy power
-    }
     auto obj = json;
     std::shared_ptr<Power> power = Power::FromJson(json["name"].toString(), obj);
     powerorequipment(power);
@@ -588,7 +582,8 @@ void PowerDialog::newLimitation(bool) {
 
 void PowerDialog::setupPower(shared_ptr<Power>& power) {
     auto obj = mPower->toJson();
-    power = Power::FromJson(mPower->name(), obj);
+    if (power.get()) power = mPower;
+    else power = Power::FromJson(mPower->name(), obj);
     if (mEquipment) return;
     power->modifiers().clear();
     for (const auto& mod: std::as_const(power->advantagesList())) {
@@ -624,7 +619,7 @@ void PowerDialog::ok() {
         s.addPower(work);
     } else {
         setupPower(mSaved);
-        _dummy = nullptr;
+        mDummy = nullptr;
     }
 
     s.updateDisplay();
@@ -756,7 +751,7 @@ void PowerDialog::pickType(int type) {
 }
 
 
-PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
+PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power>& s) {
     QJsonObject obj = s->toJson();
     QString name = obj["name"].toString();
     if (name.isEmpty()) return *this;
@@ -792,7 +787,13 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
         ui->form->setLayout(layout);
     }
 
-    mPower = s;
+    QJsonObject json = s->toJson();
+    shared_ptr<Power> work = Power::FromJson(json["name"].toString(), json);
+    if (work == nullptr) return *this;
+
+    work->parent(s->parent());
+
+    mPower = work;
     try { mPower->createForm(this, layout); } catch (...) { accept(); return *this; }
     if (type != 12) {
         createLabel(layout, "");
@@ -824,7 +825,6 @@ PowerDialog& PowerDialog::powerorequipment(shared_ptr<Power> s) {
     mDescription = createLabel(layout, "<incomplete>", WordWrap);
 
     layout->addStretch(1);
-    mPower = s;
     mPower->restore();
     updateForm();
     return *this;

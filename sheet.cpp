@@ -2709,13 +2709,8 @@ void Sheet::editPowerOrEquipment() {
     shared_ptr<Power>& power = getPower(row, mCharacter.powersOrEquipment());
     if (power == nullptr) return;
 
-    QJsonObject json = power->toJson();
-    shared_ptr<Power> work = Power::FromJson(json["name"].toString(), json);
-    if (work == nullptr) return;
-
-    work->parent(power->parent());
-    auto powerDlg = (sDialog.Power = std::shared_ptr<PowerDialog> (new PowerDialog(this), [](PowerDialog* d) { d->deleteLater(); }));
-    powerDlg->powerorequipment(work);
+    auto powerDlg = (sDialog.Power = std::shared_ptr<PowerDialog> (new PowerDialog(this, power), [](PowerDialog* d) { d->deleteLater(); }));
+    powerDlg->powerorequipment(power);
     powerDlg->open();
 }
 
