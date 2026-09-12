@@ -36,8 +36,8 @@ signals:
 protected:
 #if defined(__wasm__)
     void mousePressEvent(QMouseEvent* me) override {
-        if (me->button() == Qt::RightButton) emit customContextMenuRequested(me->pos());
-        else                                 emit clicked();
+        if (me->button() == Qt::RightButton) emit customContextMenuRequested(me->globalPosition().toPoint());
+        else                                 emit QLabel::mouseReleaseEvent(me);
     }
 #elif defined(Q_OS_ANDROID)
     void mousePressEvent(QMouseEvent* me) override { if (me->button()== Qt::LeftButton) mPnt = me->pos(); }
@@ -62,9 +62,6 @@ class ClickableTable: public QTableWidget {
 public:
     explicit ClickableTable(QWidget* parent = Q_NULLPTR)
         : QTableWidget(parent) {
-#ifdef __wasm__
-//        this->setAttribute(Qt::WA_AcceptTouchEvents);
-#endif
     }
 
 signals:
@@ -73,7 +70,7 @@ signals:
 protected:
 #if defined(__wasm__)
     void mousePressEvent(QMouseEvent* me) override {
-        if (me->button() == Qt::RightButton)     emit customContextMenuRequested(me->pos());
+        if (me->button() == Qt::RightButton)     emit customContextMenuRequested(me->globalPosition().toPoint());
         else if (me->button() == Qt::LeftButton) emit clicked(indexAt(me->pos()));
         else                                     QTableWidget::mousePressEvent(me);
     }
@@ -310,7 +307,27 @@ private:
 
     QMenu* createMenu(QWidget* parent, QFont& fontIn, QList<menuItems> items) {
         QMenu* menu = new QMenu(parent);
-        menu->setStyleSheet("QMenu { color: #000; background: #bbb; }");
+        menu->setStyleSheet("QMenu {\n"
+                            "  color: #000000;\n"
+                            "  background: #bbbbbb;\n"
+                            "}\n"
+                            "QMenu:separator {\n"
+                            "  color: #000000;\n"
+                            "  background: #bbbbbb;\n"
+                            "  height: 1px;\n"
+                            "  margin: 1px 1px;\n"
+                            "}\n"
+                            "QMenu:item {\n"
+                            "  color: #000000;\n"
+                            "  background: #bbbbbb;\n"
+                            "}\n"
+                            "QMenu:item:selected {\n"
+                            "  color: #000000;\n"
+                            "  background: #D0FFFF;\n"
+                            "}\n"
+                            "QMenu:item:disabled {\n"
+                            "  color: gray;\n"
+                            "}\n");
         menu->setFont(fontIn);
         for (auto& item: items) {
             if (item.action == nullptr) {
@@ -348,13 +365,7 @@ private:
         int sz = metrics.height();
         QFont boldFont(fontIn);
         boldFont.setBold(true);
-#ifdef __wasm__
-        QFont temp = fontIn;
-        temp.setPointSize(pnt * 8 + 0.5); // NOLINT
-        tablewidget->setFont(temp);
-#else
         tablewidget->setFont(fontIn);
-#endif
         auto verticalHeader = tablewidget->verticalHeader();
         verticalHeader->setVisible(false);
         verticalHeader->setMinimumSectionSize(sz);
@@ -715,6 +726,14 @@ public:
         layout = new QGridLayout();
         widget->setLayout(layout);
 
+#if defined(__wasm__)
+        static constexpr int offset = -2;
+#elif defined(unix) || defined(Q_OS_ANDROID)
+        static constexpr int offset = 0;
+#else
+        static constexpr int offset = -3;
+#endif
+
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
         QFile fontResource(":/font/SegoeUIHS.ttf");
         (void) fontResource.open(QIODevice::ReadOnly);
@@ -771,13 +790,9 @@ public:
         smallBoldWideFont.setPointSize(SmallFontPointSize);
         smallBoldWideFont.setStretch(QFont::Stretch::Expanded);
 
-#if defined(unix) && !defined(Q_OS_ANDROID)
-        headerFont = smallBoldWideFont;
-#else
         headerFont = largeBoldFont;
         headerFont.setPointSize(HeaderFontSize);
         headerFont.setStretch(QFont::Stretch::SemiCondensed);
-#endif
 
         QFont tinyFont = smallfont;
         tinyFont.setPointSize(TinyFontSize);
@@ -807,7 +822,7 @@ public:
         QFontMetrics headerMetrics(headerFont);
 #endif
 
-        createBlockHeader(widget, headerFont, 72, 197, 295, "CHARACTERISTICS");
+        createBlockHeader(widget, headerFont, 72, 197 + offset, 295, "CHARACTERISTICS");
         createLabel(widget, smallBoldFont, "Val",    { 91,  223 }); // NOLINT
         createLabel(widget, smallBoldFont, "Char",   { 139, 223 }); // NOLINT
         createLabel(widget, smallBoldFont, "Points", { 199, 223 }); // NOLINT
@@ -874,7 +889,7 @@ public:
         createLabel(widget, smallBoldFont, "Total Cost", { 276, 631 }); // NOLINT
         totalcost  = createLabel(widget, font,   "0", { 276, 657 }, "0000"); // NOLINT
 
-        createBlockHeader(widget, headerFont, 394, 197, 243, "CURRENT STATUS");
+        createBlockHeader(widget, headerFont, 394, 197 + offset, 243, "CURRENT STATUS");
         createLabel(widget, smallBoldFont, "Maximum", { 454, 222 }); // NOLINT
         createLabel(widget, smallBoldFont, "Current", { 542, 222 }); // NOLINT
         createLabel(widget, smallBoldFont, "END",  { 394, 245 }); // NOLINT
@@ -898,7 +913,7 @@ public:
         currentbody = createLineEdit(widget, font, style, "10", { 542, 272 }, { 97, 20 }, "You can keep track of your current BODY here"); // NOLINT
         currentstun = createLineEdit(widget, font, style, "20", { 542, 296 }, { 97, 20 }, "You can keep track of your current STUN here"); // NOLINT
 
-        createBlockHeader(widget, headerFont, 394, 348, 243, "VITAL INFORMATION");
+        createBlockHeader(widget, headerFont, 394, 348 + offset, 243, "VITAL INFORMATION");
         createLabel(widget, smallBoldNarrowFont, "HTH Damage",      { 397, 375 }); // NOLINT
 #ifdef __wasm__
         createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 486, 375 }); // NOLINT
@@ -953,7 +968,7 @@ public:
         combatskilllevels = createTextEdit(widget, narrow, "<b>Combat Skill Levels</b> ", { 392, 520 }, { 244, 145 }); // NOLINT
         presenceattack    = createLabel(widget, font,   "2d6", { 573, 663 }, "00s6+0"); // NOLINT
 
-        createBlockHeader(widget, headerFont, 679, 198, 251, "MOVEMENT");
+        createBlockHeader(widget, headerFont, 679, 198 + offset, 251, "MOVEMENT");
         createLabel(widget, smallNarrowFont, "Movement SFX", { 678, 420 }, { 100, 22 }); // NOLINT
 
         movement    = createTableWidget(widget, narrowTableFont,
@@ -964,7 +979,7 @@ public:
                                           { "V. Leap (2m)", "2m",            "4m" } }, { 675, 225 }, { 260, 195 }); // NOLINT
         movementsfx = createLabel(widget, font, "", { 775, 423 }, "XXXXXXXXXXXXXXXXXXXX"); // NOLINT
 
-        createBlockHeader(widget, headerFont, 679, 475, 243, "RANGE MODIFIERS");
+        createBlockHeader(widget, headerFont, 679, 475 + offset, 243, "RANGE MODIFIERS");
         createLabel(widget, tinyBoldFont, "Range(m)", { 678, 502 }, "Range(m)"); // NOLINT
         createLabel(widget, tinyFont,     "0-8",      { 737, 502 }, "0-8"); // NOLINT
         createLabel(widget, tinyFont,     "9-16",     { 760, 502 }, "9-16"); // NOLINT
@@ -985,7 +1000,7 @@ public:
         imageMenu = createMenu(image, font, { { "New Image",   &newImage   },
                                               { "Clear Image", &clearImage } } );
 
-        createBlockHeader(widget, headerFont, 72, 714, 295, "ATTACKS & MANEUVERS");
+        createBlockHeader(widget, headerFont, 72, 714 + offset, 295, "ATTACKS & MANEUVERS");
         attacksandmaneuvers = createTableWidget(widget, narrowTableFont,
                                                 { { 85, "Maneuver" }, { 34, "Phase" }, { 28, "OCV" }, { 26, "DCV" }, { 135, "Effects" } },
                                                 { { "Block",            "½",             "+0",          "+0",          "Block, abort"              },
@@ -1010,7 +1025,7 @@ public:
                                                   { "Trip",             "½",             "-1",          "-2",          "Knock target prone"        }
                                                 }, { 69, 739 }, { 295, 495 }); // NOLINT
 
-        createBlockHeader(widget, headerFont, 394, 714, 243, "DEFENSES");
+        createBlockHeader(widget, headerFont, 394, 714 + offset, 243, "DEFENSES");
         defenses = createTableWidget(widget, narrowTableFont,
                                      { { 108, "Type" },   { 142, "Amount/Effect" } },
                                      { { "Normal PD",      "2" },
@@ -1021,13 +1036,13 @@ public:
                                        { "Power Defense",  "0" },
                                        { "Flash Defense",  "0" } }, { 392, 739 }, { 249, 270 }); // NOLINT
 
-        createBlockHeader(widget, headerFont, 394, 1040, 243, "SENSES");
+        createBlockHeader(widget, headerFont, 394, 1040 + offset, 243, "SENSES");
         createLabel(widget, smallBoldNarrowFont, "Perception Roll", { 395, 1065 }, QStringLiteral("-00")); // NOLINT
         createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 496, 1065 }, QStringLiteral("00")); // NOLINT
         perceptionroll = createLabel(widget, font, "11-", { 569, 1066 }, "-00"); // NOLINT
         enhancedandunusualsenses = createTextEdit(widget, font, "<b>Enhanced and Unusual Senses</b>", { 390, 1083 }, { 249, 150 }); // NOLINT
 
-        createBlockHeader(widget, headerFont, 679, 1108, 243, "EXPERIENCE POINTS");
+        createBlockHeader(widget, headerFont, 679, 1108 + offset, 243, "EXPERIENCE POINTS");
         createLabel(widget, smallBoldNarrowFont, "Total Points",            { 675, 1133 }); // NOLINT
         createLabel(widget, smallBoldNarrowFont, "Total Experience Earned", { 675, 1156 }); // NOLINT
         createLabel(widget, smallNarrowFont,     "Experience Spent",        { 675, 1181 }); // NOLINT
@@ -1038,7 +1053,7 @@ public:
         experiencespent       = createLabel(widget, font,     "0", { 855, 1183 }, QStringLiteral("000")); // NOLINT
         experienceunspent     = createLabel(widget, font,   "325", { 855, 1207 }, QStringLiteral("0000")); // NOLINT
 
-        createBlockHeader(widget, headerFont, 72, 1363, 259, "CHARACTER INFORMATION");
+        createBlockHeader(widget, headerFont, 72, 1363 + offset, 259, "CHARACTER INFORMATION");
         createLabel(widget, smallBoldNarrowFont, "Character Name", {  66, 1388 }); // NOLINT
         createLabel(widget, smallBoldNarrowFont, "Height",         {  66, 1413 }); // NOLINT
         createLabel(widget, smallBoldNarrowFont, "Weight",         { 196, 1413 }); // NOLINT
@@ -1053,7 +1068,7 @@ public:
 
         banner2 = createImage(widget, { 360, 1376 } , { 293, 109 }, ":/gfx/HeroSystem-Banner.png", false); // NOLINT
 
-        createBlockHeader(widget, headerFont, 678, 1363, 257, "CAMPAIGN INFORMATION");
+        createBlockHeader(widget, headerFont, 678, 1363 + offset, 257, "CAMPAIGN INFORMATION");
         createLabel(widget, smallBoldNarrowFont, "Campaign Name", { 672, 1389 }); // NOLINT
         createLabel(widget, smallBoldNarrowFont, "Genre",         { 672, 1413 }); // NOLINT
         createLabel(widget, smallBoldNarrowFont, "Gamemaster",    { 672, 1439 }); // NOLINT
@@ -1061,7 +1076,7 @@ public:
         genre        = createLineEdit(widget, font, "", { 721, 1416 }, { 213, 20 }, "The kind of game (street level, superhero, galactic, etc)"); // NOLINT
         gamemaster   = createLineEdit(widget, font, "", { 764, 1441 }, { 170, 20 }, "Who is running the game for your character"); // NOLINT
 
-        createBlockHeader(widget, headerFont, 72, 1496, 259, "SKILLS, PERKS, & TALENTS");
+        createBlockHeader(widget, headerFont, 72, 1496 + offset, 259, "SKILLS, PERKS, & TALENTS");
         createLabel(widget, smallBoldNarrowFont, "Total Skills,Perks, & Talents Cost", { 112, 2057 }); // NOLINT
         skillstalentsandperks         = createTableWidget(widget, tableFont, { { 42, "Cost" }, { 169, "Name" }, { 48, "Roll" } },
                                                   { }, { 73, 1521 }, { 265, 535 }, "Things your character is skilled at or has a gift for", Selectable); // NOLINT
@@ -1077,7 +1092,7 @@ public:
                                                                                    { "Move Up",   &moveSkillTalentOrPerkUp },
                                                                                    { "Move Down", &moveSkillTalentOrPerkDown } } );
 
-        createBlockHeader(widget, headerFont, 72, 2104, 259, "COMPLICATIONS");
+        createBlockHeader(widget, headerFont, 72, 2104 + offset, 259, "COMPLICATIONS");
         createLabel(widget, smallBoldNarrowFont, "Total Complications Points", { 117, 2512 }); // NOLINT
         complications        = createTableWidget(widget, tableFont, { { 41, "Pts" }, { 221, "Complication" } },
                                                  { }, { 73, 2130 }, { 265, 383 }, "The things that make life difficult for your character", Selectable); // NOLINT
@@ -1093,7 +1108,7 @@ public:
                                                                  { "Move Up",   &moveComplicationUp },
                                                                  { "Move Down", &moveComplicationDown } } );
 
-        createBlockHeader(widget, headerFont, 369, 1498, 564, "POWERS AND EQUIPMENT");
+        createBlockHeader(widget, headerFont, 369, 1498 + offset, 564, "POWERS AND EQUIPMENT");
         createLabel(widget, smallBoldNarrowFont, "Total Powers/Equipment Cost", { 410, 2510 }); // NOLINT
 
         QFontMetrics metrics(tableFont);
@@ -1136,12 +1151,12 @@ public:
         DCVmod     = createLabel(hidden, font, "+0", { 158, 565 }, QStringLiteral("+00")); // NOLINT
         armorNotes = createLabel(hidden, font, "",   { 158, 590 }, QStringLiteral("MMMMMMMMMMMMMMMMMMMMMMMMMMMM")); // NOLINT
 
-        createBlockHeader(hidden, headerFont, 75,  85,  249, "KNOCKBACK MODIFIERS");
-        createBlockHeader(hidden, headerFont, 680, 82,  256, "WALL BODY");
-        createBlockHeader(hidden, headerFont, 366, 202, 569, "NOTES");
-        createBlockHeader(hidden, headerFont, 75,  248, 249, "HIT LOCATION CHART");
-        createBlockHeader(hidden, headerFont, 75,  671, 249, "COMBAT MODIFIERS");
-        createBlockHeader(hidden, headerFont, 75,  884, 249, "SKILL MODIFIERS");
+        createBlockHeader(hidden, headerFont, 75,  85 + offset,  249, "KNOCKBACK MODIFIERS");
+        createBlockHeader(hidden, headerFont, 680, 82 + offset,  256, "WALL BODY");
+        createBlockHeader(hidden, headerFont, 366, 202 + offset, 569, "NOTES");
+        createBlockHeader(hidden, headerFont, 75,  248 + offset, 249, "HIT LOCATION CHART");
+        createBlockHeader(hidden, headerFont, 75,  671 + offset, 249, "COMBAT MODIFIERS");
+        createBlockHeader(hidden, headerFont, 75,  884 + offset, 249, "SKILL MODIFIERS");
 
         hidden->setVisible(false);
     }

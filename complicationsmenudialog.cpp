@@ -29,7 +29,7 @@ void ComplicationsMenuDialog::showEvent(QShowEvent*) {
     QSize sz = dlg.size();
 #ifdef __wasm__
     QRect btn = Sheet::ref().complicationsButton->geometry();
-    if (mPos == QPoint()) mPps = Point(btn.left(), btn.height());
+    if (mPos == QPoint()) mPos = QPoint(btn.left(), btn.height());
 #endif
     dlg.setTopLeft(mPos.toPoint());
     dlg.setSize(sz);

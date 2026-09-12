@@ -3,7 +3,7 @@
  <class>SkillMenuDialog</class>
  <widget class="QDialog" name="SkillMenuDialog">
   <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
+   <enum>Qt::WindowModality::ApplicationModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -16,6 +16,11 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">color: black;
+background: #bbbbbb;
+</string>
+  </property>
   <property name="modal">
    <bool>true</bool>
   </property>
@@ -24,7 +29,7 @@
     <number>0</number>
    </property>
    <property name="sizeConstraint">
-    <enum>QLayout::SetFixedSize</enum>
+    <enum>QLayout::SizeConstraint::SetFixedSize</enum>
    </property>
    <property name="leftMargin">
     <number>0</number>
@@ -40,6 +45,23 @@
    </property>
    <item>
     <widget class="QPushButton" name="newButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>New</string>
      </property>
@@ -47,6 +69,23 @@
    </item>
    <item>
     <widget class="QPushButton" name="editButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>Edit</string>
      </property>
@@ -54,6 +93,23 @@
    </item>
    <item>
     <widget class="QPushButton" name="deleteButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>Delete</string>
      </property>
@@ -61,13 +117,35 @@
    </item>
    <item>
     <widget class="Line" name="line">
+     <property name="styleSheet">
+      <string notr="true">color: black;
+background: #bbbbbb;
+</string>
+     </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="cutButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>Cut</string>
      </property>
@@ -75,6 +153,23 @@
    </item>
    <item>
     <widget class="QPushButton" name="copyButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>Copy</string>
      </property>
@@ -82,6 +177,23 @@
    </item>
    <item>
     <widget class="QPushButton" name="pasteButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>Paste</string>
      </property>
@@ -89,13 +201,35 @@
    </item>
    <item>
     <widget class="Line" name="line_2">
+     <property name="styleSheet">
+      <string notr="true">color: black;
+background: #bbbbbb;
+</string>
+     </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="muveUpButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>Move Up</string>
      </property>
@@ -103,6 +237,23 @@
    </item>
    <item>
     <widget class="QPushButton" name="moveDownButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>Move Down</string>
      </property>

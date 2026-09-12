@@ -16,6 +16,11 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">color: black;
+background: #bbbbbb;
+</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
     <number>0</number>
@@ -34,6 +39,23 @@
    </property>
    <item>
     <widget class="QPushButton" name="clearImageButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>Clear Image</string>
      </property>
@@ -41,6 +63,23 @@
    </item>
    <item>
     <widget class="QPushButton" name="loadImageButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>Load Image</string>
      </property>

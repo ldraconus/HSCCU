@@ -3,7 +3,7 @@
  <class>FileMenuDialog</class>
  <widget class="QDialog" name="FileMenuDialog">
   <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
+   <enum>Qt::WindowModality::ApplicationModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -14,13 +14,18 @@
    </rect>
   </property>
   <property name="focusPolicy">
-   <enum>Qt::StrongFocus</enum>
+   <enum>Qt::FocusPolicy::StrongFocus</enum>
   </property>
   <property name="contextMenuPolicy">
-   <enum>Qt::NoContextMenu</enum>
+   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
   </property>
   <property name="windowTitle">
    <string/>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">color: black;
+background: #bbbbbb;
+</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -30,7 +35,7 @@
     <number>0</number>
    </property>
    <property name="sizeConstraint">
-    <enum>QLayout::SetFixedSize</enum>
+    <enum>QLayout::SizeConstraint::SetFixedSize</enum>
    </property>
    <property name="leftMargin">
     <number>0</number>
@@ -46,6 +51,23 @@
    </property>
    <item>
     <widget class="QPushButton" name="newButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>New</string>
      </property>
@@ -53,6 +75,23 @@
    </item>
    <item>
     <widget class="QPushButton" name="openButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>Open</string>
      </property>
@@ -60,6 +99,23 @@
    </item>
    <item>
     <widget class="QPushButton" name="saveButton">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
      <property name="text">
       <string>Save</string>
      </property>

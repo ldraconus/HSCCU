@@ -266,7 +266,7 @@ Sheet::Sheet(QWidget *parent)
 #ifndef __wasm__
     , mUi(new Ui::Sheet)
 #else
-    , ui(new Ui::wasm)
+    , mUi(new Ui::wasm)
 #endif
     , mUI(&sSheet_UI)
     , mSaveChanged(false) {
@@ -597,12 +597,12 @@ void Sheet::closeDialogs(QMouseEvent* me) {
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
     if (sDialog.ComplicationsMenu != nullptr) closeDialog(sDialog.ComplicationsMenu, me);
 #ifdef __wasm__
-    if (sDialog,EditMenu          != nullptr) closeDialog(sDialog,EditMenu,          me);
+    if (sDialog.EditMenu          != nullptr) closeDialog(sDialog.EditMenu,          me);
     if (sDialog.FileMenu          != nullptr) closeDialog(sDialog.FileMenu,          me);
 #endif
     if (sDialog.ImgMenu           != nullptr) closeDialog(sDialog.ImgMenu,           me);
     if (sDialog.SkillMenu         != nullptr) closeDialog(sDialog.SkillMenu,         me);
-    if (sDialog.PowerMenu         != nullptr) closeDialog(sDialog.SkillMenu,         me);
+    if (sDialog.PowerMenu         != nullptr) closeDialog(sDialog.PowerMenu,         me);
 #endif
     if (sDialog.Print             != nullptr) closeDialog(sDialog.Print,             me);
     if (sDialog.Option            != nullptr) closeDialog(sDialog.Option,            me);
@@ -939,15 +939,6 @@ void Sheet::updateBanner() {
 
 #ifdef __wasm__
 void Sheet::fileOpen(const QByteArray& data, QString filename) {
-    int ext = filename.lastIndexOf(".hsccu");
-    if (ext != -1) mFilename = filename.left(ext);
-
-    int sep = mFilename.lastIndexOf("/");
-    if (sep != -1) {
-        mDir = mFilename.left(sep);
-        mFilename = mFilename.mid(sep + 1);
-    }
-
     if (!mCharacter.load(mOption, data)) OK("Can't load \"" + mFilename.toString() +"\".", std::bind(&Sheet::doNothing, this));
     else {
         mSaveChanged = false;
@@ -2401,11 +2392,11 @@ void Sheet::aboutToShowPowersAndEquipmentMenu() {
     powerMenuDialog->setMoveDown(show && row !=mUI->powersandequipment->rowCount() - 1);
     auto power = getPower(row, mCharacter.powersOrEquipment());
     mUI->movePowerOrEquipmentDown->setEnabled(show && (row != mUI->powersandequipment->rowCount() - 1 || power->parent() != nullptr));
-    QClipboard* clipboard = QGuiApplication::clipboard();
-    const QMimeData* clip = clipboard->mimeData();
 #ifdef __wasm__
     bool canPaste = false;
 #else
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    const QMimeData* clip = clipboard->mimeData();
     bool canPaste = clip->hasFormat("application/powerorequipment");
 #endif
     powerMenuDialog->setPaste(canPaste);
@@ -2549,24 +2540,18 @@ void Sheet::copySkillTalentOrPerk() {
 
 void Sheet::complicationsMenu(QPoint pos) {
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
-    auto compMenuDialog = (sDialog.ComplicationsMenu = std::shared_ptr<ComplicationsMenuDialog> (new ComplicationsMenuDialog(this), [](ComplicationsMenuDialog* d) { d->deleteLater(); }));
-#ifdef __wasm__
-    int row = mUI->complications->rowAt(pos.y());
-    mUI->complications->selectRow(row);
-    closeDialogs(nullptr);
-    compMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    compMenuDialog->setPos(mapToGlobal(pos + mUI->complications->pos() - QPoint(0, mUi->scrollArea->verticalScrollBar()->value())));
-    aboutToShowComplicationsMenu();
-    compMenuDialog->open();
-#elif defined(Q_OS_ANDROID)
     int row = mUI->complications->rowAt(mUI->complications->viewport()->mapFromGlobal(pos).y());
     mUI->complications->selectRow(row);
     closeDialogs(nullptr);
+#ifdef Q_OS_ANDROID
+    auto compMenuDialog = (sDialog.ComplicationsMenu = std::shared_ptr<ComplicationsMenuDialog> (new ComplicationsMenuDialog(this), [](ComplicationsMenuDialog* d) { d->deleteLater(); }));
+#else
+    auto compMenuDialog = (sDialog.ComplicationsMenu = std::shared_ptr<ComplicationsMenuDialog> (new ComplicationsMenuDialog()));
+#endif
     compMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     compMenuDialog->setPos(pos);
     aboutToShowComplicationsMenu();
     compMenuDialog->open();
-#endif
 #else
     mUI->complicationsMenu->exec(pos);
 #endif
@@ -2740,14 +2725,22 @@ void Sheet::eyeColorChanged(QString txt) {
 #ifdef __wasm__
 void Sheet::editMenu(bool) {
     closeDialogs(nullptr);
-    auto editMenuDialog = (sDialog.EditMenu = std::shared_ptr<EditMenuDialog> (new EditMenuDialog(this), [](EditMenuDialog* d) { d->deleteLater(); }));
+#ifdef Q_OS_ANDROID
+    auto editMenuDialog = (sDialog.EditMenu = std::shared_ptr<EditMenuDialog> (new EditMenuDialog(), [](EditMenuDialog* d) { d->deleteLater(); }));
+#else
+    auto editMenuDialog = (sDialog.EditMenu = std::make_shared<EditMenuDialog>());
+#endif
     editMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     editMenuDialog->open();
 }
 
 void Sheet::fileMenu(bool) {
     closeDialogs(nullptr);
-    auto fileMenuDialog = (sDialog.FileMenu = std::shared_ptr<FileMenuDialog> (new FileMenuDialog(this), [](FileMenuDialog* d) { d->deleteLater(); }));
+#ifdef Q_OS_ANDROID
+    auto fileMenuDialog = (sDialog.FileMenu = std::shared_ptr<FileMenuDialog> (new FileMenuDialog(), [](FileMenuDialog* d) { d->deleteLater(); }));
+#else
+    auto fileMenuDialog = (sDialog.FileMenu = std::make_shared<FileMenuDialog>());
+#endif
     fileMenuDialog->setSave(mChanged);
     fileMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     fileMenuDialog->open();
@@ -2755,14 +2748,23 @@ void Sheet::fileMenu(bool) {
 #endif
 void Sheet::imgMenu(bool) {
     closeDialogs(nullptr);
+#ifdef Q_OS_ANDROID
     auto imgMenuDialog = (sDialog.ImgMenu = std::shared_ptr<ImgMenuDialog> (new ImgMenuDialog(this), [](ImgMenuDialog* d) { d->deleteLater(); }));
+#else
+    auto imgMenuDialog = (sDialog.ImgMenu = std::make_shared<ImgMenuDialog>());
+#endif
+    imgMenuDialog->setPos(QPoint());
     imgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     imgMenuDialog->open();
 }
 
 void Sheet::powerMenu(bool) {
     closeDialogs(nullptr);
-    auto powerMenuDialog = (sDialog.PowerMenu = std::shared_ptr<PowerMenuDialog> (new PowerMenuDialog(this), [](PowerMenuDialog* d) { d->deleteLater(); }));
+#ifdef Q_OS_ANDROID
+    auto powerMenuDialog = (sDialog.PowerMenu = std::shared_ptr<PowerMenuDialog> (new PowerMenuDialog(), [](PowerMenuDialog* d) { d->deleteLater(); }));
+#else
+    auto powerMenuDialog = (sDialog.PowerMenu = std::make_shared<PowerMenuDialog>());
+#endif
     aboutToShowPowersAndEquipmentMenu();
     powerMenuDialog->setPos(QPoint());
     powerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -2771,7 +2773,11 @@ void Sheet::powerMenu(bool) {
 
 void Sheet::stpMenu(bool) {
     closeDialogs(nullptr);
+#ifdef Q_OS_ANDROID
+    auto skillMenuDialog = (sDialog.SkillMenu = std::shared_ptr<SkillMenuDialog> (new SkillMenuDialog(), [](SkillMenuDialog* d) { d->deleteLater(); }));
+#else
     auto skillMenuDialog = (sDialog.SkillMenu = std::make_shared<SkillMenuDialog>());
+#endif
     aboutToShowSkillsPerksAndTalentsMenu();
     skillMenuDialog->setPos(QPoint());
     skillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -2780,7 +2786,11 @@ void Sheet::stpMenu(bool) {
 
 void Sheet::compMenu(bool) {
     closeDialogs(nullptr);
-    auto compMenuDialog = (sDialog.ComplicationsMenu = std::shared_ptr<ComplicationsMenuDialog> (new ComplicationsMenuDialog(this), [](ComplicationsMenuDialog* d) { d->deleteLater(); }));
+#ifdef Q_OS_ANDROID
+    auto compMenuDialog = (sDialog.ComplicationsMenu = std::shared_ptr<ComplicationsMenuDialog> (new ComplicationsMenuDialog(), [](ComplicationsMenuDialog* d) { d->deleteLater(); }));
+#else
+    auto compMenuDialog = (sDialog.ComplicationsMenu = std::make_shared<ComplicationsMenuDialog>());
+#endif
     aboutToShowComplicationsMenu();
     compMenuDialog->setPos(QPoint());
     compMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -2826,7 +2836,11 @@ void Sheet::hairColorChanged(QString txt) {
 void Sheet::imageMenu(QPoint pos) {
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
     closeDialogs(nullptr);
+#ifdef Q_OS_ANDROID
     auto imgMenuDialog = (sDialog.ImgMenu = std::shared_ptr<ImgMenuDialog> (new ImgMenuDialog(this), [](ImgMenuDialog* d) { d->deleteLater(); }));
+#else
+    auto imgMenuDialog = (sDialog.ImgMenu = std::shared_ptr<ImgMenuDialog> (new ImgMenuDialog()));
+#endif
     imgMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     imgMenuDialog->setPos(pos);
     imgMenuDialog->open();
@@ -3146,10 +3160,14 @@ void Sheet::playerNameChanged(QString txt) {
 
 void Sheet::powersandequipmentMenu(QPoint pos) {
 #if defined( __wasm__) || defined(Q_OS_ANDROID)
-    int row = mUI->powersandequipment->rowAt(Ui->powersandequipment->viewport()->mapFromGlobal(pos).y());
+    int row = mUI->powersandequipment->rowAt(mUI->powersandequipment->viewport()->mapFromGlobal(pos).y());
     mUI->powersandequipment->selectRow(row);
     closeDialogs(nullptr);
+#ifdef Q_OS_ANDROID
     auto powerMenuDialog = (sDialog.PowerMenu = std::shared_ptr<PowerMenuDialog> (new PowerMenuDialog(this), [](PowerMenuDialog* d) { d->deleteLater(); }));
+#else
+    auto powerMenuDialog = (sDialog.PowerMenu = std::shared_ptr<PowerMenuDialog> (new PowerMenuDialog()));
+#endif
     powerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     powerMenuDialog->setPos(pos);
     aboutToShowPowersAndEquipmentMenu();
@@ -3276,9 +3294,9 @@ void Sheet::save() {
     if (!mCharacter.store(mOption, mFilename)) OK("Can't save to \"" + mFilename.toString() + "\" in the \"" + mDir + "\" folder.", std::bind(&Sheet::doNothing, this));
     else mChanged = false;
 #else
-    if (mFilename.isEmpty()) mFilename = Ui->charactername->text();
-    if (!mCharacter.store(mOption, mFilename)) {
-        OK("Can't save to \"" + mFilename + ".hsccu\".", std::bind(&Sheet::doNothing, this));
+    if (mFilename.isEmpty()) mFilename = mUI->charactername->text();
+    if (!mCharacter.store(mOption, mFilename.toString())) {
+        OK("Can't save to \"" + mFilename.toString() + ".", std::bind(&Sheet::doNothing, this));
         throw "";
     }
     else mChanged = false;
@@ -3286,11 +3304,10 @@ void Sheet::save() {
 }
 
 void Sheet::saveAs() {
-#ifdef __wasm__
     QUrl oldname = mFilename;
+#ifdef __wasm__
     mFilename = QFileDialog::getSaveFileName(this, "Save File", mDir, "Characters (*.hsccu)");
 #endif
-    QUrl oldname = mFilename;
     if (mFilename.isEmpty()) mFilename = QUrl::fromLocalFile(mDir + "/" + mCharacter.characterName() + ".hsccu");
     mFilename = QFileDialog::getSaveFileUrl(this, "Save File", mFilename, "Characters (*.hsccu)");
     if (mFilename.isEmpty()) {
@@ -3303,10 +3320,14 @@ void Sheet::saveAs() {
 
 void Sheet::skillstalentsandperksMenu(QPoint pos) {
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
-    int row = mUI->skillstalentsandperks->rowAt(Ui->skillstalentsandperks->viewport()->mapFromGlobal(pos).y());
+    int row = mUI->skillstalentsandperks->rowAt(mUI->skillstalentsandperks->viewport()->mapFromGlobal(pos).y());
     mUI->skillstalentsandperks->selectRow(row);
     closeDialogs(nullptr);
+#ifdef Q_OS_ANDROID
     auto skillMenuDialog = (sDialog.SkillMenu = std::shared_ptr<SkillMenuDialog> (new SkillMenuDialog(this), [](SkillMenuDialog* d) { d->deleteLater(); }));
+#else
+    auto skillMenuDialog = (sDialog.SkillMenu = std::shared_ptr<SkillMenuDialog> (new SkillMenuDialog()));
+#endif
     skillMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     skillMenuDialog->setPos(pos);
     aboutToShowSkillsPerksAndTalentsMenu();

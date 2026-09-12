@@ -56,10 +56,12 @@ public:
 
     static Sheet& ref() { return* sSheet; }
 
-#ifndef _MSVC_LANG
-    typedef std::shared_ptr<ComplicationsMenuDialog> tComplicationsMenu;
+#ifdef __wasm__
     typedef std::shared_ptr<EditMenuDialog>          tEditMenu;
     typedef std::shared_ptr<FileMenuDialog>          tFileMenu;
+#endif
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
+    typedef std::shared_ptr<ComplicationsMenuDialog> tComplicationsMenu;
     typedef std::shared_ptr<ImgMenuDialog>           tImgMenu;
     typedef std::shared_ptr<SkillMenuDialog>         tSkillMenu;
     typedef std::shared_ptr<PowerMenuDialog>         tPowerMenu;
@@ -71,19 +73,21 @@ public:
     typedef std::shared_ptr<SkillDialog>             tSkill;
     static class Dialogs {
     public:
-#ifndef _MSVC_LANG
-        tComplicationsMenu ComplicationsMenu { nullptr };
-        tEditMenu          EditMenu { nullptr };
-        tFileMenu          FileMenu { nullptr };
-        tImgMenu           ImgMenu { nullptr };
-        tSkillMenu         SkillMenu { nullptr };
-        tPowerMenu         PowerMenu { nullptr };
+#ifdef __wasm__
+        tEditMenu          EditMenu          { nullptr };
+        tFileMenu          FileMenu          { nullptr };
 #endif
-        tPrint             Print { nullptr };
-        tOption            Option { nullptr };
-        tComplications     Complications { nullptr };
-        tPower             Power { nullptr };
-        tSkill             Skill { nullptr };
+#if defined(__wasm__) || defined(Q_OS_QNDROID)
+        tComplicationsMenu ComplicationsMenu { nullptr };
+        tImgMenu           ImgMenu           { nullptr };
+        tSkillMenu         SkillMenu         { nullptr };
+        tPowerMenu         PowerMenu         { nullptr };
+#endif
+        tPrint             Print             { nullptr };
+        tOption            Option            { nullptr };
+        tComplications     Complications     { nullptr };
+        tPower             Power             { nullptr };
+        tSkill             Skill             { nullptr };
     } sDialog;
 
     void       changed()          { mChanged = true; }
@@ -135,7 +139,7 @@ public:
     static const bool WordWrap = true;
 
 #if __wasm__
-    Ui::wasm* UI() { return ui; }
+    Ui::wasm* UI() { return mUi; }
 #else
     Ui::Sheet* UI() { return mUi; }
 #endif
@@ -145,7 +149,7 @@ public:
 #if !defined(__wasm__)
     Ui::Sheet* mUi = nullptr;
 #else
-    Ui::wasm* ui = nullptr;
+    Ui::wasm* mUi = nullptr;
 #endif
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
 #ifdef __wasm__
@@ -214,11 +218,7 @@ private:
 
     Character mCharacter;
     QString   mDir;
-#ifdef __was__
-    QString   mFilename;
-#else
     QUrl      mFilename;
-#endif
     QFont     mFont;
     Option    mOption;
     bool      mSaveChanged = false;

@@ -102,11 +102,7 @@ public:
     std::shared_ptr<Complication>         findComplication(const QString& guid) { return nullptr; }
     std::shared_ptr<Power>                findPower(const QString& guid)        { for (const auto& power: as_const(mPowers)) if (power->id() == guid) return power; return nullptr; }
     std::shared_ptr<SkillTalentOrPerk>    findSkill(const QString& guid)        { return nullptr; }
-#ifdef __wasm__
-    QString&                              image()                               { return mImage; }
-#else
     QUrl&                                 image()                               { return mImage; }
-#endif
     qulonglong&                           imageDate()                           { return mImageDate; }
     QByteArray&                           imageData()                           { return mImageData; }
     QString&                              notes()                               { return mNotes; }
@@ -198,11 +194,7 @@ private:
     QString mPlayerName    = "";
     Points  mXP            = 0_cp;
 
-#ifdef __wasm__
-    QString    mImage     = "";
-#else
     QUrl       mImage;
-#endif
     qulonglong mImageDate = 0;
     QByteArray mImageData;
 

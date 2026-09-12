@@ -27,10 +27,8 @@ PowerMenuDialog::~PowerMenuDialog() {
 void PowerMenuDialog::showEvent(QShowEvent*) {
     auto dlg = geometry();
 #ifdef __wasm__
-    if (mPos == QPoint) {
-        QRect btn = Sheet::ref().powersAndEquipmentButton->geometry();
-        if (mPos == QPoint()) mPos = QPoint(btn.left(), btn.height());
-    }
+    QRect btn = Sheet::ref().powersAndEquipmentButton->geometry();
+    if (mPos == QPoint()) mPos = QPoint(btn.left(), btn.height());
 #endif
     dlg.setTopLeft(mPos.toPoint());
     setGeometry(dlg);

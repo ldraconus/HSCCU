@@ -21,9 +21,9 @@ void ImgMenuDialog::showEvent(QShowEvent*) {
     QRect dlg = geometry();
 #ifdef __wasm__
     QRect btn = Sheet::ref().imageButton->geometry();
-    if (mPos == QPoint()) mPos = mapToGlobal(QPoint(btn.left(), btn.height()));
+    if (mPos == QPoint()) mPos = QPoint(btn.left(), btn.height());
 #endif
-    dlg.moveTopLeft(mPos.toPoint());
+    dlg.setTopLeft(mPos.toPoint());
     dlg.setWidth(80);
     dlg.setHeight(48);
     setGeometry(dlg);
