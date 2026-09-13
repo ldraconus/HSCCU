@@ -233,6 +233,7 @@ private:
     QFont     mFont;
     Option    mOption;
     bool      mSaveChanged = false;
+    qreal     mStartScale = 1.0;
 
     std::array<int, 19> mHitLocations { }; // NOLINT
 

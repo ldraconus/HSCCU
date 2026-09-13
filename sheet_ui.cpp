@@ -34,5 +34,11 @@ void Sheet_UI::graphicsViewSetup(QWidget **widget, QWidget **hidden) {
 
     scene->addWidget(mWidget);
     Sheet::ref().setWidgets(label, optLabel);
+
+    auto* viewport = Sheet::ref().UI()->graphicsView->viewport();
+
+    viewport->setAttribute(Qt::WA_AcceptTouchEvents);
+    viewport->grabGesture(Qt::PinchGesture);
+    viewport->installEventFilter(&Sheet::ref());
 #endif
 }

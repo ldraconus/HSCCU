@@ -40,6 +40,7 @@
 #include <QDirIterator>
 #include <QFileDialog>
 #include <QFontDatabase>
+#include <QGestureEvent>
 #include <QImageReader>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -74,22 +75,18 @@ Msg msngr; // NOLINT
 void Msg::button(QAbstractButton* btn) {
     switch (Msg::Box->standardButton(btn)) {
     case QMessageBox::Yes:
-        qWarning() << "calling YES";
         Msg::mYes();
         break;
 
     case QMessageBox::No:
-        qWarning() << "calling NO";
         Msg::mNo();
         break;
 
     case QMessageBox::Cancel:
-        qWarning() << "calling CANCEL";
         Msg::mCancel();
         break;
 
     default:
-        qWarning() << "Unexpected QMessageBox button:" << Msg::Box->standardButton(btn);
         break;
     }
 }
@@ -595,11 +592,34 @@ Sheet::Dialogs Sheet::sDialog{};
 // --- [EVENT FILTER] ----------------------------------------------------------------------------------
 
 bool Sheet::eventFilter(QObject* object, QEvent* event) {
+#ifdef Q_OS_ANDROID
+    if (object == mUi->graphicsView->viewport() &&
+        event->type() == QEvent::Gesture) {
+
+        auto* ge = static_cast<QGestureEvent*>(event);
+
+        if (auto* pinch =
+            static_cast<QPinchGesture*>(ge->gesture(Qt::PinchGesture))) {
+            if (pinch->state() == Qt::GestureStarted) mStartScale = mUi->graphicsView->transform().m11();
+
+            qreal scale = mStartScale * pinch->totalScaleFactor();
+
+            scale = qBound(0.5, scale, 3.0);
+
+            mUi->graphicsView->resetTransform();
+            mUi->graphicsView->scale(scale, scale);
+
+            return true;
+        }
+    }
+#endif
+
     if (event->type() == QEvent::FocusIn && mWidget2Def.find(object) != mWidget2Def.end()) {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(object);
         edit->setText(QString("%1").arg(mWidget2Def[edit].characteristic()->base()));
     }
-    return false;
+
+    return QMainWindow::eventFilter(object, event);
 }
 
 static void closeDialog(shared_ptr<QDialog> dlg, QMouseEvent* me) {
@@ -640,6 +660,23 @@ void Sheet::closeEvent(QCloseEvent* event) {
 }
 
 bool Sheet::event(QEvent* e) {
+    if (e->type() == QEvent::Gesture) {
+        auto* ge = static_cast<QGestureEvent*>(e);
+
+        if (auto* pinch = static_cast<QPinchGesture*>(ge->gesture(Qt::PinchGesture))) {
+
+            if (pinch->state() == Qt::GestureStarted) mStartScale = mUi->graphicsView->transform().m11();
+
+            qreal scale = mStartScale * pinch->totalScaleFactor();
+            scale = qBound(0.5, scale, 3.0);
+
+            mUi->graphicsView->resetTransform();
+            mUi->graphicsView->scale(scale, scale);
+
+            return true;
+        }
+    }
+
     return QMainWindow::event(e);
 }
 
@@ -1870,19 +1907,9 @@ bool Sheet::recoverSession(QJsonDocument& json) {
     QDir().mkpath(path);
     QString stateFile(path + "/HSCCU.state");
 
-    qWarning() << "HSCCU: Trying to recover state from: " + path + "/HSCCU.state";
-
     QFile file(stateFile);
-    if (!file.exists()) {
-        qWarning() << "HSCCU: file does not exist (QFile.exixst())";
-        return false;
-    }
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "HSCCU: cannot open file for reading";
-        return false;
-    }
-
-    qWarning() << "HSCCU: state file found and opened";
+    if (!file.exists()) return false;
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
 
     QByteArray dat(file.readAll());
     file.close();
@@ -1891,13 +1918,11 @@ bool Sheet::recoverSession(QJsonDocument& json) {
     QString jsonStr(dat);
     json = QJsonDocument::fromJson(jsonStr.toUtf8());
 
-    qWarning() << "HSCCU: json found: " + jsonStr.left(30);
     return true;
 }
 
 void Sheet::recoverState() {
     QJsonDocument inState;
-    qWarning() << "Trying to recover state";
     if (!recoverSession(inState)) return;
     if (!inState.isObject()) return;
     QJsonObject state(inState.object());
@@ -1948,17 +1973,11 @@ void Sheet::saveSession(const QJsonObject& json) {
     QDir().mkpath(path);
     path += "/HSCCU.state";
 
-    qWarning() << "HSCCU: Saving state to: " + path;
-
     QSaveFile file(path);
-    if (!file.open(QIODevice::WriteOnly)) {
-        qWarning() << "HSCCU: Could not save state/open failed";
-        return;
-    }
+    if (!file.open(QIODevice::WriteOnly)) return;
 
     file.write(state.toJson());
     file.commit();
-    qWarning() << "HSCCU: Done saving state";
 }
 
 int Sheet::searchImprovedNoncombatMovement(QString name) {
