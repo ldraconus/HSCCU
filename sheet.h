@@ -12,8 +12,10 @@
 #include "printdialog.h"
 #include "skilldialog.h"
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
+#ifdef __wasm__
 #include "editmenudialog.h"
 #include "filemenudialog.h"
+#endif
 #include "complicationsmenudialog.h"
 #include "imgmenudialog.h"
 #include "powerMenuDialog.h"
@@ -27,8 +29,6 @@
 QT_BEGIN_NAMESPACE
 #ifdef __wasm__
 namespace Ui { class wasm; }
-#elif defined(Q_OS_ANDROID)
-namespace Ui { class android; }
 #else
 namespace Ui { class Sheet; }
 #endif
@@ -145,8 +145,6 @@ public:
 
 #if __wasm__
     Ui::wasm* UI() { return mUi; }
-#elif defined(Q_OS_ANDROID)
-    Ui::android* UI() { return mUi; }
 #else
     Ui::Sheet* UI() { return mUi; }
 #endif
@@ -155,8 +153,6 @@ public:
 
 #if defined(__wasm__)
     Ui::wasm* mUi = nullptr;
-#elif defined(Q_OS_ANDROID)
-    Ui::android* mUi = nullptr;
 #else
     Ui::Sheet* mUi = nullptr;
 #endif
@@ -335,8 +331,13 @@ private:
     void               updateSkills(shared_ptr<SkillTalentOrPerk>);
     void               updateTotals();
     QString            valueToDice(int, bool showD6 = !noD6);
+    void               zoom(qreal zm);
+    void               zoomIn();
+    void               zoomOut();
 
     static Sheet_UI sSheet_UI; // NOLINT
+
+    QList<QAction*> mZooms;
 
 public slots:
     void complicationDoubleClicked(QTableWidgetItem*)          { editComplication(); }

@@ -17,10 +17,6 @@
 #include "sheet.h"
 #ifdef __wasm__
 #include "ui_wasm.h"
-#elif defined(Q_OS_ANDROID)
-#include "ui_android.h"
-#include <QGraphicsItem>
-#include <QGraphicsProxyWidget>
 #else
 #include "ui_sheet.h"
 #endif
@@ -266,8 +262,6 @@ Sheet::Sheet(QWidget *parent)
     : QMainWindow(parent)
 #ifdef __wasm__
     , mUi(new Ui::wasm)
-#elif defined(Q_OS_ANDROID)
-    , mUi(new Ui::android)
 #else
     , mUi(new Ui::Sheet)
 #endif
@@ -278,7 +272,7 @@ Sheet::Sheet(QWidget *parent)
 
     mUi->setupUi(this);
 
-#ifdef Q_OS_ANDROID
+#ifndef __wasm__
     mUi->graphicsView->setStyleSheet("color: #000; background: #fff");
     mUI->setupUi(nullptr, nullptr);
     mUI->mWidget->setStyleSheet("color: #000; background: #fff");
@@ -478,6 +472,27 @@ Sheet::Sheet(QWidget *parent)
     connect(mUI->weight,                &QLineEdit::textEdited,       this, &Sheet::weightChanged);
     connect(mUI->notes,                 &QPlainTextEdit::textChanged, this, &Sheet::noteChanged);
 
+#ifndef __wasm__
+    connect(mUi->action0_5,             &QAction::triggered,          this, [this] { zoom(0.5); });
+    connect(mUi->action0_75,            &QAction::triggered,          this, [this] { zoom(0.75); });
+    connect(mUi->action0_9,             &QAction::triggered,          this, [this] { zoom(0.9); });
+    connect(mUi->action1_0,             &QAction::triggered,          this, [this] { zoom(1.0); });
+    connect(mUi->action1_25,            &QAction::triggered,          this, [this] { zoom(1.25); });
+    connect(mUi->action1_5,             &QAction::triggered,          this, [this] { zoom(1.5); });
+    connect(mUi->action2_0,             &QAction::triggered,          this, [this] { zoom(2.0); });
+    connect(mUi->action3_0,             &QAction::triggered,          this, [this] { zoom(3.0); });
+    connect(mUi->actionZoom_In,         &QAction::triggered,          this, [this] { zoomIn(); });
+    connect(mUi->actionZoom_Out,        &QAction::triggered,          this, [this] { zoomOut(); });
+
+    mZooms.append(mUi->action0_5);
+    mZooms.append(mUi->action0_75);
+    mZooms.append(mUi->action0_9);
+    mZooms.append(mUi->action1_0);
+    mZooms.append(mUi->action1_25);
+    mZooms.append(mUi->action1_5);
+    mZooms.append(mUi->action2_0);
+    mZooms.append(mUi->action3_0);
+#endif
 
     setTableSelectionMode(mUI->skillstalentsandperks);
     setTableSelectionMode(mUI->complications);
@@ -592,9 +607,8 @@ Sheet::Dialogs Sheet::sDialog{};
 // --- [EVENT FILTER] ----------------------------------------------------------------------------------
 
 bool Sheet::eventFilter(QObject* object, QEvent* event) {
-#ifdef Q_OS_ANDROID
-    if (object == mUi->graphicsView->viewport() &&
-        event->type() == QEvent::Gesture) {
+#ifndef __wasm__
+    if (object == mUi->graphicsView->viewport() && event->type() == QEvent::Gesture) {
 
         auto* ge = static_cast<QGestureEvent*>(event);
 
@@ -605,9 +619,7 @@ bool Sheet::eventFilter(QObject* object, QEvent* event) {
             qreal scale = mStartScale * pinch->totalScaleFactor();
 
             scale = qBound(0.5, scale, 3.0);
-
-            mUi->graphicsView->resetTransform();
-            mUi->graphicsView->scale(scale, scale);
+            zoom(scale);
 
             return true;
         }
@@ -660,6 +672,7 @@ void Sheet::closeEvent(QCloseEvent* event) {
 }
 
 bool Sheet::event(QEvent* e) {
+#if defined(Q_OS_ANDROID) || !(defined(__wasm__) || defined(unix))
     if (e->type() == QEvent::Gesture) {
         auto* ge = static_cast<QGestureEvent*>(e);
 
@@ -676,6 +689,7 @@ bool Sheet::event(QEvent* e) {
             return true;
         }
     }
+#endif
 
     return QMainWindow::event(e);
 }
@@ -2352,6 +2366,44 @@ QString Sheet::valueToDice(int val, bool showD6) {
     int dice = val / 5; // NOLINT
     bool half = val % 5 > 2; // NOLINT
     return QString("%1%2%3").arg(dice).arg(half ? halfDice : "", showD6 ? "d6" : "");
+}
+
+static qreal scales[] { 0.5, 0.75, 0.9, 1.0, 1.25, 1.5, 2.0, 3.0 };
+static int numScales = sizeof(scales) / sizeof(qreal);
+
+void Sheet::zoom(qreal zm) {
+#ifndef __wasm__
+    mUi->graphicsView->resetTransform();
+    mUi->graphicsView->scale(zm, zm);
+    for (const auto& action: std::as_const(mZooms)) action->setChecked(false);
+    // unchgeck all of the zoom menus
+    for (int i = 0; i < numScales; ++i) {
+        if (qAbs(zm - scales[i]) < 0.01) {
+            mZooms[i]->setChecked(true);
+            break;
+        }
+    }
+#endif
+}
+
+void Sheet::zoomIn() {
+    if (mStartScale >= 3.0) return;
+    int i;
+    for (i = 0; i < numScales; ++i) {
+        if (scales[i] > mStartScale) break;
+    }
+    mStartScale = scales[i];
+    zoom(mStartScale);
+}
+
+void Sheet::zoomOut() {
+    if (mStartScale <= 0.5) return;
+    int i;
+    for (i = numScales - 1; i != 0; --i) {
+        if (scales[i] < mStartScale) break;
+    }
+    mStartScale = scales[i];
+    zoom(mStartScale);
 }
 
 // ---[SLOTS] --------------------------------------------------------------------------------------------

@@ -716,7 +716,6 @@ public:
     static constexpr int LargeBoldFontSize  = 16;
     static constexpr int HeaderFontSize     = 14;
     static constexpr int TableFontSize      = 13;
-    QWidget* mWidget = nullptr;
 #elif defined(unix)
     static constexpr int StandardFontSize   = 11;
     static constexpr int SmallFontPointSize = 7;
@@ -729,6 +728,10 @@ public:
     static constexpr int LargeBoldFontSize  = 15;
     static constexpr int HeaderFontSize     = 14;
     static constexpr int TableFontSize      = StandardFontSize;
+#endif
+
+#if defined(Q_OS_ANDROID) || !(defined(__wasm__) || defined(unix))
+    QWidget* mWidget = nullptr;
 #endif
 
     void graphicsViewSetup(QWidget** widget, QWidget** hidden);

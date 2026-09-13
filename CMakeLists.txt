@@ -186,6 +186,7 @@ else()
             Background.png Installer.ico
             data.qrc
             appicon.rc
+            sheet_ui.cpp
         )
     endif()
 endif()

@@ -1,15 +1,15 @@
 #include "sheet_ui.h"
 #include "sheet.h"
 
-#ifdef Q_OS_ANDROID
-#include "ui_android.h"
+#if !defined(__wasm__)
+#include "ui_sheet.h"
 #endif
 
 #include <QFont>
 #include <QGraphicsScene>
 
 void Sheet_UI::graphicsViewSetup(QWidget **widget, QWidget **hidden) {
-#ifdef Q_OS_ANDROID
+#if !defined(__wasm__)
     QLabel* label = nullptr;
     QLabel* optLabel = nullptr;
     QGraphicsScene* scene = new QGraphicsScene(Sheet::ref().UI()->graphicsView);

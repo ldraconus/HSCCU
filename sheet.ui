@@ -14,7 +14,7 @@
    <string>HeroSystem CharacterCreator</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="build/Desktop_Qt_6_12_0_Debug/.qt/rcc/res.qrc">
+   <iconset resource="build/Desktop_Qt_6_10_3_MSVC2022_64bit_Release/.qt/rcc/res.qrc">
     <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -56,8 +56,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1009</width>
-         <height>3912</height>
+         <width>1023</width>
+         <height>934</height>
         </rect>
        </property>
        <property name="autoFillBackground">
@@ -83,41 +83,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="label">
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
-          </property>
-          <property name="contextMenuPolicy">
-           <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="build/Desktop_Qt_6_12_0_Debug/.qt/rcc/res.qrc">:/gfx/Sheet.png</pixmap>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="optLabel">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
-          </property>
-          <property name="midLineWidth">
-           <number>1</number>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="build/Desktop_Qt_6_12_0_Debug/.qt/rcc/res.qrc">:/gfx/Page3.png</pixmap>
-          </property>
-         </widget>
+         <widget class="QGraphicsView" name="graphicsView"/>
         </item>
        </layout>
       </widget>
@@ -131,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1023</width>
-     <height>29</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -168,8 +134,25 @@
     <addaction name="separator"/>
     <addaction name="actionOptions"/>
    </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="action0_5"/>
+    <addaction name="action0_75"/>
+    <addaction name="action0_9"/>
+    <addaction name="action1_0"/>
+    <addaction name="action1_25"/>
+    <addaction name="action1_5"/>
+    <addaction name="action2_0"/>
+    <addaction name="action3_0"/>
+    <addaction name="separator"/>
+    <addaction name="actionZoom_In"/>
+    <addaction name="actionZoom_Out"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Edit"/>
+   <addaction name="menu_View"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="styleSheet">
@@ -341,9 +324,107 @@
     <string>P&amp;aste</string>
    </property>
   </action>
+  <action name="action0_5">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>0.5</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+S</string>
+   </property>
+  </action>
+  <action name="action0_75">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>0.75</string>
+   </property>
+  </action>
+  <action name="action0_9">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>0.9</string>
+   </property>
+  </action>
+  <action name="action1_0">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1.0</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+N</string>
+   </property>
+  </action>
+  <action name="action1_25">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1.25</string>
+   </property>
+  </action>
+  <action name="action1_5">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1.5</string>
+   </property>
+  </action>
+  <action name="action2_0">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>2.0</string>
+   </property>
+  </action>
+  <action name="action3_0">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>3.0</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+M</string>
+   </property>
+  </action>
+  <action name="actionZoom_In">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ZoomIn"/>
+   </property>
+   <property name="text">
+    <string>Zoom &amp;In</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+I</string>
+   </property>
+  </action>
+  <action name="actionZoom_Out">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ZoomOut"/>
+   </property>
+   <property name="text">
+    <string>Zoom &amp;Out</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+O</string>
+   </property>
+  </action>
  </widget>
  <resources>
-  <include location="build/Desktop_Qt_6_12_0_Debug/.qt/rcc/res.qrc"/>
+  <include location="build/Desktop_Qt_6_10_3_MSVC2022_64bit_Release/.qt/rcc/res.qrc"/>
  </resources>
  <connections/>
 </ui>
