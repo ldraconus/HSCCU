@@ -15,10 +15,14 @@
 #include "skilltalentorperk.h"
 
 #include "sheet.h"
-#ifndef __wasm__
-#include "ui_sheet.h"
-#else
+#ifdef __wasm__
 #include "ui_wasm.h"
+#elif defined(Q_OS_ANDROID)
+#include "ui_android.h"
+#include <QGraphicsItem>
+#include <QGraphicsProxyWidget>
+#else
+#include "ui_sheet.h"
 #endif
 #include "sheet_ui.h"
 
@@ -263,10 +267,12 @@ class Sheet::Dialogs sDialog;
 
 Sheet::Sheet(QWidget *parent)
     : QMainWindow(parent)
-#ifndef __wasm__
-    , mUi(new Ui::Sheet)
-#else
+#ifdef __wasm__
     , mUi(new Ui::wasm)
+#elif defined(Q_OS_ANDROID)
+    , mUi(new Ui::android)
+#else
+    , mUi(new Ui::Sheet)
 #endif
     , mUI(&sSheet_UI)
     , mSaveChanged(false) {
@@ -274,14 +280,24 @@ Sheet::Sheet(QWidget *parent)
     sSheet = this;
 
     mUi->setupUi(this);
+
+#ifdef Q_OS_ANDROID
+    mUi->graphicsView->setStyleSheet("color: #000; background: #fff");
+    auto* proxy = dynamic_cast<QGraphicsProxyWidget*>(mUi->graphicsView->scene()->items()[0]);
+    proxy->widget()->setStyleSheet("color: #000; background: #fff");
+    mUI->setupUi(nullptr, nullptr);
+#else
     mUi->scrollAreaWidgetContents->setStyleSheet("background: #fff");
     mUi->scrollArea->setStyleSheet("color: #000; background: #fff ");
-
+    mLabel = mUi->label;
+    mOptLabel = mUi->optLabel;
     mUI->setupUi(mUi->label, mUi->optLabel);
+#endif
 
 #ifdef Q_OS_ANDROID
     mUi->menubar->setNativeMenuBar(false);
-    QScroller::grabGesture(mUi->scrollArea->viewport(), QScroller::TouchGesture);
+    auto* scrollWidget = mUi->graphicsView;
+    QScroller::grabGesture(scrollWidget->viewport(), QScroller::TouchGesture);
     for (auto* table: findChildren<QTableWidget*>()) {
         table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -351,7 +367,7 @@ Sheet::Sheet(QWidget *parent)
     mDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
     mOption.load();
-    mUi->optLabel->setVisible(mOption.showNotesPage());
+    mOptLabel->setVisible(mOption.showNotesPage());
 
     connect(qApp, &QApplication::focusChanged, this, &Sheet::focusChanged);
 

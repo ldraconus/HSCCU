@@ -722,8 +722,11 @@ public:
     static constexpr int TableFontSize      = StandardFontSize;
 #endif
 
+    void graphicsViewSetup(QWidget** widget, QWidget** hidden);
+
     void setupUi(QWidget* widget, QWidget* hidden) {
         layout = new QGridLayout();
+        if (widget == nullptr && hidden == nullptr) graphicsViewSetup(&widget, &hidden);
         widget->setLayout(layout);
 
 #if defined(Q_OS_ANDROID)

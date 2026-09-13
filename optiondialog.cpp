@@ -66,7 +66,7 @@ void optionDialog::accept() {
     Sheet::ref().option().totalPoints(Points(totalPoints()));
     Sheet::ref().option().normalHumanMaxima(normalHumanMaxima());
     Sheet::ref().option().store();
-    Sheet::ref().UI()->optLabel->setVisible(Sheet::ref().option().showNotesPage());
+    Sheet::ref().hidden()->setVisible(Sheet::ref().option().showNotesPage());
     Sheet::ref().updateDisplay();
     Sheet::ref().changed();
     close();

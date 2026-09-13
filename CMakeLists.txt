@@ -161,6 +161,9 @@ else()
             Background.png Installer.ico
             data.qrc
             editmenudialog.h filemenudialog.h
+            android.ui
+            sheet_ui.cpp
+            sheet_ui.cpp
         )
     else()
         qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE

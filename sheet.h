@@ -25,10 +25,12 @@
 #include "sheet_ui.h"
 
 QT_BEGIN_NAMESPACE
-#ifndef __wasm__
-    namespace Ui { class Sheet; }
+#ifdef __wasm__
+namespace Ui { class wasm; }
+#elif defined(Q_OS_ANDROID)
+namespace Ui { class android; }
 #else
-    namespace Ui { class wasm; }
+namespace Ui { class Sheet; }
 #endif
 QT_END_NAMESPACE
 
@@ -90,6 +92,9 @@ public:
         tSkill             Skill             { nullptr };
     } sDialog;
 
+    QLabel* hidden()                                   { return mOptLabel; }
+    void    setWidgets(QLabel* widget, QLabel* hidden);
+
     void       changed()          { mChanged = true; }
     bool       isChanged()        { return mChanged; }
     void       setChanged(bool c) { mChanged = true; }
@@ -140,16 +145,20 @@ public:
 
 #if __wasm__
     Ui::wasm* UI() { return mUi; }
+#elif defined(Q_OS_ANDROID)
+    Ui::android* UI() { return mUi; }
 #else
     Ui::Sheet* UI() { return mUi; }
 #endif
 
     Option& option() { return mOption; }
 
-#if !defined(__wasm__)
-    Ui::Sheet* mUi = nullptr;
-#else
+#if defined(__wasm__)
     Ui::wasm* mUi = nullptr;
+#elif defined(Q_OS_ANDROID)
+    Ui::android* mUi = nullptr;
+#else
+    Ui::Sheet* mUi = nullptr;
 #endif
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
 #ifdef __wasm__
@@ -200,6 +209,8 @@ public:
 
 private:
     Sheet_UI*    mUI = nullptr;
+    QLabel*      mLabel = nullptr;
+    QLabel*      mOptLabel = nullptr;
     bool         mExpired = true;
     bool         mRunning = false;
     QPointF      mTouchStart;
