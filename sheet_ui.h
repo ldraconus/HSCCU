@@ -167,6 +167,7 @@ private:
         if (parent != page3) widgets.append(label);
         else hiddenWidgets.append(label);
         if (header) headerWidgets.append(label);
+        label->show();
         return label;
     }
 
@@ -201,6 +202,7 @@ private:
         pixmap = pixmap.scaled(s.l(), s.h(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
         label->setPixmap(pixmap);
         label->setAlignment(Qt::AlignCenter);
+        label->show();
         return label;
     }
 
@@ -217,6 +219,7 @@ private:
         else moveTo(label, p, s);
         if (parent != page3) widgets.append(label);
         else hiddenWidgets.append(label);
+        label->show();
         return label;
     }
 
@@ -252,6 +255,8 @@ private:
         QFont f = lineedit->font();
         QFontMetrics metrics(f);
         moveTo(line, { p.x(), p.y() + s.h() - metrics.descent() + 2 }, { s.l(), 1 });
+        lineedit->show();
+        line->show();
         return lineedit;
     }
 
@@ -288,6 +293,8 @@ private:
         QFont f = lineedit->font();
         QFontMetrics metrics(f);
         moveTo(line, { p.x(), p.y() + s.h() - metrics.descent() + 2 }, { s.l(), 1 });
+        lineedit->show();
+        line->show();
         return lineedit;
     }
 
@@ -460,7 +467,7 @@ private:
         for (i = 1; i < tablewidget->columnCount(); ++i) total += tablewidget->columnWidth(i - 1);
         tablewidget->setColumnWidth(int(headers.size()) - 1, s.l() - total);
         widgets.append(tablewidget);
-
+        tablewidget->show();
         return tablewidget;
     }
 
@@ -500,6 +507,7 @@ private:
         textedit->setToolTip(w);
         moveTo(textedit, p, s);
         widgets.append(textedit);
+        textedit->show();
         return textedit;
     }
 
@@ -525,7 +533,7 @@ private:
         editwidget->setToolTip(w);
         moveTo(editwidget, p, s);
         hiddenWidgets.append(editwidget);
-
+        editwidget->show();
         return editwidget;
     }
 
@@ -708,6 +716,7 @@ public:
     static constexpr int LargeBoldFontSize  = 16;
     static constexpr int HeaderFontSize     = 14;
     static constexpr int TableFontSize      = 13;
+    QWidget* mWidget = nullptr;
 #elif defined(unix)
     static constexpr int StandardFontSize   = 11;
     static constexpr int SmallFontPointSize = 7;

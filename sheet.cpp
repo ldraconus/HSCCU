@@ -283,9 +283,8 @@ Sheet::Sheet(QWidget *parent)
 
 #ifdef Q_OS_ANDROID
     mUi->graphicsView->setStyleSheet("color: #000; background: #fff");
-    auto* proxy = dynamic_cast<QGraphicsProxyWidget*>(mUi->graphicsView->scene()->items()[0]);
-    proxy->widget()->setStyleSheet("color: #000; background: #fff");
     mUI->setupUi(nullptr, nullptr);
+    mUI->mWidget->setStyleSheet("color: #000; background: #fff");
 #else
     mUi->scrollAreaWidgetContents->setStyleSheet("background: #fff");
     mUi->scrollArea->setStyleSheet("color: #000; background: #fff ");

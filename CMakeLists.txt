@@ -164,6 +164,7 @@ else()
             android.ui
             sheet_ui.cpp
             sheet_ui.cpp
+            dialog.cpp
         )
     else()
         qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE

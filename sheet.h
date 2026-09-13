@@ -93,7 +93,7 @@ public:
     } sDialog;
 
     QLabel* hidden()                                   { return mOptLabel; }
-    void    setWidgets(QLabel* widget, QLabel* hidden);
+    void    setWidgets(QLabel* widget, QLabel* hidden) { mLabel = widget; mOptLabel = hidden; };
 
     void       changed()          { mChanged = true; }
     bool       isChanged()        { return mChanged; }
