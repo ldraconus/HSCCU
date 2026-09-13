@@ -280,8 +280,8 @@ Sheet::Sheet(QWidget *parent)
     mUI->setupUi(mUi->label, mUi->optLabel);
 
 #ifdef Q_OS_ANDROID
-    mUI->menubar->setNativeMenuBar(false);
-    QScroller::grabGesture(ui->scrollArea->viewport(), QScroller::TouchGesture);
+    mUi->menubar->setNativeMenuBar(false);
+    QScroller::grabGesture(mUi->scrollArea->viewport(), QScroller::TouchGesture);
     for (auto* table: findChildren<QTableWidget*>()) {
         table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -361,15 +361,15 @@ Sheet::Sheet(QWidget *parent)
     connect(mUi->menu_File,     &QMenu::aboutToShow, this, &Sheet::aboutToShowFileMenu);
     connect(mUi->menu_File,     &QMenu::aboutToHide, this, &Sheet::aboutToHideFileMenu);
 #ifdef Q_OS_ANDROID
-    connect(ui->action_New,    &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::newchar();        }); }, Qt::QueuedConnection);
-    connect(ui->action_Open,   &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::open();           }); }, Qt::QueuedConnection);
-    connect(ui->action_Save,   &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::save();           }); }, Qt::QueuedConnection);
-    connect(ui->actionSave_As, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::saveAs();         }); }, Qt::QueuedConnection);
-    connect(ui->action_Print,  &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::printSheet();     }); }, Qt::QueuedConnection);
-    connect(ui->actionE_xit,   &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::exitClicked();    }); }, Qt::QueuedConnection);
-    connect(ui->actionOptions, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::options();        }); }, Qt::QueuedConnection);
-    connect(ui->actionOptions, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::cutCharacter();   }); }, Qt::QueuedConnection);
-    connect(ui->action_Paste,  &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::pasteCharacter(); }); }, Qt::QueuedConnection);
+    connect(mUi->action_New,    &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::newchar();        }); }, Qt::QueuedConnection);
+    connect(mUi->action_Open,   &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::open();           }); }, Qt::QueuedConnection);
+    connect(mUi->action_Save,   &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::save();           }); }, Qt::QueuedConnection);
+    connect(mUi->actionSave_As, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::saveAs();         }); }, Qt::QueuedConnection);
+    connect(mUi->action_Print,  &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::printSheet();     }); }, Qt::QueuedConnection);
+    connect(mUi->actionE_xit,   &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::exitClicked();    }); }, Qt::QueuedConnection);
+    connect(mUi->actionOptions, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::options();        }); }, Qt::QueuedConnection);
+    connect(mUi->actionOptions, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::cutCharacter();   }); }, Qt::QueuedConnection);
+    connect(mUi->action_Paste,  &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::pasteCharacter(); }); }, Qt::QueuedConnection);
 #else
     connect(mUi->action_New,    &QAction::triggered, this, &Sheet::newchar);
     connect(mUi->action_Open,   &QAction::triggered, this, &Sheet::open);
@@ -2544,7 +2544,7 @@ void Sheet::complicationsMenu(QPoint pos) {
     mUI->complications->selectRow(row);
     closeDialogs(nullptr);
 #ifdef Q_OS_ANDROID
-    auto compMenuDialog = (sDialog.ComplicationsMenu = std::shared_ptr<ComplicationsMenuDialog> (new ComplicationsMenuDialog(this), [](ComplicationsMenuDialog* d) { d->deleteLater(); }));
+    auto compMenuDialog = (sDialog.ComplicationsMenu = std::shared_ptr<ComplicationsMenuDialog> (new ComplicationsMenuDialog(), [](ComplicationsMenuDialog* d) { d->deleteLater(); }));
 #else
     auto compMenuDialog = (sDialog.ComplicationsMenu = std::shared_ptr<ComplicationsMenuDialog> (new ComplicationsMenuDialog()));
 #endif
@@ -2749,7 +2749,7 @@ void Sheet::fileMenu(bool) {
 void Sheet::imgMenu(bool) {
     closeDialogs(nullptr);
 #ifdef Q_OS_ANDROID
-    auto imgMenuDialog = (sDialog.ImgMenu = std::shared_ptr<ImgMenuDialog> (new ImgMenuDialog(this), [](ImgMenuDialog* d) { d->deleteLater(); }));
+    auto imgMenuDialog = (sDialog.ImgMenu = std::shared_ptr<ImgMenuDialog> (new ImgMenuDialog(), [](ImgMenuDialog* d) { d->deleteLater(); }));
 #else
     auto imgMenuDialog = (sDialog.ImgMenu = std::make_shared<ImgMenuDialog>());
 #endif
@@ -2837,7 +2837,7 @@ void Sheet::imageMenu(QPoint pos) {
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
     closeDialogs(nullptr);
 #ifdef Q_OS_ANDROID
-    auto imgMenuDialog = (sDialog.ImgMenu = std::shared_ptr<ImgMenuDialog> (new ImgMenuDialog(this), [](ImgMenuDialog* d) { d->deleteLater(); }));
+    auto imgMenuDialog = (sDialog.ImgMenu = std::shared_ptr<ImgMenuDialog> (new ImgMenuDialog(), [](ImgMenuDialog* d) { d->deleteLater(); }));
 #else
     auto imgMenuDialog = (sDialog.ImgMenu = std::shared_ptr<ImgMenuDialog> (new ImgMenuDialog()));
 #endif
@@ -3164,7 +3164,7 @@ void Sheet::powersandequipmentMenu(QPoint pos) {
     mUI->powersandequipment->selectRow(row);
     closeDialogs(nullptr);
 #ifdef Q_OS_ANDROID
-    auto powerMenuDialog = (sDialog.PowerMenu = std::shared_ptr<PowerMenuDialog> (new PowerMenuDialog(this), [](PowerMenuDialog* d) { d->deleteLater(); }));
+    auto powerMenuDialog = (sDialog.PowerMenu = std::shared_ptr<PowerMenuDialog> (new PowerMenuDialog(), [](PowerMenuDialog* d) { d->deleteLater(); }));
 #else
     auto powerMenuDialog = (sDialog.PowerMenu = std::shared_ptr<PowerMenuDialog> (new PowerMenuDialog()));
 #endif
@@ -3324,7 +3324,7 @@ void Sheet::skillstalentsandperksMenu(QPoint pos) {
     mUI->skillstalentsandperks->selectRow(row);
     closeDialogs(nullptr);
 #ifdef Q_OS_ANDROID
-    auto skillMenuDialog = (sDialog.SkillMenu = std::shared_ptr<SkillMenuDialog> (new SkillMenuDialog(this), [](SkillMenuDialog* d) { d->deleteLater(); }));
+    auto skillMenuDialog = (sDialog.SkillMenu = std::shared_ptr<SkillMenuDialog> (new SkillMenuDialog(), [](SkillMenuDialog* d) { d->deleteLater(); }));
 #else
     auto skillMenuDialog = (sDialog.SkillMenu = std::shared_ptr<SkillMenuDialog> (new SkillMenuDialog()));
 #endif

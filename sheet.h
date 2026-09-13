@@ -77,7 +77,7 @@ public:
         tEditMenu          EditMenu          { nullptr };
         tFileMenu          FileMenu          { nullptr };
 #endif
-#if defined(__wasm__) || defined(Q_OS_QNDROID)
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
         tComplicationsMenu ComplicationsMenu { nullptr };
         tImgMenu           ImgMenu           { nullptr };
         tSkillMenu         SkillMenu         { nullptr };
