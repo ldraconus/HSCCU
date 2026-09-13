@@ -79,11 +79,11 @@ public:
         , mType(isLimitation)
         , mAdder(isModifier)
         , mBase(nullptr) { }
-    ModifierBase(QString nm, ModifierType type, bool adder, base* base = nullptr)
+    ModifierBase(QString nm, ModifierType type, bool adder, base* b = nullptr)
         : mName(nm)
         , mType(type)
         , mAdder(adder)
-        , mBase(base) { }
+        , mBase(b) { }
     ModifierBase(const ModifierBase& m)
         : mName(m.mName)
         , mType(m.mType)
@@ -227,8 +227,8 @@ public:
 #endif
 
     Modifier(): ModifierBase() { }
-    Modifier(QString nm, ModifierType type, bool adder, base* base = nullptr)
-        : ModifierBase(nm, type, adder, base) { }
+    Modifier(QString nm, ModifierType type, bool adder, base* b = nullptr)
+        : ModifierBase(nm, type, adder, b) { }
     Modifier(const Modifier* m): ModifierBase(m) { }
     Modifier(Modifier&& m): ModifierBase(m) { }
     Modifier(const Modifier& m): ModifierBase(m) { }
@@ -371,7 +371,7 @@ public:
         : Modifier(json["name"].toString("Ablative"),
                    ModifierType(json["type"].toInt(0)),
                    json["adder"].toBool(false)) {
-        v._aquiresRoll = json["aquiresRoll"].toBool(false);
+        v.mAquiresRoll = json["aquiresRoll"].toBool(false);
     }
     ~Ablative() override { }
 
@@ -396,28 +396,28 @@ public:
     bool        form(QWidget* p, QVBoxLayout* l) override { aquiresRoll = createCheckBox(p, l, "Aquires a Skill Roll when Exceeded", std::mem_fn(&ModifierBase::checked));
                                                             return true; }
     Fraction    fraction(bool noStore = false) override   { if (!noStore) store();
-                                                            return v._aquiresRoll ? Fraction(1) : Fraction(1, 2); }
+                                                            return v.mAquiresRoll ? Fraction(1) : Fraction(1, 2); }
     void        restore() override                        { vars s = v;
-                                                            aquiresRoll->setChecked(s._aquiresRoll);
+                                                            aquiresRoll->setChecked(s.mAquiresRoll);
                                                             v = s; }
-    void        store() override                          { v._aquiresRoll = aquiresRoll->isChecked(); }
+    void        store() override                          { v.mAquiresRoll = aquiresRoll->isChecked(); }
     QJsonObject toJson() override                         { QJsonObject obj;
                                                             obj["name"] = name();
                                                             obj["type"] = type();
                                                             obj["adder"] = isAdder();
-                                                            obj["aquiresRoll"] = v._aquiresRoll;
+                                                            obj["aquiresRoll"] = v.mAquiresRoll;
                                                             return obj; }
 
 private:
     struct vars {
-        bool _aquiresRoll = false;
+        bool mAquiresRoll = false;
     } v;
 
     QCheckBox* aquiresRoll = nullptr;
 
     QString optOut(bool show, bool abbr = false) {
         Fraction half(1, 2);
-        if (v._aquiresRoll) {
+        if (v.mAquiresRoll) {
             if (abbr) return QString(show ? "(-1) " : "") + "Ablates, Skill Roll After";
             else return QString(show ? "(-1) " : "") + "Ablative, Aquires a Skill Roll When Exceeded";
         }
@@ -1121,7 +1121,7 @@ public:
     AVAD(QJsonObject json)
         : Modifier(json["name"].toString("Attack Versus Alternate Defense▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._original = json["original"].toInt(0);
+                   json["adder"].toBool(false)) { v.mOriginal = json["original"].toInt(0);
                                                   v.mNewOne = json["newone"].toInt(0);
                                                   v.mVersus = json["versus"].toString();
                                                   v.mNND = json["nnd"].toBool(false);
@@ -1155,13 +1155,13 @@ public:
                                                               nnd = createCheckBox(p, l, "All or nothing (NND)", std::mem_fn(&ModifierBase::checked));
                                                               return true; }
     void          restore() override                        { vars s = v;
-                                                              original->setCurrentIndex(s._original);
+                                                              original->setCurrentIndex(s.mOriginal);
                                                               newone->setCurrentIndex(s.mNewOne);
                                                               versus->setText(s.mVersus);
                                                               nnd->setChecked(s.mNND);
                                                               v = s;
                                                             }
-    void          store() override                          { v._original = original->currentIndex();
+    void          store() override                          { v.mOriginal = original->currentIndex();
                                                               v.mNewOne = newone->currentIndex();
                                                               v.mVersus = versus->text();
                                                               v.mNND = nnd->isChecked();
@@ -1170,7 +1170,7 @@ public:
                                                               obj["name"]  = name();
                                                               obj["type"]  = type();
                                                               obj["adder"] = isAdder();
-                                                              obj["original"] = v._original;
+                                                              obj["original"] = v.mOriginal;
                                                               obj["newone"] = v.mNewOne;
                                                               obj["versus"] = v.mVersus;
                                                               obj["nnd"] = v.mNND;
@@ -1179,7 +1179,7 @@ public:
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
         Fraction f(1, 2);
-        int diff = v.mNewOne - v._original;
+        int diff = v.mNewOne - v.mOriginal;
         f *= diff;
         if (v.mNND) f -= Fraction(1, 2);
         return f;
@@ -1187,7 +1187,7 @@ public:
 
 private:
     struct vars {
-        int _original = 0;
+        int mOriginal = 0;
         int mNewOne = 0;
         QString mVersus = "";
         bool mNND = false;
@@ -1199,7 +1199,7 @@ private:
     QCheckBox* nnd = nullptr;
 
     QString optOut(bool show, bool abbr = false) {
-        if (v._original < 1 || v.mNewOne < 1 || v.mVersus.isEmpty()) return "<incomplete>";
+        if (v.mOriginal < 1 || v.mNewOne < 1 || v.mVersus.isEmpty()) return "<incomplete>";
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "")
                  + (v.mNND ? QString("NND: ") + QString(abbr ? "" : "Defense is ") : QString(abbr ? "vs Alt. DEF: " : "Attack Versus Alternate Defense: ")) + v.mVersus;
@@ -1831,8 +1831,8 @@ private:
             "", "2 Phs", "1 Tn", "1 Min", "5 Mins", "20 Mins",  "1 Hr", "6 Hrs", "1 Day", "1 Wk", "1 Mth", "3 Mnth", "1 Yr", "5 Yrs"
         };
         if (v.mCharges < 1) return "<incomplete>";
-        Fraction mod = fraction(NoStore);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(NoStore).toString() + ") " : "") + "Charges (" +
+        Fraction md = fraction(NoStore);
+        QString res = (show ? QString("(%1").arg((md > 0) ? "+" : "") + fraction(NoStore).toString() + ") " : "") + "Charges (" +
                 QString("%1").arg(v.mCharges) + QString(" charge%1").arg((v.mCharges > 1) ? "s" : "");
         if (v.mFuelCharge) res += QString("; Fuel") + (abbr ? "" : " Charge");
         if (v.mRecoverable) res += QString("; ") + (abbr ? "Recov." : "Recoverable");
@@ -1936,8 +1936,8 @@ private:
     QCheckBox* constant = nullptr;
 
     QString optOut(bool show, bool abbr = false) {
-        Fraction mod = fraction(Modifier::NoStore);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(false).toString() + ") " : "") + (abbr ? "Concen." : "Concentrataion");
+        Fraction md = fraction(Modifier::NoStore);
+        QString res = (show ? QString("(%1").arg((md > 0) ? "+" : "") + fraction(false).toString() + ") " : "") + (abbr ? "Concen." : "Concentrataion");
         QString sep = " (";
         if (zeroDCV) { res += sep + "0 DCV"; sep = "; "; }
         if (unaware) { res += sep + (abbr ? "No Perc. Roll" : "No Perception Roll"); sep = "; "; }
@@ -2028,8 +2028,8 @@ private:
 
     QString optOut(bool show, bool abbr = false) {
         if (v.mHowMuch < 1) return "<incomplete>";
-        Fraction mod = fraction(Modifier::NoStore);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + (abbr ? "" : "Costs Endurance (");
+        Fraction md = fraction(Modifier::NoStore);
+        QString res = (show ? QString("(%1").arg((md > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + (abbr ? "" : "Costs Endurance (");
         if (v.mHowMuch == 1) res += Fraction(1, 2).toString();
         else res += "Full";
         return res + QString(" END") + (abbr ? "" : ")");
@@ -2115,8 +2115,8 @@ public:
 
     QString optOut(bool show, bool abbr = false) {
         if (v.mHowMuch < 1) return "<incomplete>";
-        Fraction mod = fraction(Modifier::NoStore);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + (abbr ? "" : "Costs Endurance To Maintain (");
+        Fraction md = fraction(Modifier::NoStore);
+        QString res = (show ? QString("(%1").arg((md > 0) ? "+" : "") + fraction(Modifier::NoStore).toString() + ") " : "") + (abbr ? "" : "Costs Endurance To Maintain (");
         if (v.mHowMuch == 1) res += Fraction(1, 2).toString();
         else res += "Full";
         return res + QString(" END") + (abbr ? " To Maintain" : ")");
@@ -2277,9 +2277,9 @@ private:
                                       "Every Hr", "Every 6 Hrs", "Every Day",
                                       "Every Wk", "Every Mth", "Every 3 Mths",
                                       "Every Yr", "Every 5 Yrs" };
-        Fraction mod = fraction(Modifier::NoStore);
+        Fraction md = fraction(Modifier::NoStore);
         if (v.mDuration < 1) return "<incomplete>";
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + (abbr ? "Dmg Per" : "Damage Over") + " Time▲ (";
+        QString res = (show ? QString("(%1").arg((md > 0) ? "+" : "") + md.toString() + ") " : "") + (abbr ? "Dmg Per" : "Damage Over") + " Time▲ (";
         res += QString("%1 " + QString(abbr ? "Dmg Incr." : "Damage Increments") + " %2").arg(v.mTimes).arg(durationOf[v.mDuration]);
         if (v.mOnce) res += QString("; ") + (abbr ? "Tgt DEF Once" : "Target's Defenses Apply Only Once");
         if (v.mOneUse) res += QString("; ") + (abbr ? "1 at a Time" : "One Use at a Time");
@@ -2301,7 +2301,7 @@ public:
     DecreasedAccelerationDeceleration(QJsonObject json)
         : Modifier(json["name"].toString("Decreased Acceleration/Deceleration"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._howMuch  = json["howMuch"].toInt(0);
+                   json["adder"].toBool(false)) { v.mHowMuch  = json["howMuch"].toInt(0);
                                                 }
     ~DecreasedAccelerationDeceleration() override { }
 
@@ -2321,25 +2321,25 @@ public:
                                                               return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 4);
-                                                              if (v._howMuch > 2) res += Fraction(1, 4);
+                                                              if (v.mHowMuch > 2) res += Fraction(1, 4);
                                                               return res;
                                                             }
     void          restore() override                        { vars s = v;
-                                                              howMuch->setCurrentIndex(s._howMuch);
+                                                              howMuch->setCurrentIndex(s.mHowMuch);
                                                               v = s;
                                                             }
-    void          store() override                          { v._howMuch  = howMuch->currentIndex();
+    void          store() override                          { v.mHowMuch  = howMuch->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
-                                                              obj["howMuch"]  = v._howMuch;
+                                                              obj["howMuch"]  = v.mHowMuch;
                                                               return obj;
                                                             }
 
 private:
     struct vars {
-        int  _howMuch = 0;
+        int  mHowMuch = 0;
     } v;
 
     QComboBox* howMuch = nullptr;
@@ -2347,10 +2347,10 @@ private:
     QString optOut(bool show, bool abbr = false) {
         static QStringList by { "", "4m per m", "3m per m", "2m per m", "1m per m" };
 
-        if (v._howMuch < 1) return "<incomplete>";
-        Fraction mod = fraction(Modifier::NoStore);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + (abbr ? "Decr. Accel./Decel." : "Decreased Acceleration/Deceleration") + " (";
-        res += by[v._howMuch];
+        if (v.mHowMuch < 1) return "<incomplete>";
+        Fraction md = fraction(Modifier::NoStore);
+        QString res = (show ? QString("(%1").arg((md > 0) ? "+" : "") + md.toString() + ") " : "") + (abbr ? "Decr. Accel./Decel." : "Decreased Acceleration/Deceleration") + " (";
+        res += by[v.mHowMuch];
         return res + ")";
     }
 };
@@ -2437,7 +2437,7 @@ public:
     DelayedFadeReturnRate(QJsonObject json)
         : Modifier(json["name"].toString("Delayed Fade/Return Rate▲"),
                    ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v._duration = json["duration"].toInt(0);
+                   json["adder"].toBool(false)) { v.mDuration = json["duration"].toInt(0);
                                                 }
     ~DelayedFadeReturnRate() override { }
 
@@ -2458,24 +2458,24 @@ public:
                                                               return true; }
     Fraction      fraction(bool noStore = false) override   { if (!noStore) store();
                                                               auto res = Fraction(1, 1);
-                                                              res += v._duration * Fraction(1, 4);
+                                                              res += v.mDuration * Fraction(1, 4);
                                                               return res;
                                                             }
     void          restore() override                        { vars s = v;
-                                                              duration->setCurrentIndex(s._duration);
+                                                              duration->setCurrentIndex(s.mDuration);
                                                               v = s;
                                                             }
-    void          store() override                          { v._duration = duration->currentIndex();
+    void          store() override                          { v.mDuration = duration->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
                                                               obj["name"]     = name();
                                                               obj["type"]     = type();
-                                                              obj["duration"] = v._duration;
+                                                              obj["duration"] = v.mDuration;
                                                               return obj;
                                                             }
 
     struct vars {
-        int  _duration = 0;
+        int  mDuration = 0;
     } v;
 
     QComboBox* duration = nullptr;
@@ -2485,10 +2485,10 @@ public:
                                       "Day", "Week", "Month", "Season", "Year", "5 Years" };
         static QStringList durationAbbr{ "", "Tn", "Min.", "5 Mins", "20 Mins", "Hr", "6 Hrs",
                                           "Dy", "Wk", "Mth", "3 Mths", "Yr", "5 Yrs" };
-        if (v._duration < 1) return "<incomplete>";
-        Fraction mod = fraction(Modifier::NoStore);
-        QString res = (show ? QString("(%1").arg((mod > 0) ? "+" : "") + mod.toString() + ") " : "") + (abbr ? "Delayed Fade/Return" : "Delayed Fade/Return Rate") + "▲ (";
-        res += QString("5 CP per %1").arg(durationOf[v._duration]);
+        if (v.mDuration < 1) return "<incomplete>";
+        Fraction md = fraction(Modifier::NoStore);
+        QString res = (show ? QString("(%1").arg((md > 0) ? "+" : "") + md.toString() + ") " : "") + (abbr ? "Delayed Fade/Return" : "Delayed Fade/Return Rate") + "▲ (";
+        res += QString("5 CP per %1").arg(durationOf[v.mDuration]);
         return res + ")";
     }
 };

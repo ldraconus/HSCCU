@@ -1869,11 +1869,11 @@ bool Sheet::recoverSession(QJsonDocument& json) {
 
     qWarning() << "HSCCU: state file found and opened";
 
-    QByteArray data(file.readAll());
+    QByteArray dat(file.readAll());
     file.close();
     QDir().remove(stateFile);
 
-    QString jsonStr(data);
+    QString jsonStr(dat);
     json = QJsonDocument::fromJson(jsonStr.toUtf8());
 
     qWarning() << "HSCCU: json found: " + jsonStr.left(30);
@@ -2054,8 +2054,8 @@ void Sheet::updateCharacteristics() {
     for (const auto& key: std::as_const(keys)) {
         auto& def = mWidget2Def[key];
         QLineEdit* characteristic = dynamic_cast<QLineEdit*>(key);
-        QString value = def.characteristic()->value();
-        characteristic->setText(value);
+        QString val = def.characteristic()->value();
+        characteristic->setText(val);
         mCharactersticPoints += def.characteristic()->points();
     }
 }
@@ -2313,10 +2313,10 @@ void Sheet::updateTotals() {
     totalExperienceEarnedEditingFinished();
 }
 
-QString Sheet::valueToDice(int value, bool showD6) {
+QString Sheet::valueToDice(int val, bool showD6) {
     QString halfDice = "½";
-    int dice = value / 5; // NOLINT
-    bool half = value % 5 > 2; // NOLINT
+    int dice = val / 5; // NOLINT
+    bool half = val % 5 > 2; // NOLINT
     return QString("%1%2%3").arg(dice).arg(half ? halfDice : "", showD6 ? "d6" : "");
 }
 
@@ -2479,63 +2479,63 @@ void Sheet::copyCharacter() {
 
     QJsonDocument doc = mCharacter.copy(mOption);
     QClipboard* clip = QGuiApplication::clipboard();
-    QMimeData* data = new QMimeData();
-    data->setData("application/complication", doc.toJson());
+    QMimeData* dat = new QMimeData();
+    dat->setData("application/complication", doc.toJson());
     QString text = getCharacter();
-    data->setData("text/plain", text.toUtf8());
-    clip->setMimeData(data);
+    dat->setData("text/plain", text.toUtf8());
+    clip->setMimeData(dat);
 }
 
 void Sheet::copyComplication() {
     bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
-    QMimeData* data = new QMimeData();
+    QMimeData* dat = new QMimeData();
     auto selection = mUI->complications->selectedItems();
     int row = selection[0]->row();
     shared_ptr<Complication> complication = mCharacter.complications()[row];
     QJsonObject obj = complication->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
-    data->setData("application/complication", doc.toJson());
+    dat->setData("application/complication", doc.toJson());
     QString descr = abbr ? complication->abbreviation() : complication->description();
     QString text = QString("%1\t%2").arg(complication->points(Complication::NoStore).points).arg(descr);
-    data->setData("text/plain", text.toUtf8());
-    clip->setMimeData(data);
+    dat->setData("text/plain", text.toUtf8());
+    clip->setMimeData(dat);
 }
 
 void Sheet::copyPowerOrEquipment() {
     bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
-    QMimeData* data = new QMimeData();
+    QMimeData* dat = new QMimeData();
     auto selection = mUI->powersandequipment->selectedItems();
     int row = selection[0]->row();
     shared_ptr<Power> power = getPower(row, mCharacter.powersOrEquipment());
     QJsonObject obj = power->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
-    data->setData("application/powerorequipment", doc.toJson());
+    dat->setData("application/powerorequipment", doc.toJson());
     QString descr = abbr ? power->abbreviation() : power->description();
     QString text = QString("%1\t%2").arg(power->points(Power::NoStore).points).arg(descr);
-    data->setData("text/plain", text.toUtf8());
-    clip->setMimeData(data);
+    dat->setData("text/plain", text.toUtf8());
+    clip->setMimeData(dat);
 }
 
 void Sheet::copySkillTalentOrPerk() {
     bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
-    QMimeData* data = new QMimeData();
+    QMimeData* dat = new QMimeData();
     auto selection = mUI->skillstalentsandperks->selectedItems();
     int row = selection[0]->row();
     shared_ptr<SkillTalentOrPerk> skilltalentorperk = mCharacter.skillsTalentsOrPerks()[row];
     QJsonObject obj = skilltalentorperk->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
-    data->setData("application/skillperkortalent", doc.toJson());
+    dat->setData("application/skillperkortalent", doc.toJson());
     QString descr = abbr ? skilltalentorperk->abbreviation() : skilltalentorperk->description();
     QString text = QString("%1\t%2\t%3").arg(skilltalentorperk->points(SkillTalentOrPerk::NoStore).points)
             .arg(descr, skilltalentorperk->roll());
-    data->setData("text/plain", text.toUtf8());
-    clip->setMimeData(data);
+    dat->setData("text/plain", text.toUtf8());
+    clip->setMimeData(dat);
 }
 
 void Sheet::complicationsMenu(QPoint pos) {
@@ -3061,8 +3061,8 @@ void Sheet::options() {
 
 void Sheet::paste() {
     QClipboard* clip = QGuiApplication::clipboard();
-    const QMimeData* data = clip->mimeData();
-    QByteArray byteArray = data->data("application/hsccucharacter");
+    const QMimeData* dat = clip->mimeData();
+    QByteArray byteArray = dat->data("application/hsccucharacter");
     QString jsonStr(byteArray);
     if (byteArray.isEmpty()) return;
     QJsonDocument doc = QJsonDocument::fromJson(jsonStr.toUtf8());
@@ -3091,8 +3091,8 @@ void Sheet::pasteCharacter() {
 void Sheet::pasteComplication() {
     bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
-    const QMimeData* data = clip->mimeData();
-    QByteArray byteArray = data->data("application/complication");
+    const QMimeData* dat = clip->mimeData();
+    QByteArray byteArray = dat->data("application/complication");
     QString jsonStr(byteArray);
     QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
     QJsonObject obj = json.object();
@@ -3115,8 +3115,8 @@ void Sheet::pasteComplication() {
 
 void Sheet::pastePowerOrEquipment() {
     QClipboard* clip = QGuiApplication::clipboard();
-    const QMimeData* data = clip->mimeData();
-    QByteArray byteArray = data->data("application/powerorequipment");
+    const QMimeData* dat = clip->mimeData();
+    QByteArray byteArray = dat->data("application/powerorequipment");
     QString jsonStr(byteArray);
     QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
     QJsonObject obj = json.object();
@@ -3128,8 +3128,8 @@ void Sheet::pastePowerOrEquipment() {
 void Sheet::pasteSkillTalentOrPerk() {
     bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
-    const QMimeData* data = clip->mimeData();
-    QByteArray byteArray = data->data("application/skillperkortalent");
+    const QMimeData* dat = clip->mimeData();
+    QByteArray byteArray = dat->data("application/skillperkortalent");
     QString jsonStr(byteArray);
     QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
     QJsonObject obj = json.object();

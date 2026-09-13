@@ -263,8 +263,8 @@ public:
         return v.mHitLocations;
     }
     int DEF() {
-        QList<int> value {1, 2, 2, 3, 1, 2, 3, 1, 3, 3, 3, 2, 4, 4, 4, 3, 5, 5, 5, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8}; // NOLINT
-        int def = v.mBonus + value[v.mType];
+        QList<int> val {1, 2, 2, 3, 1, 2, 3, 1, 3, 3, 3, 2, 4, 4, 4, 3, 5, 5, 5, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8}; // NOLINT
+        int def = v.mBonus + val[v.mType];
         if (def < 0) def = 0;
         return def;
     }
@@ -348,11 +348,11 @@ private:
         QStringList typeOf {"Heavy Cloth", "Padded Cloth", "Woven Cord", "Heavy Animal Hides", "Soft Leather", "Heavy Leather", "Cuir-Bouilli", "Studded Soft Leather", "Ring Armor (Soft Leather)", "Bezainted Soft Leather", "Jazeraint Soft Leather", "Studded Heavy Leather", "Ring Armor (Heavy Leather)", "Bezainted Heavy Leather", "Jazeraint Heavy Leather", "Studded Cuir-Bouilli", "Ring Armor (Cuir-Bouilli)", "Bezainted Cuir-Bouilli", "Jazeraint Cuir-Bouilli", "Brigandine", "Lamellar (Splint Armor)", "Banded Mail", "Chainmail", "Double Mail/Bar Mail", "Reinforced Chainmail", "Plate And Chain", "Plate Armor", "Field Plate Armor", "Full Plate Armor"};
         QList<int> price   {20,            40,             40,           50,                   30,             50,              75,             36,                     75,                          80,                       90,                       90,                      90,                           100,                       110,                       110,                    100,                         110,                      110,                      100,          125,                       150,           150,         200,                    200,                    275,               350,           500,                 800}; // NOLINT
         QList<double> mass {3.5,           5.0,            5.0,          7.0,                  3.5,            5.0,             7.0,            3.5,                    7.0,                         7.0,                      7.0,                      5.0,                     10.0,                         10.0,                      10.0,                      7.0,                    14.0,                        14.0,                     14.0,                     10.0,         14.0,                      20.0,          20.0,        28.0,                   28.0,                   28.0,              28.0,          28.0,                40.0}; // NOLINT
-        QList<int> value {1, 2, 2, 3, 1, 2, 3, 1, 3, 3, 3, 2, 4, 4, 4, 3, 5, 5, 5, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8}; // NOLINT
-        QString res = Equipment::optOut(b, 10.0 * v.mWeights[value[v.mType] - 1] * value[v.mType] / 8.0, price[v.mType] * v.mWeights[value[v.mType] - 1] / mass[v.mType], abbr); // NOLINT
+        QList<int> val {1, 2, 2, 3, 1, 2, 3, 1, 3, 3, 3, 2, 4, 4, 4, 3, 5, 5, 5, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8}; // NOLINT
+        QString res = Equipment::optOut(b, 10.0 * v.mWeights[val[v.mType] - 1] * val[v.mType] / 8.0, price[v.mType] * v.mWeights[val[v.mType] - 1] / mass[v.mType], abbr); // NOLINT
         QString sep = ", ";
         res += sep + typeOf[v.mType];
-        int def = v.mBonus + value[v.mType];
+        int def = v.mBonus + val[v.mType];
         if (def < 0) def = 0;
         res += sep + QString("%1 rDEF").arg(def);
         res += sep + v.mHitLocations + " Locations";

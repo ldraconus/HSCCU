@@ -416,16 +416,16 @@ void PowerDialog::copyAdvantage(bool) {
 
     bool abbr = Sheet::ref().option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
-    QMimeData* data = new QMimeData();
+    QMimeData* dat = new QMimeData();
     int row = selection[0].topRow();
     shared_ptr<Modifier> advantage = mPower->advantagesList()[row];
     QJsonObject obj = advantage->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
-    data->setData("application/advantage", doc.toJson());
+    dat->setData("application/advantage", doc.toJson());
     QString text = QString("%1\t%2").arg(advantage->fraction(Modifier::NoStore).toString(), abbr ? advantage->abbreviation() : advantage->description());
-    data->setData("text/plain", text.toUtf8());
-    clip->setMimeData(data);
+    dat->setData("text/plain", text.toUtf8());
+    clip->setMimeData(dat);
 }
 
 void PowerDialog::copyLimitation(bool) {
@@ -435,16 +435,16 @@ void PowerDialog::copyLimitation(bool) {
 
     bool abbr = Sheet::ref().option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
-    QMimeData* data = new QMimeData();
+    QMimeData* dat = new QMimeData();
     int row = selection[0].topRow();
     shared_ptr<Modifier> limitation = mPower->limitationsList()[row];
     QJsonObject obj = limitation->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
-    data->setData("application/limitation", doc.toJson());
+    dat->setData("application/limitation", doc.toJson());
     QString text = QString("%1\t%2").arg(limitation->fraction(Modifier::NoStore).toString(), abbr ? limitation->abbreviation() : limitation->description());
-    data->setData("text/plain", text.toUtf8());
-    clip->setMimeData(data);
+    dat->setData("text/plain", text.toUtf8());
+    clip->setMimeData(dat);
 }
 
 void PowerDialog::cutAdvantage(bool) {
@@ -630,8 +630,8 @@ void PowerDialog::ok() {
 void PowerDialog::pasteAdvantage(bool) {
     if (mEquipment) return;
     QClipboard* clip = QGuiApplication::clipboard();
-    const QMimeData* data = clip->mimeData();
-    QByteArray byteArray = data->data("application/advantage");
+    const QMimeData* dat = clip->mimeData();
+    QByteArray byteArray = dat->data("application/advantage");
     QString jsonStr(byteArray);
     QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
     QJsonObject obj = json.object();
@@ -645,8 +645,8 @@ void PowerDialog::pasteAdvantage(bool) {
 void PowerDialog::pasteLimitation(bool) {
     if (mEquipment) return;
     QClipboard* clip = QGuiApplication::clipboard();
-    const QMimeData* data = clip->mimeData();
-    QByteArray byteArray = data->data("application/limitation");
+    const QMimeData* dat = clip->mimeData();
+    QByteArray byteArray = dat->data("application/limitation");
     QString jsonStr(byteArray);
     QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
     QJsonObject obj = json.object();
