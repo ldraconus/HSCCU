@@ -726,10 +726,10 @@ public:
         layout = new QGridLayout();
         widget->setLayout(layout);
 
-#if defined(__wasm__)
-        static constexpr int offset = -2;
-#elif defined(unix) || defined(Q_OS_ANDROID)
+#if defined(Q_OS_ANDROID)
         static constexpr int offset = 0;
+#elif defined(__wasm__) || defined(unix)
+        static constexpr int offset = -2;
 #else
         static constexpr int offset = -3;
 #endif
