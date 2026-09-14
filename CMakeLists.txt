@@ -136,6 +136,8 @@ if(EMSCRIPTEN)
             data.qrc
             printdialog.cpp
             printer.h printer.cpp
+            sheet_ui.cpp
+            viewmenudialog.h viewmenudialog.cpp viewmenudialog.ui
     )
 
 set_target_properties(HSCCU PROPERTIES

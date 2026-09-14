@@ -98,56 +98,6 @@ public:
         return createTableWidget(parent, fontIn, headers, vals, p, s, "", selectable, label);
     }
 
-    void rebuildTable(QTableWidget* tablewidget, QStringList headers, QList<QStringList> vals, bool selectable = false, bool label = false) {
-        font = QFont("Segoe UI", StandardFontSize);
-        QFont narrow = font;
-        narrow.setStretch(QFont::Stretch::SemiCondensed);
-        QFont narrowTblFont = narrow;
-        narrowTableFont.setPointSize(TinyFontSize);
-
-        tablewidget->setColumnCount(int(headers.size()));
-        tablewidget->setRowCount(int(vals.size()));
-        tablewidget->setHorizontalHeaderLabels(headers);
-#ifdef __wasm__
-        int pnt = narrowTblFont.pointSize();
-        QFont temp = font;
-        temp.setPointSize(pnt * 8 + 0.5); // NOLINT
-        tablewidget->setFont(temp);
-#else
-        tablewidget->setFont(narrowTblFont);
-#endif
-        tablewidget->setHorizontalHeaderLabels(headers);
-        int i = 0;
-        for (i = 0; i < vals.size(); ++i) {
-            for (int j = 0; j < vals[i].size(); ++j) {
-                if (label) {
-                    QLabel* cell = new QLabel(vals[i][j]);
-                    cell->setFont(narrowTableFont);
-                    cell->setStyleSheet("color: #000;");
-                    tablewidget->setCellWidget(i, j, cell);
-                } else {
-                    QTableWidgetItem* lbl = new QTableWidgetItem(vals[i][j]);
-                    lbl->setFont(narrowTableFont);
-                    lbl->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
-                    if (selectable) lbl->setFlags(Qt::ItemIsSelectable);
-                    else lbl->setFlags(Qt::NoItemFlags);
-                    tablewidget->setItem(i, j, lbl);
-                }
-            }
-        }
-        for (i = 0; i < tablewidget->rowCount(); ++i) tablewidget->resizeRowToContents(i);
-#ifdef __wasm__
-        for (i = 0; i < tablewidget->columnCount(); ++i) tablewidget->resizeColumnToContents(i);
-#else
-        int total = 0;
-        for (i = 1; i < tablewidget->columnCount(); ++i) {
-            tablewidget->resizeColumnToContents(i - 1);
-            total += tablewidget->columnWidth(i - 1);
-        }
-        tablewidget->setColumnWidth(int(headers.size()) - 1, tablewidget->geometry().size().width() - total);
-#endif
-    }
-
 private:
     void moveTo(QWidget* w, At p, Size s = { }) {
         QRect r = w->geometry();
@@ -730,9 +680,7 @@ public:
     static constexpr int TableFontSize      = StandardFontSize;
 #endif
 
-#if defined(Q_OS_ANDROID) || !(defined(__wasm__) || defined(unix))
     QWidget* mWidget = nullptr;
-#endif
 
     void graphicsViewSetup(QWidget** widget, QWidget** hidden);
 

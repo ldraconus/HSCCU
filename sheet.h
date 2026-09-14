@@ -15,6 +15,7 @@
 #ifdef __wasm__
 #include "editmenudialog.h"
 #include "filemenudialog.h"
+#include "viewmenudialog.h"
 #endif
 #include "complicationsmenudialog.h"
 #include "imgmenudialog.h"
@@ -61,6 +62,7 @@ public:
 #ifdef __wasm__
     typedef std::shared_ptr<EditMenuDialog>          tEditMenu;
     typedef std::shared_ptr<FileMenuDialog>          tFileMenu;
+    typedef std::shared_ptr<ViewMenuDialog>          tViewMenu;
 #endif
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
     typedef std::shared_ptr<ComplicationsMenuDialog> tComplicationsMenu;
@@ -84,6 +86,7 @@ public:
         tImgMenu           ImgMenu           { nullptr };
         tSkillMenu         SkillMenu         { nullptr };
         tPowerMenu         PowerMenu         { nullptr };
+        tViewMenu          ViewMenu          { nullptr };
 #endif
         tPrint             Print             { nullptr };
         tOption            Option            { nullptr };
@@ -164,6 +167,7 @@ public:
     QToolButton* imageButton = nullptr;
     QToolButton* powersAndEquipmentButton = nullptr;
     QToolButton* skillsTalentsAndPerksButton = nullptr;
+    QToolButton* viewButton = nullptr;
     QAction* action_File = nullptr;
     QAction* action_New = nullptr;
     QAction* action_Open = nullptr;
@@ -173,10 +177,21 @@ public:
     QAction* actionC_opy = nullptr;
     QAction* action_Paste = nullptr;
     QAction* actionOptions = nullptr;
+    QAction* action_View = nullptr;
     QAction* action_Image = nullptr;
     QAction* action_Complications = nullptr;
     QAction* action_Powers = nullptr;
     QAction* action_STP = nullptr;
+    QAction* action0_5 = nullptr;
+    QAction* action0_75 = nullptr;
+    QAction* action0_9 = nullptr;
+    QAction* action1_0 = nullptr;
+    QAction* action1_25 = nullptr;
+    QAction* action1_5 = nullptr;
+    QAction* action2_0 = nullptr;
+    QAction* action3_0 = nullptr;
+    QAction* actionZoom_In = nullptr;
+    QAction* actionZoom_Out = nullptr;
 #endif
     QAction* action_ImgNew = nullptr;
     QAction* action_ImgClear = nullptr;
@@ -244,6 +259,7 @@ private:
 #ifdef __wasm__
     QWidget*           createToolBarItem(QToolBar*, QAction*, const QString, const QString, QAction*);
     void               createMenuItem(QAction*& action, const QString& name, const char* slot);
+    void               createMenuItem(QAction*& action, const QString& name, std::function<void()> func);
     QToolButton*       createToolBarItem(QToolBar*, const QString, const QString);
     QWidget*           createToolBarItem(QToolBar*, QAction*, const QString);
     QWidget*           createToolBarItem(QToolBar*, const QString);
@@ -399,6 +415,7 @@ public slots:
     void powerMenu(bool);
     void stpMenu(bool);
     void compMenu(bool);
+    void viewMenu(bool);
 #endif
     void focusChanged(QWidget*, QWidget*);
     void gamemasterChanged(QString);

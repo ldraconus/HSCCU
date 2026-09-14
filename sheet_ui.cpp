@@ -3,13 +3,14 @@
 
 #if !defined(__wasm__)
 #include "ui_sheet.h"
+#else
+#include "ui_wasm.h"
 #endif
 
 #include <QFont>
 #include <QGraphicsScene>
 
 void Sheet_UI::graphicsViewSetup(QWidget **widget, QWidget **hidden) {
-#if !defined(__wasm__)
     QLabel* label = nullptr;
     QLabel* optLabel = nullptr;
     QGraphicsScene* scene = new QGraphicsScene(Sheet::ref().UI()->graphicsView);
@@ -40,5 +41,4 @@ void Sheet_UI::graphicsViewSetup(QWidget **widget, QWidget **hidden) {
     viewport->setAttribute(Qt::WA_AcceptTouchEvents);
     viewport->grabGesture(Qt::PinchGesture);
     viewport->installEventFilter(&Sheet::ref());
-#endif
 }

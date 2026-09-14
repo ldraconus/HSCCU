@@ -46,8 +46,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1012</width>
-         <height>3912</height>
+         <width>1026</width>
+         <height>698</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -67,44 +67,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="label">
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
-          </property>
-          <property name="contextMenuPolicy">
-           <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="build/WebAssembly_Qt_6_10_3_single_threaded_Debug/.qt/rcc/res.qrc">:/gfx/Sheet.png</pixmap>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="optLabel">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
-          </property>
-          <property name="midLineWidth">
-           <number>1</number>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="build/WebAssembly_Qt_6_10_3_single_threaded_Debug/.qt/rcc/res.qrc">:/gfx/Page3.png</pixmap>
-          </property>
-         </widget>
+         <widget class="QGraphicsView" name="graphicsView"/>
         </item>
        </layout>
       </widget>
@@ -152,8 +115,6 @@ background: #bbbbbb;
    </attribute>
   </widget>
  </widget>
- <resources>
-  <include location="build/WebAssembly_Qt_6_10_3_single_threaded_Debug/.qt/rcc/res.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

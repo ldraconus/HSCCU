@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ViewMenuDialog</class>
+ <widget class="QDialog" name="ViewMenuDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>80</width>
+    <height>260</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">color: black;
+background: #bbbbbb;
+</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QPushButton" name="z0_5">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>☐  0.5</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="z0_75">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>☐  0.75</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="z0_9">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>☐  0.9</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="z1_0">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>☐  1.0</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="z1_25">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>☐  1.25</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="z1_5">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>☐  1.5</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="z2_0">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>☐  2.0</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="z3_0">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>☐  3.0</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="styleSheet">
+      <string notr="true">color: black;
+background: #bbbbbb;
+</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::HLine</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Plain</enum>
+     </property>
+     <property name="midLineWidth">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="Zoom_In">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>Zoom In</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="Zoom_Out">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+  color: black;
+  background: #bbbbbb;
+  border: none;
+  text-align: left;
+  padding: 4px 8px;
+}
+QPushButton:hover {
+    background-color: #D0FFFF;
+}
+QPushButton:disabled {
+  color: gray;
+  background: #bbbbbb;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>Zoom Out</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

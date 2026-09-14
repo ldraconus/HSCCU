@@ -272,17 +272,9 @@ Sheet::Sheet(QWidget *parent)
 
     mUi->setupUi(this);
 
-#ifndef __wasm__
     mUi->graphicsView->setStyleSheet("color: #000; background: #fff");
     mUI->setupUi(nullptr, nullptr);
     mUI->mWidget->setStyleSheet("color: #000; background: #fff");
-#else
-    mUi->scrollAreaWidgetContents->setStyleSheet("background: #fff");
-    mUi->scrollArea->setStyleSheet("color: #000; background: #fff ");
-    mLabel = mUi->label;
-    mOptLabel = mUi->optLabel;
-    mUI->setupUi(mUi->label, mUi->optLabel);
-#endif
 
 #ifdef Q_OS_ANDROID
     mUi->menubar->setNativeMenuBar(false);
@@ -405,6 +397,17 @@ Sheet::Sheet(QWidget *parent)
     createMenuItem(action_Paste,  "action_Paste",  SLOT(pasteCharacter()));
     createMenuItem(actionOptions, "actionOptions", SLOT(options()));
 
+    viewButton = createToolBarItem(mUi->menuBar, "View", "View Menu");
+    connect(viewButton, &QToolButton::clicked, this, &Sheet::viewMenu);
+    createMenuItem(action0_5, "action0_5",  [this]() { zoom(0.5); });
+    createMenuItem(action0_5, "action0_75", [this]() { zoom(0.75); });
+    createMenuItem(action0_5, "action0_9",  [this]() { zoom(0.9); });
+    createMenuItem(action0_5, "action1_0",  [this]() { zoom(1.0); });
+    createMenuItem(action0_5, "action1_25", [this]() { zoom(1.25); });
+    createMenuItem(action0_5, "action1_5",  [this]() { zoom(1.5); });
+    createMenuItem(action0_5, "action2_0",  [this]() { zoom(2.0); });
+    createMenuItem(action0_5, "action3_0",  [this]() { zoom(3.0); });
+
     imageButton = createToolBarItem(mUi->menuBar, "Image", "Image menu");
     connect(imageButton, &QToolButton::clicked, this, &Sheet::imgMenu);
 
@@ -492,6 +495,26 @@ Sheet::Sheet(QWidget *parent)
     mZooms.append(mUi->action1_5);
     mZooms.append(mUi->action2_0);
     mZooms.append(mUi->action3_0);
+#else
+    connect(action0_5,             &QAction::triggered,          this, [this] { zoom(0.5); });
+    connect(action0_75,            &QAction::triggered,          this, [this] { zoom(0.75); });
+    connect(action0_9,             &QAction::triggered,          this, [this] { zoom(0.9); });
+    connect(action1_0,             &QAction::triggered,          this, [this] { zoom(1.0); });
+    connect(action1_25,            &QAction::triggered,          this, [this] { zoom(1.25); });
+    connect(action1_5,             &QAction::triggered,          this, [this] { zoom(1.5); });
+    connect(action2_0,             &QAction::triggered,          this, [this] { zoom(2.0); });
+    connect(action3_0,             &QAction::triggered,          this, [this] { zoom(3.0); });
+    connect(actionZoom_In,         &QAction::triggered,          this, [this] { zoomIn(); });
+    connect(actionZoom_Out,        &QAction::triggered,          this, [this] { zoomOut(); });
+
+    mZooms.append(action0_5);
+    mZooms.append(action0_75);
+    mZooms.append(action0_9);
+    mZooms.append(action1_0);
+    mZooms.append(action1_25);
+    mZooms.append(action1_5);
+    mZooms.append(action2_0);
+    mZooms.append(action3_0);
 #endif
 
     setTableSelectionMode(mUI->skillstalentsandperks);
@@ -672,25 +695,6 @@ void Sheet::closeEvent(QCloseEvent* event) {
 }
 
 bool Sheet::event(QEvent* e) {
-#if defined(Q_OS_ANDROID) || !(defined(__wasm__) || defined(unix))
-    if (e->type() == QEvent::Gesture) {
-        auto* ge = static_cast<QGestureEvent*>(e);
-
-        if (auto* pinch = static_cast<QPinchGesture*>(ge->gesture(Qt::PinchGesture))) {
-
-            if (pinch->state() == Qt::GestureStarted) mStartScale = mUi->graphicsView->transform().m11();
-
-            qreal scale = mStartScale * pinch->totalScaleFactor();
-            scale = qBound(0.5, scale, 3.0);
-
-            mUi->graphicsView->resetTransform();
-            mUi->graphicsView->scale(scale, scale);
-
-            return true;
-        }
-    }
-#endif
-
     return QMainWindow::event(e);
 }
 
@@ -878,6 +882,12 @@ void Sheet::createMenuItem(QAction*& action, const QString& name, const char* sl
     action = new QAction(this);
     action->setObjectName("name");
     connect(action, SIGNAL(triggered()), this, slot);
+}
+
+void Sheet::createMenuItem(QAction*& action, const QString& name, std::function<void()> func) {
+    action = new QAction(this);
+    action->setObjectName("name");
+    connect(action, &QAction::triggered, this, func);
 }
 
 QWidget* Sheet::createToolBarItem(QToolBar* sb, QAction* at, const QString name, const QString tip, QAction* action) {
@@ -2855,6 +2865,18 @@ void Sheet::powerMenu(bool) {
     powerMenuDialog->setPos(QPoint());
     powerMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     powerMenuDialog->open();
+}
+
+void Sheet::viewMenu(bool) {
+    closeDialogs(nullptr);
+#ifdef Q_OS_ANDROID
+    auto viewMenuDialog = (sDialog.ViewMenu = std::shared_ptr<ViewMenuDialog> (new ViewMenuDialog(), [](ViewMenuDialog* d) { d->deleteLater(); }));
+#else
+    auto viewMenuDialog = (sDialog.ViewMenu = std::make_shared<ViewMenuDialog>());
+#endif
+    viewMenuDialog->setPos(QPoint());
+    viewMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    viewMenuDialog->open();
 }
 
 void Sheet::stpMenu(bool) {
