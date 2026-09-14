@@ -55,7 +55,7 @@ if [[ -n "$EXE" && -n "$WINDEPLOY" ]]; then
     cd ../../..
 else
     if [[ "$BINARY_CREATOR" == "echo" ]]; then
-        echo "Configuring WebAssmebly Install"
+        echo "Configuring WebAssmebly Install (" $BUILD_DIR " --> " ${TO_PROG} ")"
     else
         mkdir -p packages/com.vendor.product/data
         cp -uf  $BUILD_DIR/${FROM_PROG}${EXE} packages/com.vendor.product/data/${TO_PROG}${EXE}
@@ -74,6 +74,7 @@ if [[ "$BINARY_CREATOR" == "echo" ]]; then
     cp -uf $BUILD_DIR/${TO_PROG}.wasm ${TO_PROG}
     cp -uf $BUILD_DIR/qtloader.js ${TO_PROG}
     cp -uf HeroSystem.png ${TO_PROG}
+    cp -uf favicon.png ${TO_PROG}
     cp -uf ${TO_PROG}.html ${TO_PROG}
 else
     echo "Building installer"

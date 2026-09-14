@@ -349,7 +349,6 @@ Sheet::Sheet(QWidget *parent)
     mDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
     mOption.load();
-    mOptLabel->setVisible(mOption.showNotesPage());
 
     connect(qApp, &QApplication::focusChanged, this, &Sheet::focusChanged);
 
@@ -587,6 +586,7 @@ Sheet::Sheet(QWidget *parent)
         }
     }
 #endif
+#else
 #endif
 }
 
@@ -664,6 +664,7 @@ void Sheet::mousePressEvent(QMouseEvent* me) {
 
 void Sheet::showEvent(QShowEvent* se) {
     QMainWindow::showEvent(se);
+    QTimer::singleShot(0, this, [this]() { setNotes(mOption.showNotesPage()); });
 }
 
 void Sheet::closeEvent(QCloseEvent* event) {
@@ -2046,12 +2047,19 @@ void Sheet::setCellLabel(QTableWidget* tbl, int row, int col, QString str) {
     tbl->setCellWidget(row, col, lbl);
 }
 
+void Sheet::setNotes(bool visible) {
+    mOptLabel->setVisible(Sheet::ref().option().showNotesPage());
+    mUI->mWidget->adjustSize();
+    mUi->graphicsView->scene()->setSceneRect(mUi->graphicsView->scene()->itemsBoundingRect());
+    updateDisplay();
+    changed();
+}
+
 void Sheet::setDamage(cCharacteristicDef& def, QLabel* set) {
     int primary = def.characteristic()->base() + def.characteristic()->primary();
     int secondary = primary + def.characteristic()->secondary();
     QString dice = valueToDice(primary);
     if (primary != secondary) dice += "/" + valueToDice(secondary);
-    set->setText(dice);
 }
 
 void Sheet::setDefense(cCharacteristicDef& def, int r, int c, QLineEdit* val) {

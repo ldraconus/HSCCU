@@ -13,8 +13,11 @@
 void Sheet_UI::graphicsViewSetup(QWidget **widget, QWidget **hidden) {
     QLabel* label = nullptr;
     QLabel* optLabel = nullptr;
+
     QGraphicsScene* scene = new QGraphicsScene(Sheet::ref().UI()->graphicsView);
     Sheet::ref().UI()->graphicsView->setScene(scene);
+    Sheet::ref().UI()->graphicsView->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
     mWidget = new QWidget();
     auto* lyt = new QVBoxLayout();
     lyt->setContentsMargins(0, 0, 0, 0);
@@ -37,6 +40,11 @@ void Sheet_UI::graphicsViewSetup(QWidget **widget, QWidget **hidden) {
     Sheet::ref().setWidgets(label, optLabel);
 
     auto* viewport = Sheet::ref().UI()->graphicsView->viewport();
+
+    label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    optLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    optLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     viewport->setAttribute(Qt::WA_AcceptTouchEvents);
     viewport->grabGesture(Qt::PinchGesture);
