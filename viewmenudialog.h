@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QShowEvent>
 
 namespace Ui {
 class ViewMenuDialog;
@@ -13,6 +14,13 @@ public:
     explicit ViewMenuDialog(QWidget *parent = nullptr);
     ~ViewMenuDialog();
 
+    void setPos(QPoint pos)  { mPos = pos; }
+
+    void showEvent(QShowEvent*) override;
+
 private:
-    Ui::ViewMenuDialog *ui;
+    QPointF             mPos;
+    Ui::ViewMenuDialog* mUi;
+
+    void check(QPushButton* btn);
 };

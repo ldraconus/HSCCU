@@ -382,7 +382,6 @@ Sheet::Sheet(QWidget *parent)
     connect(mUi->menu_Edit,     &QMenu::aboutToShow, this, &Sheet::aboutToShowEditMenu);
     connect(mUi->menu_Edit,     &QMenu::aboutToHide, this, &Sheet::aboutToHideEditMenu);
     connect(mUi->actionC_opy,   &QAction::triggered, this, &Sheet::copyCharacter);
-
 #else
     fileButton = createToolBarItem(mUi->menuBar, "File", "File menu");
     connect(fileButton, &QToolButton::clicked, this, &Sheet::fileMenu);
@@ -399,14 +398,6 @@ Sheet::Sheet(QWidget *parent)
 
     viewButton = createToolBarItem(mUi->menuBar, "View", "View Menu");
     connect(viewButton, &QToolButton::clicked, this, &Sheet::viewMenu);
-    createMenuItem(action0_5, "action0_5",  [this]() { zoom(0.5); });
-    createMenuItem(action0_5, "action0_75", [this]() { zoom(0.75); });
-    createMenuItem(action0_5, "action0_9",  [this]() { zoom(0.9); });
-    createMenuItem(action0_5, "action1_0",  [this]() { zoom(1.0); });
-    createMenuItem(action0_5, "action1_25", [this]() { zoom(1.25); });
-    createMenuItem(action0_5, "action1_5",  [this]() { zoom(1.5); });
-    createMenuItem(action0_5, "action2_0",  [this]() { zoom(2.0); });
-    createMenuItem(action0_5, "action3_0",  [this]() { zoom(3.0); });
 
     imageButton = createToolBarItem(mUi->menuBar, "Image", "Image menu");
     connect(imageButton, &QToolButton::clicked, this, &Sheet::imgMenu);
@@ -495,26 +486,6 @@ Sheet::Sheet(QWidget *parent)
     mZooms.append(mUi->action1_5);
     mZooms.append(mUi->action2_0);
     mZooms.append(mUi->action3_0);
-#else
-    connect(action0_5,             &QAction::triggered,          this, [this] { zoom(0.5); });
-    connect(action0_75,            &QAction::triggered,          this, [this] { zoom(0.75); });
-    connect(action0_9,             &QAction::triggered,          this, [this] { zoom(0.9); });
-    connect(action1_0,             &QAction::triggered,          this, [this] { zoom(1.0); });
-    connect(action1_25,            &QAction::triggered,          this, [this] { zoom(1.25); });
-    connect(action1_5,             &QAction::triggered,          this, [this] { zoom(1.5); });
-    connect(action2_0,             &QAction::triggered,          this, [this] { zoom(2.0); });
-    connect(action3_0,             &QAction::triggered,          this, [this] { zoom(3.0); });
-    connect(actionZoom_In,         &QAction::triggered,          this, [this] { zoomIn(); });
-    connect(actionZoom_Out,        &QAction::triggered,          this, [this] { zoomOut(); });
-
-    mZooms.append(action0_5);
-    mZooms.append(action0_75);
-    mZooms.append(action0_9);
-    mZooms.append(action1_0);
-    mZooms.append(action1_25);
-    mZooms.append(action1_5);
-    mZooms.append(action2_0);
-    mZooms.append(action3_0);
 #endif
 
     setTableSelectionMode(mUI->skillstalentsandperks);
@@ -630,13 +601,9 @@ Sheet::Dialogs Sheet::sDialog{};
 // --- [EVENT FILTER] ----------------------------------------------------------------------------------
 
 bool Sheet::eventFilter(QObject* object, QEvent* event) {
-#ifndef __wasm__
     if (object == mUi->graphicsView->viewport() && event->type() == QEvent::Gesture) {
-
         auto* ge = static_cast<QGestureEvent*>(event);
-
-        if (auto* pinch =
-            static_cast<QPinchGesture*>(ge->gesture(Qt::PinchGesture))) {
+        if (auto* pinch = static_cast<QPinchGesture*>(ge->gesture(Qt::PinchGesture))) {
             if (pinch->state() == Qt::GestureStarted) mStartScale = mUi->graphicsView->transform().m11();
 
             qreal scale = mStartScale * pinch->totalScaleFactor();
@@ -647,7 +614,16 @@ bool Sheet::eventFilter(QObject* object, QEvent* event) {
             return true;
         }
     }
-#endif
+
+    if (event->type() == QEvent::Wheel) {
+        auto* we = static_cast<QWheelEvent*>(event);
+        if (we->modifiers().testFlag(Qt::ControlModifier)) {
+            static constexpr auto zoomStep = 0.05;
+            if (we->angleDelta().y() > 0)      zoom(mStartScale + zoomStep);
+            else if (we->angleDelta().y() < 0) zoom(mStartScale - zoomStep);
+            return true;
+        }
+    }
 
     if (event->type() == QEvent::FocusIn && mWidget2Def.find(object) != mWidget2Def.end()) {
         QLineEdit* edit = dynamic_cast<QLineEdit*>(object);
@@ -669,6 +645,7 @@ void Sheet::closeDialogs(QMouseEvent* me) {
 #ifdef __wasm__
     if (sDialog.EditMenu          != nullptr) closeDialog(sDialog.EditMenu,          me);
     if (sDialog.FileMenu          != nullptr) closeDialog(sDialog.FileMenu,          me);
+    if (sDialog.ViewMenu          != nullptr) closeDialog(sDialog.ViewMenu,          me);
 #endif
     if (sDialog.ImgMenu           != nullptr) closeDialog(sDialog.ImgMenu,           me);
     if (sDialog.SkillMenu         != nullptr) closeDialog(sDialog.SkillMenu,         me);
@@ -2381,12 +2358,20 @@ QString Sheet::valueToDice(int val, bool showD6) {
 static qreal scales[] { 0.5, 0.75, 0.9, 1.0, 1.25, 1.5, 2.0, 3.0 };
 static int numScales = sizeof(scales) / sizeof(qreal);
 
+int  Sheet::zoom() {
+    for (int i = 0; i < numScales; ++i) {
+        if (qAbs(mStartScale - scales[i]) < 0.01) return i;
+    }
+    return -1;
+}
+
 void Sheet::zoom(qreal zm) {
-#ifndef __wasm__
+    if (zm < 0.5) zm = 0.5;
+    if (zm > 3.0) zm = 3.0;
     mUi->graphicsView->resetTransform();
     mUi->graphicsView->scale(zm, zm);
+#ifndef __wasm__
     for (const auto& action: std::as_const(mZooms)) action->setChecked(false);
-    // unchgeck all of the zoom menus
     for (int i = 0; i < numScales; ++i) {
         if (qAbs(zm - scales[i]) < 0.01) {
             mZooms[i]->setChecked(true);
@@ -2394,6 +2379,7 @@ void Sheet::zoom(qreal zm) {
         }
     }
 #endif
+    mStartScale = zm;
 }
 
 void Sheet::zoomIn() {
@@ -2402,8 +2388,7 @@ void Sheet::zoomIn() {
     for (i = 0; i < numScales; ++i) {
         if (scales[i] > mStartScale) break;
     }
-    mStartScale = scales[i];
-    zoom(mStartScale);
+    zoom(scales[i]);
 }
 
 void Sheet::zoomOut() {
@@ -2412,8 +2397,7 @@ void Sheet::zoomOut() {
     for (i = numScales - 1; i != 0; --i) {
         if (scales[i] < mStartScale) break;
     }
-    mStartScale = scales[i];
-    zoom(mStartScale);
+    zoom(scales[i]);
 }
 
 // ---[SLOTS] --------------------------------------------------------------------------------------------

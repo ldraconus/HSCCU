@@ -80,13 +80,13 @@ public:
 #ifdef __wasm__
         tEditMenu          EditMenu          { nullptr };
         tFileMenu          FileMenu          { nullptr };
+        tViewMenu          ViewMenu          { nullptr };
 #endif
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
         tComplicationsMenu ComplicationsMenu { nullptr };
         tImgMenu           ImgMenu           { nullptr };
         tSkillMenu         SkillMenu         { nullptr };
         tPowerMenu         PowerMenu         { nullptr };
-        tViewMenu          ViewMenu          { nullptr };
 #endif
         tPrint             Print             { nullptr };
         tOption            Option            { nullptr };
@@ -114,6 +114,10 @@ public:
     void        setTableSelectionMode(QTableWidget*);
     void        updateDisplay();
     void        updatePower(shared_ptr<Power>);
+    void        zoom(qreal zm);
+    int         zoom();
+    void        zoomIn();
+    void        zoomOut();
 
     void closeEvent(QCloseEvent*) override;
     bool event(QEvent*) override;
@@ -347,9 +351,6 @@ private:
     void               updateSkills(shared_ptr<SkillTalentOrPerk>);
     void               updateTotals();
     QString            valueToDice(int, bool showD6 = !noD6);
-    void               zoom(qreal zm);
-    void               zoomIn();
-    void               zoomOut();
 
     static Sheet_UI sSheet_UI; // NOLINT
 
