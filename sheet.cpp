@@ -2050,7 +2050,7 @@ void Sheet::setCellLabel(QTableWidget* tbl, int row, int col, QString str) {
 void Sheet::setNotes(bool visible) {
     mOptLabel->setVisible(Sheet::ref().option().showNotesPage());
     mUI->mWidget->adjustSize();
-    mUi->graphicsView->scene()->setSceneRect(mUi->graphicsView->scene()->itemsBoundingRect());
+    mUi->graphicsView->scene()->setSceneRect(mUI->mWidget->geometry());
     updateDisplay();
     changed();
 }
