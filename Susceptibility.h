@@ -8,11 +8,11 @@ public:
     Susceptibility(): Complication() { }
     Susceptibility(const QJsonObject& json)
         : Complication(json)
-        , v { json["dice"].toInt(0),
-              json["every"].toInt(0),
-              json["frequency"].toInt(0),
-              json["proximity"].toInt(0),
-              json["what"].toString("") } { }
+        , v { json[Dice].toInt(0),
+              json[Every].toInt(0),
+              json[Frequency].toInt(0),
+              json[Proximity].toInt(0),
+              json[What].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
@@ -61,12 +61,12 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj  = Complication::toJson();
-        obj["name"]      = "Susceptibility";
-        obj["dice"]      = v.mDice;
-        obj["every"]     = v.mEvery;
-        obj["frequency"] = v.mFrequency;
-        obj["proximity"] = v.mProximity;
-        obj["what"]      = v.mWhat;
+        obj[Name]      = "Susceptibility";
+        obj[Dice]      = v.mDice;
+        obj[Every]     = v.mEvery;
+        obj[Frequency] = v.mFrequency;
+        obj[Proximity] = v.mProximity;
+        obj[What]      = v.mWhat;
         return obj;
     }
 

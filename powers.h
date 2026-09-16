@@ -82,6 +82,25 @@ protected:
     Power* mParent = nullptr;
     int    mRow    = -1;
 
+    static constexpr auto        Armor = "armor";
+    static constexpr auto         Body = "body";
+    static constexpr auto        Boost = "boost";
+    static constexpr auto    Defensive = "defensive";
+    static constexpr auto         Dice = "dice";
+    static constexpr auto EquipmentTag = "equipment";
+    static constexpr auto         From = "from";
+    static constexpr auto           Id = "id";
+    static constexpr auto    Modifiers = "modifiers";
+    static constexpr auto         Name = "name";
+    static constexpr auto    PowerName = "powerName";
+    static constexpr auto         Rate = "rate";
+    static constexpr auto     Suppress = "suppress";
+    static constexpr auto           To = "to";
+    static constexpr auto       Varies = "varies";
+    static constexpr auto      Varying = "varying";
+    static constexpr auto       Weapon = "weapon";
+    static constexpr auto          Who = "who";
+
 public:
     QLineEdit* labeledEdit(QWidget* w)       { return mLabeledEdits[w]; }
     bool       labeledEditExists(QWidget* w) { return mLabeledEdits.find(w) != mLabeledEdits.end(); }
@@ -127,10 +146,10 @@ public:
 
     virtual QJsonObject toJson()                 { QJsonObject obj;
                                                    QJsonObject mods;
-                                                   obj["id"] = mGuid;
+                                                   obj[Id] = mGuid;
                                                    for (const auto& mod: std::as_const(mAdvantagesList))  mods[mod->name()] = mod->toJson();
                                                    for (const auto& mod: std::as_const(mLimitationsList)) mods[mod->name()] = mod->toJson();
-                                                   obj["modifiers"] = mods;
+                                                   obj[Modifiers] = mods;
                                                    return obj;
                                                  }
     virtual void        activate(int, int)       { }
@@ -247,7 +266,7 @@ private:
     QList<shared_ptr<Modifier>> mModifiers;
     QString                     mGuid;
 
-    void id(const QJsonObject& json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces); }
+    void id(const QJsonObject& json) { mGuid = json[Id].toString(); if (mGuid.isEmpty()) mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces); }
 
     static const QMap<QString, QString> mAdjustmentPower;
     static const QMap<QString, QString> mAttackPower;
@@ -348,10 +367,10 @@ public:
         : Power(json)            { load(json); }
 
     void load(const QJsonObject& json, const QString& name = "") {
-        if (name.isEmpty()) v.mName = json["name"].toString();
+        if (name.isEmpty()) v.mName = json[Name].toString();
         else v.mName = name;
-        v.mPowerName = json["powerName"].toString("");
-        v.mVaries = json["varies"].toBool(false);
+        v.mPowerName = json[PowerName].toString("");
+        v.mVaries = json[Varies].toBool(false);
     }
 
     QString     abbreviation(bool roll = false) override { return description(roll); }
@@ -383,9 +402,9 @@ public:
                                                                       if (varies != nullptr) v.mVaries = varies->isChecked();
                                                                     }
     QJsonObject toJson() override                                   { QJsonObject obj  = Power::toJson();
-                                                                      obj["name"]      = v.mName;
-                                                                      obj["powerName"] = v.mPowerName;
-                                                                      obj["varies"]    = v.mVaries;
+                                                                      obj[Name]      = v.mName;
+                                                                      obj[PowerName] = v.mPowerName;
+                                                                      obj[Varies]    = v.mVaries;
                                                                       return obj;
                                                                     }
     bool        varying() override                                  { return v.mVaries; }

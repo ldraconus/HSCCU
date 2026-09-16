@@ -677,16 +677,16 @@ bool Power::LoadEquipment() {
     QJsonDocument json = QJsonDocument::fromJson(data.toUtf8());
     if (json.isEmpty()) return false;
     QJsonObject top = json.object();
-    QJsonArray arr = top["equipment"].toArray();
+    QJsonArray arr = top[EquipmentTag].toArray();
     auto count = arr.count();
     for (auto i = 0; i < count; ++i) {
         QJsonArray equip = arr[i].toArray();
         QString type = equip[0].toString();
         QJsonObject obj = equip[1].toObject();
-        QString name = obj["powerName"].toString();
+        QString name = obj[PowerName].toString();
 
-        if (type == "weapon") Weapon::catalog()[name] = obj;
-        else if (type == "armor") Armor::catalog()[name] = obj;
+        if (type == Weapon) Weapon::catalog()[name] = obj;
+        else if (type == Armor) Armor::catalog()[name] = obj;
         else Equip::catalog()[name] = obj;
     }
     return true;
@@ -726,9 +726,9 @@ shared_ptr<Power> Power::FromJson(QString name, QJsonObject& json) {
     if (mEquipment.contains(name))           power = statics.powers[mEquipment[name]]->create(json);
     if (power == nullptr) return nullptr;
 
-    power->mGuid = json["id"].toString("");
+    power->mGuid = json[Id].toString("");
     if (power->mGuid.isEmpty()) power->mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
-    QJsonObject obj = json["modifiers"].toObject();
+    QJsonObject obj = json[Modifiers].toObject();
     QStringList keys = obj.keys();
     for (const auto& key: std::as_const(keys)) {
         const auto& base = Modifiers::ByName(key);

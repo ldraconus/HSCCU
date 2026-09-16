@@ -8,9 +8,9 @@ public:
     PhysicalComplication() = default;
     PhysicalComplication(const QJsonObject& json)
         : Complication(json)
-        , v { json["frequency"].toInt(0),
-              json["impairs"].toInt(0),
-              json["what"].toString("") } { }
+        , v { json[Frequency].toInt(0),
+              json[Impairs].toInt(0),
+              json[What].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
@@ -45,10 +45,10 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj  = Complication::toJson();
-        obj["name"]      = "Physical Complication";
-        obj["frequency"] = v.mFrequency;
-        obj["impairs"]   = v.mImpairs;
-        obj["what"]      = v.mWhat;
+        obj[Name]      = "Physical Complication";
+        obj[Frequency] = v.mFrequency;
+        obj[Impairs]   = v.mImpairs;
+        obj[What]      = v.mWhat;
         return obj;
     }
 

@@ -8,14 +8,14 @@ public:
     Dependence() = default;
     Dependence(const QJsonObject& json)
         : Complication(json)
-        , v { json["addiction"].toBool(false)
-            , json["competence"].toBool(false)
-            , json["damage"].toInt(0)
-            , json["rarity"].toInt(-1)
-            , json["roll"].toInt(-1)
-            , json["time step"].toInt(-1)
-            , json["weakness"].toBool(false)
-            , json["what"].toString() } { }
+        , v { json[Addiction].toBool(false)
+            , json[Competence].toBool(false)
+            , json[Damage].toInt(0)
+            , json[Rarity].toInt(-1)
+            , json[Roll].toInt(-1)
+            , json[TimeStep].toInt(-1)
+            , json[Weakness].toBool(false)
+            , json[What].toString() } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
@@ -90,15 +90,15 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj   = Complication::toJson();
-        obj["name"]       = "Dependence";
-        obj["addiction"]  = v.mAddiction;
-        obj["competence"] = v.mCompetence;
-        obj["damage"]     = v.mDamage;
-        obj["rarity"]     = v.mRarity;
-        obj["roll"]       = v.mRoll;
-        obj["time step"]  = v.mTimeStep;
-        obj["weakness"]   = v.mWeakness;
-        obj["what"]       = v.mWhat;
+        obj[Name]       = "Dependence";
+        obj[Addiction]  = v.mAddiction;
+        obj[Competence] = v.mCompetence;
+        obj[Damage]     = v.mDamage;
+        obj[Rarity]     = v.mRarity;
+        obj[Roll]       = v.mRoll;
+        obj[TimeStep]   = v.mTimeStep;
+        obj[Weakness]   = v.mWeakness;
+        obj[What]       = v.mWhat;
         return obj;
     }
 

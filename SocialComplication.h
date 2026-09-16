@@ -11,10 +11,10 @@ public:
     SocialComplication(): Complication() { }
     SocialComplication(const QJsonObject& json)
         : Complication(json)
-        , v { json["effects"].toInt(0),
-              json["frequency"].toInt(0),
-              json["notRestrictive"].toBool(false),
-              json["what"].toString("") } { }
+        , v { json[Effects].toInt(0),
+              json[Frequency].toInt(0),
+              json[NotRestrictive].toBool(false),
+              json[What].toString("") } { }
 
     QString abbreviation() override { return str(); }
     QString description() override  { return str(); }
@@ -70,11 +70,11 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj       = Complication::toJson();
-        obj["name"]           = "Social Complication";
-        obj["effects"]        = v.mEffects;
-        obj["frequency"]      = v.mFrequency;
-        obj["notRestrictive"] = v.mNotRestrictive;
-        obj["what"]           = v.mWhat;
+        obj[Name]           = "Social Complication";
+        obj[Effects]        = v.mEffects;
+        obj[Frequency]      = v.mFrequency;
+        obj[NotRestrictive] = v.mNotRestrictive;
+        obj[What]           = v.mWhat;
         return obj;
     }
 

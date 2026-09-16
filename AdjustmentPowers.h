@@ -7,10 +7,10 @@
 class Absorption: public AllPowers {
 public:
     Absorption(): AllPowers("Absorption▲")         { }
-    Absorption(QJsonObject& json): AllPowers(json) { v.mBody      = json["body"].toInt(0);
-                                                     v.mTo        = json["to"].toString("");
-                                                     v.mDefensive = json["defensive"].toInt(0);
-                                                     v.mVarying   = json["varying"].toBool(false);
+    Absorption(QJsonObject& json): AllPowers(json) { v.mBody      = json[Body].toInt(0);
+                                                     v.mTo        = json[To].toString("");
+                                                     v.mDefensive = json[Defensive].toInt(0);
+                                                     v.mVarying   = json[Varying].toBool(false);
                                                    }
 
     Fraction adv() override                                      { return def(); }
@@ -44,10 +44,10 @@ public:
                                                                    v.mVarying   = varying->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["body"]      = v.mBody;
-                                                                   obj["to"]        = v.mTo;
-                                                                   obj["defensive"] = v.mDefensive;
-                                                                   obj["varying"]   = v.mVarying;
+                                                                   obj[Body]      = v.mBody;
+                                                                   obj[To]        = v.mTo;
+                                                                   obj[Defensive] = v.mDefensive;
+                                                                   obj[Varying]   = v.mVarying;
                                                                    return obj;
                                                                  }
 
@@ -116,10 +116,10 @@ private:
 class Aid: public AllPowers {
 public:
     Aid(): AllPowers("Aid")                 { }
-    Aid(QJsonObject& json): AllPowers(json) { v.mDice  = json["dice"].toInt(0);
-                                              v.mTo    = json["to"].toString("");
-                                              v.mBoost = json["boost"].toBool(false);
-                                              v.mWho   = json["who"].toInt(0);
+    Aid(QJsonObject& json): AllPowers(json) { v.mDice  = json[Dice].toInt(0);
+                                              v.mTo    = json[To].toString("");
+                                              v.mBoost = json[Boost].toBool(false);
+                                              v.mWho   = json[Who].toInt(0);
                                             }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -149,10 +149,10 @@ public:
                                                                    v.mBoost = boost->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]  = v.mDice;
-                                                                   obj["to"]    = v.mTo;
-                                                                   obj["who"]   = v.mWho;
-                                                                   obj["boost"] = v.mBoost;
+                                                                   obj[Dice]  = v.mDice;
+                                                                   obj[To]    = v.mTo;
+                                                                   obj[Who]   = v.mWho;
+                                                                   obj[Boost] = v.mBoost;
                                                                    return obj;
                                                                  }
 
@@ -215,9 +215,9 @@ private:
 class Drain: public AllPowers {
 public:
     Drain(): AllPowers("Drain")               { }
-    Drain(QJsonObject& json): AllPowers(json) { v.mDice     = json["body"].toInt(0);
-                                                v.mFrom     = json["from"].toString("");
-                                                v.mSuppress = json["suppress"].toBool(false);
+    Drain(QJsonObject& json): AllPowers(json) { v.mDice     = json[Body].toInt(0);
+                                                v.mFrom     = json[From].toString("");
+                                                v.mSuppress = json[Suppress].toBool(false);
                                               }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -244,9 +244,9 @@ public:
                                                                    v.mSuppress = suppress->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]     = v.mDice;
-                                                                   obj["from"]     = v.mFrom;
-                                                                   obj["suppress"] = v.mSuppress;
+                                                                   obj[Dice]     = v.mDice;
+                                                                   obj[From]     = v.mFrom;
+                                                                   obj[Suppress] = v.mSuppress;
                                                                    return obj;
                                                                  }
 
@@ -284,9 +284,9 @@ private:
 class Healing: public AllPowers {
 public:
     Healing(): AllPowers("Healing")             { }
-    Healing(QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
-                                                  v.mTo   = json["to"].toString("");
-                                                  v.mRate = json["rate"].toInt(-1);
+    Healing(QJsonObject& json): AllPowers(json) { v.mDice = json[Dice].toInt(0);
+                                                  v.mTo   = json[To].toString("");
+                                                  v.mRate = json[Rate].toInt(-1);
                                                 }
 
     Fraction adv() override                                      { return def(); }
@@ -314,9 +314,9 @@ public:
                                                                    v.mRate = rate->currentIndex();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v.mDice;
-                                                                   obj["to"]   = v.mTo;
-                                                                   obj["rate"] = v.mRate;
+                                                                   obj[Dice] = v.mDice;
+                                                                   obj[To]   = v.mTo;
+                                                                   obj[Rate] = v.mRate;
                                                                    return obj;
                                                                  }
 

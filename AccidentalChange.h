@@ -11,7 +11,7 @@ public:
     AccidentalChange() = default;
     AccidentalChange(const QJsonObject& json)
         : Complication(json)
-        , v { json["circumstance"].toInt(0), json["frequency"].toInt(0), json["what"].toString("") } { }
+        , v { json[Circumstance].toInt(0), json[Frequency].toInt(0), json[What].toString("") } { }
 
     QString abbreviation() override {
         static QList<QString> circ     { "Unc", "Com", "V. Com" };
@@ -65,10 +65,10 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj     = Complication::toJson();;
-        obj["name"]         = "Accidental Change";
-        obj["circumstance"] = v.mCircumstance;
-        obj["frequency"]    = v.mFrequency;
-        obj["what"]         = v.mWhat;
+        obj[Name]         = "Accidental Change";
+        obj[Circumstance] = v.mCircumstance;
+        obj[Frequency]    = v.mFrequency;
+        obj[What]         = v.mWhat;
         return obj;
     }
 

@@ -80,7 +80,7 @@ CMakeLists.txt.user*
 .pch/
 .rcc/
 .uic/
-/HSCCU/android_release.*
+HSCCU/android_release.*
 /android/*.properties
 /android/gradle/wrapper/*.jar
 /android/gradle/wrapper/*.properties
@@ -88,6 +88,9 @@ CMakeLists.txt.user*
 /android/res/values/*.xml
 /build*/
 /.qtcreator/
-
+/HSCCU/
 /android/*.gradle
 /android/gradlew
+/HSCCU/HSCCH.html
+/HSCCU/HSCCU.js
+/HSCCU/HSCCM.wasm

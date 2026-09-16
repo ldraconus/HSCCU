@@ -8,11 +8,11 @@ public:
     Enraged() = default;
     Enraged(const QJsonObject& json)
         : Complication(json)
-        , v { json["chance"].toInt(0)
-            , json["frequency"].toInt(0)
-            , json["regain"].toInt(0)
-            , json["type"].toBool(false)
-            , json["what"].toString("") } { }
+        , v { json[Chance].toInt(0)
+            , json[Frequency].toInt(0)
+            , json[Regain].toInt(0)
+            , json[Type].toBool(false)
+            , json[What].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
@@ -54,12 +54,12 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj  = Complication::toJson();
-        obj["name"]      = "Enraged/Berserk";
-        obj["chance"]    = v.mChance;
-        obj["frequency"] = v.mRrequency;
-        obj["regain"]    = v.mRegain;
-        obj["type"]      = v.mType;
-        obj["what"]      = v.mWhat;
+        obj[Name]      = "Enraged/Berserk";
+        obj[Chance]    = v.mChance;
+        obj[Frequency] = v.mRrequency;
+        obj[Regain]    = v.mRegain;
+        obj[Type]      = v.mType;
+        obj[What]      = v.mWhat;
         return obj;
     }
 

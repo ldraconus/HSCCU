@@ -8,7 +8,7 @@ public:
     MoneyComp() = default;
     MoneyComp(const QJsonObject& json)
         : Complication(json)
-        , v { json["amount"].toInt(0) } { }
+        , v { json[Amount].toInt(0) } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override { return str(); }
@@ -37,8 +37,8 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj = Complication::toJson();
-        obj["name"]     = "Money";
-        obj["amount"]   = v.mAmount;
+        obj[Name]     = "Money";
+        obj[Amount]   = v.mAmount;
         return obj;
     }
 

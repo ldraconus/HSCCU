@@ -13,12 +13,12 @@ public:
     Dependent() = default;
     Dependent(const QJsonObject& json)
         : Complication(json)
-        , v { json["competence"].toInt(0)
-            , json["frequency"].toInt(0)
-            , json["multiples"].toInt(0)
-            , json["unaware"].toBool(false)
-            , json["useful"].toBool(false)
-            , json["who"].toString("") } { }
+        , v { json[Competence].toInt(0)
+            , json[Frequency].toInt(0)
+            , json[Multiples].toInt(0)
+            , json[Unaware].toBool(false)
+            , json[Useful].toBool(false)
+            , json[Who].toString("") } { }
 
     QString abbreviation() override { return str(); }
     QString description() override  { return str(); }
@@ -81,13 +81,13 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj   = Complication::toJson();
-        obj["name"]       = "Dependent NPC";
-        obj["competence"] = v.mCompetence;
-        obj["frequency"]  = v.mFrequency;
-        obj["multiples"]  = v.mMultiples;
-        obj["unaware"]    = v.mUnaware;
-        obj["useful"]     = v.mUseful;
-        obj["who"]        = v.mWho;
+        obj[Name]       = "Dependent NPC";
+        obj[Competence] = v.mCompetence;
+        obj[Frequency]  = v.mFrequency;
+        obj[Multiples]  = v.mMultiples;
+        obj[Unaware]    = v.mUnaware;
+        obj[Useful]     = v.mUseful;
+        obj[Who]        = v.mWho;
         return obj;
     }
 

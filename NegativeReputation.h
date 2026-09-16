@@ -9,10 +9,10 @@ public:
     NegativeReputation() = default;
     NegativeReputation(const QJsonObject& json)
         : Complication(json)
-        , v { json["extreme"].toBool(false),
-              json["frequency"].toInt(0),
-              json["limited"].toBool(false),
-              json["what"].toString("") } { }
+        , v { json[Extreme].toBool(false),
+              json[Frequency].toInt(0),
+              json[Limited].toBool(false),
+              json[What].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
@@ -64,11 +64,11 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj  = Complication::toJson();
-        obj["name"]      = "Negative Reputation";
-        obj["extreme"]   = v.mExtreme;
-        obj["frequency"] = v.mFrequency;
-        obj["limited"]   = v.mLimited;
-        obj["what"]      = v.mWhat;
+        obj[Name]      = "Negative Reputation";
+        obj[Extreme]   = v.mExtreme;
+        obj[Frequency] = v.mFrequency;
+        obj[Limited]   = v.mLimited;
+        obj[What]      = v.mWhat;
         return obj;
     }
 

@@ -151,6 +151,28 @@ QJsonDocument Character::copy(Option& opt) {
     return toJson(opt);
 }
 
+static constexpr auto         AlternateIds = "alternateIds";
+static constexpr auto         CampaignName = "campaignName";
+static constexpr auto        CharacterName = "characterName";
+static constexpr auto      Characteristics = "characteristics";
+static constexpr auto        Complications = "complications";
+static constexpr auto                 Data = "data";
+static constexpr auto            DateStamp = "datestamp";
+static constexpr auto             EyeColor = "eyeColor";
+static constexpr auto             Filename = "filename";
+static constexpr auto           GameMaster = "gamemaster";
+static constexpr auto                Genre = "genre";
+static constexpr auto            HairColor = "hairColor";
+static constexpr auto               Height = "height";
+static constexpr auto                Image = "image";
+static constexpr auto                 Name = "name";
+static constexpr auto                Notes = "notes";
+static constexpr auto           PlayerName = "playerName";
+static constexpr auto               Powers = "powers";
+static constexpr auto SkillsTalentsOrPerks = "skillsTalentsOrPerks";
+static constexpr auto               Weight = "hairColor";
+static constexpr auto                   XP = "xp";
+
 #ifndef ISHSC
 void Character::fromJson(Option& opt, QJsonDocument& doc) {
     const QJsonObject& top = doc.object();
@@ -159,51 +181,51 @@ void Character::fromJson(Option& opt, QJsonDocument& doc) {
 void Character::fromJson(Option&, QJsonDocument& doc) {
     const QJsonObject& top = doc.object();
 #endif
-    mAlternateIds  = top["alternateIds"].toString("");
-    mCampaignName  = top["campaignName"].toString("");
-    mCharacterName = top["characterName"].toString("");
-    mEyeColor      = top["eyeColor"].toString("");
-    mGameMaster    = top["gamemaster"].toString("");
-    mGenre         = top["genre"].toString("");
-    mHairColor     = top["hairColor"].toString("");
-    mNotes         = top["notes"].toString("");
-    mPlayerName    = top["playerName"].toString("");
-    mXP            = Points(top["xp"].toInt(0));
-    mHeight        = top["height"].toString("2m");
-    mWeight        = top["weight"].toString("100kg");
+    mAlternateIds  = top[AlternateIds].toString("");
+    mCampaignName  = top[CampaignName].toString("");
+    mCharacterName = top[CharacterName].toString("");
+    mEyeColor      = top[EyeColor].toString("");
+    mGameMaster    = top[GameMaster].toString("");
+    mGenre         = top[Genre].toString("");
+    mHairColor     = top[HairColor].toString("");
+    mHeight        = top[Height].toString("2m");
+    mNotes         = top[Notes].toString("");
+    mPlayerName    = top[PlayerName].toString("");
+    mWeight        = top[Weight].toString("100kg");
+    mXP            = Points(top[XP].toInt(0));
 
-    const QJsonObject& objCharacteristics = top["characteristics"].toObject();
+    const QJsonObject& objCharacteristics = top[Characteristics].toObject();
     for (int i = 0; i < statPairs.count(); ++i) {
         auto c = statPairs[i];
         *std::get<Characteristic*>(c) = Characteristic(objCharacteristics[std::get<QString>(c)].toObject());
     }
 
-    QJsonArray complications = top["complications"].toArray();
+    QJsonArray complications = top[Complications].toArray();
     for (int i = 0; i < complications.count(); ++i) {
         auto complication = complications[i];
         QJsonObject obj = complication.toObject();
-        mComplications.append(Complication::FromJson(obj["name"].toString(), obj));
+        mComplications.append(Complication::FromJson(obj[Name].toString(), obj));
     }
 
-    QJsonArray powers = top["powers"].toArray();
+    QJsonArray powers = top[Powers].toArray();
     for (int i = 0; i < powers.count(); ++i) {
         auto power = powers[i];
         QJsonObject obj = power.toObject();
-        mPowers.append(Power::FromJson(obj["name"].toString(), obj));
+        mPowers.append(Power::FromJson(obj[Name].toString(), obj));
     }
 
-    QJsonArray skillsTalentsOrPerks = top["skillsTalentsOrPerks"].toArray();
+    QJsonArray skillsTalentsOrPerks = top[SkillsTalentsOrPerks].toArray();
     for (int i = 0; i < skillsTalentsOrPerks.count(); ++i) {
         auto skillsTalentsOrPerk = skillsTalentsOrPerks[i];
         QJsonObject obj = skillsTalentsOrPerk.toObject();
-        mSkillsTalentsOrPerks.append(SkillTalentOrPerk::FromJson(obj["name"].toString(), obj));
+        mSkillsTalentsOrPerks.append(SkillTalentOrPerk::FromJson(obj[Name].toString(), obj));
     }
 
-    QJsonObject image = top["image"].toObject();
-    mImage = image["filename"].toString();
+    QJsonObject image = top[Image].toObject();
+    mImage = image[Filename].toString();
     qint64 now = time(0L);
-    mImageDate = image["datestamp"].toInteger(now);
-    mImageData = QByteArray::fromHex(image["data"].toString().toUtf8());
+    mImageDate = image[DateStamp].toInteger(now);
+    mImageData = QByteArray::fromHex(image[Data].toString().toUtf8());
 }
 
 #ifdef __wasm__
@@ -253,25 +275,25 @@ bool Character::store(Option& opt, QUrl filename) {
 QJsonDocument Character::toJson(Option& opt) {
     QJsonObject top;
     opt.toJson(top);
-    top.insert("alternateIds",  mAlternateIds);
-    top.insert("campaignName",  mCampaignName);
-    top.insert("characterName", mCharacterName);
-    top.insert("eyeColor",      mEyeColor);
-    top.insert("gamemaster",    mGameMaster);
-    top.insert("genre",         mGenre);
-    top.insert("hairColor",     mHairColor);
-    top.insert("playerName",    mPlayerName);
-    top.insert("xp",            qlonglong(mXP.points));
-    top.insert("notes",         mNotes);
-    top.insert("height",        mHeight);
-    top.insert("weight",        mWeight);
+    top.insert(AlternateIds,  mAlternateIds);
+    top.insert(CampaignName,  mCampaignName);
+    top.insert(CharacterName, mCharacterName);
+    top.insert(EyeColor,      mEyeColor);
+    top.insert(GameMaster,    mGameMaster);
+    top.insert(Genre,         mGenre);
+    top.insert(HairColor,     mHairColor);
+    top.insert(Height,        mHeight);
+    top.insert(Notes,         mNotes);
+    top.insert(PlayerName,    mPlayerName);
+    top.insert(Weight,        mWeight);
+    top.insert(XP,            qlonglong(mXP.points));
 
     QJsonObject objCharacteristics;
     for (int i = 0; i < statPairs.count(); ++i) {
         auto c = statPairs[i];
         objCharacteristics.insert(std::get<QString>(c), std::get<Characteristic*>(c)->toJson());
     }
-    top.insert("characteristics", objCharacteristics);
+    top.insert(Characteristics, objCharacteristics);
 
     QJsonArray complications;
     for (int i = 0; i < mComplications.count(); ++i) {
@@ -279,7 +301,7 @@ QJsonDocument Character::toJson(Option& opt) {
 
         complications.append(mComplications[i]->toJson());
     }
-    top.insert("complications", complications);
+    top.insert(Complications, complications);
 
     QJsonArray powers;
     for (int i = 0; i < mPowers.count(); ++i) {
@@ -287,7 +309,7 @@ QJsonDocument Character::toJson(Option& opt) {
 
         powers.append(mPowers[i]->toJson());
     }
-    top.insert("powers", powers);
+    top.insert(Powers, powers);
 
     QJsonArray skillsTalentsOrPerks;
     for (int i = 0; i < mSkillsTalentsOrPerks.count(); ++i) {
@@ -295,14 +317,14 @@ QJsonDocument Character::toJson(Option& opt) {
 
         skillsTalentsOrPerks.append(mSkillsTalentsOrPerks[i]->toJson());
     }
-    top.insert("skillsTalentsOrPerks", skillsTalentsOrPerks);
+    top.insert(SkillsTalentsOrPerks, skillsTalentsOrPerks);
 
     QJsonObject image;
-    image["filename"] = mImage.isLocalFile() ? mImage.toLocalFile() : mImage.toString();
-    image["datestamp"] = (qint64) mImageDate;
+    image[Filename] = mImage.isLocalFile() ? mImage.toLocalFile() : mImage.toString();
+    image[DateStamp] = (qint64) mImageDate;
     QString x = mImageData.toHex().toStdString().c_str();
-    image["data"] = x;
-    top.insert("image", image);
+    image[Data] = x;
+    top.insert(Image, image);
 
     QJsonDocument json;
     json.setObject(top);

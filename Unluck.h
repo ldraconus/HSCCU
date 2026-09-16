@@ -8,7 +8,7 @@ public:
     Unluck(): Complication() { }
     Unluck(const QJsonObject& json)
         : Complication(json)
-        , v { json["dice"].toInt(0) } { }
+        , v { json[Dice].toInt(0) } { }
 
     QString description() override {
         if (v.mDice < 1) return "<incomplete>";
@@ -31,8 +31,8 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj = Complication::toJson();
-        obj["name"]     = "Unluck";
-        obj["dice"]     = v.mDice;
+        obj[Name]     = "Unluck";
+        obj[Dice]     = v.mDice;
         return obj;
     }
 

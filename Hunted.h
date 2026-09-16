@@ -11,13 +11,13 @@ public:
     Hunted() = default;
     Hunted(const QJsonObject& json)
         : Complication(json)
-        , v { json["capabilities"].toInt(0)
-            , json["easy"].toBool(false)
-            , json["frequency"].toInt(0)
-            , json["limited"].toBool(false)
-            , json["motivation"].toInt(0)
-            , json["nci"].toBool(false)
-            , json["who"].toString("") } { }
+        , v { json[Capabilities].toInt(0)
+            , json[Easy].toBool(false)
+            , json[Frequency].toInt(0)
+            , json[Limited].toBool(false)
+            , json[Motivation].toInt(0)
+            , json[NCI].toBool(false)
+            , json[Who].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override {
@@ -85,14 +85,14 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj     = Complication::toJson();
-        obj["name"]         = "Hunted";
-        obj["capabilities"] = v.mCapabilities;
-        obj["easy"]         = v.mEasy;
-        obj["frequency"]    = v.mFrequency;
-        obj["limited"]      = v.mLimited;
-        obj["motivation"]   = v.mMotivation;
-        obj["nci"]          = v.mNCI;
-        obj["who"]          = v.mWho;
+        obj[Name]         = "Hunted";
+        obj[Capabilities] = v.mCapabilities;
+        obj[Easy]         = v.mEasy;
+        obj[Frequency]    = v.mFrequency;
+        obj[Limited]      = v.mLimited;
+        obj[Motivation]   = v.mMotivation;
+        obj[NCI]          = v.mNCI;
+        obj[Who]          = v.mWho;
         return obj;
     }
 

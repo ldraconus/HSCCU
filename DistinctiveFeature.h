@@ -8,11 +8,11 @@ public:
     DistinctiveFeature() = default;
     DistinctiveFeature(const QJsonObject& json)
         : Complication(json)
-        , v { json["concealability"].toInt(0)
-            , json["detectable"].toInt(0)
-            , json["notDistinctive"].toBool(false)
-            , json["reaction"].toInt(0)
-            , json["what"].toString("") } { }
+        , v { json[Concealability].toInt(0)
+            , json[Detectable].toInt(0)
+            , json[NotDistinctive].toBool(false)
+            , json[Reaction].toInt(0)
+            , json[What].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override {
@@ -67,12 +67,12 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj       = Complication::toJson();
-        obj["name"]           = "Distinctive Feature";
-        obj["concealability"] = v.mConcealability;
-        obj["detectable"]     = v.mDetectable;
-        obj["notDistinctive"] = v.mNotDistinctive;
-        obj["reaction"]       = v.mReaction;
-        obj["what"]           = v.mWhat;
+        obj[Name]           = "Distinctive Feature";
+        obj[Concealability] = v.mConcealability;
+        obj[Detectable]     = v.mDetectable;
+        obj[NotDistinctive] = v.mNotDistinctive;
+        obj[Reaction]       = v.mReaction;
+        obj[What]           = v.mWhat;
         return obj;
     }
 

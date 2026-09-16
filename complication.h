@@ -27,6 +27,46 @@ protected:
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, StringCallback);
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString);
 
+    static constexpr auto      Addiction = "addiction";
+    static constexpr auto         Amount = "amount";
+    static constexpr auto         Attack = "attack";
+    static constexpr auto   Capabilities = "capabilities";
+    static constexpr auto         Chance = "chance";
+    static constexpr auto   Circumstance = "circumstance";
+    static constexpr auto Concealability = "concealability";
+    static constexpr auto     Competence = "competence";
+    static constexpr auto     Detectable = "detectable";
+    static constexpr auto         Damage = "damage";
+    static constexpr auto           Dice = "dice";
+    static constexpr auto           Easy = "easy";
+    static constexpr auto        Effects = "effects";
+    static constexpr auto          Every = "every";
+    static constexpr auto        Extreme = "extreme";
+    static constexpr auto      Frequency = "frequency";
+    static constexpr auto             Id = "id";
+    static constexpr auto        Impairs = "impairs";
+    static constexpr auto      Intensity = "intensity";
+    static constexpr auto        Limited = "limited";
+    static constexpr auto     Motivation = "motivation";
+    static constexpr auto      Multiples = "multiples";
+    static constexpr auto NotDistinctive = "notDistinctive";
+    static constexpr auto NotRestrictive = "notRestrictive";
+    static constexpr auto           Name = "name";
+    static constexpr auto            NCI = "nci";
+    static constexpr auto      Proximity = "proximity";
+    static constexpr auto         Rarity = "rarity";
+    static constexpr auto       Reaction = "reaction";
+    static constexpr auto         Regain = "regain";
+    static constexpr auto           Roll = "roll";
+    static constexpr auto       TimeStep = "time step";
+    static constexpr auto           Type = "type";
+    static constexpr auto        Unaware = "unaware";
+    static constexpr auto         Useful = "useful";
+    static constexpr auto       Weakness = "weakness";
+    static constexpr auto           What = "what";
+    static constexpr auto          Where = "where";
+    static constexpr auto            Who = "who";
+
 private:
     QMap<QCheckBox*, BoolCallback>   mCallbacksCB;
     QMap<QComboBox*, IntCallback>    mCallbacksCBox;
@@ -51,7 +91,7 @@ public:
     virtual void        numeric(QString) { }
     virtual QJsonObject toJson() {
         QJsonObject obj;
-        obj["id"] = mGuid;
+        obj[Id] = mGuid;
         return obj;
     }
 
@@ -86,7 +126,7 @@ public:
     void store() override                        { }
     QJsonObject toJson() override {
         QJsonObject obj = Complication::toJson();
-        obj["name"]   = "Blank Line";
+        obj[Name] = "Blank Line";
         return obj;
     }
 

@@ -8,9 +8,9 @@ public:
     PsychologicalComplication(): Complication() { }
     PsychologicalComplication(const QJsonObject& json)
         : Complication(json)
-        , v { json["frequency"].toInt(0),
+        , v { json[Frequency].toInt(0),
               json["intensity"].toInt(0),
-              json["what"].toString("") } { }
+              json[What].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description() override  { return str(); }
@@ -46,10 +46,10 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj  = Complication:: toJson();
-        obj["name"]      = "Psychological Complication";
-        obj["frequency"] = v.mFrequency;
-        obj["intensity"] = v.mIntensity;
-        obj["what"]      = v.mWhat;
+        obj[Name]      = "Psychological Complication";
+        obj[Frequency] = v.mFrequency;
+        obj[Intensity] = v.mIntensity;
+        obj[What]      = v.mWhat;
         return obj;
     }
 
