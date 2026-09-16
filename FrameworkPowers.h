@@ -16,9 +16,9 @@ public:
         , v { name, "", { } } { }
     FrameworkPowers(QJsonObject& json)
         : Power(json)
-        , v { json["name"].toString(),
-              json["powerName"].toString(""),
-              { } } { loadPowers(json["powers"].toArray()); }
+        , v { json[Name].toString(),
+              json[PowerName].toString(""),
+              { } } { loadPowers(json[Powers].toArray()); }
 
     QString abbreviation(bool roll = false) override { return roll ? "" : ""; }
     QString description(bool roll = false) override { return roll ? "" : ""; }
@@ -27,7 +27,7 @@ public:
     void loadPowers(QJsonArray powers) {
         for (const auto& power: std::as_const(powers)) {
             QJsonObject obj = power.toObject();
-            v.mPowers.append(Power::FromJson(obj["name"].toString(), obj));
+            v.mPowers.append(Power::FromJson(obj[Name].toString(), obj));
         }
     }
 
@@ -57,12 +57,12 @@ public:
     void        store() override                                    { v.mPowerName = powerName->text();
                                                                     }
     QJsonObject toJson() override                                   { QJsonObject obj = Power::toJson();
-                                                                      obj["name"]      = v.mName;
-                                                                      obj["powerName"] = v.mPowerName;
-                                                                      obj["guid"]      = id();
+                                                                      obj[Name]      = v.mName;
+                                                                      obj[PowerName] = v.mPowerName;
+                                                                      obj[Id]        = id();
                                                                       QJsonArray powers;
                                                                       for (int i = 0; i < v.mPowers.count(); ++i) powers.append(v.mPowers[i]->toJson());
-                                                                      obj.insert("powers", powers);
+                                                                      obj.insert(Powers, powers);
                                                                       return obj;
                                                                     }
 
@@ -105,7 +105,7 @@ private:
 
 class Group: public FrameworkPowers {
 public:
-    Group(): FrameworkPowers("Group")               { }
+    Group(): FrameworkPowers(Grouped)               { }
     Group(QJsonObject& json): FrameworkPowers(json) { }
 
     bool isValid(shared_ptr<Power>) override { return true; }
@@ -212,8 +212,8 @@ private:
 
 class Multipower: public FrameworkPowers {
 public:
-    Multipower(): FrameworkPowers("Multipower")          { }
-    Multipower(QJsonObject& json): FrameworkPowers(json) { v.mPoints = json["points"].toInt(0);
+    Multipower(): FrameworkPowers(Multipwers)          { }
+    Multipower(QJsonObject& json): FrameworkPowers(json) { v.mPoints = json[PointsOf].toInt(0);
                                                          }
 
     bool isMultipower() override { return true; }
@@ -242,7 +242,7 @@ public:
                                                                    v.mPoints = pnts->text().toInt();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = FrameworkPowers::toJson();
-                                                                   obj["points"] = v.mPoints;
+                                                                   obj[PointsOf] = v.mPoints;
                                                                    return obj;
                                                                  }
 
@@ -350,19 +350,19 @@ private:
 
 class VPP: public FrameworkPowers {
 public:
-    VPP(): FrameworkPowers("Variable Power Pool") { }
-    VPP(QJsonObject& json): FrameworkPowers(json) { v.mPool    = json["pool"].toInt(0);
-                                                    v.mControl = json["control"].toInt(0);
-                                                    v.mTime    = json["time"].toInt(0);
-                                                    v.mNoSkill = json["noSkill"].toBool(false);
-                                                    v.mGiven   = json["given"].toBool(false);
-                                                    v.mCirc    = json["circ"].toString();
-                                                    v.mHow     = json["how"].toBool(false);
-                                                    v.mWhen2   = json["when2"].toBool(false);
-                                                    v.mClass   = json["class"].toInt(0);
-                                                    v.mWhat    = json["what"].toString();
-                                                    v.mOne     = json["one"].toInt(0);
-                                                    v.mPower   = json["power"].toString();
+    VPP(): FrameworkPowers(VarPP) { }
+    VPP(QJsonObject& json): FrameworkPowers(json) { v.mPool    = json[PoolOf].toInt(0);
+                                                    v.mControl = json[Control].toInt(0);
+                                                    v.mTime    = json[Time].toInt(0);
+                                                    v.mNoSkill = json[NoSkill].toBool(false);
+                                                    v.mGiven   = json[Given].toBool(false);
+                                                    v.mCirc    = json[Circ].toString();
+                                                    v.mHow     = json[How].toBool(false);
+                                                    v.mWhen2   = json[When2].toBool(false);
+                                                    v.mClass   = json[Class].toInt(0);
+                                                    v.mWhat    = json[What].toString();
+                                                    v.mOne     = json[One].toInt(0);
+                                                    v.mPower   = json[AsPower].toString();
                                                   }
 
     bool isVPP() override { return true; }
@@ -447,18 +447,18 @@ public:
                                                                    v.mPower   = powr->text();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = FrameworkPowers::toJson();
-                                                                   obj["pool"]    = v.mPool;
-                                                                   obj["control"] = v.mControl;
-                                                                   obj["time"]    = v.mTime;
-                                                                   obj["noSkill"] = v.mNoSkill;
-                                                                   obj["given"]   = v.mGiven;
-                                                                   obj["circ"]    = v.mCirc;
-                                                                   obj["how"]     = v.mHow;
-                                                                   obj["when2"]   = v.mWhen2;
-                                                                   obj["class"]   = v.mClass;
-                                                                   obj["what"]    = v.mWhat;
-                                                                   obj["one"]     = v.mOne;
-                                                                   obj["power"]   = v.mPower;
+                                                                   obj[PoolOf]    = v.mPool;
+                                                                   obj[Control] = v.mControl;
+                                                                   obj[Time]    = v.mTime;
+                                                                   obj[NoSkill] = v.mNoSkill;
+                                                                   obj[Given]   = v.mGiven;
+                                                                   obj[Circ]    = v.mCirc;
+                                                                   obj[How]     = v.mHow;
+                                                                   obj[When2]   = v.mWhen2;
+                                                                   obj[Class]   = v.mClass;
+                                                                   obj[What]    = v.mWhat;
+                                                                   obj[One]     = v.mOne;
+                                                                   obj[AsPower] = v.mPower;
                                                                    return obj;
                                                                  }
 

@@ -9,21 +9,21 @@ extern QString abbrSense(const QStringList& str);
 class Clairsentience: public AllPowers {
 public:
     Clairsentience(): AllPowers("Clairsentienceϴ")     { }
-    Clairsentience(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
-                                                         v.mPre    = json["pre"].toBool(false);
-                                                         v.mRetro  = json["retro"].toBool(false);
-                                                         v.mMult   = json["mult"].toInt(0);
-                                                         v.mMobile = json["mobile"].toInt(0);
-                                                         v.mAttack = json["attack"].toBool(false);
-                                                         v.mBlack  = json["black"].toBool(false);
-                                                         v.mFixed  = json["fixed"].toBool(false);
-                                                         v.mOnly   = json["only"].toInt(0);
-                                                         v.mCrit   = json["crit"].toString();
-                                                         v.mOne    = json["one"].toBool(false);
-                                                         v.mPorr   = json["porr"].toBool(false);
-                                                         v.mDreams = json["dreams"].toBool(false);
-                                                         v.mTime   = json["time"].toBool(false);
-                                                         v.mVague  = json["vague"].toBool(false);
+    Clairsentience(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json[What].toArray());
+                                                         v.mPre    = json[Pre].toBool(false);
+                                                         v.mRetro  = json[Retro].toBool(false);
+                                                         v.mMult   = json[Mult].toInt(0);
+                                                         v.mMobile = json[Mobile].toInt(0);
+                                                         v.mAttack = json[Attack].toBool(false);
+                                                         v.mBlack  = json[Black].toBool(false);
+                                                         v.mFixed  = json[Fixed].toBool(false);
+                                                         v.mOnly   = json[Only].toInt(0);
+                                                         v.mCrit   = json[Crit].toString();
+                                                         v.mOne    = json[One].toBool(false);
+                                                         v.mPorr   = json[PorR].toBool(false);
+                                                         v.mDreams = json[Dreams].toBool(false);
+                                                         v.mTime   = json[Time].toBool(false);
+                                                         v.mVague  = json[Vague].toBool(false);
                                                        }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -109,21 +109,21 @@ public:
                                                                    v.mVague  = vague->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["what"]   = toArray(v.mWhat);
-                                                                   obj["pre"]    = v.mPre;
-                                                                   obj["retro"]  = v.mRetro;
-                                                                   obj["mult"]   = v.mMult;
-                                                                   obj["mobile"] = v.mMobile;
-                                                                   obj["attack"] = v.mAttack;
-                                                                   obj["black"]  = v.mBlack;
-                                                                   obj["fixed"]  = v.mFixed;
-                                                                   obj["only"]   = v.mOnly;
-                                                                   obj["crit"]   = v.mCrit;
-                                                                   obj["one"]    = v.mOne;
-                                                                   obj["porr"]   = v.mPorr;
-                                                                   obj["dreams"] = v.mDreams;
-                                                                   obj["time"]   = v.mTime;
-                                                                   obj["vague"]  = v.mVague;
+                                                                   obj[What]   = toArray(v.mWhat);
+                                                                   obj[Pre]    = v.mPre;
+                                                                   obj[Retro]  = v.mRetro;
+                                                                   obj[Mult]   = v.mMult;
+                                                                   obj[Mobile] = v.mMobile;
+                                                                   obj[Attack] = v.mAttack;
+                                                                   obj[Black]  = v.mBlack;
+                                                                   obj[Fixed]  = v.mFixed;
+                                                                   obj[Only]   = v.mOnly;
+                                                                   obj[Crit]   = v.mCrit;
+                                                                   obj[One]    = v.mOne;
+                                                                   obj[PorR]   = v.mPorr;
+                                                                   obj[Dreams] = v.mDreams;
+                                                                   obj[Time]   = v.mTime;
+                                                                   obj[Vague]  = v.mVague;
                                                                    return obj;
                                                                  }
 
@@ -246,30 +246,30 @@ private:
 class EnhancedSenses: public AllPowers {
 public:
     EnhancedSenses(): AllPowers("Enhanced Senses")     { }
-    EnhancedSenses(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
-                                                         v.mDetect = json["detect"].toInt(0);
-                                                         v.mThing  = json["thing"].toString();
-                                                         v.mEnhanc = json["enhanc"].toInt(0);
-                                                         v.mSenses = json["senses"].toString();
-                                                         v.mAmount = json["amount"].toInt(0);
-                                                         v.mSpatl  = json["spatl"].toBool(false);
-                                                         v.mAdj    = json["adj"].toInt(0);
-                                                         v.mAnlz   = json["anlz"].toBool(false);
-                                                         v.mConc   = json["conc"].toInt(0);
-                                                         v.mDiscr  = json["discr"].toBool(false);
-                                                         v.mDim    = json["dim"].toInt(0);
-                                                         v.mWhich  = json["which"].toString();
-                                                         v.mIncr   = json["incr"].toInt(0);
-                                                         v.mMic    = json["mic"].toInt(0);
-                                                         v.mPen    = json["pen"].toInt(0);
-                                                         v.mRange  = json["range"].toBool(false);
-                                                         v.mRapid  = json["rapid"].toInt(0);
-                                                         v.mSense  = json["sense"].toBool(false);
-                                                         v.mTarget = json["target"].toBool(false);
-                                                         v.mTele   = json["tele"].toInt(0);
-                                                         v.mTrack  = json["track"].toBool(false);
-                                                         v.mTrans  = json["trans"].toBool(false);
-                                                         v.mNoDir  = json["nodir"].toBool(false);
+    EnhancedSenses(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json[What].toArray());
+                                                         v.mDetect = json[Detect].toInt(0);
+                                                         v.mThing  = json[Thing].toString();
+                                                         v.mEnhanc = json[Enhanc].toInt(0);
+                                                         v.mSenses = json[Senses].toString();
+                                                         v.mAmount = json[Amount].toInt(0);
+                                                         v.mSpatl  = json[Spatl].toBool(false);
+                                                         v.mAdj    = json[Adj].toInt(0);
+                                                         v.mAnlz   = json[Anlz].toBool(false);
+                                                         v.mConc   = json[Conc].toInt(0);
+                                                         v.mDiscr  = json[Discr].toBool(false);
+                                                         v.mDim    = json[Dim].toInt(0);
+                                                         v.mWhich  = json[Which].toString();
+                                                         v.mIncr   = json[Incr].toInt(0);
+                                                         v.mMic    = json[Mic].toInt(0);
+                                                         v.mPen    = json[Pen].toInt(0);
+                                                         v.mRange  = json[Range].toBool(false);
+                                                         v.mRapid  = json[Rapid].toInt(0);
+                                                         v.mSense  = json[Sense].toBool(false);
+                                                         v.mTarget = json[Target].toBool(false);
+                                                         v.mTele   = json[Tele].toInt(0);
+                                                         v.mTrack  = json[Track].toBool(false);
+                                                         v.mTrans  = json[Trans].toBool(false);
+                                                         v.mNoDir  = json[NoDir].toBool(false);
                                                        }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -388,30 +388,30 @@ public:
                                                                    v.mNoDir  = nodir->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["what"]   = toArray(v.mWhat);
-                                                                   obj["detect"] = v.mDetect;
-                                                                   obj["thing"]  = v.mThing;
-                                                                   obj["enhanc"] = v.mEnhanc;
-                                                                   obj["senses"] = v.mSenses;
-                                                                   obj["amount"] = v.mAmount;
-                                                                   obj["adj"]    = v.mAdj;
-                                                                   obj["anlz"]   = v.mAnlz;
-                                                                   obj["conc"]   = v.mConc;
-                                                                   obj["discr"]  = v.mDiscr;
-                                                                   obj["dim"]    = v.mDim;
-                                                                   obj["which"]  = v.mWhich;
-                                                                   obj["incr"]   = v.mIncr;
-                                                                   obj["mic"]    = v.mMic;
-                                                                   obj["pen"]    = v.mPen;
-                                                                   obj["range"]  = v.mRange;
-                                                                   obj["rapid"]  = v.mRapid;
-                                                                   obj["sense"]  = v.mSense;
-                                                                   obj["spatl"]  = v.mSpatl;
-                                                                   obj["target"] = v.mTarget;
-                                                                   obj["tele"]   = v.mTele;
-                                                                   obj["track"]  = v.mTrack;
-                                                                   obj["trans"]  = v.mTrans;
-                                                                   obj["nodir"]  = v.mNoDir;
+                                                                   obj[What]   = toArray(v.mWhat);
+                                                                   obj[Detect] = v.mDetect;
+                                                                   obj[Thing]  = v.mThing;
+                                                                   obj[Enhanc] = v.mEnhanc;
+                                                                   obj[Senses] = v.mSenses;
+                                                                   obj[Amount] = v.mAmount;
+                                                                   obj[Adj]    = v.mAdj;
+                                                                   obj[Anlz]   = v.mAnlz;
+                                                                   obj[Conc]   = v.mConc;
+                                                                   obj[Discr]  = v.mDiscr;
+                                                                   obj[Dim]    = v.mDim;
+                                                                   obj[Which]  = v.mWhich;
+                                                                   obj[Incr]   = v.mIncr;
+                                                                   obj[Mic]    = v.mMic;
+                                                                   obj[Pen]    = v.mPen;
+                                                                   obj[Range]  = v.mRange;
+                                                                   obj[Rapid]  = v.mRapid;
+                                                                   obj[Sense]  = v.mSense;
+                                                                   obj[Spatl]  = v.mSpatl;
+                                                                   obj[Target] = v.mTarget;
+                                                                   obj[Tele]   = v.mTele;
+                                                                   obj[Track]  = v.mTrack;
+                                                                   obj[Trans]  = v.mTrans;
+                                                                   obj[NoDir]  = v.mNoDir;
                                                                    return obj;
                                                                  }
 

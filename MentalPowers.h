@@ -7,7 +7,7 @@
 class MentalBlast: public AllPowers {
 public:
     MentalBlast(): AllPowers("Mental Blast")        { }
-    MentalBlast(QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
+    MentalBlast(QJsonObject& json): AllPowers(json) { v.mDice = json[Dice].toInt(0);
                                                     }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -28,7 +28,7 @@ public:
                                                                    v.mDice = dice->text().toInt();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v.mDice;
+                                                                   obj[Dice] = v.mDice;
                                                                    return obj;
                                                                  }
 
@@ -61,11 +61,11 @@ private:
 class MentalIllusions: public AllPowers {
 public:
     MentalIllusions(): AllPowers("Mental Illusions")    { }
-    MentalIllusions(QJsonObject& json): AllPowers(json) { v.mDice   = json["dice"].toInt(0);
-                                                          v.mHarm   = json["harm"].toBool(false);
-                                                          v.mDepend = json["depend"].toBool(false);
-                                                          v.mSense  = json["sense"].toInt(0);
-                                                          v.mSelf   = json["self"].toBool(false);
+    MentalIllusions(QJsonObject& json): AllPowers(json) { v.mDice   = json[Dice].toInt(0);
+                                                          v.mHarm   = json[Harm].toBool(false);
+                                                          v.mDepend = json[Depend].toBool(false);
+                                                          v.mSense  = json[Sense].toInt(0);
+                                                          v.mSelf   = json[Self].toBool(false);
                                                         }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -103,11 +103,11 @@ public:
                                                                    v.mSelf   = self->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]   = v.mDice;
-                                                                   obj["harm"]   = v.mHarm;
-                                                                   obj["depend"] = v.mDepend;
-                                                                   obj["sense"]  = v.mSense;
-                                                                   obj["self"]   = v.mSelf;
+                                                                   obj[Dice]   = v.mDice;
+                                                                   obj[Harm]   = v.mHarm;
+                                                                   obj[Depend] = v.mDepend;
+                                                                   obj[Sense]  = v.mSense;
+                                                                   obj[Self]   = v.mSelf;
                                                                    return obj;
                                                                  }
 
@@ -155,11 +155,11 @@ private:
 class MindControl: public AllPowers {
 public:
     MindControl(): AllPowers("Mind Control")        { }
-    MindControl(QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
-                                                      v.mTele = json["tele"].toBool(false);
-                                                      v.mLit  = json["lit"].toBool(false);
-                                                      v.mSet  = json["set"].toInt(0);
-                                                      v.mCmd  = json["cmd"].toString();
+    MindControl(QJsonObject& json): AllPowers(json) { v.mDice = json[Dice].toInt(0);
+                                                      v.mTele = json[Tele].toBool(false);
+                                                      v.mLit  = json[Lit].toBool(false);
+                                                      v.mSet  = json[Set].toInt(0);
+                                                      v.mCmd  = json[Cmd].toString();
                                                     }
 
     Fraction adv() override                                      { return v.mTele ? Fraction(1, 4) : Fraction(0); }
@@ -197,11 +197,11 @@ public:
                                                                    v.mCmd  = cmd->text();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v.mDice;
-                                                                   obj["tele"] = v.mTele;
-                                                                   obj["lit"]  = v.mLit;
-                                                                   obj["set"]  = v.mSet;
-                                                                   obj["cmd"]  = v.mCmd;
+                                                                   obj[Dice] = v.mDice;
+                                                                   obj[Tele] = v.mTele;
+                                                                   obj[Lit]  = v.mLit;
+                                                                   obj[Set]  = v.mSet;
+                                                                   obj[Cmd]  = v.mCmd;
                                                                    return obj;
                                                                  }
 
@@ -245,15 +245,15 @@ private:
 class MindLink: public AllPowers {
 public:
     MindLink(): AllPowers("Mind Link")           { }
-    MindLink(QJsonObject& json): AllPowers(json) { v.mMinds = json["minds"].toInt(0);
-                                                   v.mInv   = json["inv"].toInt(0);
-                                                   v.mWho   = json["who"].toString();
-                                                   v.mRange = json["range"].toInt(0);
-                                                   v.mLOS   = json["los"].toBool(false);
-                                                   v.mBond  = json["bond"].toString();
-                                                   v.mFloat = json["float"].toBool(false);
-                                                   v.mFeed  = json["feed"].toInt(0);
-                                                   v.mOnly  = json["only"].toBool(false);
+    MindLink(QJsonObject& json): AllPowers(json) { v.mMinds = json[Minds].toInt(0);
+                                                   v.mInv   = json[Inv].toInt(0);
+                                                   v.mWho   = json[Who].toString();
+                                                   v.mRange = json[Range].toInt(0);
+                                                   v.mLOS   = json[Los].toBool(false);
+                                                   v.mBond  = json[Bond].toString();
+                                                   v.mFloat = json[Float].toBool(false);
+                                                   v.mFeed  = json[Feed].toInt(0);
+                                                   v.mOnly  = json[Only].toBool(false);
                                                  }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -312,15 +312,15 @@ public:
                                                                    v.mOnly  = only->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["minds"] = v.mMinds;
-                                                                   obj["inv"]   = v.mInv;
-                                                                   obj["who"]   = v.mWho;
-                                                                   obj["los"]   = v.mLOS;
-                                                                   obj["bond"]  = v.mBond;
-                                                                   obj["range"] = v.mRange;
-                                                                   obj["float"] = v.mFloat;
-                                                                   obj["feed"]  = v.mFeed;
-                                                                   obj["only"]  = v.mOnly;
+                                                                   obj[Minds] = v.mMinds;
+                                                                   obj[Inv]   = v.mInv;
+                                                                   obj[Who]   = v.mWho;
+                                                                   obj[Los]   = v.mLOS;
+                                                                   obj[Bond]  = v.mBond;
+                                                                   obj[Range] = v.mRange;
+                                                                   obj[Float] = v.mFloat;
+                                                                   obj[Feed]  = v.mFeed;
+                                                                   obj[Only]  = v.mOnly;
                                                                    return obj;
                                                                  }
 
@@ -387,12 +387,12 @@ private:
 class MindScan: public AllPowers {
 public:
     MindScan(): AllPowers("Mind Scan")           { }
-    MindScan(QJsonObject& json): AllPowers(json) { v.mDice  = json["dice"].toInt(0);
-                                                   v.mLink  = json["link"].toBool(false);
-                                                   v.mLock  = json["lit"].toBool(false);
-                                                   v.mBonus = json["set"].toInt(0);
-                                                   v.mCant  = json["cant"].toInt(0);
-                                                   v.mPart  = json["part"].toBool(false);
+    MindScan(QJsonObject& json): AllPowers(json) { v.mDice  = json[Dice].toInt(0);
+                                                   v.mLink  = json[Link].toBool(false);
+                                                   v.mLock  = json[Lock].toBool(false);
+                                                   v.mBonus = json[Bonus].toInt(0);
+                                                   v.mCant  = json[Cant].toInt(0);
+                                                   v.mPart  = json[Part].toBool(false);
                                                  }
 
     Fraction adv() override                                      { return (v.mLink ? Fraction(1)    : Fraction(0)) +
@@ -432,12 +432,12 @@ public:
                                                                    v.mPart  = part->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]  = v.mDice;
-                                                                   obj["tele"]  = v.mLink;
-                                                                   obj["lock"]  = v.mLock;
-                                                                   obj["bonus"] = v.mBonus;
-                                                                   obj["cant"]  = v.mCant;
-                                                                   obj["part"]  = v.mPart;
+                                                                   obj[Dice]  = v.mDice;
+                                                                   obj[Tele]  = v.mLink;
+                                                                   obj[Lock]  = v.mLock;
+                                                                   obj[Bonus] = v.mBonus;
+                                                                   obj[Cant]  = v.mCant;
+                                                                   obj[Part]  = v.mPart;
                                                                    return obj;
                                                                  }
 
@@ -489,14 +489,14 @@ private:
 class Telepathy: public AllPowers {
 public:
     Telepathy(): AllPowers("Telepathy")           { }
-    Telepathy(QJsonObject& json): AllPowers(json) { v.mDice  = json["dice"].toInt(0);
-                                                    v.mBCast = json["bcast"].toBool(false);
-                                                    v.mExcl  = json["excl"].toBool(false);
-                                                    v.mEmp   = json["emp"].toInt(0);
-                                                    v.mEmo   = json["emo"].toString();
-                                                    v.mFeed  = json["feed"].toInt(0);
-                                                    v.mLang  = json["lang"].toBool(false);
-                                                    v.mRecv  = json["recv"].toBool(false);
+    Telepathy(QJsonObject& json): AllPowers(json) { v.mDice  = json[Dice].toInt(0);
+                                                    v.mBCast = json[Bcast].toBool(false);
+                                                    v.mExcl  = json[Excl].toBool(false);
+                                                    v.mEmp   = json[Emp].toInt(0);
+                                                    v.mEmo   = json[Emo].toString();
+                                                    v.mFeed  = json[Feed].toInt(0);
+                                                    v.mLang  = json[Lang].toBool(false);
+                                                    v.mRecv  = json[Recv].toBool(false);
                                                   }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -547,14 +547,14 @@ public:
                                                                    v.mRecv  = recv->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]  = v.mDice;
-                                                                   obj["bcast"] = v.mBCast;
-                                                                   obj["excl"]  = v.mExcl;
-                                                                   obj["emp"]   = v.mEmp;
-                                                                   obj["emo"]   = v.mEmo;
-                                                                   obj["feed"]  = v.mFeed;
-                                                                   obj["lang"]  = v.mLang;
-                                                                   obj["recv"]  = v.mRecv;
+                                                                   obj[Dice]  = v.mDice;
+                                                                   obj[Bcast] = v.mBCast;
+                                                                   obj[Excl]  = v.mExcl;
+                                                                   obj[Emp]   = v.mEmp;
+                                                                   obj[Emo]   = v.mEmo;
+                                                                   obj[Feed]  = v.mFeed;
+                                                                   obj[Lang]  = v.mLang;
+                                                                   obj[Recv]  = v.mRecv;
                                                                    return obj;
                                                                  }
 

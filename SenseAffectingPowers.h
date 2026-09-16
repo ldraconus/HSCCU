@@ -9,34 +9,34 @@
 QString abbrSense(const QStringList& str) {
     static QMap<QString, QList<QString>> tree
         { { "Hearing",    { "Normal Hearing",
-                      "Active Sonar",
-                      "Ultrasonic Perception" } },
+                            "Active Sonar",
+                            "Ultrasonic Perception" } },
          { "Mental",      { "Mental Awareness",
-                     "Mind Scan" } },
+                            "Mind Scan" } },
          { "Radio",       { "Radio Perception",
-                    "Radar"} },
+                            "Radar"} },
          { "Sight",       { "Normal Sight",
-                    "Nightvision",
-                    "Infrared Pereception",
-                    "Ultraviolet Perception" } },
+                            "Nightvision",
+                            "Infrared Pereception",
+                            "Ultraviolet Perception" } },
          { "Smell/Taste", { "Normal Smell",
-                          "Normal Taste" } },
+                            "Normal Taste" } },
          { "Touch",       { "Normal Touch" } } };
     static QMap<QString, QString> abbrs
         { { "Normal Hearing", "Nrm. Hear." },
-         { "Active Sonar", "Act. Son." },
-         { "Ultrasonic Perception", "Ultrasonic" },
-         { "Mental Awareness", "Mental" },
-         { "Mind Scan", "Mind Scan" },
-         { "Radio Perception", "Radio" },
-         { "Radar", "Radar" },
-         { "Normal Sight", "Sight" },
-         { "Nightvision", "Nightvision" },
-         { "Infrared Pereception", "Infrared" },
-         { "Ultraviolet Perception", "Ultraviolet" },
-         { "Normal Smell", "Smell" },
-         { "Normal Taste", "Taste" },
-         { "Normal Touch", "Touch" } };
+          { "Active Sonar", "Act. Son." },
+          { "Ultrasonic Perception", "Ultrasonic" },
+          { "Mental Awareness", "Mental" },
+          { "Mind Scan", "Mind Scan" },
+          { "Radio Perception", "Radio" },
+          { "Radar", "Radar" },
+          { "Normal Sight", "Sight" },
+          { "Nightvision", "Nightvision" },
+          { "Infrared Pereception", "Infrared" },
+          { "Ultraviolet Perception", "Ultraviolet" },
+          { "Normal Smell", "Smell" },
+          { "Normal Taste", "Taste" },
+          { "Normal Touch", "Touch" } };
     QString res;
     auto keys = tree.keys();
     QString sep;
@@ -51,8 +51,8 @@ QString abbrSense(const QStringList& str) {
 class Darkness: public AllPowers {
 public:
     Darkness(): AllPowers("Darkness")            { }
-    Darkness(QJsonObject& json): AllPowers(json) { v.mRad  = json["speed"].toInt(0);
-                                                   v.mWhat = toStringList(json["what"].toArray());
+    Darkness(QJsonObject& json): AllPowers(json) { v.mRad  = json[Rad].toInt(0);
+                                                   v.mWhat = toStringList(json[What].toArray());
                                                  }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -88,8 +88,8 @@ public:
                                                                    v.mWhat = treeWidget(what);
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["rad"]  = v.mRad;
-                                                                   obj["what"] = toArray(v.mWhat);
+                                                                   obj[Rad]  = v.mRad;
+                                                                   obj[What] = toArray(v.mWhat);
                                                                    return obj;
                                                                  }
 
@@ -177,12 +177,12 @@ private:
 class Images: public AllPowers {
 public:
     Images(): AllPowers("Images")              { }
-    Images(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
-                                                 v.mPer    = json["per"].toInt(0);
-                                                 v.mDiff   = json["diff"].toInt(0);
-                                                 v.mOnly   = json["only"].toBool(false);
-                                                 v.mSet    = json["set"].toBool(false);
-                                                 v.mEfect = json["effect"].toString();
+    Images(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json[What].toArray());
+                                                 v.mPer    = json[Per].toInt(0);
+                                                 v.mDiff   = json[Diff].toInt(0);
+                                                 v.mOnly   = json[Only].toBool(false);
+                                                 v.mSet    = json[Set].toBool(false);
+                                                 v.mEfect  = json[Effect].toString();
                                                }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -234,12 +234,12 @@ public:
                                                                    v.mEfect = effect->text();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["what"]   = toArray(v.mWhat);
-                                                                   obj["per"]    = v.mPer;
-                                                                   obj["diff"]   = v.mDiff;
-                                                                   obj["only"]   = v.mOnly;
-                                                                   obj["set"]    = v.mSet;
-                                                                   obj["effect"] = v.mEfect;
+                                                                   obj[What]   = toArray(v.mWhat);
+                                                                   obj[Per]    = v.mPer;
+                                                                   obj[Diff]   = v.mDiff;
+                                                                   obj[Only]   = v.mOnly;
+                                                                   obj[Set]    = v.mSet;
+                                                                   obj[Effect] = v.mEfect;
                                                                    return obj;
                                                                  }
 
@@ -355,11 +355,11 @@ private:
 class Invisibility: public AllPowers {
 public:
     Invisibility(): AllPowers("Invisibility")        { }
-    Invisibility(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json["what"].toArray());
-                                                       v.mNo     = json["no"].toBool(false);
-                                                       v.mBright = json["bright"].toBool(false);
-                                                       v.mCham   = json["cham"].toBool(false);
-                                                       v.mNot    = json["not"].toBool(false);
+    Invisibility(QJsonObject& json): AllPowers(json) { v.mWhat   = toStringList(json[What].toArray());
+                                                       v.mNo     = json[No].toBool(false);
+                                                       v.mBright = json[Bright].toBool(false);
+                                                       v.mCham   = json[Cham].toBool(false);
+                                                       v.mNot    = json[Not].toBool(false);
                                                      }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -406,11 +406,11 @@ public:
                                                                    v.mNot    = knot->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["what"]   = toArray(v.mWhat);
-                                                                   obj["no"]     = v.mNo;
-                                                                   obj["bright"] = v.mBright;
-                                                                   obj["cham"]   = v.mCham;
-                                                                   obj["not"]    = v.mNot;
+                                                                   obj[What]   = toArray(v.mWhat);
+                                                                   obj[No]     = v.mNo;
+                                                                   obj[Bright] = v.mBright;
+                                                                   obj[Cham]   = v.mCham;
+                                                                   obj[Not]    = v.mNot;
                                                                    return obj;
                                                                  }
 

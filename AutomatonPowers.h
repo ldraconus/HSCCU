@@ -99,7 +99,7 @@ private:
 class TakesNoSTUN: public AllPowers {
 public:
     TakesNoSTUN(): AllPowers("Takes No STUNϴ")      { }
-    TakesNoSTUN(QJsonObject& json): AllPowers(json) { v.mDamage = json["damage"].toBool(false);
+    TakesNoSTUN(QJsonObject& json): AllPowers(json) { v.mDamage = json[Damage].toBool(false);
                                                     }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -120,7 +120,7 @@ public:
                                                                    v.mDamage = damage->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["damage"] = v.mDamage;
+                                                                   obj[Damage] = v.mDamage;
                                                                    return obj;
                                                                  }
 

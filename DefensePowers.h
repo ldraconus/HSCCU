@@ -13,21 +13,21 @@ constexpr Points BaseCost15 = 15_cp;
 class Barrier: public AllPowers {
 public:
     Barrier(): AllPowers("Barrier")             { }
-    Barrier(QJsonObject& json): AllPowers(json) { v.mLength   = json["length"].toInt(0);
-                                                  v.mHeight   = json["height"].toInt(0);
-                                                  v.mThick    = json["thick"].toInt(0);
-                                                  v.mBody     = json["body"].toInt(0);
-                                                  v.mPD       = json["pd"].toInt(0);
-                                                  v.mED       = json["ed"].toInt(0);
-                                                  v.mPut      = json["put"].toBool(false);
-                                                  v.mConfig   = json["config"].toBool(false);
-                                                  v.mAnchor   = json["anchor"].toBool(false);
-                                                  v.mTrans    = json["trans"].toInt(0);
-                                                  v.mTo       = json["to"].toString();
-                                                  v.mEnglobe  = json["englobe"].toBool(false);
-                                                  v.mFeedback = json["feedback"].toBool(false);
-                                                  v.mRestr    = json["restr"].toBool(false);
-                                                  v.mWhat     = json["what"].toString();
+    Barrier(QJsonObject& json): AllPowers(json) { v.mLength   = json[Length].toInt(0);
+                                                  v.mHeight   = json[Height].toInt(0);
+                                                  v.mThick    = json[Thick].toInt(0);
+                                                  v.mBody     = json[Body].toInt(0);
+                                                  v.mPD       = json[ToPD].toInt(0);
+                                                  v.mED       = json[ToED].toInt(0);
+                                                  v.mPut      = json[Put].toBool(false);
+                                                  v.mConfig   = json[Config].toBool(false);
+                                                  v.mAnchor   = json[Anchor].toBool(false);
+                                                  v.mTrans    = json[Trans].toInt(0);
+                                                  v.mTo       = json[To].toString();
+                                                  v.mEnglobe  = json[Englobe].toBool(false);
+                                                  v.mFeedback = json[Feedback].toBool(false);
+                                                  v.mRestr    = json[Restr].toBool(false);
+                                                  v.mWhat     = json[What].toString();
                                                 }
 
     Fraction adv() override                                      { return (v.mConfig      ? Fraction(1, 4) : Fraction(0)) +
@@ -103,21 +103,21 @@ public:
                                                                    v.mWhat     = what->text();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["length"]   = v.mLength;
-                                                                   obj["height"]   = v.mHeight;
-                                                                   obj["thick"]    = v.mHeight;
-                                                                   obj["body"]     = v.mBody;
-                                                                   obj["pd"]       = v.mPD;
-                                                                   obj["ed"]       = v.mED;
-                                                                   obj["put"]      = v.mPut;
-                                                                   obj["config"]   = v.mConfig;
-                                                                   obj["anchor"]   = v.mAnchor;
-                                                                   obj["trans"]    = v.mTrans;
-                                                                   obj["to"]       = v.mTo;
-                                                                   obj["englobe"]  = v.mEnglobe;
-                                                                   obj["feedback"] = v.mFeedback;
-                                                                   obj["rstr"]     = v.mRestr;
-                                                                   obj["what"]     = v.mWhat;
+                                                                   obj[Length]   = v.mLength;
+                                                                   obj[Height]   = v.mHeight;
+                                                                   obj[Thick]    = v.mHeight;
+                                                                   obj[Body]     = v.mBody;
+                                                                   obj[ToPD]     = v.mPD;
+                                                                   obj[ToED]       = v.mED;
+                                                                   obj[Put]      = v.mPut;
+                                                                   obj[Config]   = v.mConfig;
+                                                                   obj[Anchor]   = v.mAnchor;
+                                                                   obj[Trans]    = v.mTrans;
+                                                                   obj[To]       = v.mTo;
+                                                                   obj[Englobe]  = v.mEnglobe;
+                                                                   obj[Feedback] = v.mFeedback;
+                                                                   obj[Restr]    = v.mRestr;
+                                                                   obj[What]     = v.mWhat;
                                                                    return obj;
                                                                  }
 
@@ -198,10 +198,10 @@ private:
 class DamageNegation: public AllPowers {
 public:
     DamageNegation(): AllPowers("Damage Negation▲")    { }
-    DamageNegation(QJsonObject& json): AllPowers(json) { v.mDC      = json["dc"].toInt(0);
-                                                         v.mAgainst = json["against"].toInt(0);
-                                                         v.mWhat    = json["what"].toString();
-                                                         v.mResist  = json["rests"].toBool(false);
+    DamageNegation(QJsonObject& json): AllPowers(json) { v.mDC      = json[TheDC].toInt(0);
+                                                         v.mAgainst = json[Against].toInt(0);
+                                                         v.mWhat    = json[What].toString();
+                                                         v.mResist  = json[Resist].toBool(false);
                                                        }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -239,10 +239,10 @@ public:
                                                                    v.mResist  = resist->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dc"]      = v.mDC;
-                                                                   obj["against"] = v.mAgainst;
-                                                                   obj["what"]    = v.mWhat;
-                                                                   obj["resist"]  = v.mResist;
+                                                                   obj[TheDC]   = v.mDC;
+                                                                   obj[Against] = v.mAgainst;
+                                                                   obj[What]    = v.mWhat;
+                                                                   obj[Resist]  = v.mResist;
                                                                    return obj;
                                                                  }
 
@@ -289,10 +289,10 @@ private:
 class DamageResistance: public AllPowers {
 public:
     DamageResistance(): AllPowers("Damage Resistance▲")  { }
-    DamageResistance(QJsonObject& json): AllPowers(json) { v.mPerc    = json["perc"].toInt(0);
-                                                           v.mAgainst = json["against"].toInt(0);
-                                                           v.mWhat    = json["what"].toString();
-                                                           v.mResist  = json["rests"].toBool(false);
+    DamageResistance(QJsonObject& json): AllPowers(json) { v.mPerc    = json[Perc].toInt(0);
+                                                           v.mAgainst = json[Against].toInt(0);
+                                                           v.mWhat    = json[What].toString();
+                                                           v.mResist  = json[Resist].toBool(false);
                                                          }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -333,10 +333,10 @@ public:
                                                                    v.mResist  = resist->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["perc"]    = v.mPerc;
-                                                                   obj["against"] = v.mAgainst;
-                                                                   obj["what"]    = v.mWhat;
-                                                                   obj["resist"]  = v.mResist;
+                                                                   obj[Perc]    = v.mPerc;
+                                                                   obj[Against] = v.mAgainst;
+                                                                   obj[What]    = v.mWhat;
+                                                                   obj[Resist]  = v.mResist;
                                                                    return obj;
                                                                  }
 
@@ -427,7 +427,7 @@ private:
 class FlashDefense: public AllPowers {
 public:
     FlashDefense(): AllPowers("Flash Defense")       { }
-    FlashDefense(QJsonObject& json): AllPowers(json) { v._def = json["def"].toInt(0);
+    FlashDefense(QJsonObject& json): AllPowers(json) { v._def = json[Def].toInt(0);
                                                      }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -453,7 +453,7 @@ public:
                                                                    v._def = def->text().toInt();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["def"] = v._def;
+                                                                   obj[Def] = v._def;
                                                                    return obj;
                                                                  }
 
@@ -488,7 +488,7 @@ private:
 class KnockbackResistance: public AllPowers {
 public:
     KnockbackResistance(): AllPowers("Knockback Resistance")  { }
-    KnockbackResistance(QJsonObject& json): AllPowers(json)   { v.mPts = json["pts"].toInt(0);
+    KnockbackResistance(QJsonObject& json): AllPowers(json)   { v.mPts = json[Pts].toInt(0);
                                                               }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -514,7 +514,7 @@ public:
                                                                    v.mPts = pts->text().toInt();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["pts"] = v.mPts;
+                                                                   obj[Pts] = v.mPts;
                                                                    return obj;
                                                                  }
 
@@ -547,8 +547,8 @@ private:
 class MentalDefense: public AllPowers {
 public:
     MentalDefense(): AllPowers("Mental Defense")      { }
-    MentalDefense(QJsonObject& json): AllPowers(json) { v.mDef = json["def"].toInt(0);
-                                                        v.mPut = json["put"].toInt(1);
+    MentalDefense(QJsonObject& json): AllPowers(json) { v.mDef = json[Def].toInt(0);
+                                                        v.mPut = json[Put].toInt(1);
                                                       }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -577,8 +577,8 @@ public:
                                                                    v.mPut = put->currentIndex();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["def"] = v.mDef;
-                                                                   obj["put"] = v.mPut;
+                                                                   obj[Def] = v.mDef;
+                                                                   obj[Put] = v.mPut;
                                                                    return obj;
                                                                  }
 
@@ -616,7 +616,7 @@ private:
 class PowerDefense: public AllPowers {
 public:
     PowerDefense(): AllPowers("Power Defense")       { }
-    PowerDefense(QJsonObject& json): AllPowers(json) { v.mDef = json["def"].toInt(0);
+    PowerDefense(QJsonObject& json): AllPowers(json) { v.mDef = json[Def].toInt(0);
                                                      }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -642,7 +642,7 @@ public:
                                                                    v.mDef = def->text().toInt();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["def"] = v.mDef;
+                                                                   obj[Def] = v.mDef;
                                                                    return obj;
                                                                  }
 
@@ -677,11 +677,11 @@ private:
 class ResistantDefense: public AllPowers {
 public:
     ResistantDefense(): AllPowers("Resistant Defense")   { }
-    ResistantDefense(QJsonObject& json): AllPowers(json) { v.mPD      = json["pd"].toInt(0);
-                                                           v.mED      = json["ed"].toInt(0);
-                                                           v.mImperm  = json["imperm"].toBool(false);
-                                                           v.mProtect = json["protect"].toBool(false);
-                                                           v.mPut     = json["put"].toInt(0);
+    ResistantDefense(QJsonObject& json): AllPowers(json) { v.mPD      = json[ToPD].toInt(0);
+                                                           v.mED      = json[ToED].toInt(0);
+                                                           v.mImperm  = json[Imperm].toBool(false);
+                                                           v.mProtect = json[Protect].toBool(false);
+                                                           v.mPut     = json[Put].toInt(0);
                                                          }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -721,11 +721,11 @@ public:
                                                                    v.mProtect = protect->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["pd"]      = v.mPD;
-                                                                   obj["put"]     = v.mPut;
-                                                                   obj["ed"]      = v.mED;
-                                                                   obj["imperm"]  = v.mImperm;
-                                                                   obj["protect"] = v.mProtect;
+                                                                   obj[ToPD]    = v.mPD;
+                                                                   obj[Put]     = v.mPut;
+                                                                   obj[ToED]    = v.mED;
+                                                                   obj[Imperm]  = v.mImperm;
+                                                                   obj[Protect] = v.mProtect;
                                                                    return obj;
                                                                  }
 

@@ -13,12 +13,12 @@
 class EnduranceReserve: public AllPowers {
 public:
     EnduranceReserve(): AllPowers("Endurance Reserve")   { }
-    EnduranceReserve(QJsonObject& json): AllPowers(json) { v.mEnd   = json["end"].toInt(0);
-                                                           v.mRec   = json["rec"].toInt(0);
-                                                           v.mLim   = json["lim"].toInt(0);
-                                                           v.mWhat  = json["what"].toString();
-                                                           v.mRestr = json["restr"].toString();
-                                                           v.mSlow  = json["slow"].toInt(0);
+    EnduranceReserve(QJsonObject& json): AllPowers(json) { v.mEnd   = json[End].toInt(0);
+                                                           v.mRec   = json[Rec].toInt(0);
+                                                           v.mLim   = json[Lim].toInt(0);
+                                                           v.mWhat  = json[What].toString();
+                                                           v.mRestr = json[Restr].toString();
+                                                           v.mSlow  = json[Slow].toInt(0);
                                                          }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -67,12 +67,12 @@ public:
                                                                    v.mSlow  = slow->currentIndex();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["end"]   = v.mEnd;
-                                                                   obj["rec"]   = v.mRec;
-                                                                   obj["lim"]   = v.mLim;
-                                                                   obj["what"]  = v.mWhat;
-                                                                   obj["restr"] = v.mRestr;
-                                                                   obj["slow"]  = v.mSlow;
+                                                                   obj[End]   = v.mEnd;
+                                                                   obj[Rec]   = v.mRec;
+                                                                   obj[Lim]   = v.mLim;
+                                                                   obj[What]  = v.mWhat;
+                                                                   obj[Restr] = v.mRestr;
+                                                                   obj[Slow]  = v.mSlow;
                                                                    return obj;
                                                                  }
 
@@ -181,12 +181,12 @@ private:
 
 public:
     IndependantAdvantage(): AllPowers("Independant Advantage")  { }
-    IndependantAdvantage(QJsonObject& json): AllPowers(json)    { auto modObj = json["mod"].toObject();
-                                                                  QString name = modObj["name"].toString();
-                                                                  v.mMod = Modifiers::ByName(name)->create(json["mod"].toObject());
-                                                                  v.mPts = json["pts"].toInt(0);
-                                                                  auto power = json["power"].toObject();
-                                                                  name = power["name"].toString();
+    IndependantAdvantage(QJsonObject& json): AllPowers(json)    { auto modObj = json[Mod].toObject();
+                                                                  QString name = modObj[Name].toString();
+                                                                  v.mMod = Modifiers::ByName(name)->create(json[Mod].toObject());
+                                                                  v.mPts = json[Pts].toInt(0);
+                                                                  auto power = json[AsPower].toObject();
+                                                                  name = power[Name].toString();
                                                                   v.mPow = Power::FromJson(name, power);
                                                                 }
 
@@ -225,9 +225,9 @@ public:
                                                                    v.mPts = pts->text().toInt();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["mod"]   = v.mMod->toJson();
-                                                                   obj["pts"]   = v.mPts;
-                                                                   obj["power"] = v.mPow->toJson();
+                                                                   obj[Mod]     = v.mMod->toJson();
+                                                                   obj[Pts]     = v.mPts;
+                                                                   obj[AsPower] = v.mPow->toJson();
                                                                    return obj;
                                                                  }
 
@@ -284,7 +284,7 @@ private:
 class Luck: public AllPowers {
 public:
     Luck(): AllPowers("Luck")                { }
-    Luck(QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
+    Luck(QJsonObject& json): AllPowers(json) { v.mDice = json[Dice].toInt(0);
                                              }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -306,7 +306,7 @@ public:
                                                                    v.mDice = dice->text().toInt();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v.mDice;
+                                                                   obj[Dice] = v.mDice;
                                                                    return obj;
                                                                  }
 
@@ -339,8 +339,8 @@ private:
 class Regeneration: public AllPowers {
 public:
     Regeneration(): AllPowers("Regeneration")        { }
-    Regeneration(QJsonObject& json): AllPowers(json) { v.mBody = json["body"].toInt(0);
-                                                       v.mTime = json["time"].toInt(0);
+    Regeneration(QJsonObject& json): AllPowers(json) { v.mBody = json[Body].toInt(0);
+                                                       v.mTime = json[Time].toInt(0);
                                                      }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -367,8 +367,8 @@ public:
                                                                    v.mTime = time->currentIndex();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["body"] = v.mBody;
-                                                                   obj["time"] = v.mTime;
+                                                                   obj[Body] = v.mBody;
+                                                                   obj[Time] = v.mTime;
                                                                    return obj;
                                                                  }
 
@@ -407,8 +407,8 @@ private:
 class Skill: public AllPowers {
 public:
     Skill(): AllPowers("Skill")               { }
-    Skill(QJsonObject& json): AllPowers(json) { auto skill = json["skill"].toObject();
-                                                QString name = skill["name"].toString();
+    Skill(QJsonObject& json): AllPowers(json) { auto skill = json[AsSkill].toObject();
+                                                QString name = skill[Name].toString();
                                                 v.mSkill = SkillTalentOrPerk::FromJson(name, skill);
                                               }
 
@@ -433,7 +433,7 @@ public:
                                                                    // clicked stores the skill
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["skill"] = v.mSkill->toJson();
+                                                                   obj[AsSkill] = v.mSkill->toJson();
                                                                    return obj;
                                                                  }
 
@@ -480,8 +480,8 @@ private:
 class TeleportLocation: public AllPowers {
 public:
     TeleportLocation(): AllPowers("Teleport Location")   { }
-    TeleportLocation(QJsonObject& json): AllPowers(json) { v.mFixed = json["fixed"].toInt(0);
-                                                           v.mWhere = json["where"].toString();
+    TeleportLocation(QJsonObject& json): AllPowers(json) { v.mFixed = json[Fixed].toInt(0);
+                                                           v.mWhere = json[Where].toString();
                                                          }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -507,8 +507,8 @@ public:
                                                                    v.mWhere = where->text();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["fixed"] = v.mFixed;
-                                                                   obj["where"] = v.mWhere;
+                                                                   obj[Fixed] = v.mFixed;
+                                                                   obj[Where] = v.mWhere;
                                                                    return obj;
                                                                  }
 

@@ -1,11 +1,6 @@
 #include "optiondialog.h"
 #include "ui_optiondialog.h"
 #include "sheet.h"
-#ifdef __wasm__
-#include "ui_wasm.h"
-#else
-#include "ui_sheet.h"
-#endif
 
 #include <QScroller>
 

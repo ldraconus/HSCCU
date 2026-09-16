@@ -9,9 +9,9 @@
 class Blast: public AllPowers {
 public:
     Blast(): AllPowers("Blast")               { }
-    Blast(QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
-                                                v.mPdEd = json["pded"].toInt(0);
-                                                v.mStun = json["stun"].toBool(false);
+    Blast(QJsonObject& json): AllPowers(json) { v.mDice = json[Dice].toInt(0);
+                                                v.mPdEd = json[PDED].toInt(0);
+                                                v.mStun = json[Stun].toBool(false);
                                               }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -38,9 +38,9 @@ public:
                                                                    v.mStun = stun->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v.mDice;
-                                                                   obj["pded"] = v.mPdEd;
-                                                                   obj["stun"] = v.mStun;
+                                                                   obj[Dice] = v.mDice;
+                                                                   obj[PDED] = v.mPdEd;
+                                                                   obj[Stun] = v.mStun;
                                                                    return obj;
                                                                  }
 
@@ -97,22 +97,22 @@ private:
 
 public:
     ChangeEnvironment(): AllPowers("Change Environment")  { }
-    ChangeEnvironment(QJsonObject& json): AllPowers(json) { QJsonArray arr = json["effects"].toArray();
+    ChangeEnvironment(QJsonObject& json): AllPowers(json) { QJsonArray arr = json[Effects].toArray();
                                                             mCreate = false;
                                                             mData   = true;
                                                             for (int i = 0; i < arr.count(); ++i) {
                                                                 QJsonObject obj = arr[i].toObject();
-                                                                effects eff(obj["which"].toInt(0),
-                                                                            obj["idx"].toInt(0),
-                                                                            obj["level"].toInt(0),
+                                                                effects eff(obj[Which].toInt(0),
+                                                                            obj[Idx].toInt(0),
+                                                                            obj[Level].toInt(0),
                                                                             { },
-                                                                            obj["val"].toString(""));
+                                                                            obj[Val].toString(""));
                                                                 v.mEffects.push_back(eff);
                                                             }
-                                                            v.mLasting = json["lasting"].toInt(-1);
-                                                            v.mVarying = json["varying"].toBool(false);
-                                                            v.mEnvs    = json["envs"].toInt(-1);
-                                                            v.mWhat    = json["what"].toString("");
+                                                            v.mLasting = json[Lasting].toInt(-1);
+                                                            v.mVarying = json[Varying].toBool(false);
+                                                            v.mEnvs    = json[Envs].toInt(-1);
+                                                            v.mWhat    = json[What].toString("");
                                                           }
 
     Fraction adv() override                                      { return (v.mEnvs + 1) * Fraction(1, 4); }
@@ -159,17 +159,17 @@ public:
                                                                    QJsonArray arr;
                                                                    for (auto& eff: std::as_const(v.mEffects)) {
                                                                        QJsonObject objItm;
-                                                                       objItm["which"] = eff.which;
-                                                                       objItm["idx"]   = eff.idx;
-                                                                       objItm["level"] = eff.level;
-                                                                       objItm["val"]   = eff.val;
+                                                                       objItm[Which] = eff.which;
+                                                                       objItm[Idx]   = eff.idx;
+                                                                       objItm[Level] = eff.level;
+                                                                       objItm[Val]   = eff.val;
                                                                        arr.append(obj);
                                                                    }
-                                                                   obj["effects"] = arr;
-                                                                   obj["lasting"] = v.mLasting;
-                                                                   obj["varying"] = v.mVarying;
-                                                                   obj["envs"]    = v.mEnvs;
-                                                                   obj["what"]    = v.mWhat;
+                                                                   obj[Effects] = arr;
+                                                                   obj[Lasting] = v.mLasting;
+                                                                   obj[Varying] = v.mVarying;
+                                                                   obj[Envs]    = v.mEnvs;
+                                                                   obj[What]    = v.mWhat;
                                                                    return obj;
                                                                  }
 
@@ -584,21 +584,21 @@ private:
 class Entangle: public AllPowers {
 public:
     Entangle(): AllPowers("Entangle")            { }
-    Entangle(QJsonObject& json): AllPowers(json) { v.mDice   = json["dice"].toInt(0);
-                                                   v.mBody   = json["body"].toInt(0);
-                                                   v.mDef    = json["def"].toInt(0);
-                                                   v.mDmg    = json["dmg"].toInt(0);
-                                                   v.mWhat   = json["what"].toString();
-                                                   v.mSenses = json["senses"].toString();
-                                                   v.mGroups = json["groups"].toString();
-                                                   v.mFoci   = json["foci"].toBool(false);
-                                                   v.mOne    = json["one"].toBool(false);
-                                                   v.mNoDef  = json["nodef"].toBool(false);
-                                                   v.mSet    = json["set"].toInt(0);
-                                                   v.mSusc   = json["susc"].toInt(0);
-                                                   v.mSuscTo = json["suscTo"].toString();
-                                                   v.mVuln   = json["vuln"].toInt(0);
-                                                   v.mVulnTo = json["vulnTo"].toString();
+    Entangle(QJsonObject& json): AllPowers(json) { v.mDice   = json[Dice].toInt(0);
+                                                   v.mBody   = json[Body].toInt(0);
+                                                   v.mDef    = json[Def].toInt(0);
+                                                   v.mDmg    = json[Dmg].toInt(0);
+                                                   v.mWhat   = json[What].toString();
+                                                   v.mSenses = json[Senses].toString();
+                                                   v.mGroups = json[Groups].toString();
+                                                   v.mFoci   = json[Foci].toBool(false);
+                                                   v.mOne    = json[One].toBool(false);
+                                                   v.mNoDef  = json[NoDef].toBool(false);
+                                                   v.mSet    = json[Set].toInt(0);
+                                                   v.mSusc   = json[Susc].toInt(0);
+                                                   v.mSuscTo = json[SuscTo].toString();
+                                                   v.mVuln   = json[Vuln].toInt(0);
+                                                   v.mVulnTo = json[VulnTo].toString();
                                                   }
 
     Fraction adv() override                                      { return ((v.mDmg == 0) ? Fraction(1, 4) : Fraction(0)) +
@@ -690,21 +690,21 @@ public:
                                                                    v.mVulnTo = vulnTo->text();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]   = v.mDice;
-                                                                   obj["pded"]   = v.mBody;
-                                                                   obj["def"]    = v.mDef;
-                                                                   obj["dmg"]    = v.mDmg;
-                                                                   obj["what"]   = v.mWhat;
-                                                                   obj["senses"] = v.mSenses;
-                                                                   obj["groups"] = v.mGroups;
-                                                                   obj["foci"]   = v.mFoci;
-                                                                   obj["one"]    = v.mOne;
-                                                                   obj["nodef"]  = v.mNoDef;
-                                                                   obj["set"]    = v.mSet;
-                                                                   obj["susc"]   = v.mSusc;
-                                                                   obj["suscTo"] = v.mSuscTo;
-                                                                   obj["vuln"]   = v.mVuln;
-                                                                   obj["vulnTo"] = v.mVulnTo;
+                                                                   obj[Dice]   = v.mDice;
+                                                                   obj[Body]   = v.mBody;
+                                                                   obj[Def]    = v.mDef;
+                                                                   obj[Dmg]    = v.mDmg;
+                                                                   obj[What]   = v.mWhat;
+                                                                   obj[Senses] = v.mSenses;
+                                                                   obj[Groups] = v.mGroups;
+                                                                   obj[Foci]   = v.mFoci;
+                                                                   obj[One]    = v.mOne;
+                                                                   obj[NoDef]  = v.mNoDef;
+                                                                   obj[Set]    = v.mSet;
+                                                                   obj[Susc]   = v.mSusc;
+                                                                   obj[SuscTo] = v.mSuscTo;
+                                                                   obj[Vuln]   = v.mVuln;
+                                                                   obj[VulnTo] = v.mVulnTo;
                                                                    return obj;
                                                                  }
 
@@ -798,12 +798,12 @@ private:
 class Flash: public AllPowers {
 public:
     Flash(): AllPowers("Flash")               { }
-    Flash(QJsonObject& json): AllPowers(json) { v.mDice      = json["dice"].toInt(0);
-                                                v.mTgt       = json["tgt"].toString();
-                                                v.mNonTgt    = json["nonTgt"].toString();
-                                                v.mDesolid   = json["stun"].toBool(false);
-                                                v.mIndTgt    = json["indTgt"].toString();
-                                                v.mIndNonTgt = json["indNonTgt"].toString();
+    Flash(QJsonObject& json): AllPowers(json) { v.mDice      = json[Dice].toInt(0);
+                                                v.mTgt       = json[Tgt].toString();
+                                                v.mNonTgt    = json[NonTgt].toString();
+                                                v.mDesolid   = json[Desolid].toBool(false);
+                                                v.mIndTgt    = json[IndTgt].toString();
+                                                v.mIndNonTgt = json[IndNonTgt].toString();
                                               }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -843,12 +843,12 @@ public:
                                                                    v.mIndNonTgt = indNonTgt->text();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]      = v.mDice;
-                                                                   obj["tgt"]       = v.mTgt;
-                                                                   obj["nonTgt"]    = v.mNonTgt;
-                                                                   obj["desolid"]   = v.mDesolid;
-                                                                   obj["indTgt"]    = v.mIndTgt;
-                                                                   obj["indNonTgt"] = v.mIndNonTgt;
+                                                                   obj[Dice]      = v.mDice;
+                                                                   obj[Tgt]       = v.mTgt;
+                                                                   obj[NonTgt]    = v.mNonTgt;
+                                                                   obj[Desolid]   = v.mDesolid;
+                                                                   obj[IndTgt]    = v.mIndTgt;
+                                                                   obj[IndNonTgt] = v.mIndNonTgt;
                                                                    return obj;
                                                                  }
 
@@ -896,7 +896,7 @@ private:
 class HandToHandAttack: public AllPowers {
 public:
     HandToHandAttack(): AllPowers("Hand-To-Hand Attack") { }
-    HandToHandAttack(QJsonObject& json): AllPowers(json) { v.mDice = json["dice"].toInt(0);
+    HandToHandAttack(QJsonObject& json): AllPowers(json) { v.mDice = json[Dice].toInt(0);
                                                          }
     Fraction adv() override                                      { return Fraction(0); }
     QString  abbreviation(bool showEND = false) override         { return optOut(showEND, true); }
@@ -916,7 +916,7 @@ public:
                                                                    v.mDice = dice->text().toInt();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v.mDice;
+                                                                   obj[Dice] = v.mDice;
                                                                    return obj;
                                                                  }
 
@@ -948,13 +948,13 @@ private:
 class KillingAttack: public AllPowers {
 public:
     KillingAttack(): AllPowers("Killing Attack")      { }
-    KillingAttack(QJsonObject& json): AllPowers(json) { v.mDice  = json["dice"].toInt(0);
-                                                        v.mRange = json["range"].toBool(false);
-                                                        v.mExtra = json["extra"].toInt(0);
-                                                        v.mPdEd  = json["pded"].toInt(0);
-                                                        v.mIncr  = json["incr"].toInt(0);
-                                                        v.mDecr  = json["decr"].toInt(0);
-                                                        v.mStr   = json["str"].toBool(false);
+    KillingAttack(QJsonObject& json): AllPowers(json) { v.mDice  = json[Dice].toInt(0);
+                                                        v.mRange = json[Range].toBool(false);
+                                                        v.mExtra = json[Extra].toInt(0);
+                                                        v.mPdEd  = json[PDED].toInt(0);
+                                                        v.mIncr  = json[Incr].toInt(0);
+                                                        v.mDecr  = json[Decr].toInt(0);
+                                                        v.mStr   = json[Str].toBool(false);
                                                       }
 
     Fraction adv() override                                      { return v.mIncr * Fraction(1, 4); }
@@ -993,13 +993,13 @@ public:
                                                                    v.mStr   = str->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["range"] = v.mRange;
-                                                                   obj["dice"]  = v.mDice;
-                                                                   obj["extra"] = v.mExtra;
-                                                                   obj["pded"]  = v.mPdEd;
-                                                                   obj["incr"]  = v.mIncr;
-                                                                   obj["decr"]  = v.mDecr;
-                                                                   obj["str"]   = v.mStr;
+                                                                   obj[Range] = v.mRange;
+                                                                   obj[Dice]  = v.mDice;
+                                                                   obj[Extra] = v.mExtra;
+                                                                   obj[PDED]  = v.mPdEd;
+                                                                   obj[Incr]  = v.mIncr;
+                                                                   obj[Decr]  = v.mDecr;
+                                                                   obj[Str]   = v.mStr;
                                                                    return obj;
                                                                  }
 
@@ -1082,9 +1082,9 @@ private:
 class Reflection: public AllPowers {
 public:
     Reflection(): AllPowers("Reflection")          { }
-    Reflection(QJsonObject& json): AllPowers(json) { v.mPoints   = json["points"].toInt(0);
-                                                     v.mAny      = json["any"].toBool(false);
-                                                     v.mFeedback = json["feedback"].toBool(false);
+    Reflection(QJsonObject& json): AllPowers(json) { v.mPoints   = json[PointsOf].toInt(0);
+                                                     v.mAny      = json[Any].toBool(false);
+                                                     v.mFeedback = json[Feedback].toBool(false);
                                                    }
 
     Fraction adv() override                                      { return v.mAny ? Fraction(1, 2) : Fraction(0); }
@@ -1111,9 +1111,9 @@ public:
                                                                    v.mFeedback = feedback->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["points"]   = v.mPoints;
-                                                                   obj["any"]      = v.mAny;
-                                                                   obj["feedback"] = v.mFeedback;
+                                                                   obj[PointsOf] = v.mPoints;
+                                                                   obj[Any]      = v.mAny;
+                                                                   obj[Feedback] = v.mFeedback;
                                                                    return obj;
                                                                  }
 
@@ -1151,11 +1151,11 @@ private:
 class Telekinesis: public AllPowers {
 public:
     Telekinesis(): AllPowers("Telekinesis")         { }
-    Telekinesis(QJsonObject& json): AllPowers(json) { v.mStr   = json["str"].toInt(0);
-                                                      v.mFine  = json["fine"].toBool(false);
-                                                      v.mWhole = json["whole"].toBool(false);
-                                                      v.mLimit = json["limit"].toInt(0);
-                                                      v._what  = json["what"].toString();
+    Telekinesis(QJsonObject& json): AllPowers(json) { v.mStr   = json[Str].toInt(0);
+                                                      v.mFine  = json[Fine].toBool(false);
+                                                      v.mWhole = json[Whole].toBool(false);
+                                                      v.mLimit = json[Limit].toInt(0);
+                                                      v._what  = json[What].toString();
                                                     }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -1189,11 +1189,11 @@ public:
                                                                    v._what  = what->text();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["str"]   = v.mStr;
-                                                                   obj["fine"]  = v.mFine;
-                                                                   obj["whole"] = v.mWhole;
-                                                                   obj["limit"] = v.mLimit;
-                                                                   obj["what"]  = v._what;
+                                                                   obj[Str]   = v.mStr;
+                                                                   obj[Fine]  = v.mFine;
+                                                                   obj[Whole] = v.mWhole;
+                                                                   obj[Limit] = v.mLimit;
+                                                                   obj[What]  = v._what;
                                                                    return obj;
                                                                  }
 
@@ -1236,18 +1236,18 @@ private:
 class Transform: public AllPowers {
 public:
     Transform(): AllPowers("Transformϴ")          { }
-    Transform(QJsonObject& json): AllPowers(json) { v.mDice    = json["dice"].toInt(0);
-                                                    v.mInto    = json["into"].toString();
-                                                    v.mDegree  = json["degree"].toInt(0);
-                                                    v.mResult  = json["result"].toInt(0);
-                                                    v.mGroup   = json["group"].toString();
-                                                    v.mPartial = json["partial"].toBool(false);
-                                                    v.mHeal    = json["heal"].toBool(false);
-                                                    v.mMethod  = json["method"].toString();
-                                                    v.mAll     = json["all"].toBool(false);
-                                                    v.mTarget  = json["target"].toInt(0);
-                                                    v.mWhat    = json["what"].toString();
-                                                    v.mRapid   = json["rapid"].toInt(0);
+    Transform(QJsonObject& json): AllPowers(json) { v.mDice    = json[Dice].toInt(0);
+                                                    v.mInto    = json[Into].toString();
+                                                    v.mDegree  = json[Degree].toInt(0);
+                                                    v.mResult  = json[Result].toInt(0);
+                                                    v.mGroup   = json[Grouped].toString();
+                                                    v.mPartial = json[Partial].toBool(false);
+                                                    v.mHeal    = json[Heal].toBool(false);
+                                                    v.mMethod  = json[Method].toString();
+                                                    v.mAll     = json[All].toBool(false);
+                                                    v.mTarget  = json[Target].toInt(0);
+                                                    v.mWhat    = json[What].toString();
+                                                    v.mRapid   = json[Rapid].toInt(0);
                                                   }
 
     Fraction adv() override                                      { return ((v.mResult == 0) ? Fraction(1, 4) : Fraction(0)) +
@@ -1316,18 +1316,18 @@ public:
                                                                    v.mRapid   = rapid->currentIndex();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"]    = v.mDice;
-                                                                   obj["into"]    = v.mInto;
-                                                                   obj["degree"]  = v.mDegree;
-                                                                   obj["result"]  = v.mResult;
-                                                                   obj["group"]   = v.mGroup;
-                                                                   obj["partial"] = v.mPartial;
-                                                                   obj["heal"]    = v.mHeal;
-                                                                   obj["method"]  = v.mMethod;
-                                                                   obj["all"]     = v.mAll;
-                                                                   obj["target"]  = v.mTarget;
-                                                                   obj["what"]    = v.mWhat;
-                                                                   obj["rapid"]   = v.mRapid;
+                                                                   obj[Dice]    = v.mDice;
+                                                                   obj[Into]    = v.mInto;
+                                                                   obj[Degree]  = v.mDegree;
+                                                                   obj[Result]  = v.mResult;
+                                                                   obj[Grouped] = v.mGroup;
+                                                                   obj[Partial] = v.mPartial;
+                                                                   obj[Heal]    = v.mHeal;
+                                                                   obj[Method]  = v.mMethod;
+                                                                   obj[All]     = v.mAll;
+                                                                   obj[Target]  = v.mTarget;
+                                                                   obj[What]    = v.mWhat;
+                                                                   obj[Rapid]   = v.mRapid;
                                                                    return obj;
                                                                  }
 
