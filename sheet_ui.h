@@ -850,7 +850,7 @@ public:
         preroll    = createLabel(widget, font, "11-", { 269, 372 }, QStringLiteral("00-/00-")); // NOLINT
 
         createLabel(widget, smallBoldFont, "Total Cost", { 276, 631 }); // NOLINT
-        totalcost  = createLabel(widget, font,   "0", { 276, 657 }, "0000"); // NOLINT
+        totalcost  = createLabel(widget, font,   "0", { 276, 657 }, QStringLiteral("0000")); // NOLINT
 
         createBlockHeader(widget, headerFont, 394, 197 + offset, 243, "CURRENT STATUS");
         createLabel(widget, smallBoldFont, "Maximum", { 454, 222 }); // NOLINT
@@ -881,7 +881,7 @@ public:
 #ifdef __wasm__
         createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 486, 375 }); // NOLINT
 #else
-        createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 496, 375 }); // NOLINT
+        createLabel(widget, smallNarrowFont,     "(STR/5)d6",       { 489, 375 }); // NOLINT
 #endif
         createLabel(widget, smallNarrowFont,     "Lift",            { 397, 399 }); // NOLINT
         createLabel(widget, smallNarrowFont,     "STR END Cost",    { 510, 399 }); // NOLINT
@@ -906,10 +906,14 @@ public:
 #ifdef __wasm__
         createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 500, 661 }); // NOLINT
 #else
-        createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 510, 661 }); // NOLINT
+        createLabel(widget, smallNarrowFont,     "(PRE/5)d6",       { 505, 661 }); // NOLINT
 #endif
 
-        hthdamage         = createLabel(widget, font,   "2d6", { 551, 376 }, QStringLiteral("00d6+0")); // NOLINT
+#ifdef __wasm__
+        hthdamage         = createLabel(widget, font,   "2d6", { 551, 376 }, QStringLiteral("00d6+0/00d6+0")); // NOLINT
+#else
+        hthdamage         = createLabel(widget, font,   "2d6", { 554, 375 }, QStringLiteral("00d6+0/00d6+0")); // NOLINT
+#endif
         lift              = createLabel(widget, font, "100kg", { 420, 401 }, QStringLiteral("00000000MM")); // NOLINT
         strendcost        = createLabel(widget, font,     "1", { 603, 401 }, QStringLiteral("00")); // NOLINT
         phases.append(      createLabel(widget, font,      "", { 451, 444 }, QStringLiteral("X"))); // NOLINT
@@ -929,7 +933,11 @@ public:
         baseomcv          = createLabel(widget, font,     "3", { 483, 496 }, QStringLiteral("00")); // NOLINT
         basedmcv          = createLabel(widget, font,     "3", { 603, 496 }, QStringLiteral("00")); // NOLINT
         combatskilllevels = createTextEdit(widget, narrow, "<b>Combat Skill Levels</b> ", { 392, 520 }, { 244, 145 }); // NOLINT
-        presenceattack    = createLabel(widget, font,   "2d6", { 573, 663 }, "00s6+0"); // NOLINT
+#ifdef __wasm__
+        presenceattack    = createLabel(widget, font,   "2d6", { 573, 663 }, QStringLiteral("00d6+0/00d6+0")); // NOLINT
+#else
+        presenceattack    = createLabel(widget, font,   "2d6", { 573, 661 }, QStringLiteral("00d6+0/00d6+0")); // NOLINT
+#endif
 
         createBlockHeader(widget, headerFont, 679, 198 + offset, 251, "MOVEMENT");
         createLabel(widget, smallNarrowFont, "Movement SFX", { 678, 420 }, { 100, 22 }); // NOLINT
@@ -940,23 +948,23 @@ public:
                                           { "Swim (4m)",    "4m",            "8m" },
                                           { "H. Leap (4m)", "4m",            "8m" },
                                           { "V. Leap (2m)", "2m",            "4m" } }, { 675, 225 }, { 260, 195 }); // NOLINT
-        movementsfx = createLabel(widget, font, "", { 775, 423 }, "XXXXXXXXXXXXXXXXXXXX"); // NOLINT
+        movementsfx = createLabel(widget, font, "", { 775, 423 }, QStringLiteral("XXXXXXXXXXXXXXXXXXXX")); // NOLINT
 
         createBlockHeader(widget, headerFont, 679, 475 + offset, 243, "RANGE MODIFIERS");
-        createLabel(widget, tinyBoldFont, "Range(m)", { 678, 502 }, "Range(m)"); // NOLINT
-        createLabel(widget, tinyFont,     "0-8",      { 737, 502 }, "0-8"); // NOLINT
-        createLabel(widget, tinyFont,     "9-16",     { 760, 502 }, "9-16"); // NOLINT
-        createLabel(widget, tinyFont,     "17-32",    { 788, 502 }, "17-32"); // NOLINT
-        createLabel(widget, tinyFont,     "33-64",    { 822, 502 }, "33-64"); // NOLINT
-        createLabel(widget, tinyFont,     "65-128",   { 858, 502 }, "65-128"); // NOLINT
-        createLabel(widget, tinyFont,     "128-256",  { 898, 502 }, "128-256"); // NOLINT
-        createLabel(widget, tinyBoldFont, "OCV Mod",  { 680, 522 }, "OCV Mod"); // NOLINT
-        createLabel(widget, tinyFont,     "-0",       { 741, 522 }, "-0"); // NOLINT
-        createLabel(widget, tinyFont,     "-2",       { 766, 522 }, "-2"); // NOLINT
-        createLabel(widget, tinyFont,     "-4",       { 796, 522 }, "-4"); // NOLINT
-        createLabel(widget, tinyFont,     "-6",       { 830, 522 }, "-6"); // NOLINT
-        createLabel(widget, tinyFont,     "-8",       { 868, 522 }, "-8"); // NOLINT
-        createLabel(widget, tinyFont,     "-10",      { 909, 522 }, "-10"); // NOLINT
+        createLabel(widget, tinyBoldFont, "Range(m)", { 678, 502 }); // NOLINT
+        createLabel(widget, tinyFont,     "0-8",      { 737, 502 }); // NOLINT
+        createLabel(widget, tinyFont,     "9-16",     { 760, 502 }); // NOLINT
+        createLabel(widget, tinyFont,     "17-32",    { 788, 502 }); // NOLINT
+        createLabel(widget, tinyFont,     "33-64",    { 822, 502 }); // NOLINT
+        createLabel(widget, tinyFont,     "65-128",   { 858, 502 }); // NOLINT
+        createLabel(widget, tinyFont,     "128-256",  { 898, 502 }); // NOLINT
+        createLabel(widget, tinyBoldFont, "OCV Mod",  { 680, 522 }); // NOLINT
+        createLabel(widget, tinyFont,     "-0",       { 741, 522 }); // NOLINT
+        createLabel(widget, tinyFont,     "-2",       { 766, 522 }); // NOLINT
+        createLabel(widget, tinyFont,     "-4",       { 796, 522 }); // NOLINT
+        createLabel(widget, tinyFont,     "-6",       { 830, 522 }); // NOLINT
+        createLabel(widget, tinyFont,     "-8",       { 868, 522 }); // NOLINT
+        createLabel(widget, tinyFont,     "-10",      { 909, 522 }); // NOLINT
 
         image     = createImage(widget, { 663, 555 }, { 285, 533 }, Selectable); // NOLINT
 

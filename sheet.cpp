@@ -2060,6 +2060,7 @@ void Sheet::setDamage(cCharacteristicDef& def, QLabel* set) {
     int secondary = primary + def.characteristic()->secondary();
     QString dice = valueToDice(primary);
     if (primary != secondary) dice += "/" + valueToDice(secondary);
+    set->setText(dice);
 }
 
 void Sheet::setDefense(cCharacteristicDef& def, int r, int c, QLineEdit* val) {
