@@ -2862,14 +2862,12 @@ void Sheet::powerMenu(bool) {
 
 void Sheet::viewMenu(bool) {
     closeDialogs(nullptr);
-#ifdef Q_OS_ANDROID
-    auto viewMenuDialog = (sDialog.ViewMenu = std::shared_ptr<ViewMenuDialog> (new ViewMenuDialog(), [](ViewMenuDialog* d) { d->deleteLater(); }));
-#else
+#ifdef __wasm__
     auto viewMenuDialog = (sDialog.ViewMenu = std::make_shared<ViewMenuDialog>());
-#endif
     viewMenuDialog->setPos(QPoint());
     viewMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     viewMenuDialog->open();
+#endif
 }
 
 void Sheet::stpMenu(bool) {

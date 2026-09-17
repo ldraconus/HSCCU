@@ -910,7 +910,7 @@ public:
 #endif
 
 #ifdef __wasm__
-        hthdamage         = createLabel(widget, font,   "2d6", { 551, 376 }, QStringLiteral("00d6+0/00d6+0")); // NOLINT
+        hthdamage         = createLabel(widget, font,   "2d6", { 551, 375 }, QStringLiteral("00d6+0/00d6+0")); // NOLINT
 #else
         hthdamage         = createLabel(widget, font,   "2d6", { 554, 375 }, QStringLiteral("00d6+0/00d6+0")); // NOLINT
 #endif
@@ -933,11 +933,7 @@ public:
         baseomcv          = createLabel(widget, font,     "3", { 483, 496 }, QStringLiteral("00")); // NOLINT
         basedmcv          = createLabel(widget, font,     "3", { 603, 496 }, QStringLiteral("00")); // NOLINT
         combatskilllevels = createTextEdit(widget, narrow, "<b>Combat Skill Levels</b> ", { 392, 520 }, { 244, 145 }); // NOLINT
-#ifdef __wasm__
-        presenceattack    = createLabel(widget, font,   "2d6", { 573, 663 }, QStringLiteral("00d6+0/00d6+0")); // NOLINT
-#else
         presenceattack    = createLabel(widget, font,   "2d6", { 573, 661 }, QStringLiteral("00d6+0/00d6+0")); // NOLINT
-#endif
 
         createBlockHeader(widget, headerFont, 679, 198 + offset, 251, "MOVEMENT");
         createLabel(widget, smallNarrowFont, "Movement SFX", { 678, 420 }, { 100, 22 }); // NOLINT
