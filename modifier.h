@@ -176,6 +176,7 @@ private:
     static constexpr auto     Durability = "durability";
     static constexpr auto        Effects = "effects";
     static constexpr auto         Effect = "effect";
+    static constexpr auto      Expensive = "expensive";
     static constexpr auto         Expire = "expire";
     static constexpr auto      Explosion = "explosion";
     static constexpr auto  Expendability = "expendability";
