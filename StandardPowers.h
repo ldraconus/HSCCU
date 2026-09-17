@@ -10,24 +10,24 @@
 class Characteristics: public AllPowers {
 public:
     Characteristics(): AllPowers("Characteristics")     { }
-    Characteristics(QJsonObject& json): AllPowers(json) { v.mStr  = json["str"].toInt(0);
-                                                          v.mDex  = json["dex"].toInt(0);
-                                                          v.mCon  = json["con"].toInt(0);
-                                                          v.mInt  = json["int"].toInt(0);
-                                                          v.mEgo  = json["ego"].toInt(0);
-                                                          v.mPre  = json["pre"].toInt(0);
-                                                          v.mOcv  = json["ocv"].toInt(0);
-                                                          v.mDcv  = json["dcv"].toInt(0);
-                                                          v.mOmcv = json["omcv"].toInt(0);
-                                                          v.mDmcv = json["dmcv"].toInt(0);
-                                                          v.mSpd  = json["spd"].toInt(0);
-                                                          v.mPd   = json["pd"].toInt(0);
-                                                          v.mEd   = json["ed"].toInt(0);
-                                                          v.mRec  = json["rec"].toInt(0);
-                                                          v.mEnd  = json["end"].toInt(0);
-                                                          v.mBody = json["body"].toInt(0);
-                                                          v.mStun = json["stun"].toInt(0);
-                                                          v.mPut  = json["put"].toInt(0);
+    Characteristics(QJsonObject& json): AllPowers(json) { v.mStr  = json[Str].toInt(0);
+                                                          v.mDex  = json[Dex].toInt(0);
+                                                          v.mCon  = json[Con].toInt(0);
+                                                          v.mInt  = json[AsInt].toInt(0);
+                                                          v.mEgo  = json[Ego].toInt(0);
+                                                          v.mPre  = json[Pre].toInt(0);
+                                                          v.mOcv  = json[Ocv].toInt(0);
+                                                          v.mDcv  = json[Dcv].toInt(0);
+                                                          v.mOmcv = json[Omcv].toInt(0);
+                                                          v.mDmcv = json[Dmcv].toInt(0);
+                                                          v.mSpd  = json[Spd].toInt(0);
+                                                          v.mPd   = json[ToPD].toInt(0);
+                                                          v.mEd   = json[ToED].toInt(0);
+                                                          v.mRec  = json[Rec].toInt(0);
+                                                          v.mEnd  = json[ToEnd].toInt(0);
+                                                          v.mBody = json[Body].toInt(0);
+                                                          v.mStun = json[Stun].toInt(0);
+                                                          v.mPut  = json[Put].toInt(0);
                                                         }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -106,24 +106,24 @@ public:
                                                                    v.mPut  = put->currentIndex();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["str"]  = v.mStr;
-                                                                   obj["dex"]  = v.mDex;
-                                                                   obj["con"]  = v.mCon;
-                                                                   obj["int"]  = v.mInt;
-                                                                   obj["ego"]  = v.mEgo;
-                                                                   obj["pre"]  = v.mPre;
-                                                                   obj["ocv"]  = v.mOcv;
-                                                                   obj["dcv"]  = v.mDcv;
-                                                                   obj["omcv"] = v.mOmcv;
-                                                                   obj["dmcv"] = v.mDmcv;
-                                                                   obj["spd"]  = v.mSpd;
-                                                                   obj["pd"]   = v.mPd;
-                                                                   obj["ed"]   = v.mEd;
-                                                                   obj["rec"]  = v.mRec;
-                                                                   obj["end"]  = v.mEnd;
-                                                                   obj["body"] = v.mBody;
-                                                                   obj["stun"] = v.mStun;
-                                                                   obj["put"]  = v.mPut;
+                                                                   obj[Str]   = v.mStr;
+                                                                   obj[Dex]   = v.mDex;
+                                                                   obj[Con]   = v.mCon;
+                                                                   obj[AsInt] = v.mInt;
+                                                                   obj[Ego]   = v.mEgo;
+                                                                   obj[Pre]   = v.mPre;
+                                                                   obj[Ocv]   = v.mOcv;
+                                                                   obj[Dcv]   = v.mDcv;
+                                                                   obj[Omcv]  = v.mOmcv;
+                                                                   obj[Dmcv]  = v.mDmcv;
+                                                                   obj[Spd]   = v.mSpd;
+                                                                   obj[ToPD]  = v.mPd;
+                                                                   obj[ToED]  = v.mEd;
+                                                                   obj[Rec]   = v.mRec;
+                                                                   obj[ToEnd] = v.mEnd;
+                                                                   obj[Body] = v.mBody;
+                                                                   obj[Stun] = v.mStun;
+                                                                   obj[Put]  = v.mPut;
                                                                    return obj;
                                                                  }
 
@@ -238,8 +238,8 @@ private:
 class Clinging: public AllPowers {
 public:
     Clinging(): AllPowers("Clinging")            { }
-    Clinging(QJsonObject& json): AllPowers(json) { v.mStr  = json["str"].toInt(0);
-                                                   v.mKnck = json["knck"].toBool(false);
+    Clinging(QJsonObject& json): AllPowers(json) { v.mStr  = json[Str].toInt(0);
+                                                   v.mKnck = json[Knck].toBool(false);
                                                  }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -265,8 +265,8 @@ public:
                                                                    v.mKnck = knck->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["str"]  = v.mStr;
-                                                                   obj["knck"] = v.mKnck;
+                                                                   obj[Str]  = v.mStr;
+                                                                   obj[Knck] = v.mKnck;
                                                                    return obj;
                                                                  }
 
@@ -301,7 +301,7 @@ private:
 class Dispel: public AllPowers {
 public:
     Dispel(): AllPowers("Dispel")              { }
-    Dispel(QJsonObject& json): AllPowers(json) { v.mDice  = json["dice"].toInt(0);
+    Dispel(QJsonObject& json): AllPowers(json) { v.mDice  = json[Dice].toInt(0);
                                                }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -322,7 +322,7 @@ public:
                                                                    v.mDice = dice->text().toInt();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["dice"] = v.mDice;
+                                                                   obj[Dice] = v.mDice;
                                                                    return obj;
                                                                  }
 
@@ -354,19 +354,19 @@ private:
 class LifeSupport: public AllPowers {
 public:
     LifeSupport(): AllPowers("Life Support")        { }
-    LifeSupport(QJsonObject& json): AllPowers(json) { v.mExtend = json["extend"].toInt(0);
-                                                      v.mSelf   = json["self"].toBool(false);
-                                                      v.mExpand = json["expand"].toString();
-                                                      v.mEating = json["eating"].toInt(0);
-                                                      v.mSleep  = json["sleep"].toInt(0);
-                                                      v.mSelpv  = json["selpv"].toBool(false);
-                                                      v.mSehp   = json["sehp"].toBool(false);
-                                                      v.mSehr   = json["sehr"].toBool(false);
-                                                      v.mSeic   = json["seic"].toBool(false);
-                                                      v.mSeih   = json["seih"].toBool(false);
-                                                      v.mLong   = json["long"].toInt(0);
-                                                      v.mImmun  = json["immun"].toInt(0);
-                                                      v.mTo     = json["to"].toString();
+    LifeSupport(QJsonObject& json): AllPowers(json) { v.mExtend = json[Extend].toInt(0);
+                                                      v.mSelf   = json[Self].toBool(false);
+                                                      v.mExpand = json[Expand].toString();
+                                                      v.mEating = json[Eating].toInt(0);
+                                                      v.mSleep  = json[Sleep].toInt(0);
+                                                      v.mSelpv  = json[Selpv].toBool(false);
+                                                      v.mSehp   = json[Sehp].toBool(false);
+                                                      v.mSehr   = json[Sehr].toBool(false);
+                                                      v.mSeic   = json[Seic].toBool(false);
+                                                      v.mSeih   = json[Seih].toBool(false);
+                                                      v.mLong   = json[AsLong].toInt(0);
+                                                      v.mImmun  = json[Immun].toInt(0);
+                                                      v.mTo     = json[To].toString();
                                                     }
 
     Fraction adv() override                                      { return Fraction(0); }
@@ -440,19 +440,19 @@ public:
                                                                    v.mTo     = to->text();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["extend"] = v.mExtend;
-                                                                   obj["self"]   = v.mSelf;
-                                                                   obj["expand"] = v.mExpand;
-                                                                   obj["eating"] = v.mEating;
-                                                                   obj["sleep"]  = v.mSleep;
-                                                                   obj["selpv"]  = v.mSelpv;
-                                                                   obj["sehp"]   = v.mSehp;
-                                                                   obj["sehr"]   = v.mSehr;
-                                                                   obj["seic"]   = v.mSeic;
-                                                                   obj["seih"]   = v.mSeih;
-                                                                   obj["long"]   = v.mLong;
-                                                                   obj["immun"]  = v.mImmun;
-                                                                   obj["to"]     = v.mTo;
+                                                                   obj[Extend] = v.mExtend;
+                                                                   obj[Self]   = v.mSelf;
+                                                                   obj[Expand] = v.mExpand;
+                                                                   obj[Eating] = v.mEating;
+                                                                   obj[Sleep]  = v.mSleep;
+                                                                   obj[Selpv]  = v.mSelpv;
+                                                                   obj[Sehp]   = v.mSehp;
+                                                                   obj[Sehr]   = v.mSehr;
+                                                                   obj[Seic]   = v.mSeic;
+                                                                   obj[Seih]   = v.mSeih;
+                                                                   obj[AsLong] = v.mLong;
+                                                                   obj[Immun]  = v.mImmun;
+                                                                   obj[To]     = v.mTo;
                                                                    return obj;
                                                                  }
 
@@ -538,19 +538,19 @@ private:
 class Summon: public AllPowers {
 public:
     Summon(): AllPowers("Summonϴ")             { }
-    Summon(QJsonObject& json): AllPowers(json) { v.mPts    = json["pts"].toInt(0);
-                                                 v.mDbl    = json["dbl"].toInt(0);
-                                                 v.mCrtr   = json["crtr"].toString();
-                                                 v.mAmi    = json["ami"].toInt(0);
-                                                 v.mTasks  = json["tasks"].toInt(0);
-                                                 v.mExpand = json["tasks"].toInt(0);
-                                                 v.mSpec   = json["spec"].toBool(false);
-                                                 v.mWeak   = json["weak"].toInt(0);
-                                                 v.mAntag  = json["antag"].toInt(0);
-                                                 v.mArrive = json["arrive"].toBool(false);
-                                                 v.mFewer  = json["fewer"].toInt(0);
-                                                 v.mStrong = json["strong"].toInt(0);
-                                                 v.mMust   = json["must"].toBool(false);
+    Summon(QJsonObject& json): AllPowers(json) { v.mPts    = json[Pts].toInt(0);
+                                                 v.mDbl    = json[Dbl].toInt(0);
+                                                 v.mCrtr   = json[Crtr].toString();
+                                                 v.mAmi    = json[Ami].toInt(0);
+                                                 v.mTasks  = json[Tasks].toInt(0);
+                                                 v.mExpand = json[Expand].toInt(0);
+                                                 v.mSpec   = json[Spec].toBool(false);
+                                                 v.mWeak   = json[Weak].toInt(0);
+                                                 v.mAntag  = json[Antag].toInt(0);
+                                                 v.mArrive = json[Arrive].toBool(false);
+                                                 v.mFewer  = json[Fewer].toInt(0);
+                                                 v.mStrong = json[Strong].toInt(0);
+                                                 v.mMust   = json[Must].toBool(false);
                                                }
 
     Fraction adv() override                                      { return ((v.mAmi > 0)     ? v.mAmi * Fraction(1, 4)   : Fraction(0)) +
@@ -619,19 +619,19 @@ public:
                                                                    v.mMust   = must->isChecked();
                                                                  }
     QJsonObject toJson() override                                { QJsonObject obj = AllPowers::toJson();
-                                                                   obj["pts"]    = v.mPts;
-                                                                   obj["dbl"]    = v.mDbl;
-                                                                   obj["crtr"]   = v.mCrtr;
-                                                                   obj["ami"]    = v.mAmi;
-                                                                   obj["tasks"]  = v.mTasks;
-                                                                   obj["expand"] = v.mExpand;
-                                                                   obj["spec"]   = v.mSpec;
-                                                                   obj["weak"]   = v.mWeak;
-                                                                   obj["antag"]  = v.mAntag;
-                                                                   obj["arrive"] = v.mArrive;
-                                                                   obj["fewer"]  = v.mFewer;
-                                                                   obj["strong"] = v.mStrong;
-                                                                   obj["must"]   = v.mMust;
+                                                                   obj[Pts]    = v.mPts;
+                                                                   obj[Dbl]    = v.mDbl;
+                                                                   obj[Crtr]   = v.mCrtr;
+                                                                   obj[Ami]    = v.mAmi;
+                                                                   obj[Tasks]  = v.mTasks;
+                                                                   obj[Expand] = v.mExpand;
+                                                                   obj[Spec]   = v.mSpec;
+                                                                   obj[Weak]   = v.mWeak;
+                                                                   obj[Antag]  = v.mAntag;
+                                                                   obj[Arrive] = v.mArrive;
+                                                                   obj[Fewer]  = v.mFewer;
+                                                                   obj[Strong] = v.mStrong;
+                                                                   obj[Must]   = v.mMust;
                                                                    return obj;
                                                                  }
 

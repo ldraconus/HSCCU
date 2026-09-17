@@ -18,7 +18,7 @@ public:
         , v(s.v) { mGuid = s.mGuid; }
     Talent(const QJsonObject& json)
         : SkillTalentOrPerk()
-        , v { json["name"].toString("") } { id(json); }
+        , v { json[Name].toString("") } { id(json); }
 
     virtual Talent& operator=(const Talent& s) {
         if (this != &s) {
@@ -45,8 +45,8 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["id"]   = mGuid;
-        obj["name"] = v._name;
+        obj[Guid] = mGuid;
+        obj[Name] = v._name;
         return obj;
     }
 
@@ -80,7 +80,7 @@ public:
     Ambidexterity(): Talent("Ambidexterity")             { }
     Ambidexterity(const Ambidexterity& s): Talent(s)     { }
     Ambidexterity(Ambidexterity&& s): Talent(s)          { }
-    Ambidexterity(const QJsonObject& json): Talent(json) { v.mOffhand = json["offhand"].toInt(0);
+    Ambidexterity(const QJsonObject& json): Talent(json) { v.mOffhand = json[Offhand].toInt(0);
                                                          }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -98,7 +98,7 @@ public:
     void    store() override                                    { v.mOffhand = offhand->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["offhand"] = v.mOffhand;
+                                                                  obj[Offhand] = v.mOffhand;
                                                                   return obj;
                                                                 }
 
@@ -125,8 +125,8 @@ public:
     CombatLuck(): Talent("Combat Luck")               { }
     CombatLuck(const CombatLuck& s): Talent(s)        { }
     CombatLuck(CombatLuck&& s): Talent(s)             { }
-    CombatLuck(const QJsonObject& json): Talent(json) { v.mLevels = json["levels"].toInt(0);
-                                                        v.mPut = json["put"].toInt(1);
+    CombatLuck(const QJsonObject& json): Talent(json) { v.mLevels = json[Levels].toInt(0);
+                                                        v.mPut = json[Put].toInt(1);
                                                       }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -147,8 +147,8 @@ public:
                                                                   v.mPut    = put->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["levels"] = v.mLevels;
-                                                                  obj["put"]    = v.mPut;
+                                                                  obj[Levels] = v.mLevels;
+                                                                  obj[Put]    = v.mPut;
                                                                   return obj;
                                                                 }
 
@@ -181,8 +181,8 @@ public:
     CombatSense(): Talent("Combat Sense")              { }
     CombatSense(const CombatSense& s): Talent(s)       { }
     CombatSense(CombatSense&& s): Talent(s)            { }
-    CombatSense(const QJsonObject& json): Talent(json) { v.mPlus  = json["plus"].toInt(0);
-                                                         v._sense = json["sense"].toBool(false);
+    CombatSense(const QJsonObject& json): Talent(json) { v.mPlus  = json[Plus].toInt(0);
+                                                         v._sense = json[Sense].toBool(false);
                                                        }
 
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
@@ -210,8 +210,8 @@ public:
                                                                   v._sense = sense->isChecked();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"]  = v.mPlus;
-                                                                  obj["sense"] = v._sense;
+                                                                  obj[Plus]  = v.mPlus;
+                                                                  obj[Sense] = v._sense;
                                                                   return obj;
                                                                 }
 
@@ -243,15 +243,15 @@ public:
     DangerSense(): Talent("Danger Senseϴ")             { }
     DangerSense(const DangerSense& s): Talent(s)       { }
     DangerSense(DangerSense&& s): Talent(s)            { }
-    DangerSense(const QJsonObject& json): Talent(json) { mPlus   = json["plus"].toInt(0);
-                                                         mSense  = json["sense"].toBool(false);
-                                                         mIntuit = json["intuit"].toBool(false);
-                                                         mAnlze  = json["anlze"].toBool(false);
-                                                         mDescr  = json["descr"].toBool(false);
-                                                         mPen    = json["pen"].toBool(false);
-                                                         mThrgh  = json["thrgh"].toString("");
-                                                         mDtct   = json["dtct"].toInt(0);
-                                                         mArea   = json["area"].toInt(0);
+    DangerSense(const QJsonObject& json): Talent(json) { mPlus   = json[Plus].toInt(0);
+                                                         mSense  = json[Sense].toBool(false);
+                                                         mIntuit = json[Intuit].toBool(false);
+                                                         mAnlze  = json[Anlze].toBool(false);
+                                                         mDescr  = json[Descr].toBool(false);
+                                                         mPen    = json[Pen].toBool(false);
+                                                         mThrgh  = json[Thrgh].toString("");
+                                                         mDtct   = json[Dtct].toInt(0);
+                                                         mArea   = json[Area].toInt(0);
                                                        }
 
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
@@ -327,15 +327,15 @@ public:
                                                                   mArea   = area->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"]   = mPlus;
-                                                                  obj["semse"]  = mSense;
-                                                                  obj["intuit"] = mIntuit;
-                                                                  obj["anlze"]  = mAnlze;
-                                                                  obj["descr"]  = mDescr;
-                                                                  obj["pen"]    = mPen;
-                                                                  obj["thrgh"]  = mThrgh;
-                                                                  obj["dtct"]   = mDtct;
-                                                                  obj["area"]   = mArea;
+                                                                  obj[Plus]   = mPlus;
+                                                                  obj[Sense]  = mSense;
+                                                                  obj[Intuit] = mIntuit;
+                                                                  obj[Anlze]  = mAnlze;
+                                                                  obj[Descr]  = mDescr;
+                                                                  obj[Pen]    = mPen;
+                                                                  obj[Thrgh]  = mThrgh;
+                                                                  obj[Dtct]   = mDtct;
+                                                                  obj[Area]   = mArea;
                                                                   return obj;
                                                                 }
 
@@ -400,10 +400,10 @@ public:
     DeadlyBlow(): Talent("Deadly Blow▲")              { }
     DeadlyBlow(const DeadlyBlow& s): Talent(s)        { }
     DeadlyBlow(DeadlyBlow&& s): Talent(s)             { }
-    DeadlyBlow(const QJsonObject& json): Talent(json) { v.mMult  =  json["mult"].toInt(0);
-                                                        v.mCirc  =  json["circ"].toInt(0);
-                                                        v.mRanged = json["ranged"].toBool(false);
-                                                        v.mVersus = json["versus"].toString("");
+    DeadlyBlow(const QJsonObject& json): Talent(json) { v.mMult  =  json[Mult].toInt(0);
+                                                        v.mCirc  =  json[Circ].toInt(0);
+                                                        v.mRanged = json[Ranged].toBool(false);
+                                                        v.mVersus = json[Versus].toString("");
                                                       }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -432,10 +432,10 @@ public:
                                                                   v.mVersus = versus->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["mult"]   = v.mMult;
-                                                                  obj["circ"]   = v.mCirc;
-                                                                  obj["ranged"] = v.mRanged;
-                                                                  obj["versus"] = v.mVersus;
+                                                                  obj[Mult]   = v.mMult;
+                                                                  obj[Circ]   = v.mCirc;
+                                                                  obj[Ranged] = v.mRanged;
+                                                                  obj[Versus] = v.mVersus;
                                                                   return obj;
                                                                 }
 
@@ -475,8 +475,8 @@ public:
     EideticMemory(): Talent("Eidetic Memory")            { }
     EideticMemory(const EideticMemory& s): Talent(s)     { }
     EideticMemory(EideticMemory&& s): Talent(s)          { }
-    EideticMemory(const QJsonObject& json): Talent(json) { v.mSize  = json["size"].toInt(-1);
-                                                           v.mSense = json["sense"].toString("");
+    EideticMemory(const QJsonObject& json): Talent(json) { v.mSize  = json[Size].toInt(-1);
+                                                           v.mSense = json[Sense].toString("");
                                                          }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -497,8 +497,8 @@ public:
                                                                   v.mSense = sense->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["size"]   = v.mSize;
-                                                                  obj["sense"]  = v.mSense;
+                                                                  obj[Size]   = v.mSize;
+                                                                  obj[Sense]  = v.mSense;
                                                                   return obj;
                                                                 }
 
@@ -524,8 +524,8 @@ public:
     EnvironmentalMovement(): Talent("Environmental Movement")        { }
     EnvironmentalMovement(const EnvironmentalMovement& s): Talent(s) { }
     EnvironmentalMovement(EnvironmentalMovement&& s): Talent(s)      { }
-    EnvironmentalMovement(const QJsonObject& json): Talent(json)     { v.mPlus  =  json["plus"].toInt(0);
-                                                                       v.mVersus = json["versus"].toString("");
+    EnvironmentalMovement(const QJsonObject& json): Talent(json)     { v.mPlus  =  json[Plus].toInt(0);
+                                                                       v.mVersus = json[Versus].toString("");
                                                                      }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -545,8 +545,8 @@ public:
                                                                   v.mVersus = versus->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"]   = v.mPlus;
-                                                                  obj["versus"] = v.mVersus;
+                                                                  obj[Plus]   = v.mPlus;
+                                                                  obj[Versus] = v.mVersus;
                                                                   return obj;
                                                                 }
 
@@ -578,9 +578,9 @@ public:
     LightningReflexes(): Talent("Lightning Reflexes")         { }
     LightningReflexes(const LightningReflexes& s): Talent(s)  { }
     LightningReflexes(LightningReflexes&& s): Talent(s)       { }
-    LightningReflexes(const QJsonObject& json): Talent(json) { v.mPlus  = json["plus"].toInt(0);
-                                                               v.mLevel = json["level"].toInt(0);
-                                                               v.mWith  = json["with"].toString("");
+    LightningReflexes(const QJsonObject& json): Talent(json) { v.mPlus  = json[Plus].toInt(0);
+                                                               v.mLevel = json[Level].toInt(0);
+                                                               v.mWith  = json[With].toString("");
                                                             }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -608,9 +608,9 @@ public:
                                                                   v.mWith  = with->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"]  = v.mPlus;
-                                                                  obj["with"]  = v.mWith;
-                                                                  obj["level"] = v.mLevel;
+                                                                  obj[Plus]  = v.mPlus;
+                                                                  obj[With]  = v.mWith;
+                                                                  obj[Level] = v.mLevel;
                                                                   return obj;
                                                                 }
 
@@ -650,7 +650,7 @@ public:
     Resistance(): Talent("Resistance"       )         { }
     Resistance(const Resistance& s): Talent(s)        { }
     Resistance(Resistance&& s): Talent(s)             { }
-    Resistance(const QJsonObject& json): Talent(json) { v.mPlus  = json["plus"].toInt(0);
+    Resistance(const QJsonObject& json): Talent(json) { v.mPlus  = json[Plus].toInt(0);
                                                       }
 
     QString description(bool showRoll = false) override         { return (showRoll ?
@@ -671,7 +671,7 @@ public:
     void    store() override                                    { v.mPlus = plus->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"] = v.mPlus;
+                                                                  obj[Plus] = v.mPlus;
                                                                   return obj;
                                                                 }
 
@@ -701,7 +701,7 @@ public:
     SimulateDeath(): Talent("Simulate Death")            { }
     SimulateDeath(const SimulateDeath& s): Talent(s)     { }
     SimulateDeath(SimulateDeath&& s): Talent(s)          { }
-    SimulateDeath(const QJsonObject& json): Talent(json) { v.mPlus  = json["plus"].toInt(0);
+    SimulateDeath(const QJsonObject& json): Talent(json) { v.mPlus  = json[Plus].toInt(0);
                                                          }
 
     QString description(bool showRoll = false) override         { return (showRoll ?
@@ -728,7 +728,7 @@ public:
     void    store() override                                    { v.mPlus = plus->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"] = v.mPlus;
+                                                                  obj[Plus] = v.mPlus;
                                                                   return obj;
                                                                 }
 
@@ -758,7 +758,7 @@ public:
     SpeedReading(): Talent("Speed Reading")             { }
     SpeedReading(const SpeedReading& s): Talent(s)      { }
     SpeedReading(SpeedReading&& s): Talent(s)           { }
-    SpeedReading(const QJsonObject& json): Talent(json) { v.mMult = json["mult"].toInt(1);
+    SpeedReading(const QJsonObject& json): Talent(json) { v.mMult = json[Mult].toInt(1);
                                                         }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -773,7 +773,7 @@ public:
     void    store() override                                    { v.mMult = mult->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["mult"] = v.mMult;
+                                                                  obj[Mult] = v.mMult;
                                                                   return obj;
                                                                 }
 
@@ -803,8 +803,8 @@ public:
     StrikingAppearence(): Talent("Striking Appearences")       { }
     StrikingAppearence(const StrikingAppearence& s): Talent(s) { }
     StrikingAppearence(StrikingAppearence&& s): Talent(s)      { }
-    StrikingAppearence(const QJsonObject& json): Talent(json)  { v.mLimit = json["limit"].toBool(false);
-                                                                 v.mWho   = json["who"].toString("");
+    StrikingAppearence(const QJsonObject& json): Talent(json)  { v.mLimit = json[Limit].toBool(false);
+                                                                 v.mWho   = json[Who].toString("");
                                                                }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -824,8 +824,8 @@ public:
                                                                   v.mWho   = who->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["limit"] = v.mLimit;
-                                                                  obj["who"]   = v.mWho;
+                                                                  obj[Limit] = v.mLimit;
+                                                                  obj[Who]   = v.mWho;
                                                                   return obj;
                                                                 }
 
@@ -851,7 +851,7 @@ public:
     UniversalTranslator(): Talent("Universal Translatorϴ")       { }
     UniversalTranslator(const UniversalTranslator& s): Talent(s) { }
     UniversalTranslator(UniversalTranslator&& s): Talent(s)      { }
-    UniversalTranslator(const QJsonObject& json): Talent(json)   { v.mPlus = json["plus"].toInt(0);
+    UniversalTranslator(const QJsonObject& json): Talent(json)   { v.mPlus = json[Plus].toInt(0);
                                                                  }
 
     QString description(bool showRoll = false) override         { return (showRoll ?
@@ -877,7 +877,7 @@ public:
     void    store() override                                    { v.mPlus = plus->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["plus"] = v.mPlus;
+                                                                  obj[Plus] = v.mPlus;
                                                                   return obj;
                                                                 }
 
@@ -906,11 +906,11 @@ public:
     Weaponmaster(): Talent("Weaponmaster")              { }
     Weaponmaster(const Weaponmaster& s): Talent(s)      { }
     Weaponmaster(Weaponmaster&& s): Talent(s)           { }
-    Weaponmaster(const QJsonObject& json): Talent(json) { v.mMult    = json["mult"].toInt(0);
-                                                          v.mWpns    = json["wpns"].toInt(0);
-                                                          v.mRanged  = json["ranged"].toBool(false);
-                                                          v.mKilling = json["killing"].toBool(false);
-                                                          v.mWith    = json["with"].toString("");
+    Weaponmaster(const QJsonObject& json): Talent(json) { v.mMult    = json[Mult].toInt(0);
+                                                          v.mWpns    = json[Wpns].toInt(0);
+                                                          v.mRanged  = json[Ranged].toBool(false);
+                                                          v.mKilling = json[Killing].toBool(false);
+                                                          v.mWith    = json[With].toString("");
                                                         }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -942,11 +942,11 @@ public:
                                                                   v.mWith    = with->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Talent::toJson();
-                                                                  obj["mult"]    = v.mMult;
-                                                                  obj["wpns"]    = v.mWpns;
-                                                                  obj["ranged"]  = v.mRanged;
-                                                                  obj["killing"] = v.mKilling;
-                                                                  obj["with"]    = v.mWith;
+                                                                  obj[Mult]    = v.mMult;
+                                                                  obj[Wpns]    = v.mWpns;
+                                                                  obj[Ranged]  = v.mRanged;
+                                                                  obj[Killing] = v.mKilling;
+                                                                  obj[With]    = v.mWith;
                                                                   return obj;
                                                                 }
 

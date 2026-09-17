@@ -9,13 +9,13 @@
 class CustomSkill: public SkillTalentOrPerk {
 public:
     CustomSkill(): SkillTalentOrPerk()
-        , v({ "Custom" }) { }
+        , v({ Custom }) { }
     CustomSkill(QJsonObject& json)
         : SkillTalentOrPerk(json)
-        , v { json["name"].toString(""),
-              json["descr"].toString(""),
-              json["stat"].toInt(0),
-              json["plus"].toInt(0) } { }
+        , v { json[Name].toString(""),
+              json[Descr].toString(""),
+              json[Stat].toInt(0),
+              json[Plus].toInt(0) } { }
 
     bool isSkill() override { return true; }
 
@@ -62,10 +62,10 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj = SkillTalentOrPerk::toJson();
-        obj["name"]  = v.mName;
-        obj["descr"] = v.mDescr;
-        obj["plus"]  = v.mPlus;
-        obj["stat"]  = v.mStat;
+        obj[Name]  = v.mName;
+        obj[Descr] = v.mDescr;
+        obj[Plus]  = v.mPlus;
+        obj[Stat]  = v.mStat;
         return obj;
     }
 

@@ -15,7 +15,7 @@ public:
         , v { name, "", 0 } { }
     IntellectSkills(QJsonObject& json)
         : SkillTalentOrPerk(json)
-        , v { json["name"].toString(""), json["topic"].toString(""), json["plus"].toInt(0) } { }
+        , v { json[Name].toString(""), json[Topic].toString(""), json[Plus].toInt(0) } { }
 
     bool isSkill() override { return true; }
 
@@ -42,9 +42,9 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["name"]  = v.mName;
-        obj["topic"] = v.mTopic;
-        obj["plus"]  = v.mPlus;
+        obj[Name]  = v.mName;
+        obj[Topic] = v.mTopic;
+        obj[Plus]  = v.mPlus;
         return obj;
     }
 
@@ -84,8 +84,8 @@ class Analyze: public IntellectSkills {
 public:
     Analyze(): IntellectSkills("Analyze")             { }
     Analyze(QJsonObject& json): IntellectSkills(json) {
-        v.mPlus    = json["plus"].toInt(1);
-        v.mWhat    = json["what"].toString("");
+        v.mPlus    = json[Plus].toInt(1);
+        v.mWhat    = json[What].toString("");
     }
 
     QString abbreviation(bool showRoll = false) override { return str(showRoll, true); }
@@ -126,8 +126,8 @@ public:
     }
     QJsonObject toJson() override                               {
         QJsonObject obj = IntellectSkills::toJson();
-        obj["plus"]    = v.mPlus;
-        obj["what"]    = v.mWhat;
+        obj[Plus]    = v.mPlus;
+        obj[What]    = v.mWhat;
         return obj;
     }
 

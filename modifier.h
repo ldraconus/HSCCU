@@ -137,6 +137,146 @@ private:
     QMap<QTreeWidget*, std::function<void (ModifierBase*, int, int, bool)>>  mCallbacksTree; // NOLINT
     void empty(bool) { }
 
+    static constexpr auto       Accurate = "accurate";
+    static constexpr auto            Act = "act";
+    static constexpr auto       Activate = "activate";
+    static constexpr auto         Active = "active";
+    static constexpr auto     Activation = "activation";
+    static constexpr auto          Adder = "adder";
+    static constexpr auto           Advs = "advs";
+    static constexpr auto        Affects = "affects";
+    static constexpr auto        Against = "against";
+    static constexpr auto            All = "all";
+    static constexpr auto         Amount = "amount";
+    static constexpr auto    AquiresRoll = "aquiresRoll";
+    static constexpr auto      AsCharges = "charges";
+    static constexpr auto         AsMass = "mass";
+    static constexpr auto       AsPoints = "points";
+    static constexpr auto      Boostable = "boostable";
+    static constexpr auto           Both = "both";
+    static constexpr auto      BothHands = "bothHands";
+    static constexpr auto         Bypass = "bypass";
+    static constexpr auto         Change = "change";
+    static constexpr auto     Changeable = "changeable";
+    static constexpr auto Characteristic = "characteristic";
+    static constexpr auto  Circumstances = "circumstances";
+    static constexpr auto          Clips = "clips";
+    static constexpr auto           Cond = "cond";
+    static constexpr auto    Conditional = "conditional";
+    static constexpr auto        Control = "control";
+    static constexpr auto       Constant = "constant";
+    static constexpr auto     Continuing = "continuing";
+    static constexpr auto           Cost = "cost";
+    static constexpr auto   DamageShield = "damageShield";
+    static constexpr auto      Direction = "direction";
+    static constexpr auto         Doesnt = "doesnt";
+    static constexpr auto        Doubles = "doubles";
+    static constexpr auto       Doubling = "doubling";
+    static constexpr auto       Duration = "duration";
+    static constexpr auto     Durability = "durability";
+    static constexpr auto        Effects = "effects";
+    static constexpr auto         Effect = "effect";
+    static constexpr auto         Expire = "expire";
+    static constexpr auto      Explosion = "explosion";
+    static constexpr auto  Expendability = "expendability";
+    static constexpr auto          Fails = "fails";
+    static constexpr auto           Five = "five";
+    static constexpr auto     FixedShape = "fixedShape";
+    static constexpr auto          Force = "force";
+    static constexpr auto     FuelCharge = "fuelcharge";
+    static constexpr auto           Full = "full";
+    static constexpr auto        Greater = "greater";
+    static constexpr auto           Half = "half";
+    static constexpr auto          Hands = "hands";
+    static constexpr auto           Hide = "hide";
+    static constexpr auto      HowCommon = "howCommon";
+    static constexpr auto            How = "how";
+    static constexpr auto        HowMany = "howMany";
+    static constexpr auto        HowMuch = "howMuch";
+    static constexpr auto       Identity = "identity";
+    static constexpr auto             Is = "is";
+    static constexpr auto            Isa = "isa";
+    static constexpr auto  Imperceptable = "imperceptable";
+    static constexpr auto      Inobvious = "inobvious";
+    static constexpr auto        Instant = "instant";
+    static constexpr auto      Invariant = "invariant";
+    static constexpr auto           Kind = "kind";
+    static constexpr auto          LType = "lType";
+    static constexpr auto          Level = "level";
+    static constexpr auto          Limit = "limit";
+    static constexpr auto        Limited = "limited";
+    static constexpr auto      LocAndDir = "locAndDir";
+    static constexpr auto       Location = "location";
+    static constexpr auto        Lockout = "lockout";
+    static constexpr auto       Maneuver = "maneuver";
+    static constexpr auto           Mass = "mass";
+    static constexpr auto            Max = "max";
+    static constexpr auto            Min = "min";
+    static constexpr auto        Misfire = "misfire";
+    static constexpr auto         Mobile = "mobile";
+    static constexpr auto       Mobility = "mobility";
+    static constexpr auto     Multiplier = "multiplier";
+    static constexpr auto            NND = "nnd";
+    static constexpr auto           Name = "name";
+    static constexpr auto          Needs = "needs";
+    static constexpr auto         NewOne = "newOne";
+    static constexpr auto          NoEND = "noEND";
+    static constexpr auto    NonStandard = "nonStandard";
+    static constexpr auto        NoRange = "noRange";
+    static constexpr auto     NoRangeMod = "noRangeMod";
+    static constexpr auto   Nonselective = "nonselective";
+    static constexpr auto            Num = "num";
+    static constexpr auto           Once = "once";
+    static constexpr auto            One = "one";
+    static constexpr auto         OneUse = "oneUse";
+    static constexpr auto       Original = "original";
+    static constexpr auto          Other = "other";
+    static constexpr auto           Pays = "pays";
+    static constexpr auto            Per = "per";
+    static constexpr auto            Pre = "pre";
+    static constexpr auto           Prop = "prop";
+    static constexpr auto        Quarter = "quarter";
+    static constexpr auto           RMod = "rmod";
+    static constexpr auto          RType = "rType";
+    static constexpr auto          Range = "range";
+    static constexpr auto    Recoverable = "recoverable";
+    static constexpr auto   RecoveryTime = "recoveryTime";
+    static constexpr auto        Reduced = "reduced";
+    static constexpr auto         Reload = "reload";
+    static constexpr auto          Regen = "regen";
+    static constexpr auto          Reset = "reset";
+    static constexpr auto      Restraint = "restraint";
+    static constexpr auto           Roll = "roll";
+    static constexpr auto          Scale = "scale";
+    static constexpr auto      Selective = "selective";
+    static constexpr auto          Sense = "sense";
+    static constexpr auto         Senses = "senses";
+    static constexpr auto          Shape = "shape";
+    static constexpr auto          Skill = "skill";
+    static constexpr auto           Stay = "stay";
+    static constexpr auto        Stunned = "stunned";
+    static constexpr auto         Target = "target";
+    static constexpr auto            Ten = "ten";
+    static constexpr auto       ThinCone = "thinCone";
+    static constexpr auto     Throughout = "throughtout";
+    static constexpr auto           Time = "time";
+    static constexpr auto          Times = "times";
+    static constexpr auto            Two = "two";
+    static constexpr auto           Type = "type";
+    static constexpr auto        Unaware = "unaware";
+    static constexpr auto      Universal = "universal";
+    static constexpr auto          Until = "until";
+    static constexpr auto          Value = "value";
+    static constexpr auto         Versus = "versus";
+    static constexpr auto  VeryEffective = "veryEffective";
+    static constexpr auto   VeryUncommon = "veryUncommon";
+    static constexpr auto           What = "what";
+    static constexpr auto           When = "when";
+    static constexpr auto          Which = "which";
+    static constexpr auto          Whole = "whole";
+    static constexpr auto        ZeroDCV = "zeroDCV";
+    static constexpr auto           Zero = "zero";
+
 public:
     virtual void numeric(QString)         { }
     virtual void changed(QString)         { }
@@ -318,11 +458,11 @@ public:
         , mValue(m.mValue)
         , mPoints(m.mPoints) { }
     NoFormModifier(QJsonObject json)
-        : Modifier(json["name"].toString(""),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false))
-        , mValue(Fraction(json["value"].toArray()[0].toInt(0), json["value"].toArray()[1].toInt(1)))
-        , mPoints(json["points"].toInt()) { }
+        : Modifier(json[Name].toString(""),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false))
+        , mValue(Fraction(json[Value].toArray()[0].toInt(0), json[Value].toArray()[1].toInt(1)))
+        , mPoints(json[AsPoints].toInt()) { }
     ~NoFormModifier() override { }
 
     NoFormModifier& operator=(const NoFormModifier& n) = delete;
@@ -338,14 +478,14 @@ public:
     void          restore() override                       { }
     void          store() override                         { }
     QJsonObject   toJson() override                        { QJsonObject obj;
-                                                             obj["name"]  = name();
-                                                             obj["type"]  = type();
-                                                             obj["adder"] = isAdder();
+                                                             obj[Name]  = name();
+                                                             obj[Type]  = type();
+                                                             obj[Adder] = isAdder();
                                                              QJsonArray arr;
                                                              arr.append((int) mValue.numerator());
                                                              arr.append((int) mValue.denominator());
-                                                             obj["value"] = arr;
-                                                             obj["points"] = (int) mPoints.points;
+                                                             obj[Value] = arr;
+                                                             obj[AsPoints] = (int) mPoints.points;
                                                              return obj;
                                                            }
 private:
@@ -368,10 +508,10 @@ public:
         , v(m.v) {
     }
     Ablative(QJsonObject json)
-        : Modifier(json["name"].toString("Ablative"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) {
-        v.mAquiresRoll = json["aquiresRoll"].toBool(false);
+        : Modifier(json[Name].toString("Ablative"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) {
+        v.mAquiresRoll = json[AquiresRoll].toBool(false);
     }
     ~Ablative() override { }
 
@@ -402,10 +542,10 @@ public:
                                                             v = s; }
     void        store() override                          { v.mAquiresRoll = aquiresRoll->isChecked(); }
     QJsonObject toJson() override                         { QJsonObject obj;
-                                                            obj["name"] = name();
-                                                            obj["type"] = type();
-                                                            obj["adder"] = isAdder();
-                                                            obj["aquiresRoll"] = v.mAquiresRoll;
+                                                            obj[Name] = name();
+                                                            obj[Type] = type();
+                                                            obj[Adder] = isAdder();
+                                                            obj[AquiresRoll] = v.mAquiresRoll;
                                                             return obj; }
 
 private:
@@ -437,9 +577,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     AffectedAsAnotherSense(QJsonObject json)
-        : Modifier(json["name"].toString(""),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mSense = json["sense"].toInt(0); }
+        : Modifier(json[Name].toString(""),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mSense = json[Sense].toInt(0); }
     ~AffectedAsAnotherSense() override { }
 
     AffectedAsAnotherSense& operator=(const AffectedAsAnotherSense&) = delete;
@@ -461,10 +601,10 @@ public:
                                                               v = s; }
     void          store() override                          { v.mSense = sense->currentIndex(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"] = name();
-                                                              obj["type"] = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["sense"] = v.mSense;
+                                                              obj[Name] = name();
+                                                              obj[Type] = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Sense] = v.mSense;
                                                               return obj; }
 
 private:
@@ -494,10 +634,10 @@ public:
         : Modifier(m)
         , v(m.v) { }
     AffectedAsMoreThanOneSense(QJsonObject json)
-        : Modifier(json["name"].toString("Affected as More Than One Sense"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mVeryUncommon = json["veryUncommon"].toBool();
-                                                  v.mSenses       = json["senses"].toString(""); }
+        : Modifier(json[Name].toString("Affected as More Than One Sense"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mVeryUncommon = json[VeryUncommon].toBool();
+                                                v.mSenses       = json[Senses].toString(""); }
     ~AffectedAsMoreThanOneSense() override { }
 
     AffectedAsMoreThanOneSense& operator=(const AffectedAsMoreThanOneSense&) = delete;
@@ -522,11 +662,11 @@ public:
     void          store() override                          { v.mSenses       = senses->text();
                                                               v.mVeryUncommon = veryUncommon->isChecked(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]         = name();
-                                                              obj["type"]         = type();
-                                                              obj["adder"]        = isAdder();
-                                                              obj["senses"]       = v.mSenses;
-                                                              obj["veryUncommon"] = v.mVeryUncommon;
+                                                              obj[Name]         = name();
+                                                              obj[Type]         = type();
+                                                              obj[Adder]        = isAdder();
+                                                              obj[Senses]       = v.mSenses;
+                                                              obj[VeryUncommon] = v.mVeryUncommon;
                                                               return obj; }
 
 private:
@@ -561,10 +701,10 @@ public:
         : Modifier(m)
         , v(m.v) { }
     AffectsDesolid(QJsonObject json)
-        : Modifier(json["name"].toString("Affects Desolid"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mLimited = json["limited"].toBool();
-                                                  v.mWhat    = json["what"].toString(""); }
+        : Modifier(json[Name].toString("Affects Desolid"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mLimited = json[Limited].toBool();
+                                                v.mWhat    = json[What].toString(""); }
     ~AffectsDesolid() override { }
 
     AffectedAsMoreThanOneSense& operator=(const AffectsDesolid&) = delete;
@@ -589,11 +729,11 @@ public:
     void          store() override                          { v.mWhat    = what->text();
                                                               v.mLimited = limited->isChecked(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["limited"] = v.mLimited;
-                                                              obj["what"]    = v.mWhat;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[Limited] = v.mLimited;
+                                                              obj[What]    = v.mWhat;
                                                               return obj; }
 
 private:
@@ -704,9 +844,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     AlternateCombatValue(QJsonObject json)
-        : Modifier(json["name"].toString("Alternate Combat Value▲"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mIs = json["is"].toInt(0); }
+        : Modifier(json[Name].toString("Alternate Combat Value▲"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mIs = json[Is].toInt(0); }
     ~AlternateCombatValue() override { }
 
     AlternateCombatValue& operator=(const AlternateCombatValue&) = delete;
@@ -739,10 +879,10 @@ public:
                                                               v = s; }
     void          store() override                          { v.mIs = is->currentIndex(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["is"]    = v.mIs;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Is]    = v.mIs;
                                                               return obj; }
 
 private:
@@ -804,20 +944,20 @@ public:
         : Modifier(m)
         , v(m.v) { }
     AreaOfEffect(QJsonObject json)
-        : Modifier(json["name"].toString("Area Of Effect"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mKind = json["kind"].toInt(0);
-                                                  v.mExplosion = json["explosion"].toBool(false);
-                                                  v.mFixedShape = json["fixedShape"].toBool(false);
-                                                  v.mShape = json["shape"].toString("");
-                                                  v.mNonselective = json["nonselective"].toBool(false);
-                                                  v.mSelective = json["selective"].toBool(false);
-                                                  v.mMobile = json["mobile"].toBool(false);
-                                                  v.mAccurate = json["accurate"].toBool(false);
-                                                  v.mThinCone = json["thinCone"].toBool(false);
-                                                  v.mDamageShield = json["damageShield"].toBool(false);
-                                                  v.mMultiplier = json["multiplier"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("Area Of Effect"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mKind = json[Kind].toInt(0);
+                                                v.mExplosion = json[Explosion].toBool(false);
+                                                v.mFixedShape = json[FixedShape].toBool(false);
+                                                v.mShape = json[Shape].toString("");
+                                                v.mNonselective = json[Nonselective].toBool(false);
+                                                v.mSelective = json[Selective].toBool(false);
+                                                v.mMobile = json[Mobile].toBool(false);
+                                                v.mAccurate = json[Accurate].toBool(false);
+                                                v.mThinCone = json[ThinCone].toBool(false);
+                                                v.mDamageShield = json[DamageShield].toBool(false);
+                                                v.mMultiplier = json[Multiplier].toInt(0);
+                                              }
     ~AreaOfEffect() override { }
 
     AreaOfEffect& operator=(const AreaOfEffect&) = delete;
@@ -882,20 +1022,20 @@ public:
                                                               v.mMultiplier = multiplier->text().toInt(0);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["kind"]  = v.mKind;
-                                                              obj["fixedShape"] = v.mFixedShape;
-                                                              obj["shape"] = v.mShape;
-                                                              obj["explosion"] = v.mExplosion;
-                                                              obj["nonselective"] = v.mNonselective;
-                                                              obj["selective"] = v.mSelective;
-                                                              obj["mobile"] = v.mMobile;
-                                                              obj["accurate"] = v.mAccurate;
-                                                              obj["thinCone"] = v.mThinCone;
-                                                              obj["damageShield"] = v.mDamageShield;
-                                                              obj["multiplier"] = v.mMultiplier;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Kind]  = v.mKind;
+                                                              obj[FixedShape] = v.mFixedShape;
+                                                              obj[Shape] = v.mShape;
+                                                              obj[Explosion] = v.mExplosion;
+                                                              obj[Nonselective] = v.mNonselective;
+                                                              obj[Selective] = v.mSelective;
+                                                              obj[Mobile] = v.mMobile;
+                                                              obj[Accurate] = v.mAccurate;
+                                                              obj[ThinCone] = v.mThinCone;
+                                                              obj[DamageShield] = v.mDamageShield;
+                                                              obj[Multiplier] = v.mMultiplier;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -1037,9 +1177,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     ArmorPiercing(QJsonObject json)
-        : Modifier(json["name"].toString(""),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mTimes = json["times"].toInt(0);
+        : Modifier(json[Name].toString(""),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mTimes = json[Times].toInt(0);
                                                 }
     ~ArmorPiercing() override { }
 
@@ -1067,10 +1207,10 @@ public:
     void          store() override                          { v.mTimes = times->text().toInt(0);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["times"] = v.mTimes;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Times] = v.mTimes;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -1119,12 +1259,12 @@ public:
         : Modifier(m)
         , v(m.v) { }
     AVAD(QJsonObject json)
-        : Modifier(json["name"].toString("Attack Versus Alternate Defense▲"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mOriginal = json["original"].toInt(0);
-                                                  v.mNewOne = json["newone"].toInt(0);
-                                                  v.mVersus = json["versus"].toString();
-                                                  v.mNND = json["nnd"].toBool(false);
+        : Modifier(json[Name].toString("Attack Versus Alternate Defense▲"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mOriginal = json[Original].toInt(0);
+                                                  v.mNewOne = json[NewOne].toInt(0);
+                                                  v.mVersus = json[Versus].toString();
+                                                  v.mNND = json[NND].toBool(false);
                                                 }
     ~AVAD() override { }
 
@@ -1167,13 +1307,13 @@ public:
                                                               v.mNND = nnd->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["original"] = v.mOriginal;
-                                                              obj["newone"] = v.mNewOne;
-                                                              obj["versus"] = v.mVersus;
-                                                              obj["nnd"] = v.mNND;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Original] = v.mOriginal;
+                                                              obj[NewOne] = v.mNewOne;
+                                                              obj[Versus] = v.mVersus;
+                                                              obj[NND] = v.mNND;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -1222,11 +1362,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Autofire(QJsonObject json)
-        : Modifier(json["name"].toString("Autofire"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mFive = json["five"].toBool(false);
-                                                  v.mDoubling = json["doubling"].toInt(0);
-                                                  v.mByPass = json["bypass"].toBool(false);
+        : Modifier(json[Name].toString("Autofire"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mFive = json[Five].toBool(false);
+                                                  v.mDoubling = json[Doubling].toInt(0);
+                                                  v.mByPass = json[Bypass].toBool(false);
                                                 }
     ~Autofire() override { }
 
@@ -1256,12 +1396,12 @@ public:
                                                               v.mByPass = bypass->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["five"] = v.mFive;
-                                                              obj["doubling"] = v.mDoubling;
-                                                              obj["bypass"] = v.mByPass;
+                                                                  obj[Name] = name();
+                                                                  obj[Type] = type();
+                                                                 obj[Adder] = isAdder();
+                                                                  obj[Five] = v.mFive;
+                                                              obj[Doubling] = v.mDoubling;
+                                                                obj[Bypass] = v.mByPass;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -1462,9 +1602,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     CanOnlyBeUsedThroughMindLink(QJsonObject json)
-        : Modifier(json["name"].toString("CanOnlyBeUsedThroughMindLink"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mValue = json["value"].toInt(0);
+        : Modifier(json[Name].toString("CanOnlyBeUsedThroughMindLink"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mValue = json[Value].toInt(0);
                                                 }
     ~CanOnlyBeUsedThroughMindLink() override { }
 
@@ -1489,10 +1629,10 @@ public:
     void          store() override                          { v.mValue = value->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["value"] = v.mValue;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Value] = v.mValue;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -1566,10 +1706,10 @@ public:
         : Modifier(m)
         , v(m.v) { }
     CannotBeUsedWith(QJsonObject json)
-        : Modifier(json["name"].toString("Cannot Be Used With ..."),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mVeryEffective = json["veryEffective"].toBool();
-                                                  v.mManeuver = json["maneuver"].toString();
+        : Modifier(json[Name].toString("Cannot Be Used With ..."),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mVeryEffective = json[VeryEffective].toBool();
+                                                  v.mManeuver = json[Maneuver].toString();
                                                 }
     ~CannotBeUsedWith() override { }
 
@@ -1597,11 +1737,11 @@ public:
                                                               v.mManeuver = maneuver->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]          = name();
-                                                              obj["type"]          = type();
-                                                              obj["adder"]         = isAdder();
-                                                              obj["maneuver"]      = v.mManeuver;
-                                                              obj["veryEffective"] = v.mVeryEffective;
+                                                              obj[Name]          = name();
+                                                              obj[Type]          = type();
+                                                              obj[Adder]         = isAdder();
+                                                              obj[Maneuver]      = v.mManeuver;
+                                                              obj[VeryEffective] = v.mVeryEffective;
                                                               return obj; }
 
 private:
@@ -1669,18 +1809,18 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Charges(QJsonObject json)
-        : Modifier(json["name"].toString("Charges"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mCharges      = json["charges"].toInt(0);
-                                                  v.mClips        = json["clips"].toInt(0);
-                                                  v.mBoostable    = json["boostable"].toBool(false);
-                                                  v.mContinuing   = json["continuing"].toInt(0);
-                                                  v.mFuelCharge   = json["fuelCharge"].toBool(false);
-                                                  v.mRecoverable  = json["recoverable"].toBool(false);
-                                                  v.mRecoveryTime = json["recoveryTime"].toInt(0);
-                                                  v.mExpensive    = json["expensive"].toBool(false);
-                                                  v.mReload       = json["reload"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("Charges"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mCharges        = json[AsCharges].toInt(0);
+                                                v.mClips        = json[Clips].toInt(0);
+                                                v.mBoostable    = json[Boostable].toBool(false);
+                                                v.mContinuing   = json[Continuing].toInt(0);
+                                                v.mFuelCharge   = json[FuelCharge].toBool(false);
+                                                v.mRecoverable  = json[Recoverable].toBool(false);
+                                                v.mRecoveryTime = json[RecoveryTime].toInt(0);
+                                                v.mExpensive    = json[Expensive].toBool(false);
+                                                v.mReload       = json[Reload].toInt(0);
+                                              }
     ~Charges() override { }
 
     Charges& operator=(const Charges&) = delete;
@@ -1749,17 +1889,17 @@ public:
                                                               v.mReload       = reload->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]         = name();
-                                                              obj["type"]         = type();
-                                                              obj["charges"]      = v.mCharges;
-                                                              obj["clips"]        = v.mClips;
-                                                              obj["boostable"]    = v.mBoostable;
-                                                              obj["continuing"]   = v.mContinuing;
-                                                              obj["fuelCharge"]   = v.mFuelCharge;
-                                                              obj["recoverable"]  = v.mRecoverable;
-                                                              obj["recoveryTime"] = v.mRecoveryTime;
-                                                              obj["expensive"]    = v.mExpensive;
-                                                              obj["reload"]       = v.mReload;
+                                                              obj[Name]         = name();
+                                                              obj[Type]         = type();
+                                                              obj[AsCharges]    = v.mCharges;
+                                                              obj[Clips]        = v.mClips;
+                                                              obj[Boostable]    = v.mBoostable;
+                                                              obj[Continuing]   = v.mContinuing;
+                                                              obj[FuelCharge]   = v.mFuelCharge;
+                                                              obj[Recoverable]  = v.mRecoverable;
+                                                              obj[RecoveryTime] = v.mRecoveryTime;
+                                                              obj[Expensive]    = v.mExpensive;
+                                                              obj[Reload]       = v.mReload;
                                                               return obj;
                                                             }
 
@@ -1876,12 +2016,12 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Concentration(QJsonObject json)
-        : Modifier(json["name"].toString("Concentration"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mZeroDCV  = json["zeroDCV"].toBool(false);
-                                                  v.mUnaware  = json["unaware"].toBool(false);
-                                                  v.mConstant = json["constant"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("Concentration"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mZeroDCV  = json[ZeroDCV].toBool(false);
+                                                v.mUnaware  = json[Unaware].toBool(false);
+                                                v.mConstant = json[Constant].toBool(false);
+                                              }
     ~Concentration() override { }
 
     Concentration& operator=(const Concentration&) = delete;
@@ -1916,11 +2056,11 @@ public:
                                                               v.mConstant = constant->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["zeroDCV"]  = v.mZeroDCV;
-                                                              obj["unaware"]  = v.mUnaware;
-                                                              obj["constant"] = v.mConstant;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[ZeroDCV]  = v.mZeroDCV;
+                                                              obj[Unaware]  = v.mUnaware;
+                                                              obj[Constant] = v.mConstant;
                                                               return obj;
                                                             }
 
@@ -1978,9 +2118,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     CostsEndurance(QJsonObject json)
-        : Modifier(json["name"].toString("CostsEndurance"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mHowMuch  = json["howMuch"].toInt(0);
+        : Modifier(json[Name].toString("CostsEndurance"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mHowMuch  = json[HowMuch].toInt(0);
                                                 }
     ~CostsEndurance() override { }
 
@@ -2011,9 +2151,9 @@ public:
     void          store() override                          { v.mHowMuch  = howMuch->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["howMuch"]  = v.mHowMuch;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[HowMuch]  = v.mHowMuch;
                                                               return obj;
                                                             }
 
@@ -2067,9 +2207,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     CostsEnduranceToMaintain(QJsonObject json)
-        : Modifier(json["name"].toString("CostsEnduranceToMaintain"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mHowMuch  = json["howMuch"].toInt(0);
+        : Modifier(json[Name].toString("CostsEnduranceToMaintain"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mHowMuch  = json[HowMuch].toInt(0);
                                                 }
     ~CostsEnduranceToMaintain() override { }
 
@@ -2099,9 +2239,9 @@ public:
     void          store() override                          { v.mHowMuch  = howMuch->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["howMuch"]  = v.mHowMuch;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[HowMuch]  = v.mHowMuch;
                                                               return obj;
                                                             }
 
@@ -2125,6 +2265,7 @@ public:
 
 class Cumulative: public NoFormModifier {
 public:
+
     Cumulative()
         : NoFormModifier("Cumulative▲", isAdvantage, Fraction(1, 2)) { }
     Cumulative(QJsonObject json)
@@ -2186,12 +2327,12 @@ public:
         : Modifier(m)
         , v(m.v) { }
     DamageOverTime(QJsonObject json)
-        : Modifier(json["name"].toString("Damage Over Time▲"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mTimes    = json["times"].toInt(0);
-                                                  v.mDuration = json["duration"].toInt(0);
-                                                  v.mOnce     = json["once"].toBool(false);
-                                                  v.mOneUse   = json["oneUse"].toBool(false);
+        : Modifier(json[Name].toString("Damage Over Time▲"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mTimes    = json[Times].toInt(0);
+                                                  v.mDuration = json[Duration].toInt(0);
+                                                  v.mOnce     = json[Once].toBool(false);
+                                                  v.mOneUse   = json[OneUse].toBool(false);
                                                 }
     ~DamageOverTime() override { }
 
@@ -2238,12 +2379,12 @@ public:
                                                               v.mOneUse   = oneUse->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["times"]    = v.mTimes;
-                                                              obj["duration"] = v.mDuration;
-                                                              obj["omce"]     = v.mOnce;
-                                                              obj["oneUSe"]   = v.mOneUse;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Times]    = v.mTimes;
+                                                              obj[Duration] = v.mDuration;
+                                                              obj[Once]     = v.mOnce;
+                                                              obj[OneUse]   = v.mOneUse;
                                                               return obj;
                                                             }
 
@@ -2299,9 +2440,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     DecreasedAccelerationDeceleration(QJsonObject json)
-        : Modifier(json["name"].toString("Decreased Acceleration/Deceleration"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mHowMuch  = json["howMuch"].toInt(0);
+        : Modifier(json[Name].toString("Decreased Acceleration/Deceleration"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mHowMuch  = json[HowMuch].toInt(0);
                                                 }
     ~DecreasedAccelerationDeceleration() override { }
 
@@ -2331,9 +2472,9 @@ public:
     void          store() override                          { v.mHowMuch  = howMuch->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["howMuch"]  = v.mHowMuch;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[HowMuch]  = v.mHowMuch;
                                                               return obj;
                                                             }
 
@@ -2367,9 +2508,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     DelayedEffect(QJsonObject json)
-        : Modifier(json["name"].toString("Delayed EffectꚚ"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mDoubling = json["doubling"].toInt(0);
+        : Modifier(json[Name].toString("Delayed EffectꚚ"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mDoubling = json[Doubling].toInt(0);
                                                 }
     ~DelayedEffect() override { }
 
@@ -2393,10 +2534,10 @@ public:
     void          store() override                          { v.mDoubling = doubling->text().toInt(nullptr);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["doubling"] = v.mDoubling;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Doubling] = v.mDoubling;
                                                               return obj;
                                                             }
 
@@ -2435,9 +2576,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     DelayedFadeReturnRate(QJsonObject json)
-        : Modifier(json["name"].toString("Delayed Fade/Return Rate▲"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mDuration = json["duration"].toInt(0);
+        : Modifier(json[Name].toString("Delayed Fade/Return Rate▲"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mDuration = json[Duration].toInt(0);
                                                 }
     ~DelayedFadeReturnRate() override { }
 
@@ -2468,9 +2609,9 @@ public:
     void          store() override                          { v.mDuration = duration->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["duration"] = v.mDuration;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Duration] = v.mDuration;
                                                               return obj;
                                                             }
 
@@ -2505,9 +2646,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     DifficultToDispel(QJsonObject json)
-        : Modifier(json["name"].toString("Difficult To Dispel"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mDoubling = json["doubling"].toInt(0);
+        : Modifier(json[Name].toString("Difficult To Dispel"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mDoubling = json[Doubling].toInt(0);
                                                 }
     ~DifficultToDispel() override { }
 
@@ -2531,10 +2672,10 @@ public:
     void          store() override                          { v.mDoubling = doubling->text().toInt(nullptr);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["adder"]    = isAdder();
-                                                              obj["doubling"] = v.mDoubling;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Adder]    = isAdder();
+                                                              obj[Doubling] = v.mDoubling;
                                                               return obj;
                                                             }
 
@@ -2649,11 +2790,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     DoesntWorkOnDefinedDamage(QJsonObject json)
-        : Modifier(json["name"].toString("Doesn't Work On [Defined] Damage"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mDoesnt = json["doesnt"].toString("");
-                                                  v.mHowCommon = json["howCommon"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("Doesn't Work On [Defined] Damage"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mDoesnt = json[Doesnt].toString("");
+                                                v.mHowCommon = json[HowCommon].toInt(0);
+                                              }
     ~DoesntWorkOnDefinedDamage() override { }
 
     DoesntWorkOnDefinedDamage& operator=(const DoesntWorkOnDefinedDamage&) = delete;
@@ -2680,11 +2821,11 @@ public:
                                                               v.mHowCommon = howCommon->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]      = name();
-                                                              obj["type"]      = type();
-                                                              obj["adder"]     = isAdder();
-                                                              obj["doesnt"]    = v.mDoesnt;
-                                                              obj["howCommon"] = v.mHowCommon;
+                                                              obj[Name]      = name();
+                                                              obj[Type]      = type();
+                                                              obj[Adder]     = isAdder();
+                                                              obj[Doesnt]    = v.mDoesnt;
+                                                              obj[HowCommon] = v.mHowCommon;
                                                               return obj;
                                                             }
 
@@ -2761,11 +2902,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     ExpandedEffect(QJsonObject json)
-        : Modifier(json["name"].toString("Expanded Effect▲"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mEffects = json["effects"].toString("");
-                                                  v.mHowMany = json["howMany"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("Expanded Effect▲"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mEffects = json[Effects].toString("");
+                                                v.mHowMany = json[HowMany].toInt(0);
+                                              }
     ~ExpandedEffect() override { }
 
     ExpandedEffect& operator=(const ExpandedEffect&) = delete;
@@ -2792,11 +2933,11 @@ public:
                                                               v.mHowMany = howMany->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["effects"] = v.mEffects;
-                                                              obj["howMany"] = v.mHowMany;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[Effects] = v.mEffects;
+                                                              obj[HowMany] = v.mHowMany;
                                                               return obj;
                                                             }
 
@@ -2835,12 +2976,12 @@ public:
         : Modifier(m)
         , v(m.v) { }
     ExtraTime(QJsonObject json)
-        : Modifier(json["name"].toString("Extra Time"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mTime     = json["time"].toInt(-1);
-                                                  v.mLockout  = json["lockout"].toBool(false);
-                                                  v.mActivate = json["activate"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("Extra Time"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mTime     = json[Time].toInt(-1);
+                                                v.mLockout  = json[Lockout].toBool(false);
+                                                v.mActivate = json[Activate].toBool(false);
+                                              }
     ~ExtraTime() override { }
 
     ExtraTime& operator=(const ExtraTime&) = delete;
@@ -2872,12 +3013,12 @@ public:
                                                               v.mActivate = activate->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["adder"]    = isAdder();
-                                                              obj["time"]     = v.mTime;
-                                                              obj["lockout"]  = v.mLockout;
-                                                              obj["activate"] = v.mActivate;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Adder]    = isAdder();
+                                                              obj[Time]     = v.mTime;
+                                                              obj[Lockout]  = v.mLockout;
+                                                              obj[Activate] = v.mActivate;
                                                               return obj;
                                                             }
 
@@ -2937,9 +3078,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     EyeContactRequired(QJsonObject json)
-        : Modifier(json["name"].toString("Eye Contact Required"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mThroughout  = json["throughout"].toBool(false);
+        : Modifier(json[Name].toString("Eye Contact Required"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mThroughout  = json[Throughout].toBool(false);
                                                 }
     ~EyeContactRequired() override { }
 
@@ -2963,10 +3104,10 @@ public:
     void          store() override                          { v.mThroughout = throughout->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["adder"]    = isAdder();
-                                                              obj["throughout"] = v.mThroughout;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Adder]    = isAdder();
+                                                              obj[Throughout] = v.mThroughout;
                                                               return obj;
                                                             }
 
@@ -3005,15 +3146,15 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Focus(QJsonObject json)
-        : Modifier(json["name"].toString("Focus"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mWhat          = json["what"].toString();
-                                                  v.mType          = json["Type"].toInt(-1);
-                                                  v.mMobility      = json["mobility"].toInt(0);
-                                                  v.mExpendability = json["expendability"].toInt(0);
-                                                  v.mDurability    = json["durability"].toInt(0);
-                                                  v.mUniversal     = json["universal"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("Focus"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mWhat          = json[What].toString();
+                                                v.mType          = json[Type].toInt(-1);
+                                                v.mMobility      = json[Mobility].toInt(0);
+                                                v.mExpendability = json[Expendability].toInt(0);
+                                                v.mDurability    = json[Durability].toInt(0);
+                                                v.mUniversal     = json[Universal].toBool(false);
+                                              }
     ~Focus() override { }
 
     Focus& operator=(const Focus&) = delete;
@@ -3057,15 +3198,15 @@ public:
                                                               v.mUniversal     = universal->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]          = name();
-                                                              obj["type"]          = type();
-                                                              obj["what"]          = v.mWhat;
-                                                              obj["adder"]         = isAdder();
-                                                              obj["Type"]          = v.mType;
-                                                              obj["mobiliity"]     = v.mMobility;
-                                                              obj["expendability"] = v.mExpendability;
-                                                              obj["durability"]    = v.mDurability;
-                                                              obj["universal"]     = v.mUniversal;
+                                                              obj[Name]          = name();
+                                                              obj[Type]          = type();
+                                                              obj[What]          = v.mWhat;
+                                                              obj[Adder]         = isAdder();
+                                                              obj[Type]          = v.mType;
+                                                              obj[Mobility]      = v.mMobility;
+                                                              obj[Expendability] = v.mExpendability;
+                                                              obj[Durability]    = v.mDurability;
+                                                              obj[Universal]     = v.mUniversal;
                                                               return obj;
                                                             }
 
@@ -3136,11 +3277,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Gestures(QJsonObject json)
-        : Modifier(json["name"].toString("Gestures"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mThroughout  = json["throughout"].toBool(false);
-                                                  v.mBothHands   = json["bothHands"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("Gestures"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mThroughout  = json[Throughout].toBool(false);
+                                                v.mBothHands   = json[BothHands].toBool(false);
+                                              }
     ~Gestures() override { }
 
     Gestures& operator=(const Gestures&) = delete;
@@ -3166,11 +3307,11 @@ public:
                                                               v.mBothHands = bothHands->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]       = name();
-                                                              obj["type"]       = type();
-                                                              obj["adder"]      = isAdder();
-                                                              obj["throughout"] = v.mThroughout;
-                                                              obj["bothHands"]  = v.mBothHands;
+                                                              obj[Name]       = name();
+                                                              obj[Type]       = type();
+                                                              obj[Adder]      = isAdder();
+                                                              obj[Throughout] = v.mThroughout;
+                                                              obj[BothHands]  = v.mBothHands;
                                                               return obj;
                                                             }
 
@@ -3234,11 +3375,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     HoleInTheMiddle(QJsonObject json)
-        : Modifier(json["name"].toString("Hole In The Middle"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mChangeable = json["changeable"].toBool(false);
-                                                  v.mShape      = json["shape"].toString();
-                                                }
+        : Modifier(json[Name].toString("Hole In The Middle"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mChangeable = json[Changeable].toBool(false);
+                                                v.mShape      = json[Shape].toString();
+                                              }
     ~HoleInTheMiddle() override { }
 
     HoleInTheMiddle& operator=(const HoleInTheMiddle&) = delete;
@@ -3263,11 +3404,11 @@ public:
                                                               v.mShape      = shape->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]       = name();
-                                                              obj["type"]       = type();
-                                                              obj["adder"]      = isAdder();
-                                                              obj["changeable"] = v.mChangeable;
-                                                              obj["shape"]      = v.mShape;
+                                                              obj[Name]       = name();
+                                                              obj[Type]       = type();
+                                                              obj[Adder]      = isAdder();
+                                                              obj[Changeable] = v.mChangeable;
+                                                              obj[Shape]      = v.mShape;
                                                               return obj;
                                                             }
 
@@ -3335,9 +3476,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     ImprovedNoncombatMovement(QJsonObject json)
-        : Modifier(json["name"].toString("Improved Noncombat Movement"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(true)) { v.mDoubling  = json["doubling"].toInt(0);
+        : Modifier(json[Name].toString("Improved Noncombat Movement"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(true)) { v.mDoubling  = json[Doubling].toInt(0);
                                                }
     ~ImprovedNoncombatMovement() override { }
 
@@ -3361,10 +3502,10 @@ public:
     void          store() override                          { v.mDoubling = dbling->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["adder"]    = isAdder();
-                                                              obj["doubling"] = v.mDoubling;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Adder]    = isAdder();
+                                                              obj[Doubling] = v.mDoubling;
                                                               return obj;
                                                             }
 
@@ -3402,9 +3543,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Inaccurate(QJsonObject json)
-        : Modifier(json["name"].toString("Inaccurate"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mZero  = json["zero"].toBool(false);
+        : Modifier(json[Name].toString("Inaccurate"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mZero  = json[Zero].toBool(false);
                                                 }
     ~Inaccurate() override { }
 
@@ -3428,10 +3569,10 @@ public:
     void          store() override                          { v.mZero = zero->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["zero"]  = v.mZero;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Zero]  = v.mZero;
                                                               return obj;
                                                             }
 
@@ -3476,9 +3617,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Incantations(QJsonObject json)
-        : Modifier(json["name"].toString("Incantations"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mThroughout = json["throughout"].toBool(false);
+        : Modifier(json[Name].toString("Incantations"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mThroughout = json["throughout"].toBool(false);
                                                 }
     ~Incantations() override { }
 
@@ -3502,10 +3643,10 @@ public:
     void          store() override                          { v.mThroughout = throughout->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]       = name();
-                                                              obj["type"]       = type();
-                                                              obj["adder"]      = isAdder();
-                                                              obj["throughout"] = v.mThroughout;
+                                                              obj[Name]       = name();
+                                                              obj[Type]       = type();
+                                                              obj[Adder]      = isAdder();
+                                                              obj[Throughout] = v.mThroughout;
                                                               return obj;
                                                             }
 
@@ -3546,12 +3687,12 @@ public:
         : Modifier(m)
         , v(m.v) { }
     IncreasedENDCost(QJsonObject json)
-        : Modifier(json["name"].toString("Increased END Cost"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mAmount        = json["amount"].toInt(-1);
-                                                  v.mCircumstances = json["circumstances"].toInt(0);
-                                                  v.mWhat          = json["what"].toString();
-                                                }
+        : Modifier(json[Name].toString("Increased END Cost"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mAmount        = json[Amount].toInt(-1);
+                                                v.mCircumstances = json[Circumstances].toInt(0);
+                                                v.mWhat          = json[What].toString();
+                                              }
     ~IncreasedENDCost() override { }
 
     IncreasedENDCost& operator=(const IncreasedENDCost&) = delete;
@@ -3579,12 +3720,12 @@ public:
                                                               v.mCircumstances = circumstances->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]          = name();
-                                                              obj["type"]          = type();
-                                                              obj["adder"]         = isAdder();
-                                                              obj["amount"]        = v.mAmount;
-                                                              obj["circumstances"] = v.mCircumstances;
-                                                              obj["what"]          = v.mWhat;
+                                                              obj[Name]          = name();
+                                                              obj[Type]          = type();
+                                                              obj[Adder]         = isAdder();
+                                                              obj[Amount]        = v.mAmount;
+                                                              obj[Circumstances] = v.mCircumstances;
+                                                              obj[What]          = v.mWhat;
                                                               return obj;
                                                             }
 
@@ -3644,9 +3785,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     IncreasedMass(QJsonObject json)
-        : Modifier(json["name"].toString("Increased Mass"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mDoubling  = json["doubling"].toInt(0);
+        : Modifier(json[Name].toString("Increased Mass"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mDoubling  = json[Doubling].toInt(0);
                                                 }
     ~IncreasedMass() override { }
 
@@ -3670,10 +3811,10 @@ public:
     void          store() override                          { v.mDoubling = doubling->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["adder"]    = isAdder();
-                                                              obj["doubling"] = v.mDoubling;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Adder]    = isAdder();
+                                                              obj[Doubling] = v.mDoubling;
                                                               return obj;
                                                             }
 
@@ -3709,9 +3850,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     IncreasedMaximumEffect(QJsonObject json)
-        : Modifier(json["name"].toString("Increased Maximum Effect"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mDoubling  = json["doubling"].toInt(0);
+        : Modifier(json[Name].toString("Increased Maximum Effect"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mDoubling  = json[Doubling].toInt(0);
                                                 }
     ~IncreasedMaximumEffect() override { }
 
@@ -3735,10 +3876,10 @@ public:
     void          store() override                          { v.mDoubling = doubling->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["adder"]    = isAdder();
-                                                              obj["doubling"] = v.mDoubling;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Adder]    = isAdder();
+                                                              obj[Doubling] = v.mDoubling;
                                                               return obj;
                                                             }
 
@@ -3774,9 +3915,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     IncreasedMaximumRange(QJsonObject json)
-        : Modifier(json["name"].toString("Increased Maximum Range"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mDoubling  = json["doubling"].toInt(0);
+        : Modifier(json[Name].toString("Increased Maximum Range"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mDoubling  = json[Doubling].toInt(0);
                                                 }
     ~IncreasedMaximumRange() override { }
 
@@ -3800,10 +3941,10 @@ public:
     void          store() override                          { v.mDoubling = doubling->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["adder"]    = isAdder();
-                                                              obj["doubling"] = v.mDoubling;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Adder]    = isAdder();
+                                                              obj[Doubling] = v.mDoubling;
                                                               return obj;
                                                             }
 
@@ -3839,12 +3980,12 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Indirect(QJsonObject json)
-        : Modifier(json["name"].toString("Indirect"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mPowerSource  = json["location"].toInt(0);
-                                                  v.mLocAndDir = json["locAndDir"].toString();
-                                                  v.mDirection = json["mobility"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("Indirect"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mPowerSource  = json[Location].toInt(0);
+                                                v.mLocAndDir = json[LocAndDir].toString();
+                                                v.mDirection = json[Mobility].toInt(0);
+                                              }
     ~Indirect() override { }
 
     Indirect& operator=(const Indirect&) = delete;
@@ -3876,12 +4017,12 @@ public:
                                                               v.mDirection = direction->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]      = name();
-                                                              obj["type"]      = type();
-                                                              obj["adder"]     = isAdder();
-                                                              obj["location"]  = v.mPowerSource;
-                                                              obj["locAndDir"] = v.mLocAndDir;
-                                                              obj["direction"] = v.mDirection;
+                                                              obj[Name]      = name();
+                                                              obj[Type]      = type();
+                                                              obj[Adder]     = isAdder();
+                                                              obj[Location]  = v.mPowerSource;
+                                                              obj[LocAndDir] = v.mLocAndDir;
+                                                              obj[Direction] = v.mDirection;
                                                               return obj;
                                                             }
 
@@ -3982,13 +4123,13 @@ public:
         : Modifier(m)
         , v(m.v) { }
     InvisiblePowerEffects(QJsonObject json)
-        : Modifier(json["name"].toString("Invisible Power Effects"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mInobvious = json["inobvious"].toBool(false);
-                                                  v.mHow       = json["how"].toInt(0);
-                                                  v.mSense     = json["sense"].toString();
-                                                  v.mEffect    = json["Effect"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("Invisible Power Effects"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mInobvious = json[Inobvious].toBool(false);
+                                                v.mHow       = json[How].toInt(0);
+                                                v.mSense     = json[Sense].toString();
+                                                v.mEffect    = json[Effect].toInt(0);
+                                              }
     ~InvisiblePowerEffects() override { }
 
     InvisiblePowerEffects& operator=(const InvisiblePowerEffects&) = delete;
@@ -4027,13 +4168,13 @@ public:
                                                               v.mEffect    = effect->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]      = name();
-                                                              obj["type"]      = type();
-                                                              obj["adder"]     = isAdder();
-                                                              obj["inobvious"] = v.mInobvious;
-                                                              obj["how"]       = v.mHow;
-                                                              obj["sense"]     = v.mSense;
-                                                              obj["effect"]    = v.mEffect;
+                                                              obj[Name]      = name();
+                                                              obj[Type]      = type();
+                                                              obj[Adder]     = isAdder();
+                                                              obj[Inobvious] = v.mInobvious;
+                                                              obj[How]       = v.mHow;
+                                                              obj[Sense]     = v.mSense;
+                                                              obj[Effect]    = v.mEffect;
                                                               return obj;
                                                             }
 
@@ -4136,9 +4277,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     LimitedEffect(QJsonObject json)
-        : Modifier(json["name"].toString("Limited Effect"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mSense = json["sense"].toString();
+        : Modifier(json[Name].toString("Limited Effect"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mSense = json[Sense].toString();
                                                 }
     ~LimitedEffect() override { }
 
@@ -4162,10 +4303,10 @@ public:
     void          store() override                          { v.mSense     = sense->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["sense"] = v.mSense;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Sense] = v.mSense;
                                                               return obj;
                                                             }
 
@@ -4221,12 +4362,12 @@ public:
         : Modifier(m)
         , v(m.v) { }
     LimitedPower(QJsonObject json)
-        : Modifier(json["name"].toString("Limited Power"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mConditional = json["conditional"].toBool(false);
-                                                  v.mHow         = json["how"].toInt(0);
-                                                  v.mWhat        = json["what"].toString();
-                                                }
+        : Modifier(json[Name].toString("Limited Power"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mConditional = json[Conditional].toBool(false);
+                                                v.mHow         = json[How].toInt(0);
+                                                v.mWhat        = json[What].toString();
+                                              }
     ~LimitedPower() override { }
 
     LimitedPower& operator=(const LimitedPower&) = delete;
@@ -4260,12 +4401,12 @@ public:
                                                               v.mWhat     = what->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]        = name();
-                                                              obj["type"]        = type();
-                                                              obj["adder"]       = isAdder();
-                                                              obj["conditional"] = v.mConditional;
-                                                              obj["how"]         = v.mHow;
-                                                              obj["what"]        = v.mWhat;
+                                                              obj[Name]        = name();
+                                                              obj[Type]        = type();
+                                                              obj[Adder]       = isAdder();
+                                                              obj[Conditional] = v.mConditional;
+                                                              obj[How]         = v.mHow;
+                                                              obj[What]        = v.mWhat;
                                                               return obj;
                                                             }
 
@@ -4333,10 +4474,10 @@ public:
         : Modifier(m)
         , v(m.v) { }
     LimitedRange(QJsonObject json)
-        : Modifier(json["name"].toString("Limited Range"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mNoRange = json["noRange"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("Limited Range"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mNoRange = json[NoRange].toBool(false);
+                                              }
     ~LimitedRange() override { }
 
     LimitedRange& operator=(const LimitedRange&) = delete;
@@ -4359,10 +4500,10 @@ public:
     void          store() override                          { v.mNoRange = noRange->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["noRange"] = v.mNoRange;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[NoRange] = v.mNoRange;
                                                               return obj;
                                                             }
 
@@ -4401,11 +4542,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     LimitedSpecialEffect(QJsonObject json)
-        : Modifier(json["name"].toString("Limited Special Effect"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mHow         = json["how"].toInt(0);
-                                                  v.mWhat        = json["what"].toString();
-                                                }
+        : Modifier(json[Name].toString("Limited Special Effect"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mHow         = json[How].toInt(0);
+                                                v.mWhat        = json[What].toString();
+                                              }
     ~LimitedSpecialEffect() override { }
 
     LimitedSpecialEffect& operator=(const LimitedSpecialEffect&) = delete;
@@ -4431,11 +4572,11 @@ public:
                                                               v.mWhat     = what->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]        = name();
-                                                              obj["type"]        = type();
-                                                              obj["adder"]       = isAdder();
-                                                              obj["how"]         = v.mHow;
-                                                              obj["what"]        = v.mWhat;
+                                                              obj[Name]        = name();
+                                                              obj[Type]        = type();
+                                                              obj[Adder]       = isAdder();
+                                                              obj[How]         = v.mHow;
+                                                              obj[What]        = v.mWhat;
                                                               return obj;
                                                             }
 
@@ -4502,16 +4643,16 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Linked(QJsonObject json)
-        : Modifier(json["name"].toString("Linked"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mGreater  = json["greater"].toBool(false);
-                                                  v.mBoth     = json["both"].toBool(false);
-                                                  v.mProp     = json["prop"].toBool(false);
-                                                  v.mFull     = json["full"].toBool(false);
-                                                  v.mConstant = json["constant"].toBool(false);
-                                                  v.mInstant  = json["instant"].toBool(false);
-                                                  v.mTarget   = json["target"].toString();
-                                                }
+        : Modifier(json[Name].toString("Linked"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mGreater  = json[Greater].toBool(false);
+                                                v.mBoth     = json[Both].toBool(false);
+                                                v.mProp     = json[Prop].toBool(false);
+                                                v.mFull     = json[Full].toBool(false);
+                                                v.mConstant = json[Constant].toBool(false);
+                                                v.mInstant  = json[Instant].toBool(false);
+                                                v.mTarget   = json[Target].toString();
+                                              }
     ~Linked() override { }
 
     Linked& operator=(const Linked&) = delete;
@@ -4552,16 +4693,16 @@ public:
                                                               v.mTarget   = target->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["adder"]    = isAdder();
-                                                              obj["greater"]  = v.mGreater;
-                                                              obj["both"]     = v.mBoth;
-                                                              obj["prop"]     = v.mProp;
-                                                              obj["full"]     = v.mFull;
-                                                              obj["constant"] = v.mConstant;
-                                                              obj["instant"]  = v.mInstant;
-                                                              obj["target"]   = v.mTarget;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Adder]    = isAdder();
+                                                              obj[Greater]  = v.mGreater;
+                                                              obj[Both]     = v.mBoth;
+                                                              obj[Prop]     = v.mProp;
+                                                              obj[Full]     = v.mFull;
+                                                              obj[Constant] = v.mConstant;
+                                                              obj[Instant]  = v.mInstant;
+                                                              obj[Target]   = v.mTarget;
                                                               return obj;
                                                             }
 
@@ -4652,11 +4793,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     MandatoryEffect(QJsonObject json)
-        : Modifier(json["name"].toString("Mandatory Effect"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mEffect = json["effect"].toInt(0);
-                                                  v.mOther  = json["other"].toString();
-                                                }
+        : Modifier(json[Name].toString("Mandatory Effect"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mEffect = json[Effect].toInt(0);
+                                                v.mOther  = json[Other].toString();
+                                              }
     ~MandatoryEffect() override { }
 
     MandatoryEffect& operator=(const MandatoryEffect&) = delete;
@@ -4682,11 +4823,11 @@ public:
                                                               v.mOther  = other->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]   = name();
-                                                              obj["type"]   = type();
-                                                              obj["adder"]  = isAdder();
-                                                              obj["effect"] = v.mEffect;
-                                                              obj["other"]  = v.mOther;
+                                                              obj[Name]   = name();
+                                                              obj[Type]   = type();
+                                                              obj[Adder]  = isAdder();
+                                                              obj[Effect] = v.mEffect;
+                                                              obj[Other]  = v.mOther;
                                                               return obj;
                                                             }
 
@@ -4734,9 +4875,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Mass(QJsonObject json)
-        : Modifier(json["name"].toString("MassꚚ"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mMass = json["mass"].toInt(0);
+        : Modifier(json[Name].toString("MassꚚ"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mMass = json[AsMass].toInt(0);
                                                 }
     ~Mass() override { }
 
@@ -4761,10 +4902,10 @@ public:
     void          store() override                          { v.mMass = mass->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["mass"]  = v.mMass;
+                                                              obj[Name]   = name();
+                                                              obj[Type]   = type();
+                                                              obj[Adder]  = isAdder();
+                                                              obj[AsMass] = v.mMass;
                                                               return obj;
                                                             }
 
@@ -4808,11 +4949,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Megascale(QJsonObject json)
-        : Modifier(json["name"].toString("Megascaleϴ"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mScale     = json["scale"].toInt(0);
-                                                  v.mInvariant = json["invariant"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("Megascaleϴ"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mScale     = json[Scale].toInt(0);
+                                                v.mInvariant = json[Invariant].toBool(false);
+                                              }
     ~Megascale() override { }
 
     Megascale& operator=(const Megascale&) = delete;
@@ -4842,11 +4983,11 @@ public:
                                                               v.mInvariant = invariant->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]      = name();
-                                                              obj["type"]      = type();
-                                                              obj["adder"]     = isAdder();
-                                                              obj["scale"]     = v.mScale;
-                                                              obj["invariant"] = v.mInvariant;
+                                                              obj[Name]      = name();
+                                                              obj[Type]      = type();
+                                                              obj[Adder]     = isAdder();
+                                                              obj[Scale]     = v.mScale;
+                                                              obj[Invariant] = v.mInvariant;
                                                               return obj;
                                                             }
 
@@ -4920,11 +5061,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     NoConciousControl(QJsonObject json)
-        : Modifier(json["name"].toString("No Concious Control▲"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mActivation = json["activation"].toBool(false);
-                                                  v.mEffects    = json["effects"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("No Concious Control▲"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mActivation = json[Activation].toBool(false);
+                                                v.mEffects    = json[Effects].toBool(false);
+                                              }
     ~NoConciousControl() override { }
 
     NoConciousControl& operator=(const NoConciousControl&) = delete;
@@ -4950,11 +5091,11 @@ public:
                                                               v.mEffects    = effects->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]       = name();
-                                                              obj["type"]       = type();
-                                                              obj["adder"]      = isAdder();
-                                                              obj["activation"] = v.mActivation;
-                                                              obj["effects"]    = v.mEffects;
+                                                              obj[Name]       = name();
+                                                              obj[Type]       = type();
+                                                              obj[Adder]      = isAdder();
+                                                              obj[Activation] = v.mActivation;
+                                                              obj[Effects]    = v.mEffects;
                                                               return obj;
                                                             }
 
@@ -5170,9 +5311,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     OnlyInAlternateID(QJsonObject json)
-        : Modifier(json["name"].toString("Only In Alternate Identity"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mIdentity = json["identity"].toString(0);
+        : Modifier(json[Name].toString("Only In Alternate Identity"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mIdentity = json[Identity].toString(0);
                                                 }
     ~OnlyInAlternateID() override { }
 
@@ -5196,10 +5337,10 @@ public:
     void          store() override                          { v.mIdentity = identity->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["adder"]    = isAdder();
-                                                              obj["identity"] = v.mIdentity;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Adder]    = isAdder();
+                                                              obj[Identity] = v.mIdentity;
                                                               return obj;
                                                             }
 
@@ -5275,11 +5416,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     OnlyWorksAgainstDefined(QJsonObject json)
-        : Modifier(json["name"].toString("Only Works Against [Defined]"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mAgainst = json["against"].toString("");
-                                                  v.mHowCommon = json["howCommon"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("Only Works Against [Defined]"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mAgainst = json[Against].toString("");
+                                                v.mHowCommon = json[HowCommon].toInt(0);
+                                              }
     ~OnlyWorksAgainstDefined() override { }
 
     OnlyWorksAgainstDefined& operator=(const OnlyWorksAgainstDefined&) = delete;
@@ -5306,11 +5447,11 @@ public:
                                                               v.mHowCommon = howCommon->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]      = name();
-                                                              obj["type"]      = type();
-                                                              obj["adder"]     = isAdder();
-                                                              obj["against"]   = v.mAgainst;
-                                                              obj["howCommon"] = v.mHowCommon;
+                                                              obj[Name]      = name();
+                                                              obj[Type]      = type();
+                                                              obj[Adder]     = isAdder();
+                                                              obj[Against]   = v.mAgainst;
+                                                              obj[HowCommon] = v.mHowCommon;
                                                               return obj;
                                                             }
 
@@ -5349,9 +5490,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Opaque(QJsonObject json)
-        : Modifier(json["name"].toString("Opaque"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mWhat = toStringList(json["what"].toArray());
+        : Modifier(json[Name].toString("Opaque"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mWhat = toStringList(json[What].toArray());
                                                 }
     ~Opaque() override { }
 
@@ -5390,10 +5531,10 @@ public:
     void          store() override                          { v.mWhat = treeWidget(what);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["what"]  = toArray(v.mWhat);
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[What]  = toArray(v.mWhat);
                                                               return obj;
                                                             }
 
@@ -5491,9 +5632,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Perceivable(QJsonObject json)
-        : Modifier(json["name"].toString("Perceivable"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mImperceptable = json["imperceptable"].toBool(false);
+        : Modifier(json[Name].toString("Perceivable"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mImperceptable = json[Imperceptable].toBool(false);
                                                 }
     ~Perceivable() override { }
 
@@ -5517,10 +5658,10 @@ public:
     void          store() override                          { v.mImperceptable = imperceptable->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]          = name();
-                                                              obj["type"]          = type();
-                                                              obj["adder"]         = isAdder();
-                                                              obj["imperceptable"] = v.mImperceptable;
+                                                              obj[Name]          = name();
+                                                              obj[Type]          = type();
+                                                              obj[Adder]         = isAdder();
+                                                              obj[Imperceptable] = v.mImperceptable;
                                                               return obj;
                                                             }
 
@@ -5635,9 +5776,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     RangeBasedOnSTR(QJsonObject json)
-        : Modifier(json["name"].toString("Range Based On STR"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mNoRange = json["noRange"].toBool(false);
+        : Modifier(json[Name].toString("Range Based On STR"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mNoRange = json["noRange"].toBool(false);
                                                 }
     ~RangeBasedOnSTR() override { }
 
@@ -5661,10 +5802,10 @@ public:
     void          store() override                          { v.mNoRange = noRange->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["noRange"] = v.mNoRange;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[NoRange] = v.mNoRange;
                                                               return obj;
                                                             }
 
@@ -5816,9 +5957,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     ReducedEndurance(QJsonObject json)
-        : Modifier(json["name"].toString("Reduced Endurance"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mNoEND = json["noEND"].toBool(false);
+        : Modifier(json[Name].toString("Reduced Endurance"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mNoEND = json[NoEND].toBool(false);
                                                 }
     ~ReducedEndurance() override { }
 
@@ -5841,10 +5982,10 @@ public:
     void          store() override                          { v.mNoEND = noEND->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["noEND"] = v.mNoEND;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[NoEND] = v.mNoEND;
                                                               return obj;
                                                             }
 
@@ -5884,9 +6025,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     ReducedNegation(QJsonObject json)
-        : Modifier(json["name"].toString("Reduced Negation"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mReduced = json["reduced"].toInt(0);
+        : Modifier(json[Name].toString("Reduced Negation"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mReduced = json[Reduced].toInt(0);
                                                 }
     ~ReducedNegation() override { }
 
@@ -5910,10 +6051,10 @@ public:
     void          store() override                          { v.mReduced = reduced->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["reduced"] = v.mReduced;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[Reduced] = v.mReduced;
                                                               return obj;
                                                             }
 
@@ -5968,9 +6109,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     ReducedRangeModifier(QJsonObject json)
-        : Modifier(json["name"].toString("Reduced Range Modifier"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mNoRangeMod = json["noRangeMod"].toBool(false);
+        : Modifier(json[Name].toString("Reduced Range Modifier"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mNoRangeMod = json[NoRangeMod].toBool(false);
                                                 }
     ~ReducedRangeModifier() override { }
 
@@ -5994,10 +6135,10 @@ public:
     void          store() override                          { v.mNoRangeMod = noRangeMod->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]       = name();
-                                                              obj["type"]       = type();
-                                                              obj["adder"]      = isAdder();
-                                                              obj["noRangeMod"] = v.mNoRangeMod;
+                                                              obj[Name]       = name();
+                                                              obj[Type]       = type();
+                                                              obj[Adder]      = isAdder();
+                                                              obj[NoRangeMod] = v.mNoRangeMod;
                                                               return obj;
                                                             }
 
@@ -6035,9 +6176,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     RequiredHands(QJsonObject json)
-        : Modifier(json["name"].toString("Required HandsꚚ"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mHands = json["hands"].toInt(0);
+        : Modifier(json[Name].toString("Required HandsꚚ"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mHands = json[Hands].toInt(0);
                                                 }
     ~RequiredHands() override { }
 
@@ -6062,10 +6203,10 @@ public:
     void          store() override                          { v.mHands = hands->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["hands"] = v.mHands;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Hands] = v.mHands;
                                                               return obj;
                                                             }
 
@@ -6104,17 +6245,17 @@ public:
         : Modifier(m)
         , v(m.v) { }
     RequiresARoll(QJsonObject json)
-        : Modifier(json["name"].toString("Requires A Roll"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mType  = json["rType"].toBool(false);
-                                                  v.mRoll  = json["roll"].toInt(0);
-                                                  v.mWhen  = json["when"].toBool(false);
-                                                  v.mSkill = json["skill"].toString();
-                                                  v.mIsA   = json["isa"].toBool(false);
-                                                  v.mPer   = json["per"].toInt(0);
-                                                  v.mTwo   = json["two"].toBool(false);
-                                                  v.mFails = json["fails"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("Requires A Roll"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mType  = json[RType].toBool(false);
+                                                v.mRoll  = json[Roll].toInt(0);
+                                                v.mWhen  = json[When].toBool(false);
+                                                v.mSkill = json[Skill].toString();
+                                                v.mIsA   = json[Isa].toBool(false);
+                                                v.mPer   = json[Per].toInt(0);
+                                                v.mTwo   = json[Two].toBool(false);
+                                                v.mFails = json[Fails].toInt(0);
+                                              }
     ~RequiresARoll() override { }
 
     RequiresARoll& operator=(const RequiresARoll&) = delete;
@@ -6165,17 +6306,17 @@ public:
                                                               v.mFails = fails->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["rType"] = v.mType;
-                                                              obj["when"]  = v.mWhen;
-                                                              obj["roll"]  = v.mRoll;
-                                                              obj["skill"] = v.mSkill;
-                                                              obj["isa"]   = v.mIsA;
-                                                              obj["per"]   = v.mPer;
-                                                              obj["two"]   = v.mTwo;
-                                                              obj["fails"] = v.mFails;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[RType] = v.mType;
+                                                              obj[When]  = v.mWhen;
+                                                              obj[Roll]  = v.mRoll;
+                                                              obj[Skill] = v.mSkill;
+                                                              obj[Isa]   = v.mIsA;
+                                                              obj[Per]   = v.mPer;
+                                                              obj[Two]   = v.mTwo;
+                                                              obj[Fails] = v.mFails;
                                                               return obj;
                                                             }
 
@@ -6263,11 +6404,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     RequiresMultipleCharges(QJsonObject json)
-        : Modifier(json["name"].toString("Requires Multiple Charges"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mMax   = json["max"].toInt(0);
-                                                  v.mNeeds = json["needs"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("Requires Multiple Charges"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mMax   = json[Max].toInt(0);
+                                                v.mNeeds = json[Needs].toInt(0);
+                                              }
     ~RequiresMultipleCharges() override { }
 
     RequiresMultipleCharges& operator=(const RequiresMultipleCharges&) = delete;
@@ -6293,11 +6434,11 @@ public:
                                                               v.mNeeds = needs->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["max"]     = v.mMax;
-                                                              obj["needs"]   = v.mNeeds;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[Max]     = v.mMax;
+                                                              obj[Needs]   = v.mNeeds;
                                                               return obj;
                                                             }
 
@@ -6346,9 +6487,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     RequiresMultipleUsers(QJsonObject json)
-        : Modifier(json["name"].toString("Requires Multiple Users"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mNeeds = json["needs"].toInt(0);
+        : Modifier(json[Name].toString("Requires Multiple Users"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mNeeds = json[Needs].toInt(0);
                                                 }
     ~RequiresMultipleUsers() override { }
 
@@ -6372,10 +6513,10 @@ public:
     void          store() override                          { v.mNeeds = needs->text().toInt();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["needs"]   = v.mNeeds;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[Needs]   = v.mNeeds;
                                                               return obj;
                                                             }
 
@@ -6438,11 +6579,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Restrainable(QJsonObject json)
-        : Modifier(json["name"].toString("Restrainable"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mNonStandard = json["nonStandard"].toBool(false);
-                                                  v.mRestraint   = json["restraint"].toString();
-                                                }
+        : Modifier(json[Name].toString("Restrainable"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mNonStandard = json[NonStandard].toBool(false);
+                                                v.mRestraint   = json[Restraint].toString();
+                                              }
     ~Restrainable() override { }
 
     Restrainable& operator=(const Restrainable&) = delete;
@@ -6468,11 +6609,11 @@ public:
                                                               v.mRestraint   = restraint->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]        = name();
-                                                              obj["type"]        = type();
-                                                              obj["adder"]       = isAdder();
-                                                              obj["nonStandard"] = v.mNonStandard;
-                                                              obj["restraint"]   = v.mRestraint;
+                                                              obj[Name]        = name();
+                                                              obj[Type]        = type();
+                                                              obj[Adder]       = isAdder();
+                                                              obj[NonStandard] = v.mNonStandard;
+                                                              obj[Restraint]   = v.mRestraint;
                                                               return obj;
                                                             }
 
@@ -6537,10 +6678,10 @@ public:
         : Modifier(m)
         , v(m.v) { }
     RessurectionOnly(QJsonObject json)
-        : Modifier(json["name"].toString("Ressurection Only"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mRegen = json["regen"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("Ressurection Only"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mRegen = json[Regen].toBool(false);
+                                              }
     ~RessurectionOnly() override { }
 
     RessurectionOnly& operator=(const RessurectionOnly&) = delete;
@@ -6563,10 +6704,10 @@ public:
     void          store() override                          { v.mRegen = regen->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["regen"] = v.mRegen;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Regen] = v.mRegen;
                                                               return obj;
                                                             }
 
@@ -6622,15 +6763,15 @@ public:
         : Modifier(m)
         , v(m.v) { }
     SideEffects(QJsonObject json)
-        : Modifier(json["name"].toString("Side Effects"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mLevel    = json["level"].toInt(0);
-                                                  v.mEffect   = json["effect"].toString();
-                                                  v.mWhen     = json["when"].toInt(0);
-                                                  v.mAffects  = json["affects"].toInt(0);
-                                                  v.mConstant = json["constant"].toBool(false);
-                                                  v.mPre      = json["pre"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("Side Effects"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mLevel    = json[Level].toInt(0);
+                                                v.mEffect   = json[Effect].toString();
+                                                v.mWhen     = json[When].toInt(0);
+                                                v.mAffects  = json[Affects].toInt(0);
+                                                v.mConstant = json[Constant].toBool(false);
+                                                v.mPre      = json[Pre].toBool(false);
+                                              }
     ~SideEffects() override { }
 
     SideEffects& operator=(const SideEffects&) = delete;
@@ -6672,15 +6813,15 @@ public:
                                                               v.mPre      = pre->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]     = name();
-                                                              obj["type"]     = type();
-                                                              obj["adder"]    = isAdder();
-                                                              obj["level"]    = v.mLevel;
-                                                              obj["effect"]   = v.mEffect;
-                                                              obj["when"]     = v.mWhen;
-                                                              obj["affects"]  = v.mAffects;
-                                                              obj["constant"] = v.mConstant;
-                                                              obj["pre"]      = v.mPre;
+                                                              obj[Name]     = name();
+                                                              obj[Type]     = type();
+                                                              obj[Adder]    = isAdder();
+                                                              obj[Level]    = v.mLevel;
+                                                              obj[Effect]   = v.mEffect;
+                                                              obj[When]     = v.mWhen;
+                                                              obj[Affects]  = v.mAffects;
+                                                              obj[Constant] = v.mConstant;
+                                                              obj[Pre]      = v.mPre;
                                                               return obj;
                                                             }
 
@@ -6784,10 +6925,10 @@ public:
         : Modifier(m)
         , v(m.v) { }
     StandardRange(QJsonObject json)
-        : Modifier(json["name"].toString("Standard Range"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mRMod = json["rmod"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("Standard Range"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mRMod = json[RMod].toBool(false);
+                                              }
     ~StandardRange() override { }
 
     StandardRange& operator=(const StandardRange&) = delete;
@@ -6810,10 +6951,10 @@ public:
     void          store() override                          { v.mRMod = rmod->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["rmod"]  = v.mRMod;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[RMod]  = v.mRMod;
                                                               return obj;
                                                             }
 
@@ -6851,9 +6992,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     StopsWorkingIfKnockedOutStunned(QJsonObject json)
-        : Modifier(json["name"].toString("Stops Working If Knocked Out/Stunned"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mStunned = json["stunned"].toBool(false);
+        : Modifier(json[Name].toString("Stops Working If Knocked Out/Stunned"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mStunned = json[Stunned].toBool(false);
                                                 }
     ~StopsWorkingIfKnockedOutStunned() override { }
 
@@ -6877,10 +7018,10 @@ public:
     void          store() override                          { v.mStunned = stunned->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["stunned"] = v.mStunned;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[Stunned] = v.mStunned;
                                                               return obj;
                                                             }
 
@@ -6912,9 +7053,9 @@ public:
         : Modifier("Sticky", isAdvantage, isModifier)
         , v({ false }) { }
     Sticky(QJsonObject json)
-        : Modifier(json["name"].toString("Sticky"),
-                   ModifierType(json["type"].toInt(isAdvantage)),
-                   json["adder"].toBool(isModifier)) { v.mAll = json["all"].toBool(false); }
+        : Modifier(json[Name].toString("Sticky"),
+                   ModifierType(json[Type].toInt(isAdvantage)),
+                   json[Adder].toBool(isModifier)) { v.mAll = json[All].toBool(false); }
     Sticky(const Sticky& m)
         : Modifier(m)
         , v(m.v) { }
@@ -6937,10 +7078,10 @@ public:
     void          restore() override                        { vars s = v; all->setChecked(s.mAll); v = s; }
     void          store() override                          { v.mAll = all->isChecked(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["all"]   = v.mAll;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[All]   = v.mAll;
                                                               return obj;
                                                             }
 
@@ -6978,10 +7119,10 @@ public:
         : Modifier(m)
         , v(m.v) { }
     STRMinimum(QJsonObject json)
-        : Modifier(json["name"].toString("STR MinimumꚚ"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mMin = json["min"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("STR MinimumꚚ"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mMin = json[Min].toInt(0);
+                                              }
     ~STRMinimum() override { }
 
     STRMinimum& operator=(const STRMinimum&) = delete;
@@ -7002,10 +7143,10 @@ public:
     void          store() override                          { v.mMin = min->text().toInt(0);
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["min"]   = v.mMin;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Min]   = v.mMin;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -7094,11 +7235,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     TimeLimit(QJsonObject json)
-        : Modifier(json["name"].toString("Time Limit"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mType = json["lType"].toInt(0);
-                                                  v.mTime = json["time"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("Time Limit"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mType = json[LType].toInt(0);
+                                                v.mTime = json[Time].toInt(0);
+                                              }
     ~TimeLimit() override { }
 
     TimeLimit& operator=(const TimeLimit&) = delete;
@@ -7127,11 +7268,11 @@ public:
                                                               v.mTime = time->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["lType"] = v.mType;
-                                                              obj["time"]  = v.mTime;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[LType] = v.mType;
+                                                              obj[Time]  = v.mTime;
                                                               return obj;
                                                             }
 
@@ -7213,11 +7354,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Transdimensional(QJsonObject json)
-        : Modifier(json["name"].toString("Transdimensionalϴ"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mType  = json["lType"].toInt(0);
-                                                  v.mWhich = json["which"].toString();
-                                                }
+        : Modifier(json[Name].toString("Transdimensionalϴ"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mType  = json[LType].toInt(0);
+                                                v.mWhich = json[Which].toString();
+                                              }
     ~Transdimensional() override { }
 
     Transdimensional& operator=(const Transdimensional&) = delete;
@@ -7244,11 +7385,11 @@ public:
                                                               v.mWhich = which->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["lType"] = v.mType;
-                                                              obj["which"] = v.mWhich;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[LType] = v.mType;
+                                                              obj[Which] = v.mWhich;
                                                               return obj;
                                                             }
 
@@ -7299,16 +7440,16 @@ public:
         : Modifier(m)
         , v(m.v) { }
     Trigger(QJsonObject json)
-        : Modifier(json["name"].toString("Trigger"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mChange  = json["change"].toBool(false);
-                                                  v.mCond    = json["cond"].toString();
-                                                  v.mActive  = json["active"].toBool(false);
-                                                  v.mAct     = json["act"].toInt(0);
-                                                  v.mReset   = json["reset"].toInt(0);
-                                                  v.mExpire  = json["expire"].toBool(false);
-                                                  v.mMisfire = json["misfire"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("Trigger"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mChange  = json[Change].toBool(false);
+                                                v.mCond    = json[Cond].toString();
+                                                v.mActive  = json[Active].toBool(false);
+                                                v.mAct     = json[Act].toInt(0);
+                                                v.mReset   = json[Reset].toInt(0);
+                                                v.mExpire  = json[Expire].toBool(false);
+                                                v.mMisfire = json[Misfire].toBool(false);
+                                               }
     ~Trigger() override { }
 
     Trigger& operator=(const Trigger&) = delete;
@@ -7350,16 +7491,16 @@ public:
                                                               v.mMisfire = misfire->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["change"]  = v.mChange;
-                                                              obj["cond"]    = v.mCond;
-                                                              obj["active"]  = v.mActive;
-                                                              obj["act"]     = v.mAct;
-                                                              obj["reset"]   = v.mReset;
-                                                              obj["expire"]  = v.mExpire;
-                                                              obj["misfire"] = v.mMisfire;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[Change]  = v.mChange;
+                                                              obj[Cond]    = v.mCond;
+                                                              obj[Active]  = v.mActive;
+                                                              obj[Act]     = v.mAct;
+                                                              obj[Reset]   = v.mReset;
+                                                              obj[Expire]  = v.mExpire;
+                                                              obj[Misfire] = v.mMisfire;
                                                               return obj;
                                                             }
 
@@ -7437,9 +7578,9 @@ public:
         : Modifier("Uncontrolledϴ", isAdvantage, isModifier)
         , v({ "" }) { }
     Uncontrolled(QJsonObject json)
-        : Modifier(json["name"].toString("Uncontrolledϴ"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["addr"].toBool(isModifier)) { v.mUntil = json["until"].toString(); }
+        : Modifier(json[Name].toString("Uncontrolledϴ"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(isModifier)) { v.mUntil = json[Until].toString(); }
     Uncontrolled(const Uncontrolled& m)
         : Modifier(m)
         , v(m.v) { }
@@ -7464,10 +7605,10 @@ public:
     void          restore() override                        { vars s = v; until->setText(s.mUntil); v = s; }
     void          store() override                          { v.mUntil = until->text(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["until"] = v.mUntil;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Until] = v.mUntil;
                                                               return obj;
                                                             }
 
@@ -7522,11 +7663,11 @@ public:
         : Modifier(m)
         , v(m.v) { }
     UsableAsMovement(QJsonObject json)
-        : Modifier(json["name"].toString("Usable As [Movement]"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mNum   = json["num"].toInt(0);
-                                                  v.mWhich = json["which"].toString();
-                                                }
+        : Modifier(json[Name].toString("Usable As [Movement]"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mNum   = json[Num].toInt(0);
+                                                v.mWhich = json[Which].toString();
+                                              }
     ~UsableAsMovement() override { }
 
     UsableAsMovement& operator=(const UsableAsMovement&) = delete;
@@ -7552,11 +7693,11 @@ public:
                                                               v.mWhich = which->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]  = name();
-                                                              obj["type"]  = type();
-                                                              obj["adder"] = isAdder();
-                                                              obj["num"]   = v.mNum;
-                                                              obj["which"] = v.mWhich;
+                                                              obj[Name]  = name();
+                                                              obj[Type]  = type();
+                                                              obj[Adder] = isAdder();
+                                                              obj[Num]   = v.mNum;
+                                                              obj[Which] = v.mWhich;
                                                               return obj;
                                                             }
 
@@ -7594,17 +7735,17 @@ public:
         : Modifier(m)
         , v(m.v) { }
     UsableByOthers(QJsonObject json)
-        : Modifier(json["name"].toString("Usable On Othersϴ"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mDoubles = json["double"].toInt(0);
-                                                  v.mTen     = json["ten"].toBool(false);
-                                                  v.mOne     = json["one"].toBool(false);
-                                                  v.mForce   = json["force"].toBool(false);
-                                                  v.mControl = json["control"].toInt(0);
-                                                  v.mPays    = json["pays"].toBool(false);
-                                                  v.mRange   = json["range"].toInt(0);
-                                                  v.mStay    = json["stay"].toInt(0);
-                                                }
+        : Modifier(json[Name].toString("Usable On Othersϴ"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mDoubles = json[Doubles].toInt(0);
+                                                v.mTen     = json[Ten].toBool(false);
+                                                v.mOne     = json[One].toBool(false);
+                                                v.mForce   = json[Force].toBool(false);
+                                                v.mControl = json[Control].toInt(0);
+                                                v.mPays    = json[Pays].toBool(false);
+                                                v.mRange   = json[Range].toInt(0);
+                                                v.mStay    = json[Stay].toInt(0);
+                                              }
     ~UsableByOthers() override { }
 
     UsableByOthers& operator=(const UsableByOthers&) = delete;
@@ -7649,17 +7790,17 @@ public:
                                                               v.mStay    = stay->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["doubles"] = v.mDoubles;
-                                                              obj["ten"]     = v.mTen;
-                                                              obj["one"]     = v.mOne;
-                                                              obj["force"]   = v.mForce;
-                                                              obj["control"] = v.mControl;
-                                                              obj["pays"]    = v.mPays;
-                                                              obj["range"]   = v.mRange;
-                                                              obj["stay"]    = v.mStay;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[Doubles] = v.mDoubles;
+                                                              obj[Ten]     = v.mTen;
+                                                              obj[One]     = v.mOne;
+                                                              obj[Force]   = v.mForce;
+                                                              obj[Control] = v.mControl;
+                                                              obj[Pays]    = v.mPays;
+                                                              obj[Range]   = v.mRange;
+                                                              obj[Stay]    = v.mStay;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -7752,14 +7893,14 @@ public:
         : Modifier(m)
         , v(m.v) { }
     VariableAdvantage(QJsonObject json)
-        : Modifier(json["name"].toString("Variable Advantageϴ"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mWhole   = json["whole"].toInt(0);
-                                                  v.mHalf    = json["half"].toBool(false);
-                                                  v.mQuarter = json["quarter"].toBool(false);
-                                                  v.mLimit   = json["limit"].toBool(false);
-                                                  v.mAdvs    = json["advs"].toString();
-                                                }
+        : Modifier(json[Name].toString("Variable Advantageϴ"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mWhole   = json[Whole].toInt(0);
+                                                v.mHalf    = json[Half].toBool(false);
+                                                v.mQuarter = json[Quarter].toBool(false);
+                                                v.mLimit   = json[Limit].toBool(false);
+                                                v.mAdvs    = json[Advs].toString();
+                                              }
     ~VariableAdvantage() override { }
 
     VariableAdvantage& operator=(const VariableAdvantage&) = delete;
@@ -7792,14 +7933,14 @@ public:
                                                               v.mAdvs    = advs->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["whole"]   = v.mWhole;
-                                                              obj["half"]    = v.mHalf;
-                                                              obj["quarter"] = v.mQuarter;
-                                                              obj["limit"]   = v.mLimit;
-                                                              obj["advs"]    = v.mAdvs;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[Whole]   = v.mWhole;
+                                                              obj[Half]    = v.mHalf;
+                                                              obj[Quarter] = v.mQuarter;
+                                                              obj[Limit]   = v.mLimit;
+                                                              obj[Advs]    = v.mAdvs;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -7854,9 +7995,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     VariableEffect(QJsonObject json)
-        : Modifier(json["name"].toString("Variable Effect▲"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mEffect = json["effect"].toString(); }
+        : Modifier(json[Name].toString("Variable Effect▲"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mEffect = json[Effect].toString(); }
     ~VariableEffect() override { }
 
     VariableEffect& operator=(const VariableEffect&) = delete;
@@ -7873,10 +8014,10 @@ public:
     void          restore() override                        { vars s = v; effect->setText(s.mEffect); v = s; }
     void          store() override                          { v.mEffect = effect->text(); }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]   = name();
-                                                              obj["type"]   = type();
-                                                              obj["adder"]  = isAdder();
-                                                              obj["effect"] = v.mEffect;
+                                                              obj[Name]   = name();
+                                                              obj[Type]   = type();
+                                                              obj[Adder]  = isAdder();
+                                                              obj[Effect] = v.mEffect;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -7910,12 +8051,12 @@ public:
         : Modifier(m)
         , v(m.v) { }
     VariableLimitations(QJsonObject json)
-        : Modifier(json["name"].toString("Variable Limitations▲"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mWhole   = json["whole"].toInt(0);
-                                                  v.mHalf    = json["half"].toBool(false);
-                                                  v.mQuarter = json["quarter"].toBool(false);
-                                                }
+        : Modifier(json[Name].toString("Variable Limitations▲"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mWhole   = json[Whole].toInt(0);
+                                                v.mHalf    = json[Half].toBool(false);
+                                                v.mQuarter = json[Quarter].toBool(false);
+                                              }
     ~VariableLimitations() override { }
 
     VariableLimitations& operator=(const VariableLimitations&) = delete;
@@ -7942,12 +8083,12 @@ public:
                                                               v.mQuarter = quarter->isChecked();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]    = name();
-                                                              obj["type"]    = type();
-                                                              obj["adder"]   = isAdder();
-                                                              obj["whole"]   = v.mWhole;
-                                                              obj["half"]    = v.mHalf;
-                                                              obj["quarter"] = v.mQuarter;
+                                                              obj[Name]    = name();
+                                                              obj[Type]    = type();
+                                                              obj[Adder]   = isAdder();
+                                                              obj[Whole]   = v.mWhole;
+                                                              obj[Half]    = v.mHalf;
+                                                              obj[Quarter] = v.mQuarter;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -7994,9 +8135,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     VariableSpecialEffects(QJsonObject json)
-        : Modifier(json["name"].toString("Variable Special Effects"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mEffect = json["effect"].toString();
+        : Modifier(json[Name].toString("Variable Special Effects"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mEffect = json[Effect].toString();
                                                 }
     ~VariableSpecialEffects() override { }
 
@@ -8018,10 +8159,10 @@ public:
     void          store() override                          { v.mEffect = effect->text();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]   = name();
-                                                              obj["type"]   = type();
-                                                              obj["adder"]  = isAdder();
-                                                              obj["effect"] = v.mEffect;
+                                                              obj[Name]   = name();
+                                                              obj[Type]   = type();
+                                                              obj[Adder]  = isAdder();
+                                                              obj[Effect] = v.mEffect;
                                                               return obj;
                                                             }
     Fraction fraction(bool noStore = false) override {
@@ -8057,9 +8198,9 @@ public:
         : Modifier(m)
         , v(m.v) { }
     WorksAgainstEGONotCharacteristic(QJsonObject json)
-        : Modifier(json["name"].toString("Works Against EGO Not [Characteristic]▲"),
-                   ModifierType(json["type"].toInt(0)),
-                   json["adder"].toBool(false)) { v.mCharacteristic  = json["characteristic"].toInt(0);
+        : Modifier(json[Name].toString("Works Against EGO Not [Characteristic]▲"),
+                   ModifierType(json[Type].toInt(0)),
+                   json[Adder].toBool(false)) { v.mCharacteristic  = json[Characteristic].toInt(0);
                                                 }
     ~WorksAgainstEGONotCharacteristic() override { }
 
@@ -8085,10 +8226,10 @@ public:
     void          store() override                          { v.mCharacteristic = characteristic->currentIndex();
                                                             }
     QJsonObject   toJson() override                         { QJsonObject obj;
-                                                              obj["name"]           = name();
-                                                              obj["type"]           = type();
-                                                              obj["adder"]          = isAdder();
-                                                              obj["characteristic"] = v.mCharacteristic;
+                                                              obj[Name]           = name();
+                                                              obj[Type]           = type();
+                                                              obj[Adder]          = isAdder();
+                                                              obj[Characteristic] = v.mCharacteristic;
                                                               return obj;
                                                             }
 

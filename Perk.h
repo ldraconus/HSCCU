@@ -14,7 +14,7 @@ public:
         , v { name } {  }
     Perks(QJsonObject& json)
         : SkillTalentOrPerk(json)
-        , v { json["name"].toString("") } { }
+        , v { json[Name].toString("") } { }
 
     bool isPerk() override { return true; }
 
@@ -28,8 +28,8 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["id"]   = mGuid;
-        obj["name"] = v.mName;
+        obj[Guid]   = mGuid;
+        obj[Name] = v.mName;
         return obj;
     }
 
@@ -57,9 +57,9 @@ private:
 class Access: public Perks {
 public:
     Access(): Perks("Access")               { }
-    Access(QJsonObject& json): Perks(json)  { v.mCost = json["cost"].toInt(1);
-                                              v.mFor  = json["for"].toString("");
-                                              v.mHide = json["hide"].toInt(0);
+    Access(QJsonObject& json): Perks(json)  { v.mCost = json[Cost].toInt(1);
+                                              v.mFor  = json[For].toString("");
+                                              v.mHide = json[Hide].toInt(0);
                                             }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -83,9 +83,9 @@ public:
                                                                   v.mHide = hide->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["cost"] = v.mCost;
-                                                                  obj["for"]  = v.mFor;
-                                                                  obj["hide"] = v.mHide;
+                                                                  obj[Cost] = v.mCost;
+                                                                  obj[For]  = v.mFor;
+                                                                  obj[Hide] = v.mHide;
                                                                   return obj;
                                                                 }
 
@@ -119,7 +119,7 @@ public:
     Anonymity(): Perks("Anonymity")                  { }
     Anonymity(QJsonObject& json)
         : Perks(json) {
-        v.mExtra = json["extra"].toInt(1);
+        v.mExtra = json[Extra].toInt(1);
     }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -136,7 +136,7 @@ public:
     void    store() override                                    { v.mExtra = extra->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["extra"] = v.mExtra;
+                                                                  obj[Extra] = v.mExtra;
                                                                   return obj;
                                                                 }
 
@@ -161,8 +161,8 @@ private:
 class ComputerLink: public Perks {
 public:
     ComputerLink(): Perks("Computer Link")        { }
-    ComputerLink(QJsonObject& json): Perks(json)  { v.mValue = json["value"].toInt(1);
-                                                    v.mFor = json["for"].toString("");
+    ComputerLink(QJsonObject& json): Perks(json)  { v.mValue = json[Value].toInt(1);
+                                                    v.mFor = json[For].toString("");
                                                   }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -183,8 +183,8 @@ public:
                                                                   v.mValue = value->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["for"]   = v.mFor;
-                                                                  obj["value"] = v.mValue;
+                                                                  obj[For]   = v.mFor;
+                                                                  obj[Value] = v.mValue;
                                                                   return obj;
                                                                 }
 
@@ -215,15 +215,15 @@ public:
     Contact(): Perks("Contact")                   { }
     Contact(const Contact& s): Perks(s)           { }
     Contact(Contact&& s): Perks(s)                { }
-    Contact(QJsonObject& json): Perks(json) { v.mBase     = json["base"].toInt(0);
-                                              v.mPlus     = json["plus"].toInt(0);
-                                              v.mLimited  = json["limited"].toBool(false);
-                                              v.mWho      = json["who"].toString("");
-                                              v.mUseful   = json["useful"].toInt(0);
-                                              v.mAccess   = json["access"].toBool(false);
-                                              v.mContacts = json["contacts"].toBool(false);
-                                              v.mRelate   = json["relate"].toInt(0);
-                                              v.mOrg = json["org"].toBool(false);
+    Contact(QJsonObject& json): Perks(json) { v.mBase     = json[Base].toInt(0);
+                                              v.mPlus     = json[Plus].toInt(0);
+                                              v.mLimited  = json[Limited].toBool(false);
+                                              v.mWho      = json[Who].toString("");
+                                              v.mUseful   = json[Useful].toInt(0);
+                                              v.mAccess   = json[Access].toBool(false);
+                                              v.mContacts = json[Contacts].toBool(false);
+                                              v.mRelate   = json[Relate].toInt(0);
+                                              v.mOrg      = json[Org].toBool(false);
                                             }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? roll() + " " : "") + optOut(true); }
@@ -279,15 +279,15 @@ public:
                                                                   v.mOrg      = org->isChecked();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["base"]     = v.mBase;
-                                                                  obj["plus"]     = v.mPlus;
-                                                                  obj["limited"]  = v.mLimited;
-                                                                  obj["who"]      = v.mWho;
-                                                                  obj["useful"]   = v.mUseful;
-                                                                  obj["access"]   = v.mAccess;
-                                                                  obj["contacts"] = v.mContacts;
-                                                                  obj["relate"]   = v.mRelate;
-                                                                  obj["org"]      = v.mOrg;
+                                                                  obj[Base]     = v.mBase;
+                                                                  obj[Plus]     = v.mPlus;
+                                                                  obj[Limited]  = v.mLimited;
+                                                                  obj[Who]      = v.mWho;
+                                                                  obj[Useful]   = v.mUseful;
+                                                                  obj[Access]   = v.mAccess;
+                                                                  obj[Contacts] = v.mContacts;
+                                                                  obj[Relate]   = v.mRelate;
+                                                                  obj[Org]      = v.mOrg;
                                                                   return obj;
                                                                 }
 
@@ -342,7 +342,7 @@ private:
 class DeepCover: public Perks {
 public:
     DeepCover(): Perks("Deep Cover")          { }
-    DeepCover(QJsonObject& json): Perks(json) { v.mAs = json["as"].toString("");
+    DeepCover(QJsonObject& json): Perks(json) { v.mAs = json[As].toString("");
                                               }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -357,7 +357,7 @@ public:
     void    store() override                                    { v.mAs = as->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["as"] = v.mAs;
+                                                                  obj[As] = v.mAs;
                                                                   return obj;
                                                                 }
 
@@ -377,8 +377,8 @@ private:
 class Favor: public Perks {
 public:
     Favor(): Perks("Favor")               { }
-    Favor(QJsonObject& json): Perks(json) { v.mWho  = json["who"].toString("");
-                                            v.mCost = json["cost"].toInt(1);
+    Favor(QJsonObject& json): Perks(json) { v.mWho  = json[Who].toString("");
+                                            v.mCost = json[Cost].toInt(1);
                                           }
 
     QString description(bool showRoll = false) override         { return (showRoll ? roll() + " " : "") + optOut(); }
@@ -403,8 +403,8 @@ public:
                                                                   v.mCost = cost->text().toInt();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["who"]  = v.mWho;
-                                                                  obj["cost"] = v.mCost;
+                                                                  obj[Who]  = v.mWho;
+                                                                  obj[Cost] = v.mCost;
                                                                   return obj;
                                                                 }
 
@@ -436,9 +436,9 @@ private:
 class Follower: public Perks {
 public:
     Follower(): Perks("Follower")            { }
-    Follower(QJsonObject& json): Perks(json) { v.mWho  = json["who"].toString("");
-                                               v.mPnts = json["pnts"].toInt(1);
-                                               v.mMult = json["mult"].toInt(0);
+    Follower(QJsonObject& json): Perks(json) { v.mWho  = json[Who].toString("");
+                                               v.mPnts = json[Pnts].toInt(1);
+                                               v.mMult = json[Mult].toInt(0);
                                              }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -461,9 +461,9 @@ public:
                                                                   v.mMult = mult->text().toInt();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["who"]  = v.mWho;
-                                                                  obj["pnts"] = v.mPnts;
-                                                                  obj["mult"] = v.mMult;
+                                                                  obj[Who]  = v.mWho;
+                                                                  obj[Pnts] = v.mPnts;
+                                                                  obj[Mult] = v.mMult;
                                                                   return obj;
                                                                 }
 
@@ -495,9 +495,9 @@ private:
 class FringeBenefit: public Perks {
 public:
     FringeBenefit(): Perks("Fringe Benefit")      { }
-    FringeBenefit(QJsonObject& json): Perks(json) { v.mCost = json["cost"].toInt(1);
-                                                    v.mFor = json["for"].toString("");
-                                                  }
+    FringeBenefit(QJsonObject& json): Perks(json) { v.mCost = json[Cost].toInt(1);
+                                                    v.mFor  = json[For].toString("");
+                                                   }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -517,8 +517,8 @@ public:
                                                                   v.mCost = cost->text().toInt(0);
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["for"]  = v.mFor;
-                                                                  obj["cost"] = v.mCost;
+                                                                  obj[For]  = v.mFor;
+                                                                  obj[Cost] = v.mCost;
                                                                   return obj;
                                                                 }
 
@@ -547,7 +547,7 @@ private:
 class Money: public Perks {
 public:
     Money(): Perks("Money")               { }
-    Money(QJsonObject& json): Perks(json) { v.mAmount = json["amount"].toInt(0);
+    Money(QJsonObject& json): Perks(json) { v.mAmount = json[Amount].toInt(0);
                                           }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -574,7 +574,7 @@ public:
     void    store() override                                    { v.mAmount = amount->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["amount"] = v.mAmount;
+                                                                  obj[Amount] = v.mAmount;
                                                                   return obj;
                                                                 }
 
@@ -607,9 +607,9 @@ private:
 class PositiveReputation: public Perks {
 public:
     PositiveReputation(): Perks("Positive Reputation") { }
-    PositiveReputation(QJsonObject& json): Perks(json) { v.mLvl  = json["level"].toInt(1);
-                                                         v.mFor  = json["for"].toString("");
-                                                         v.mKnown = json["known"].toInt(0);
+    PositiveReputation(QJsonObject& json): Perks(json) { v.mLvl  = json[Level].toInt(1);
+                                                         v.mFor  = json[For].toString("");
+                                                         v.mKnown = json[Known].toInt(0);
                                                        }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -637,9 +637,9 @@ public:
                                                                   v.mKnown = known->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["level"] = v.mLvl;
-                                                                  obj["for"]   = v.mFor;
-                                                                  obj["known"] = v.mKnown;
+                                                                  obj[Level] = v.mLvl;
+                                                                  obj[For]   = v.mFor;
+                                                                  obj[Known] = v.mKnown;
                                                                   return obj;
                                                                 }
 
@@ -667,9 +667,9 @@ private:
 class VehiclesAndBases: public Perks {
 public:
     VehiclesAndBases(): Perks("Vehicles And Bases")  { }
-    VehiclesAndBases(QJsonObject& json): Perks(json) { v.mWhat = json["what"].toString("");
-                                                       v.mPnts = json["pnts"].toInt(1);
-                                                       v.mMult = json["mult"].toInt(0);
+    VehiclesAndBases(QJsonObject& json): Perks(json) { v.mWhat = json[What].toString("");
+                                                       v.mPnts = json[Pnts].toInt(1);
+                                                       v.mMult = json[Mult].toInt(0);
                                                      }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -693,9 +693,9 @@ public:
                                                                   v.mMult = mult->text().toInt();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = Perks::toJson();
-                                                                  obj["what"] = v.mWhat;
-                                                                  obj["pnts"] = v.mPnts;
-                                                                  obj["mult"] = v.mMult;
+                                                                  obj[What] = v.mWhat;
+                                                                  obj[Pnts] = v.mPnts;
+                                                                  obj[Mult] = v.mMult;
                                                                   return obj;
                                                                 }
 

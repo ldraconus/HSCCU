@@ -15,7 +15,7 @@ public:
         , v { name, 0 } { }
     InteractionSkills(QJsonObject& json)
         : SkillTalentOrPerk(json)
-        , v { json["name"].toString(""), json["plus"].toInt(0) } { }
+        , v { json[Name].toString(""), json[Plus].toInt(0) } { }
 
     bool isSkill() override { return true; }
 
@@ -33,9 +33,9 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj;
-        obj["id"]   = mGuid;
-        obj["name"] = v.mName;
-        obj["plus"] = v.mPlus;
+        obj[Guid] = mGuid;
+        obj[Name] = v.mName;
+        obj[Plus] = v.mPlus;
         return obj;
     }
 

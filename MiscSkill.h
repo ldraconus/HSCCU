@@ -15,7 +15,7 @@ public:
         , v { name } { }
     MiscSkills(QJsonObject& json)
         : SkillTalentOrPerk(json)
-        , v { json["name"].toString("") } { }
+        , v { json[Name].toString("") } { }
 
     bool isSkill() override { return true; }
 
@@ -29,7 +29,7 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj = SkillTalentOrPerk::toJson();
-        obj["name"]     = v.mName;
+        obj[Name] = v.mName;
         return obj;
     }
 
@@ -62,9 +62,9 @@ private:
 class MSL: public MiscSkills {
 public:
     MSL(): MiscSkills("Movement Skill Levels") { }
-    MSL(QJsonObject& json): MiscSkills(json)   { v.mPlus = json["plus"].toInt(1);
-                                                 v.mFor  = json["for"].toString("");
-                                                 v.mSize = json["size"].toInt(0);
+    MSL(QJsonObject& json): MiscSkills(json)   { v.mPlus = json[Plus].toInt(1);
+                                                 v.mFor  = json[For].toString("");
+                                                 v.mSize = json[Size].toInt(0);
                                                }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -90,9 +90,9 @@ public:
                                                                   v.mSize = size->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = MiscSkills::toJson();
-                                                                  obj["plus"] = v.mPlus;
-                                                                  obj["for"]  = v.mFor;
-                                                                  obj["size"] = v.mSize;
+                                                                  obj[Plus] = v.mPlus;
+                                                                  obj[For]  = v.mFor;
+                                                                  obj[Size] = v.mSize;
                                                                   return obj;
                                                                 }
 
@@ -129,9 +129,9 @@ private:
 class PowerSkill: public MiscSkills {
 public:
     PowerSkill(): MiscSkills("Power Skill")         { }
-    PowerSkill(QJsonObject& json): MiscSkills(json) { v.mWhat = json["what"].toString("");
-                                                      v.mPlus = json["plus"].toInt(0);
-                                                      v.mStat = json["stat"].toInt(-1);
+    PowerSkill(QJsonObject& json): MiscSkills(json) { v.mWhat = json[What].toString("");
+                                                      v.mPlus = json[Plus].toInt(0);
+                                                      v.mStat = json[Stat].toInt(-1);
                                                     }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "(" + QString("+%1").arg(v.mPlus) + ") ": "") + optOut(true); }
@@ -162,9 +162,9 @@ public:
                                                                   v.mStat = stat->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = MiscSkills::toJson();
-                                                                  obj["what"] = v.mWhat;
-                                                                  obj["plus"] = v.mPlus;
-                                                                  obj["stat"] = v.mStat;
+                                                                  obj[What] = v.mWhat;
+                                                                  obj[Plus] = v.mPlus;
+                                                                  obj[Stat] = v.mStat;
                                                                   return obj;
                                                                 }
 
@@ -195,9 +195,9 @@ private:
 class SkillLevels: public MiscSkills {
 public:
     SkillLevels(): MiscSkills("Skill Levels")         { }
-    SkillLevels(QJsonObject& json): MiscSkills(json)  { v.mPlus = json["plus"].toInt(1);
-                                                        v.mFor  = json["for"].toString("");
-                                                        v.mSize = json["size"].toInt(0);
+    SkillLevels(QJsonObject& json): MiscSkills(json)  { v.mPlus = json[Plus].toInt(1);
+                                                        v.mFor  = json[For].toString("");
+                                                        v.mSize = json[Size].toInt(0);
                                                       }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -227,9 +227,9 @@ public:
                                                                   v.mSize = size->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = MiscSkills::toJson();
-                                                                  obj["plus"] = v.mPlus;
-                                                                  obj["for"]  = v.mFor;
-                                                                  obj["size"] = v.mSize;
+                                                                  obj[Plus] = v.mPlus;
+                                                                  obj[For]  = v.mFor;
+                                                                  obj[Size] = v.mSize;
                                                                   return obj;
                                                                 }
 

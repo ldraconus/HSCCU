@@ -44,6 +44,7 @@ protected:
     static constexpr auto        Extreme = "extreme";
     static constexpr auto      Frequency = "frequency";
     static constexpr auto             Id = "id";
+    static constexpr auto       Immunity = "immunity";
     static constexpr auto        Impairs = "impairs";
     static constexpr auto      Intensity = "intensity";
     static constexpr auto        Limited = "limited";
@@ -52,7 +53,10 @@ protected:
     static constexpr auto NotDistinctive = "notDistinctive";
     static constexpr auto NotRestrictive = "notRestrictive";
     static constexpr auto           Name = "name";
+    static constexpr auto         Nature = "nature";
     static constexpr auto            NCI = "nci";
+    static constexpr auto             Pc = "pc";
+    static constexpr auto          Power = "power";
     static constexpr auto      Proximity = "proximity";
     static constexpr auto         Rarity = "rarity";
     static constexpr auto       Reaction = "reaction";

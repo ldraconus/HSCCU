@@ -11,7 +11,7 @@ public:
         , v { name } { }
     CombatSkills(QJsonObject& json)
         : SkillTalentOrPerk(json)
-        , v { json["name"].toString("") } { }
+        , v { json[Name].toString("") } { }
 
     bool isSkill() override { return true; }
 
@@ -57,10 +57,10 @@ private:
 class AutofireSkills: public CombatSkills {
 public:
     AutofireSkills(): CombatSkills("Autofire Skills")     { }
-    AutofireSkills(QJsonObject& json): CombatSkills(json) { v.mAccurateSprayfire     = json["accurate sprayfire"].toBool(false);
-                                                            v.mConcentratedSprayfire = json["concetrade sprayfire"].toBool(false);
-                                                            v.mRapidAutofire         = json["rapid autofire"].toBool(false);
-                                                            v.mSkipoverSprayfire = json["skipover sprayfire"].toBool(false);
+    AutofireSkills(QJsonObject& json): CombatSkills(json) { v.mAccurateSprayfire     = json[AccurateSprayfire].toBool(false);
+                                                            v.mConcentratedSprayfire = json[ConcentratedSprayfire].toBool(false);
+                                                            v.mRapidAutofire         = json[RapidAutofire].toBool(false);
+                                                            v.mSkipoverSprayfire     = json[SkipoverSprayfire].toBool(false);
                                                           }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + CombatSkills::description() + optOut(true); }
@@ -89,10 +89,10 @@ public:
                                                                   v.mRapidAutofire         = rapidAutofire->isChecked();
                                                                   v.mSkipoverSprayfire     = skipoverSprayfire->isChecked(); }
     QJsonObject toJson() override                               { QJsonObject obj = CombatSkills::toJson();
-                                                                  obj["accurate sprayfire"]     = v.mAccurateSprayfire;
-                                                                  obj["concentrated sprayfire"] = v.mConcentratedSprayfire;
-                                                                  obj["rapid autofire"]         = v.mRapidAutofire;
-                                                                  obj["skipover sprayfire"]     = v.mSkipoverSprayfire;
+                                                                  obj[AccurateSprayfire]     = v.mAccurateSprayfire;
+                                                                  obj[ConcentratedSprayfire] = v.mConcentratedSprayfire;
+                                                                  obj[RapidAutofire]         = v.mRapidAutofire;
+                                                                  obj[SkipoverSprayfire]     = v.mSkipoverSprayfire;
                                                                   return obj;
                                                                 }
 
@@ -130,9 +130,9 @@ private:
 class CSL: public CombatSkills {
 public:
     CSL(): CombatSkills("Combat Skill Levels") { }
-    CSL(QJsonObject& json): CombatSkills(json) { v.mPlus = json["plus"].toInt(1);
-                                                 v.mFor  = json["for"].toString("");
-                                                 v.mSize = json["size"].toInt(0);
+    CSL(QJsonObject& json): CombatSkills(json) { v.mPlus = json[Plus].toInt(1);
+                                                 v.mFor  = json[For].toString("");
+                                                 v.mSize = json[Size].toInt(0);
                                                }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -162,9 +162,9 @@ public:
                                                                   v.mSize = size->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = CombatSkills::toJson();
-                                                                  obj["plus"] = v.mPlus;
-                                                                  obj["for"]  = v.mFor;
-                                                                  obj["size"] = v.mSize;
+                                                                  obj[Plus] = v.mPlus;
+                                                                  obj[For]  = v.mFor;
+                                                                  obj[Size] = v.mSize;
                                                                   return obj;
                                                                 }
 
@@ -206,7 +206,7 @@ private:
 class DefenseManeuver: public CombatSkills {
 public:
     DefenseManeuver(): CombatSkills("Defense Maneuver")    { }
-    DefenseManeuver(QJsonObject& json): CombatSkills(json) { v.mWhich = json["which"].toInt(0); }
+    DefenseManeuver(QJsonObject& json): CombatSkills(json) { v.mWhich = json[Which].toInt(0); }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
     QString description(bool showRoll = false) override         { return (showRoll ? "" : "") + optOut(); }
@@ -227,7 +227,7 @@ public:
     void    store() override                                    { v.mWhich = which->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = CombatSkills::toJson();
-                                                                  obj["which"] = v.mWhich;
+                                                                  obj[Which] = v.mWhich;
                                                                   return obj;
                                                                 }
 
@@ -256,24 +256,24 @@ private:
 class MartialArts: public CombatSkills {
 public:
     MartialArts(): CombatSkills("Martial Arts")              { }
-    MartialArts(QJsonObject& json): CombatSkills(json) { v.mChokeHold = json["chokehold"].toBool(false);
-                                                         v.mDefensiveStrike  = json["defensive strike"].toBool(false);
-                                                         v.mKillingStrike    = json["killing strike"].toBool(false);
-                                                         v.mLegSweep         = json["legsweep"].toBool(false);
-                                                         v.mMartialBlock     = json["martial block"].toBool(false);
-                                                         v.mMartialDisarm    = json["martial disarm"].toBool(false);
-                                                         v.mMartialDodge     = json["martial dodge"].toBool(false);
-                                                         v.mMartialEscape    = json["martial escape"].toBool(false);
-                                                         v.mMartialGrab      = json["martial grab"].toBool(false);
-                                                         v.mMartialStrike    = json["martial strike"].toBool(false);
-                                                         v.mMartialThrow     = json["martial throw"].toBool(false);
-                                                         v.mNerveStrike      = json["nerve strike"].toBool(false);
-                                                         v.mOffensiveStrike  = json["offensive strike"].toBool(false);
-                                                         v.mPassingStrike    = json["passing strike"].toBool(false);
-                                                         v.mSacrifceThrow    = json["sacrifce throw"].toBool(false);
-                                                         v.mExtraDamageClass = json["extra damage classes"].toInt(0);
-                                                         v.mWeaponElements   = json["weapon elements"].toInt(0);
-                                                         v.mWeapons          = json["weapons"].toString("");
+    MartialArts(QJsonObject& json): CombatSkills(json) { v.mChokeHold        = json[Chokehold].toBool(false);
+                                                         v.mDefensiveStrike  = json[DefensiveStrike].toBool(false);
+                                                         v.mKillingStrike    = json[KillingStrike].toBool(false);
+                                                         v.mLegSweep         = json[Legsweep].toBool(false);
+                                                         v.mMartialBlock     = json[MartialBlock].toBool(false);
+                                                         v.mMartialDisarm    = json[MartialDisarm].toBool(false);
+                                                         v.mMartialDodge     = json[MartialDodge].toBool(false);
+                                                         v.mMartialEscape    = json[MartialEscape].toBool(false);
+                                                         v.mMartialGrab      = json[MartialGrab].toBool(false);
+                                                         v.mMartialStrike    = json[MartialStrike].toBool(false);
+                                                         v.mMartialThrow     = json[MartialThrow].toBool(false);
+                                                         v.mNerveStrike      = json[NerveStrike].toBool(false);
+                                                         v.mOffensiveStrike  = json[OffensiveStrike].toBool(false);
+                                                         v.mPassingStrike    = json[PassingStrike].toBool(false);
+                                                         v.mSacrifceThrow    = json[SacrifceThrow].toBool(false);
+                                                         v.mExtraDamageClass = json[ExtraDamageClasses].toInt(0);
+                                                         v.mWeaponElements   = json[WeaponElements].toInt(0);
+                                                         v.mWeapons          = json[Weapons].toString("");
                                                         }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -359,24 +359,24 @@ public:
                                                                   v.mWeapons = weapons->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = CombatSkills::toJson();
-                                                                  obj["choke hold"]           = v.mChokeHold;
-                                                                  obj["defensive strike"]     = v.mDefensiveStrike;
-                                                                  obj["killing strike"]       = v.mKillingStrike;
-                                                                  obj["legsweep"]             = v.mLegSweep;
-                                                                  obj["martial block"]        = v.mMartialBlock;
-                                                                  obj["martial disarm"]       = v.mMartialDisarm;
-                                                                  obj["martial dodge"]        = v.mMartialDodge;
-                                                                  obj["martial escape"]       = v.mMartialEscape;
-                                                                  obj["martial grab"]         = v.mMartialGrab;
-                                                                  obj["martial strike"]       = v.mMartialStrike;
-                                                                  obj["martial throw"]        = v.mMartialThrow;
-                                                                  obj["nerve strike"]         = v.mNerveStrike;
-                                                                  obj["offensive strike"]     = v.mOffensiveStrike;
-                                                                  obj["passing strike"]       = v.mPassingStrike;
-                                                                  obj["sacrifce throw"]       = v.mSacrifceThrow;
-                                                                  obj["extra damage classes"] = v.mExtraDamageClass;
-                                                                  obj["weapon elements"]      = v.mWeaponElements;
-                                                                  obj["weapons"]              = v.mWeapons;
+                                                                  obj[Chokehold]          = v.mChokeHold;
+                                                                  obj[DefensiveStrike]    = v.mDefensiveStrike;
+                                                                  obj[KillingStrike]      = v.mKillingStrike;
+                                                                  obj[Legsweep]           = v.mLegSweep;
+                                                                  obj[MartialBlock]       = v.mMartialBlock;
+                                                                  obj[MartialDisarm]      = v.mMartialDisarm;
+                                                                  obj[MartialDodge]       = v.mMartialDodge;
+                                                                  obj[MartialEscape]      = v.mMartialEscape;
+                                                                  obj[MartialGrab]        = v.mMartialGrab;
+                                                                  obj[MartialStrike]      = v.mMartialStrike;
+                                                                  obj[MartialThrow]       = v.mMartialThrow;
+                                                                  obj[NerveStrike]        = v.mNerveStrike;
+                                                                  obj[OffensiveStrike]    = v.mOffensiveStrike;
+                                                                  obj[PassingStrike]      = v.mPassingStrike;
+                                                                  obj[SacrifceThrow]      = v.mSacrifceThrow;
+                                                                  obj[ExtraDamageClasses] = v.mExtraDamageClass;
+                                                                  obj[WeaponElements]     = v.mWeaponElements;
+                                                                  obj[Weapons]            = v.mWeapons;
                                                                   return obj;
                                                                 }
 
@@ -458,9 +458,9 @@ private:
 class MCSL: public CombatSkills {
 public:
     MCSL(): CombatSkills("Mental Combat Skill Levels") { }
-    MCSL(QJsonObject& json): CombatSkills(json)        { v.mPlus = json["plus"].toInt(1);
-                                                         v.mFor  = json["for"].toString("");
-                                                         v.mSize = json["size"].toInt(0);
+    MCSL(QJsonObject& json): CombatSkills(json)        { v.mPlus = json[Plus].toInt(1);
+                                                         v.mFor  = json[For].toString("");
+                                                         v.mSize = json[Size].toInt(0);
                                                        }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -487,9 +487,9 @@ public:
                                                                   v.mSize = size->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = CombatSkills::toJson();
-                                                                  obj["plus"] = v.mPlus;
-                                                                  obj["for"]  = v.mFor;
-                                                                  obj["size"] = v.mSize;
+                                                                  obj[Plus] = v.mPlus;
+                                                                  obj[For]  = v.mFor;
+                                                                  obj[Size] = v.mSize;
                                                                   return obj;
                                                                 }
 
@@ -527,9 +527,9 @@ private:
 class PenaltySkillLevels: public CombatSkills {
 public:
     PenaltySkillLevels(): CombatSkills("Penalty Skill Levels") { }
-    PenaltySkillLevels(QJsonObject& json): CombatSkills(json)  { v.mPlus = json["plus"].toInt(0);
-                                                                 v.mWhat = json["what"].toInt(0);
-                                                                 v.mWith = json["with"].toString("");
+    PenaltySkillLevels(QJsonObject& json): CombatSkills(json)  { v.mPlus = json[Plus].toInt(0);
+                                                                 v.mWhat = json[What].toInt(0);
+                                                                 v.mWith = json[With].toString("");
                                                                }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -558,9 +558,9 @@ public:
                                                                   v.mWith = with->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = CombatSkills::toJson();
-                                                                  obj["plus"] = v.mPlus;
-                                                                  obj["what"] = v.mWhat;
-                                                                  obj["with"] = v.mWith;
+                                                                  obj[Plus] = v.mPlus;
+                                                                  obj[What] = v.mWhat;
+                                                                  obj[With] = v.mWith;
                                                                   return obj;
                                                                 }
 
@@ -604,8 +604,8 @@ CLASS_SPACE(TwoWeaponFighting, "Two-Weapon Fighting");
 class WeaponFamiliarity: public CombatSkills {
 public:
     WeaponFamiliarity(): CombatSkills("Weapon Familiarity")  { }
-    WeaponFamiliarity(QJsonObject& json): CombatSkills(json) { v.mWhat = json["what"].toInt(0);
-                                                               v.mWith = json["with"].toString("");
+    WeaponFamiliarity(QJsonObject& json): CombatSkills(json) { v.mWhat = json[What].toInt(0);
+                                                               v.mWith = json[With].toString("");
                                                              }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -628,8 +628,8 @@ public:
                                                                   v.mWith = with->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = CombatSkills::toJson();
-                                                                  obj["what"] = v.mWhat;
-                                                                  obj["with"] = v.mWith;
+                                                                  obj[What] = v.mWhat;
+                                                                  obj[With] = v.mWith;
                                                                   return obj;
                                                                 }
 

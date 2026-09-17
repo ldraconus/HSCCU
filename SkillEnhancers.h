@@ -11,7 +11,7 @@ public:
         , v { name } { }
     SkillEnhancers(QJsonObject& json)
         : SkillTalentOrPerk(json)
-        , v { json["name"].toString("") } { }
+        , v { json[Name].toString("") } { }
 
     bool isSkill() override { return true; }
 
@@ -25,7 +25,7 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj = SkillTalentOrPerk::toJson();
-        obj["name"] = v.mName;
+        obj[Name] = v.mName;
         return obj;
     }
 

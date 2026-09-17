@@ -8,12 +8,12 @@ public:
     Rivalry(): Complication() { }
     Rivalry(const QJsonObject& json)
         : Complication(json)
-        , v { json["intensity"].toInt(0),
-              json["nature"].toInt(0),
-              json["pc"].toBool(false),
-              json["power"].toInt(0),
-              json["unaware"].toBool(false),
-              json["who"].toString("") } { }
+        , v { json[Intensity].toInt(0),
+              json[Nature].toInt(0),
+              json[Pc].toBool(false),
+              json[Power].toInt(0),
+              json[Unaware].toBool(false),
+              json[Who].toString("") } { }
 
     QString abbreviation() override { return str(true); }
     QString description()  override { return str(); }
@@ -64,13 +64,13 @@ public:
     }
     QJsonObject toJson() override {
         QJsonObject obj  = Complication::toJson();
-        obj["name"]      = "Rivalry";
-        obj["intensity"] = v.mIntensity;
-        obj["nature"]    = v.mNature;
-        obj["pc"]        = v.mPC;
-        obj["power"]     = v.mPower;
-        obj["unaware"]   = v.mUnaware;
-        obj["who"]       = v.mWho;
+        obj[Name]      = "Rivalry";
+        obj[Intensity] = v.mIntensity;
+        obj[Nature]    = v.mNature;
+        obj[Pc]        = v.mPC;
+        obj[Power]     = v.mPower;
+        obj[Unaware]   = v.mUnaware;
+        obj[Who]       = v.mWho;
         return obj;
     }
 

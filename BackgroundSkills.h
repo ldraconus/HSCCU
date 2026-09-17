@@ -15,7 +15,7 @@ public:
         , v { name } { }
     BackgroundSkill(QJsonObject& json)
         : SkillTalentOrPerk(json)
-        , v { json["name"].toString("") } { }
+        , v { json[Name].toString("") } { }
 
     bool isSkill() override { return true; }
 
@@ -30,7 +30,7 @@ public:
 
     QJsonObject toJson() override {
         QJsonObject obj = SkillTalentOrPerk::toJson();
-        obj["name"]     = v.mName;
+        obj[Name] = v.mName;
         return obj;
     }
 
@@ -58,10 +58,10 @@ private:
 class KS: public BackgroundSkill {
 public:
     KS(): BackgroundSkill("Knowledge Skill")     { }
-    KS(QJsonObject& json): BackgroundSkill(json) { v.mIntRoll = json["introll"].toBool(false);
-                                                   v.mPlus    = json["plus"].toInt(1);
-                                                   v.mFor     = json["for"].toString("");
-                                                   v.mType    = json["type"].toInt(0);
+    KS(QJsonObject& json): BackgroundSkill(json) { v.mIntRoll = json[IntRoll].toBool(false);
+                                                   v.mPlus    = json[Plus].toInt(1);
+                                                   v.mFor     = json[For].toString("");
+                                                   v.mType    = json[Type].toInt(0);
     }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? (
@@ -111,10 +111,10 @@ public:
                                                                   v.mIntRoll = introll->isChecked();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = BackgroundSkill::toJson();
-                                                                  obj["plus"]    = v.mPlus;
-                                                                  obj["for"]     = v.mFor;
-                                                                  obj["type"]    = v.mType;
-                                                                  obj["introll"] = v.mIntRoll;
+                                                                  obj[Plus]    = v.mPlus;
+                                                                  obj[For]     = v.mFor;
+                                                                  obj[Type]    = v.mType;
+                                                                  obj[IntRoll] = v.mIntRoll;
                                                                   return obj;
                                                                 }
 
@@ -161,9 +161,9 @@ private:
 class Language: public BackgroundSkill {
 public:
     Language(): BackgroundSkill("Language")            { }
-    Language(QJsonObject& json): BackgroundSkill(json) { v.mWhich    = json["which"].toString("");
-                                                         v.mLevel    = json["level"].toInt(0);
-                                                         v.mLiterate = json["literate"].toBool(false);
+    Language(QJsonObject& json): BackgroundSkill(json) { v.mWhich    = json[Which].toString("");
+                                                         v.mLevel    = json[Level].toInt(0);
+                                                         v.mLiterate = json[Literate].toBool(false);
                                                        }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -194,9 +194,9 @@ public:
                                                                   v.mLiterate = literate->isChecked();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = BackgroundSkill::toJson();
-                                                                  obj["which"]    = v.mWhich;
-                                                                  obj["level"]    = v.mLevel;
-                                                                  obj["literate"] = v.mLiterate;
+                                                                  obj[Which]    = v.mWhich;
+                                                                  obj[Level]    = v.mLevel;
+                                                                  obj[Literate] = v.mLiterate;
                                                                   return obj;
                                                                 }
 
@@ -221,9 +221,9 @@ private:
 class PS: public BackgroundSkill {
 public:
     PS(): BackgroundSkill("Professional Skill")  { }
-    PS(QJsonObject& json): BackgroundSkill(json) { v.mWhat = json["what"].toString("");
-                                                   v.mPlus = json["plus"].toInt(0);
-                                                   v.mStat = json["stat"].toInt(-1);
+    PS(QJsonObject& json): BackgroundSkill(json) { v.mWhat = json[What].toString("");
+                                                   v.mPlus = json[Plus].toInt(0);
+                                                   v.mStat = json[Stat].toInt(-1);
                                                  }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v.mPlus) + ") ": "") + optOut(); }
@@ -257,9 +257,9 @@ public:
                                                                   v.mStat = stat->currentIndex();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = BackgroundSkill::toJson();
-                                                                  obj["what"] = v.mWhat;
-                                                                  obj["plus"] = v.mPlus;
-                                                                  obj["stat"] = v.mStat;
+                                                                  obj[What] = v.mWhat;
+                                                                  obj[Plus] = v.mPlus;
+                                                                  obj[Stat] = v.mStat;
                                                                   return obj;
                                                                 }
 
@@ -296,9 +296,9 @@ private:
 class SS: public BackgroundSkill {
 public:
     SS(): BackgroundSkill("Science Skill")       { }
-    SS(QJsonObject& json): BackgroundSkill(json) { v.mWhat = json["what"].toString("");
-                                                   v.mPlus = json["plus"].toInt(0);
-                                                   v.mInt  = json["int"].toBool(false);
+    SS(QJsonObject& json): BackgroundSkill(json) { v.mWhat = json[What].toString("");
+                                                   v.mPlus = json[Plus].toInt(0);
+                                                   v.mInt  = json[AsInt].toBool(false);
                                                  }
 
     QString description(bool showRoll = false) override         { return (showRoll ? "(" + QString("+%1").arg(v.mPlus) + ") ": "") + optOut(); }
@@ -332,9 +332,9 @@ public:
                                                                   v.mInt  = intstat->isChecked();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = BackgroundSkill::toJson();
-                                                                  obj["what"] = v.mWhat;
-                                                                  obj["plus"] = v.mPlus;
-                                                                  obj["int"]  = v.mInt;
+                                                                  obj[What]  = v.mWhat;
+                                                                  obj[Plus]  = v.mPlus;
+                                                                  obj[AsInt] = v.mInt;
                                                                   return obj;
                                                                 }
 
@@ -371,8 +371,8 @@ private:
 class TF: public BackgroundSkill {
 public:
     TF(): BackgroundSkill("Transport Familiarity") { }
-    TF(QJsonObject& json): BackgroundSkill(json)   { v.mWhat = json["what"].toInt(0);
-                                                     v.mWith = json["with"].toString("");
+    TF(QJsonObject& json): BackgroundSkill(json)   { v.mWhat = json[What].toInt(0);
+                                                     v.mWith = json[With].toString("");
                                                    }
 
     QString abbreviation(bool showRoll = false) override        { return (showRoll ? "" : "") + optOut(true); }
@@ -395,8 +395,8 @@ public:
                                                                   v.mWith = with->text();
                                                                 }
     QJsonObject toJson() override                               { QJsonObject obj = BackgroundSkill::toJson();
-                                                                  obj["what"] = v.mWhat;
-                                                                  obj["with"] = v.mWith;
+                                                                  obj[What] = v.mWhat;
+                                                                  obj[With] = v.mWith;
                                                                   return obj;
                                                                 }
 
