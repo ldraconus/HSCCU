@@ -115,6 +115,7 @@ public:
     void        setTableSelectionMode(QTableWidget*);
     void        updateDisplay();
     void        updatePower(shared_ptr<Power>);
+    void        zoom(QObject* zm);
     void        zoom(qreal zm);
     int         zoom();
     void        zoomIn();

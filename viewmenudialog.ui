@@ -54,7 +54,7 @@ QPushButton:disabled {
 </string>
      </property>
      <property name="text">
-      <string>☐  0.5</string>
+      <string>☐  50%</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -81,7 +81,7 @@ QPushButton:disabled {
 </string>
      </property>
      <property name="text">
-      <string>☐  0.75</string>
+      <string>☐  75%</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -111,7 +111,7 @@ QPushButton:disabled {
 </string>
      </property>
      <property name="text">
-      <string>☐  0.9</string>
+      <string>☐  090%</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -138,7 +138,7 @@ QPushButton:disabled {
 </string>
      </property>
      <property name="text">
-      <string>☐  1.0</string>
+      <string>☐  100%</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -168,7 +168,7 @@ QPushButton:disabled {
 </string>
      </property>
      <property name="text">
-      <string>☐  1.25</string>
+      <string>☐  125%</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -195,7 +195,7 @@ QPushButton:disabled {
 </string>
      </property>
      <property name="text">
-      <string>☐  1.5</string>
+      <string>☐  150%</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -222,7 +222,7 @@ QPushButton:disabled {
 </string>
      </property>
      <property name="text">
-      <string>☐  2.0</string>
+      <string>☐  200%</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -263,7 +263,7 @@ QPushButton:disabled {
 </string>
      </property>
      <property name="text">
-      <string>☐  3.0</string>
+      <string>☐  300%</string>
      </property>
      <property name="checkable">
       <bool>true</bool>

@@ -466,14 +466,14 @@ Sheet::Sheet(QWidget *parent)
     connect(mUI->notes,                 &QPlainTextEdit::textChanged, this, &Sheet::noteChanged);
 
 #ifndef __wasm__
-    connect(mUi->action0_5,             &QAction::triggered,          this, [this] { zoom(0.5); });
-    connect(mUi->action0_75,            &QAction::triggered,          this, [this] { zoom(0.75); });
-    connect(mUi->action0_9,             &QAction::triggered,          this, [this] { zoom(0.9); });
-    connect(mUi->action1_0,             &QAction::triggered,          this, [this] { zoom(1.0); });
-    connect(mUi->action1_25,            &QAction::triggered,          this, [this] { zoom(1.25); });
-    connect(mUi->action1_5,             &QAction::triggered,          this, [this] { zoom(1.5); });
-    connect(mUi->action2_0,             &QAction::triggered,          this, [this] { zoom(2.0); });
-    connect(mUi->action3_0,             &QAction::triggered,          this, [this] { zoom(3.0); });
+    connect(mUi->action0_5,             &QAction::triggered,          this, [this] { zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->action0_75,            &QAction::triggered,          this, [this] { zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->action0_9,             &QAction::triggered,          this, [this] { zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->action1_0,             &QAction::triggered,          this, [this] { zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->action1_25,            &QAction::triggered,          this, [this] { zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->action1_5,             &QAction::triggered,          this, [this] { zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->action2_0,             &QAction::triggered,          this, [this] { zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->action3_0,             &QAction::triggered,          this, [this] { zoom(dynamic_cast<QObject*>(sender())); });
     connect(mUi->actionZoom_In,         &QAction::triggered,          this, [this] { zoomIn(); });
     connect(mUi->actionZoom_Out,        &QAction::triggered,          this, [this] { zoomOut(); });
 
@@ -2374,6 +2374,19 @@ int  Sheet::zoom() {
     return -1;
 }
 
+void Sheet::zoom(QObject* zm) {
+    QString txt;
+    if (QAction* act = dynamic_cast<QAction*>(zm); act) txt = act->text();
+    else if (QPushButton* btn = dynamic_cast<QPushButton*>(zm); btn) txt = btn->text().mid(1).trimmed();
+    else return;
+
+    bool ok = true;
+    double dec = txt.remove("%").toDouble(&ok) / 100.0;
+    if (!ok) return;
+
+    zoom(dec);
+}
+
 void Sheet::zoom(qreal zm) {
     if (zm < 0.5) zm = 0.5;
     if (zm > 3.0) zm = 3.0;
@@ -2873,7 +2886,8 @@ void Sheet::viewMenu(bool) {
 void Sheet::stpMenu(bool) {
     closeDialogs(nullptr);
 #ifdef Q_OS_ANDROID
-    auto skillMenuDialog = (sDialog.SkillMenu = std::shared_ptr<SkillMenuDialog> (new SkillMenuDialog(), [](SkillMenuDialog* d) { d->deleteLater(); }));
+    au.
+        to skillMenuDialog = (sDialog.SkillMenu = std::shared_ptr<SkillMenuDialog> (new SkillMenuDialog(), [](SkillMenuDialog* d) { d->deleteLater(); }));
 #else
     auto skillMenuDialog = (sDialog.SkillMenu = std::make_shared<SkillMenuDialog>());
 #endif

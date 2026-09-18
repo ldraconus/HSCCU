@@ -28,14 +28,14 @@ ViewMenuDialog::ViewMenuDialog(QWidget *parent)
     case 7: check(mUi->z3_0);  break;
     }
 
-    connect(mUi->z0_5,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(0.5); });
-    connect(mUi->z0_75,    &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(0.75); });
-    connect(mUi->z0_9,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(0.9); });
-    connect(mUi->z1_0,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(1.0); });
-    connect(mUi->z1_25,    &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(1.25); });
-    connect(mUi->z1_5,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(1.5); });
-    connect(mUi->z2_0,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(2.0); });
-    connect(mUi->z3_0,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(3.0); });
+    connect(mUi->z0_5,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->z0_75,    &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->z0_9,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->z1_0,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->z1_25,    &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->z1_5,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->z2_0,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(dynamic_cast<QObject*>(sender())); });
+    connect(mUi->z3_0,     &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoom(dynamic_cast<QObject*>(sender())); });
     connect(mUi->Zoom_In,  &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoomIn(); });
     connect(mUi->Zoom_Out, &QPushButton::clicked, this, [this](bool) { accept(); Sheet::ref().zoomOut(); });
 }
