@@ -3213,11 +3213,11 @@ public:
 
     Fraction fraction(bool noStore = false) override {
         if (!noStore) store();
-        static QList<Fraction> Type          { { 0, 1 }, { 1, 4 }, { 1, 2 }, { 1, 2 }, { 1, 1 } };
-        static QList<Fraction> Mobility      { { 0, 1 }, { 0, 1 }, { 1, 2 }, { 1, 1 }, { 1, 4 } };
-        static QList<Fraction> Expendability { { 0, 1 }, { 0, 1 }, { 1, 4 }, { 1, 2 }, { 1, 1 } };
-        static QList<Fraction> Durability    { { 0, 1 }, { 0, 1 }, { 1, 4 }, { 0, 1 }, { 0, 1 } };
-        try { return Type[v.mType + 1] + Mobility[v.mMobility + 1] + Expendability[v.mExpendability + 1] + Durability[v.mDurability + 1]; }
+        static QList<Fraction> sType          { { 0, 1 }, { 1, 4 }, { 1, 2 }, { 1, 2 }, { 1, 1 } };
+        static QList<Fraction> sMobility      { { 0, 1 }, { 0, 1 }, { 1, 2 }, { 1, 1 }, { 1, 4 } };
+        static QList<Fraction> sExpendability { { 0, 1 }, { 0, 1 }, { 1, 4 }, { 1, 2 }, { 1, 1 } };
+        static QList<Fraction> sDurability    { { 0, 1 }, { 0, 1 }, { 1, 4 }, { 0, 1 }, { 0, 1 } };
+        try { return sType[v.mType + 1] + sMobility[v.mMobility + 1] + sExpendability[v.mExpendability + 1] + sDurability[v.mDurability + 1]; }
         catch (...) { return Fraction(0); }
     }
 
@@ -3240,25 +3240,25 @@ private:
 
     QString optOut(bool show, bool abbr = false) {
         if (v.mWhat.isEmpty() || v.mType < 0) return "<incomplete>";
-        QStringList Type { "IIF", "IAF", "OIF", "OAF" };
-        QStringList Mobiillity { "", "Bulky", "Immobile", "Arrangement" };
-        QStringList MobiillityAbbr { "", "Bulky", "Immob.", "Arrange." };
-        QStringList Expendability { "", "Difficult To Obtain", "Very Difficult To Obtain", "Extremely Difficult To Obtain" };
-        QStringList ExpendabilityAbbr { "", "Diff. To Obtain", "V. Diff. To Obtain", "Xtreme. Diff. To Obtain" };
-        QStringList Durability { "", "Fragile", "Durable", "Unbreakable" };
-        QStringList DurabilityAbbr { "", "Frag.", "Dur.", "Unbreak." };
+        static QStringList sType { "IIF", "IAF", "OIF", "OAF" };
+        static QStringList sMobiillity { "", "Bulky", "Immobile", "Arrangement" };
+        static QStringList sMobiillityAbbr { "", "Bulky", "Immob.", "Arrange." };
+        static QStringList sExpendability { "", "Difficult To Obtain", "Very Difficult To Obtain", "Extremely Difficult To Obtain" };
+        static QStringList sExpendabilityAbbr { "", "Diff. To Obtain", "V. Diff. To Obtain", "Xtreme. Diff. To Obtain" };
+        static QStringList sDurability { "", "Fragile", "Durable", "Unbreakable" };
+        static QStringList sDurabilityAbbr { "", "Frag.", "Dur.", "Unbreak." };
         Fraction f = fraction(Modifier::NoStore);
         try {
-            QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + Type[v.mType] + " (" + v.mWhat;
+            QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + sType[v.mType] + " (" + v.mWhat;
             QString sep = "; ";
             if (abbr) {
-                if (v.mMobility > 0) desc += sep + MobiillityAbbr[v.mMobility];
-                if (v.mExpendability > 0) desc += sep + ExpendabilityAbbr[v.mExpendability];
-                if (v.mDurability > 0) desc += sep + DurabilityAbbr[v.mDurability];
+                if (v.mMobility > 0) desc += sep + sMobiillityAbbr[v.mMobility];
+                if (v.mExpendability > 0) desc += sep + sExpendabilityAbbr[v.mExpendability];
+                if (v.mDurability > 0) desc += sep + sDurabilityAbbr[v.mDurability];
             } else {
-                if (v.mMobility > 0) desc += sep + Mobiillity[v.mMobility];
-                if (v.mExpendability > 0) desc += sep + Expendability[v.mExpendability];
-                if (v.mDurability > 0) desc += sep + Durability[v.mDurability];
+                if (v.mMobility > 0) desc += sep + sMobiillity[v.mMobility];
+                if (v.mExpendability > 0) desc += sep + sExpendability[v.mExpendability];
+                if (v.mDurability > 0) desc += sep + sDurability[v.mDurability];
             }
             desc += ")";
             return desc;
@@ -3757,12 +3757,12 @@ private:
 
     QString optOut(bool show, bool abbr = false) {
         if (v.mAmount < 1) return "<incomplete>";
-        QStringList Amount { "", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9", "x10" };
-        QStringList Circumstances { "", "Very Common", "Common", "Uncommon" };
-        QStringList CircumstancesAbbr { "", "V. Com.", "Com.", "Uncom." };
+        static QStringList sAmount { "", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9", "x10" };
+        static QStringList sCircumstances { "", "Very Common", "Common", "Uncommon" };
+        static QStringList sCircumstancesAbbr { "", "V. Com.", "Com.", "Uncom." };
         Fraction f = fraction(Modifier::NoStore);
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Increased END Cost (" + Amount[v.mAmount];
-        if (Circumstances[v.mCircumstances] != "") desc += "; " + (abbr ? CircumstancesAbbr[v.mCircumstances] : Circumstances[v.mCircumstances]) + ((v.mCircumstances != 0) ? ": " + v.mWhat : "");
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Increased END Cost (" + sAmount[v.mAmount];
+        if (sCircumstances[v.mCircumstances] != "") desc += "; " + (abbr ? sCircumstancesAbbr[v.mCircumstances] : sCircumstances[v.mCircumstances]) + ((v.mCircumstances != 0) ? ": " + v.mWhat : "");
         return desc + ")";
     }
 
@@ -4048,19 +4048,19 @@ private:
 
     QString optOut(bool show, bool abbr = true) {
         if (v.mPowerSource < 0 || v.mDirection < 0 || ((v.mPowerSource == 2 || v.mDirection == 2) && v.mLocAndDir.isEmpty())) return "<incomplete>";
-        QStringList Location { "Always The Character", "Always the Same", "Variable" };
-        QStringList Direction { "Directly from Source to Target", "Always the Same", "Variable" };
-        QStringList LocationAbbr { "Always The Char.", "Always the Same", "Var." };
-        QStringList DirectionAbbr { "Start to Tgt", "Always the Same", "Var." };
+        static QStringList sLocation { "Always The Character", "Always the Same", "Variable" };
+        static QStringList sDirection { "Directly from Source to Target", "Always the Same", "Variable" };
+        static QStringList sLocationAbbr { "Always The Char.", "Always the Same", "Var." };
+        static QStringList sDirectionAbbr { "Start to Tgt", "Always the Same", "Var." };
         Fraction f = fraction(Modifier::NoStore);
-        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Indirect (" + (abbr ? LocationAbbr[v.mPowerSource] : Location[v.mPowerSource]);
+        QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") + "Indirect (" + (abbr ? sLocationAbbr[v.mPowerSource] : sLocation[v.mPowerSource]);
         if (abbr) {
             if (v.mPowerSource == 1 && v.mDirection != 2) desc += ", " + v.mLocAndDir;
-            desc += "; " + DirectionAbbr[v.mDirection];
+            desc += "; " + sDirectionAbbr[v.mDirection];
             if (v.mPowerSource == 2 || v.mDirection == 2) desc += ", " + v.mLocAndDir;
         } else {
             if (v.mPowerSource == 1 && v.mDirection != 2) desc += ", " + v.mLocAndDir;
-            desc += "; " + Direction[v.mDirection];
+            desc += "; " + sDirection[v.mDirection];
             if (v.mPowerSource == 2 || v.mDirection == 2) desc += ", " + v.mLocAndDir;
         }
         return desc + ")";
@@ -4206,39 +4206,39 @@ private:
         if (v.mHow < 1 || v.mEffect < 1) return "<incomplete>";
         if (v.mInobvious && v.mHow != 1 && v.mSense.isEmpty()) return "<incomplete>";
         if (!v.mInobvious && v.mHow != 3 && v.mSense.isEmpty()) return "<incomplete>";
-        static QStringList How { "",
-                                 "Inobvious to One Sense Group",
-                                 "Inobvious to Two Sense Groups",
-                                 "Imperceptible to One Sense Group",
-                                 "Fully Invisible" };
-        static QStringList Effect {  "",
+        static QStringList sHow { "",
+                                  "Inobvious to One Sense Group",
+                                  "Inobvious to Two Sense Groups",
+                                  "Imperceptible to One Sense Group",
+                                  "Fully Invisible" };
+        static QStringList sEffect { "",
                                      "Inobvious to other characters but not to target",
                                      "Invisible to other characters but not to target",
                                      "Inobvious to target but not to other characters"
                                      "Invisible to target but not to other characters" };
-        static QStringList HowAbbr { "",
-                                 "Inob. to 1 Sense Group",
-                                 "Inob. to 2 Sense Groups",
-                                 "Imper. to 1 Sense Group",
-                                 "Fully Invisible" };
-        static QStringList EffectAbbr {  "",
-                                     "Inobv. to others but not to tgt",
-                                     "Invis. to others but not to tgt",
-                                     "Inobv. to tgt but not to others"
-                                     "Invis. to tgt but not to others" };
+        static QStringList sHowAbbr { "",
+                                      "Inob. to 1 Sense Group",
+                                      "Inob. to 2 Sense Groups",
+                                      "Imper. to 1 Sense Group",
+                                      "Fully Invisible" };
+        static QStringList sEffectAbbr { "",
+                                         "Inobv. to others but not to tgt",
+                                         "Invis. to others but not to tgt",
+                                         "Inobv. to tgt but not to others"
+                                         "Invis. to tgt but not to others" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
                  (abbr ? "Invis. Pow. Eff." : "Invisible Power Effects") + " (";
         if (abbr) {
-            if (v.mInobvious) desc += HowAbbr[v.mHow + 2];
-            else desc += HowAbbr[v.mHow];
+            if (v.mInobvious) desc += sHowAbbr[v.mHow + 2];
+            else desc += sHowAbbr[v.mHow];
             desc += (v.mSense.isEmpty() ? "" : ": " + v.mSense);
-            if (v.mEffect > 0) desc += "; " + EffectAbbr[v.mEffect];
+            if (v.mEffect > 0) desc += "; " + sEffectAbbr[v.mEffect];
         } else {
-            if (v.mInobvious) desc += How[v.mHow + 2];
-            else desc += How[v.mHow];
+            if (v.mInobvious) desc += sHow[v.mHow + 2];
+            else desc += sHow[v.mHow];
             desc += (v.mSense.isEmpty() ? "" : ": " + v.mSense);
-            if (v.mEffect > 0) desc += "; " + Effect[v.mEffect];
+            if (v.mEffect > 0) desc += "; " + sEffect[v.mEffect];
         }
         return desc + ")";
     }
@@ -4603,11 +4603,11 @@ private:
 
     QString optOut(bool show, bool abbr = false) {
         if (v.mHow < 1 || v.mWhat.isEmpty()) return "<incomplete>";
-        static QStringList Limited { "", "Very Common", "Common", "Uncommon" };
-        static QStringList LimitedAbbr { "", "V. Com.", "Com.", "Uncom." };
+        static QStringList sLimited { "", "Very Common", "Common", "Uncommon" };
+        static QStringList sLimitedAbbr { "", "V. Com.", "Com.", "Uncom." };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 (abbr ? "Lim. Spec. Eff." : "Limited Special Effect") + " (" + (abbr ? LimitedAbbr[v.mHow] : Limited[v.mHow]) + ": " + v.mWhat + ")";
+                 (abbr ? "Lim. Spec. Eff." : "Limited Special Effect") + " (" + (abbr ? sLimitedAbbr[v.mHow] : sLimited[v.mHow]) + ": " + v.mWhat + ")";
         return desc;
     }
 
@@ -4855,10 +4855,10 @@ private:
 
     QString optOut(bool show, bool abbr = false) {
         if (v.mEffect < 1) return "<incomplete>";
-        static QStringList Limited { "", "EGO+10", "EGO+20", "EGO+30" };
+        static QStringList sLimited { "", "EGO+10", "EGO+20", "EGO+30" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 (abbr ? "Mand. Eff." : "Mandatory Effect") + " (" + Limited[v.mEffect];
+                 (abbr ? "Mand. Eff." : "Mandatory Effect") + " (" + sLimited[v.mEffect];
         if (!v.mOther.isEmpty()) desc += " and " + v.mOther;
         return desc + ")";
     }
@@ -4929,11 +4929,11 @@ private:
 
     QString optOut(bool show, bool abbr = false) {
         if (v.mMass < 1) return "<incomplete>";
-        static QStringList Limited { "", Fraction(1, 2).toString() + " Mass", "Normal Mass", "2x Mass" };
-        static QStringList LimitedAbbr { "", Fraction(1, 2).toString() + " Mass", "1x Mass", "2x Mass" };
+        static QStringList sLimited { "", Fraction(1, 2).toString() + " Mass", "Normal Mass", "2x Mass" };
+        static QStringList sLimitedAbbr { "", Fraction(1, 2).toString() + " Mass", "1x Mass", "2x Mass" };
         Fraction f(fraction(Modifier::NoStore));
         QString desc = (show ? QString("(%1").arg((f < 0) ? "" : "+") + f.toString() + ") " : "") +
-                 "MassꚚ (" + (abbr ? LimitedAbbr[v.mMass] : Limited[v.mMass]) + ")";
+                 "MassꚚ (" + (abbr ? sLimitedAbbr[v.mMass] : sLimited[v.mMass]) + ")";
         return desc;
     }
 };
