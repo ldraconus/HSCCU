@@ -1004,8 +1004,8 @@ public:
                                        { "Flash Defense",  "0" } }, { 392, 739 }, { 249, 270 }); // NOLINT
 
         createBlockHeader(widget, headerFont, 394, 1040 + offset, 243, "SENSES");
-        createLabel(widget, smallBoldNarrowFont, "Perception Roll", { 395, 1065 }, QStringLiteral("-00")); // NOLINT
-        createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 496, 1065 }, QStringLiteral("00")); // NOLINT
+        createLabel(widget, smallBoldNarrowFont, "Perception Roll", { 395, 1065 }); // NOLINT
+        createLabel(widget, smallNarrowFont,     "(9+INT/5)",       { 496, 1065 }); // NOLINT
         perceptionroll = createLabel(widget, font, "11-", { 569, 1066 }, "-00"); // NOLINT
         enhancedandunusualsenses = createTextEdit(widget, font, "<b>Enhanced and Unusual Senses</b>", { 390, 1083 }, { 249, 150 }); // NOLINT
 
@@ -1015,7 +1015,7 @@ public:
         createLabel(widget, smallNarrowFont,     "Experience Spent",        { 675, 1181 }); // NOLINT
         createLabel(widget, smallNarrowFont,     "Experience Unspent",      { 675, 1206 }); // NOLINT
 
-        totalpoints           = createLabel(widget, font, "0/325", { 855, 1135 }, QStringLiteral("0000")); // NOLINT
+        totalpoints           = createLabel(widget, font, "0/325", { 855, 1135 }, QStringLiteral("000/000")); // NOLINT
         totalexperienceearned = createLineEdit(widget, font,  "0", { 853, 1158 }, { 80, 20 }, "How much experience your character has earned"); // NOLINT
         experiencespent       = createLabel(widget, font,     "0", { 855, 1183 }, QStringLiteral("000")); // NOLINT
         experienceunspent     = createLabel(widget, font,   "325", { 855, 1207 }, QStringLiteral("0000")); // NOLINT
