@@ -2886,8 +2886,7 @@ void Sheet::viewMenu(bool) {
 void Sheet::stpMenu(bool) {
     closeDialogs(nullptr);
 #ifdef Q_OS_ANDROID
-    au.
-        to skillMenuDialog = (sDialog.SkillMenu = std::shared_ptr<SkillMenuDialog> (new SkillMenuDialog(), [](SkillMenuDialog* d) { d->deleteLater(); }));
+    auto skillMenuDialog = (sDialog.SkillMenu = std::shared_ptr<SkillMenuDialog> (new SkillMenuDialog(), [](SkillMenuDialog* d) { d->deleteLater(); }));
 #else
     auto skillMenuDialog = (sDialog.SkillMenu = std::make_shared<SkillMenuDialog>());
 #endif
