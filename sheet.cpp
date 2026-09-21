@@ -33,6 +33,7 @@
 
 #include <QBuffer>
 #include <QClipboard>
+#include <QDesktopServices>
 #include <QDirIterator>
 #include <QFileDialog>
 #include <QFontDatabase>
@@ -50,6 +51,7 @@
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
 #include <QProcess>
+#include <QRandomGenerator>
 #include <QSaveFile>
 #include <QScrollBar>
 #include <QScroller>
@@ -57,6 +59,7 @@
 #include <QStandardPaths>
 #include <QStatusBar>
 #include <QToolButton>
+#include <QtNetwork/QNetworkReply>
 #include <QWindow>
 
 Sheet* Sheet::sSheet = nullptr; // NOLINT
@@ -409,6 +412,7 @@ Sheet::Sheet(QWidget *parent)
 
     powersAndEquipmentButton = createToolBarItem(mUi->menuBar, "Power", "Power & Equipment menu");
     connect(powersAndEquipmentButton, &QToolButton::clicked, this, &Sheet::powerMenu);
+    createAd(mUi->toolBar);
 #endif
 
     connect(mUI->alternateids,          &QLineEdit::textEdited,       this, &Sheet::alternateIdsChanged);
@@ -592,8 +596,123 @@ Sheet::Sheet(QWidget *parent)
 
 Sheet::~Sheet() {
     delete mUi;
-    // Ui's contents are pointed to by ui->label, don't delete it (double deletes)!
-    // Don't worry, the delete of ui->label delete everything Ui points to as well.
+    // mUI's contents are pointed to by mUi->label, don't delete it (double deletes)!
+    // Don't worry, the delete of mUi->label delete everything mUI points to as well.
+}
+
+void Sheet::createAd(QToolBar* adBar) {
+    mNetwork = new QNetworkAccessManager(this);
+
+    QNetworkReply* reply = mNetwork->get(QNetworkRequest(QUrl("https://hsccu.chris-m-olson.workers.dev/ads.json")));
+
+    connect(reply, &QNetworkReply::finished, this, [this, adBar, reply]() {
+        reply->deleteLater();
+
+        if (reply->error() != QNetworkReply::NoError) {
+            qWarning() << reply->errorString();
+            return;
+        }
+
+        QString jsonString = reply->readAll();
+        if (jsonString.isEmpty()) {
+            qWarning() << "Could not load ads";
+            return;
+        }
+
+        QJsonDocument doc;
+        if (doc.isEmpty() || !doc.isArray()) {
+            qWarning() << "ads.json is in the wrong format";
+            return;
+        }
+
+        QJsonArray arr = doc.array();
+        if (arr.count() < 1) {
+            qWarning() << "No ads found in ads.json";
+            return;
+        }
+
+        struct Ads {
+        public:
+            QString mName;
+            QString mImage;
+            QString mUrl;
+        };
+
+        QDate today(QDate::currentDate());
+        QList<Ads> ads;
+        for (const auto& ad: std::as_const(arr)) {
+            if (!ad.isObject()) continue;
+            QJsonObject adObj = ad.toObject();
+            if (!(adObj.contains("name")    || !adObj["name"].isString())  ||
+                !(adObj.contains("image")   || !adObj["image"].isString()) ||
+                !(adObj.contains("url")     || !adObj["url"].isString())   ||
+                !(adObj.contains("expires") || !adObj["expires"].isString())) continue;
+            QString expires = adObj["expires"].toString();
+            QDate expireDate(QDate::fromString(expires, Qt::ISODate));
+            if (expireDate < today) continue;
+
+            Ads tmp;
+            tmp.mName  = adObj["name"].toString();
+            tmp.mImage = adObj["image"].toString();
+            tmp.mUrl   = adObj["url"].toString();
+
+            if (tmp.mImage.isEmpty() || tmp.mName.isEmpty() || tmp.mUrl.isEmpty()) continue;
+
+            ads.append(tmp);
+        }
+
+        if (ads.isEmpty()) {
+            qWarning() << "No unexpred ads found in ads.json";
+            return;
+        }
+
+        int choice = QRandomGenerator::global()->bounded(ads.count());
+        QString imgString = ads[choice].mImage;
+        mAdUrl = QUrl(ads[choice].mUrl);
+        QUrl imgUrl(imgString);
+        QNetworkReply* imgReply = mNetwork->get(QNetworkRequest(QUrl(imgUrl)));
+
+        connect(imgReply, &QNetworkReply::finished, this, [this, adBar, imgReply]() {
+            imgReply->deleteLater();
+
+            if (imgReply->error() != QNetworkReply::NoError) {
+                qWarning() << imgReply->errorString();
+                return;
+            }
+
+            QPixmap original;
+            if (!original.loadFromData(imgReply->readAll())) {
+                qWarning() << "Could not load banner image";
+                return;
+            }
+
+            QImage img = original.toImage();
+            qreal originalHeight = original.height();
+            qreal adBarHeight = adBar->height();
+            qreal scale = adBarHeight / originalHeight;
+            QImage scld = img.scaledToHeight(scale + 0.5);
+            QPixmap scaled = QPixmap::fromImage(scld);
+
+            auto* container = new QWidget(adBar);
+            container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+            auto* layout = new QHBoxLayout(container);
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+
+            auto* image = new ClickableLabel(container);
+            connect(image, &ClickableLabel::clicked, this, &Sheet::showAd);
+            image->setPixmap(QPixmap(scaled));
+            image->setAlignment(Qt::AlignCenter);
+
+            layout->addStretch();
+            layout->addWidget(image);
+            layout->addStretch();
+
+            adBar->addWidget(container);
+        });
+    });
+
 }
 
 Sheet::Dialogs Sheet::sDialog{};
@@ -3473,4 +3592,8 @@ void Sheet::totalExperienceEarnedEditingFinished() {
 }
 
 void Sheet::setTableSelectionMode(QTableWidget* table) {
+}
+
+void Sheet::showAd() {
+    QDesktopServices::openUrl(mAdUrl);
 }

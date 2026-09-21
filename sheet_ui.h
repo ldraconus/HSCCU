@@ -36,8 +36,13 @@ signals:
 protected:
 #if defined(__wasm__)
     void mousePressEvent(QMouseEvent* me) override {
-        if (me->button() == Qt::RightButton) emit customContextMenuRequested(me->globalPosition().toPoint());
-        else                                 emit QLabel::mouseReleaseEvent(me);
+        if (me->button() == Qt::RightButton)     emit customContextMenuRequested(me->globalPosition().toPoint());
+        else                                     emit QLabel::mousePressEvent(me);
+    }
+
+    void mouseReleaseEvent(QMouseEvent* me) override {
+        if (me->button() == Qt::LeftButton) emit clicked();
+        else                                emit QLabel::mouseReleaseEvent(me);
     }
 #elif defined(Q_OS_ANDROID)
     void mousePressEvent(QMouseEvent* me) override { if (me->button()== Qt::LeftButton) mPnt = me->pos(); }

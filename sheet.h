@@ -13,6 +13,7 @@
 #include "skilldialog.h"
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
 #ifdef __wasm__
+#include <QtNetwork/QNetworkAccessManager>
 #include "editmenudialog.h"
 #include "filemenudialog.h"
 #include "viewmenudialog.h"
@@ -60,6 +61,9 @@ public:
     static Sheet& ref() { return* sSheet; }
 
 #ifdef __wasm__
+    QNetworkAccessManager* mNetwork = nullptr;
+    void createAd(QToolBar* adBar);
+
     typedef std::shared_ptr<EditMenuDialog>          tEditMenu;
     typedef std::shared_ptr<FileMenuDialog>          tFileMenu;
     typedef std::shared_ptr<ViewMenuDialog>          tViewMenu;
@@ -113,6 +117,7 @@ public:
     void        setCellLabel(QTableWidget*, int, int, QString);
     void        setNotes(bool visible);
     void        setTableSelectionMode(QTableWidget*);
+    void        showAd();
     void        updateDisplay();
     void        updatePower(shared_ptr<Power>);
     void        zoom(QObject* zm);
@@ -249,6 +254,7 @@ private:
     QUrl      mFilename;
     QFont     mFont;
     Option    mOption;
+    QUrl      mAdUrl;
     bool      mSaveChanged = false;
     qreal     mStartScale = 1.0;
 

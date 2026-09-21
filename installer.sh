@@ -74,6 +74,8 @@ if [[ "$BINARY_CREATOR" == "echo" ]]; then
     cp -uf $BUILD_DIR/${TO_PROG}.wasm ${TO_PROG}
     cp -uf $BUILD_DIR/qtloader.js ${TO_PROG}
     cp -uf HeroSystem.png ${TO_PROG}
+    cp -uf HSAd.png ${TO_PROG}
+    cp -uf ads.json ${TO_PROG}
     cp -uf favicon.png ${TO_PROG}
     cp -uf ${TO_PROG}.html ${TO_PROG}
 else

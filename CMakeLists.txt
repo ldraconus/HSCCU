@@ -17,7 +17,7 @@ set(CMAKE_AUTORCC ON)
 
 include(GNUInstallDirs)
 
-find_package(Qt6 REQUIRED COMPONENTS Gui PrintSupport)
+find_package(Qt6 REQUIRED COMPONENTS Gui PrintSupport Network)
 find_package(Qt6 OPTIONAL_COMPONENTS Widgets)
 
 set(source_files
@@ -138,6 +138,7 @@ if(EMSCRIPTEN)
             printer.h printer.cpp
             sheet_ui.cpp
             viewmenudialog.h viewmenudialog.cpp viewmenudialog.ui
+            ads.json
     )
 
 set_target_properties(HSCCU PROPERTIES
@@ -329,6 +330,7 @@ target_link_libraries(HSCCU
         Qt::Core
         Qt::Widgets
         Qt::PrintSupport
+        Qt::Network
 )
 
 install(TARGETS HSCCU
