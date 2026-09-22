@@ -170,6 +170,7 @@ else()
             sheet_ui.cpp
             sheet_ui.cpp
             dialog.cpp
+            aboutdialog.cpp aboutdialog.h aboutdialog.ui
         )
     else()
         qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
