@@ -376,7 +376,7 @@ Sheet::Sheet(QWidget *parent)
     connect(mUi->actionOptions, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::options();        }); }, Qt::QueuedConnection);
     connect(mUi->actionOptions, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::cutCharacter();   }); }, Qt::QueuedConnection);
     connect(mUi->action_Paste,  &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::pasteCharacter(); }); }, Qt::QueuedConnection);
-    connect(mUi->actionAbout,   &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::about();          }); }, Qt::QueuedConnection);
+    connect(mUi->action_About,  &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::about();          }); }, Qt::QueuedConnection);
 #else
     connect(mUi->action_New,    &QAction::triggered, this, &Sheet::newchar);
     connect(mUi->action_Open,   &QAction::triggered, this, &Sheet::open);
@@ -425,6 +425,10 @@ Sheet::Sheet(QWidget *parent)
     powersAndEquipmentButton = createToolBarItem(mUi->menuBar, "Power", "Power & Equipment menu");
     connect(powersAndEquipmentButton, &QToolButton::clicked, this, &Sheet::powerMenu);
     createAd(mUi->toolBar);
+
+    helpButton = createToolBarItem(mUi->menuBar, "Help", "Help Menu");
+    connect(helpButton, &QToolButton::clicked, this, &Sheet::helpMenu);
+    createMenuItem(actionAbout, "action_About", SLOT(about()));
 #endif
 
     connect(mUI->alternateids,          &QLineEdit::textEdited,       this, &Sheet::alternateIdsChanged);
