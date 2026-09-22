@@ -194,6 +194,7 @@ else()
             appicon.rc
             sheet_ui.cpp
             aboutdialog.cpp aboutdialog.h aboutdialog.ui
+            docs/images/hsccu-android.png docs/images/hsccu-main.png docs/images/hsccu-wasm.png docs/images/hsccu-windows.png
         )
     endif()
 endif()
