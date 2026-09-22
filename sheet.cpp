@@ -5,6 +5,7 @@
 #ifdef __wasm__
 #include "editmenudialog.h"
 #include "filemenudialog.h"
+#include "helpmenudialog.h"
 #endif
 #include "optiondialog.h"
 #include "powers.h"
@@ -370,6 +371,7 @@ Sheet::Sheet(QWidget *parent)
     connect(mUi->actionOptions, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::options();        }); }, Qt::QueuedConnection);
     connect(mUi->actionOptions, &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::cutCharacter();   }); }, Qt::QueuedConnection);
     connect(mUi->action_Paste,  &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::pasteCharacter(); }); }, Qt::QueuedConnection);
+    connect(mUi->actionAbout,   &QAction::triggered, this, [this] { QTimer::singleShot(100, this, [this]() { Sheet::about();          }); }, Qt::QueuedConnection);
 #else
     connect(mUi->action_New,    &QAction::triggered, this, &Sheet::newchar);
     connect(mUi->action_Open,   &QAction::triggered, this, &Sheet::open);
@@ -380,6 +382,7 @@ Sheet::Sheet(QWidget *parent)
     connect(mUi->actionOptions, &QAction::triggered, this, &Sheet::options);
     connect(mUi->action_Cut,    &QAction::triggered, this, &Sheet::cutCharacter);
     connect(mUi->action_Paste,  &QAction::triggered, this, &Sheet::pasteCharacter);
+    connect(mUi->action_About,  &QAction::triggered, this, &Sheet::about);
 #endif
     connect(mUi->menu_Edit,     &QMenu::aboutToShow, this, &Sheet::aboutToShowEditMenu);
     connect(mUi->menu_Edit,     &QMenu::aboutToHide, this, &Sheet::aboutToHideEditMenu);
@@ -400,6 +403,10 @@ Sheet::Sheet(QWidget *parent)
 
     viewButton = createToolBarItem(mUi->menuBar, "View", "View Menu");
     connect(viewButton, &QToolButton::clicked, this, &Sheet::viewMenu);
+
+    helpButton = createToolBarItem(mUi->menuBar, "Help", "Help Menu");
+    connect(helpButton, &QToolButton::clicked, this, &Sheet::helpMenu);
+    createMenuItem(actionAbout, "action_About", SLOT(about()));
 
     imageButton = createToolBarItem(mUi->menuBar, "Image", "Image menu");
     connect(imageButton, &QToolButton::clicked, this, &Sheet::imgMenu);
@@ -592,6 +599,8 @@ Sheet::Sheet(QWidget *parent)
 #endif
 #else
 #endif
+
+    mChanged = false;
 }
 
 Sheet::~Sheet() {
@@ -600,6 +609,7 @@ Sheet::~Sheet() {
     // Don't worry, the delete of mUi->label delete everything mUI points to as well.
 }
 
+#ifdef __wasm__
 void Sheet::createAd(QToolBar* adBar) {
     mNetwork = new QNetworkAccessManager(this);
 
@@ -712,8 +722,8 @@ void Sheet::createAd(QToolBar* adBar) {
             adBar->addWidget(container);
         });
     });
-
 }
+#endif
 
 Sheet::Dialogs Sheet::sDialog{};
 
@@ -765,6 +775,7 @@ void Sheet::closeDialogs(QMouseEvent* me) {
     if (sDialog.EditMenu          != nullptr) closeDialog(sDialog.EditMenu,          me);
     if (sDialog.FileMenu          != nullptr) closeDialog(sDialog.FileMenu,          me);
     if (sDialog.ViewMenu          != nullptr) closeDialog(sDialog.ViewMenu,          me);
+    if (sDialog.HelpMenu          != nullptr) closeDialog(sDialog.HelpMenu,          me);
 #endif
     if (sDialog.ImgMenu           != nullptr) closeDialog(sDialog.ImgMenu,           me);
     if (sDialog.SkillMenu         != nullptr) closeDialog(sDialog.SkillMenu,         me);
@@ -772,9 +783,28 @@ void Sheet::closeDialogs(QMouseEvent* me) {
 #endif
     if (sDialog.Print             != nullptr) closeDialog(sDialog.Print,             me);
     if (sDialog.Option            != nullptr) closeDialog(sDialog.Option,            me);
+    if (sDialog.About             != nullptr) closeDialog(sDialog.About,             me);
     if (sDialog.Complications     != nullptr) closeDialog(sDialog.Complications,     me);
     if (sDialog.Power             != nullptr) closeDialog(sDialog.Power,             me);
     if (sDialog.Skill             != nullptr) closeDialog(sDialog.Skill,             me);
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
+    sDialog.ComplicationsMenu = nullptr;
+#ifdef __wasm__
+    sDialog.EditMenu          = nullptr;
+    sDialog.FileMenu          = nullptr;
+    sDialog.ViewMenu          = nullptr;
+    sDialog.HelpMenu          = nullptr;
+#endif
+    sDialog.ImgMenu           = nullptr;
+    sDialog.SkillMenu         = nullptr;
+    sDialog.PowerMenu         = nullptr;
+#endif
+    sDialog.Print             = nullptr;
+    sDialog.Option            = nullptr;
+    sDialog.About             = nullptr;
+    sDialog.Complications     = nullptr;
+    sDialog.Power             = nullptr;
+    sDialog.Skill             = nullptr;
 }
 
 void Sheet::mousePressEvent(QMouseEvent* me) {
@@ -2483,6 +2513,11 @@ QString Sheet::valueToDice(int val, bool showD6) {
     return QString("%1%2%3").arg(dice).arg(half ? halfDice : "", showD6 ? "d6" : "");
 }
 
+void Sheet::about() {
+    auto aboutDlg = (sDialog.About = std::shared_ptr<AboutDialog> (new AboutDialog(this), [](AboutDialog* d) { d->deleteLater(); }));
+    aboutDlg->open();
+}
+
 static qreal scales[] { 0.5, 0.75, 0.9, 1.0, 1.25, 1.5, 2.0, 3.0 };
 static int numScales = sizeof(scales) / sizeof(qreal);
 
@@ -2999,6 +3034,15 @@ void Sheet::viewMenu(bool) {
     viewMenuDialog->setPos(QPoint());
     viewMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     viewMenuDialog->open();
+#endif
+}
+
+void Sheet::helpMenu(bool) {
+    closeDialogs(nullptr);
+#ifdef __wasm__
+    auto helpMenuDialog = (sDialog.HelpMenu = std::make_shared<HelpMenuDialog>());
+    helpMenuDialog->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    helpMenuDialog->open();
 #endif
 }
 

@@ -11,12 +11,14 @@
 #include "powerdialog.h"
 #include "printdialog.h"
 #include "skilldialog.h"
+#include "aboutdialog.h"
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
 #ifdef __wasm__
 #include <QtNetwork/QNetworkAccessManager>
 #include "editmenudialog.h"
 #include "filemenudialog.h"
 #include "viewmenudialog.h"
+#include "helpmenudialog.h"
 #endif
 #include "complicationsmenudialog.h"
 #include "imgmenudialog.h"
@@ -67,6 +69,7 @@ public:
     typedef std::shared_ptr<EditMenuDialog>          tEditMenu;
     typedef std::shared_ptr<FileMenuDialog>          tFileMenu;
     typedef std::shared_ptr<ViewMenuDialog>          tViewMenu;
+    typedef std::shared_ptr<HelpMenuDialog>          tHelpMenu;
 #endif
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
     typedef std::shared_ptr<ComplicationsMenuDialog> tComplicationsMenu;
@@ -74,6 +77,7 @@ public:
     typedef std::shared_ptr<SkillMenuDialog>         tSkillMenu;
     typedef std::shared_ptr<PowerMenuDialog>         tPowerMenu;
 #endif
+    typedef std::shared_ptr<AboutDialog>             tAbout;
     typedef std::shared_ptr<PrintDialog>             tPrint;
     typedef std::shared_ptr<optionDialog>            tOption;
     typedef std::shared_ptr<ComplicationsDialog>     tComplications;
@@ -85,6 +89,7 @@ public:
         tEditMenu          EditMenu          { nullptr };
         tFileMenu          FileMenu          { nullptr };
         tViewMenu          ViewMenu          { nullptr };
+        tHelpMenu          HelpMenu          { nullptr };
 #endif
 #if defined(__wasm__) || defined(Q_OS_ANDROID)
         tComplicationsMenu ComplicationsMenu { nullptr };
@@ -94,6 +99,7 @@ public:
 #endif
         tPrint             Print             { nullptr };
         tOption            Option            { nullptr };
+        tAbout             About             { nullptr };
         tComplications     Complications     { nullptr };
         tPower             Power             { nullptr };
         tSkill             Skill             { nullptr };
@@ -179,6 +185,7 @@ public:
     QToolButton* powersAndEquipmentButton = nullptr;
     QToolButton* skillsTalentsAndPerksButton = nullptr;
     QToolButton* viewButton = nullptr;
+    QToolButton* helpButton = nullptr;
     QAction* action_File = nullptr;
     QAction* action_New = nullptr;
     QAction* action_Open = nullptr;
@@ -203,6 +210,7 @@ public:
     QAction* action3_0 = nullptr;
     QAction* actionZoom_In = nullptr;
     QAction* actionZoom_Out = nullptr;
+    QAction* actionAbout = nullptr;
 #endif
     QAction* action_ImgNew = nullptr;
     QAction* action_ImgClear = nullptr;
@@ -374,6 +382,7 @@ public slots:
     void valChanged(QString txt)                               { characteristicChanged(dynamic_cast<QLineEdit*>(sender()), txt); }
     void valEditingFinished()                                  { characteristicEditingFinished(dynamic_cast<QLineEdit*>(sender())); }
 
+    void about();
 #ifndef __wasm__
     void aboutToHideEditMenu();
     void aboutToHideFileMenu();
@@ -425,6 +434,7 @@ public slots:
     void stpMenu(bool);
     void compMenu(bool);
     void viewMenu(bool);
+    void helpMenu(bool);
 #endif
     void focusChanged(QWidget*, QWidget*);
     void gamemasterChanged(QString);

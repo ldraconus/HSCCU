@@ -11,10 +11,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>HeroSystem CharacterCreator</string>
+   <string>HSCCU</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="build/Desktop_Qt_6_10_3_MSVC2022_64bit_Release/.qt/rcc/res.qrc">
+   <iconset resource="build/Desktop_Qt_6_12_0_MSVC2022_64bit_Release/.qt/rcc/res.qrc">
     <normaloff>:/gfx/HeroSystem.ico</normaloff>:/gfx/HeroSystem.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -150,9 +150,16 @@
     <addaction name="actionZoom_In"/>
     <addaction name="actionZoom_Out"/>
    </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_About"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Edit"/>
    <addaction name="menu_View"/>
+   <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="styleSheet">
@@ -422,9 +429,14 @@
     <string>Alt+O</string>
    </property>
   </action>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
  </widget>
  <resources>
-  <include location="build/Desktop_Qt_6_10_3_MSVC2022_64bit_Release/.qt/rcc/res.qrc"/>
+  <include location="build/Desktop_Qt_6_12_0_MSVC2022_64bit_Release/.qt/rcc/res.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -9,8 +9,7 @@
 
 EditMenuDialog::EditMenuDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::EditMenuDialog)
-{
+    ui(new Ui::EditMenuDialog) {
     ui->setupUi(this);
     connect(ui->CopyButton,   SIGNAL(clicked()), this, SLOT(doCopy()));
     connect(ui->CutButton,    SIGNAL(clicked()), this, SLOT(doCut()));

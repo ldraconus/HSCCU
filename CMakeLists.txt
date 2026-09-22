@@ -139,6 +139,8 @@ if(EMSCRIPTEN)
             sheet_ui.cpp
             viewmenudialog.h viewmenudialog.cpp viewmenudialog.ui
             ads.json
+            helpmenudialog.h helpmenudialog.cpp helpmenudialog.ui
+            aboutdialog.h aboutdialog.cpp aboutdialog.ui
     )
 
 set_target_properties(HSCCU PROPERTIES
@@ -190,6 +192,7 @@ else()
             data.qrc
             appicon.rc
             sheet_ui.cpp
+            aboutdialog.cpp aboutdialog.h aboutdialog.ui
         )
     endif()
 endif()
