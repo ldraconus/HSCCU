@@ -7,6 +7,8 @@
 #include "sheet.h"
 #include "ui_editmenudialog.h"
 
+static constexpr auto CharacterMime = "application/vnd.hsccu.character+json";
+
 EditMenuDialog::EditMenuDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::EditMenuDialog) {
@@ -28,10 +30,12 @@ void EditMenuDialog::showEvent(QShowEvent*) {
     dialogPos.setLeft(menuPos.left());
     dialogPos.setTop(menuPos.height());
     setGeometry(dialogPos);
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    bool canPaste = !clipboard->text().isEmpty();
+    ui->PasteButton->setEnabled(canPaste);
 }
 
-EditMenuDialog::~EditMenuDialog()
-{
+EditMenuDialog::~EditMenuDialog() {
     delete ui;
 }
 

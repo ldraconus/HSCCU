@@ -63,6 +63,11 @@
 #include <QtNetwork/QNetworkReply>
 #include <QWindow>
 
+static constexpr auto CharacterMime    = "application/vnd.hsccu.character+json";
+static constexpr auto PowerMime        = "application/vnd.hsccu.power+json";
+static constexpr auto ComplicationMime = "application/vnd.hsccu.complication+json";
+static constexpr auto SkillMime        = "application/vnd.hsccu.skill+json";
+
 Sheet* Sheet::sSheet = nullptr; // NOLINT
 shared_ptr<class QMessageBox> Msg::Box; // NOLINT
 std::function<void()>         Msg::mCancel; // NOLINT
@@ -2586,8 +2591,16 @@ void Sheet::aboutToHideEditMenu() {
 void Sheet::aboutToHideFileMenu() {
     mUi->action_Save->setEnabled(true);
 }
-
 #endif
+
+void Sheet::aboutToShowEditMenu() {
+#ifndef __wasm__
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    const QMimeData* clip = clipboard->mimeData();
+    bool canPaste = clip && clip->hasFormat(CharacterMime);
+    mUi->action_Paste->setEnabled(canPaste);
+#endif
+}
 
 void Sheet::aboutToShowComplicationsMenu() {
     const auto selection = mUI->complications->selectedItems();
@@ -2597,7 +2610,7 @@ void Sheet::aboutToShowComplicationsMenu() {
 #if !defined(__wasm__) && !defined(Q_OS_ANDROID)
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
-    bool canPaste = clip->hasFormat("application/complication");
+    bool canPaste = clip && clip->hasFormat(ComplicationMime);
 
     mUI->editComplication->setEnabled(show);
     mUI->deleteComplication->setEnabled(show);
@@ -2620,18 +2633,11 @@ void Sheet::aboutToShowComplicationsMenu() {
 #endif
 }
 
-#ifndef __wasm__
-void Sheet::aboutToShowEditMenu() {
-    QClipboard* clipboard = QGuiApplication::clipboard();
-    const QMimeData* clip = clipboard->mimeData();
-    bool canPaste = clip->hasFormat("application/hsccuchar");
-    mUi->action_Paste->setEnabled(canPaste);
-}
-
 void Sheet::aboutToShowFileMenu() {
+#ifndef __wasm__
     mUi->action_Save->setEnabled(mChanged);
-}
 #endif
+}
 
 void Sheet::aboutToShowPowersAndEquipmentMenu() {
     const auto selection = mUI->powersandequipment->selectedItems();
@@ -2648,13 +2654,9 @@ void Sheet::aboutToShowPowersAndEquipmentMenu() {
     powerMenuDialog->setMoveDown(show && row !=mUI->powersandequipment->rowCount() - 1);
     auto power = getPower(row, mCharacter.powersOrEquipment());
     mUI->movePowerOrEquipmentDown->setEnabled(show && (row != mUI->powersandequipment->rowCount() - 1 || power->parent() != nullptr));
-#ifdef __wasm__
-    bool canPaste = false;
-#else
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
-    bool canPaste = clip->hasFormat("application/powerorequipment");
-#endif
+    bool canPaste = clip && clip->hasFormat(PowerMime);
     powerMenuDialog->setPaste(canPaste);
 #else
     mUI->editPowerOrEquipment->setEnabled(show);
@@ -2666,7 +2668,7 @@ void Sheet::aboutToShowPowersAndEquipmentMenu() {
     mUI->movePowerOrEquipmentDown->setEnabled(show && (row != mUI->powersandequipment->rowCount() - 1 || power->parent() != nullptr));
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
-    bool canPaste = clip->hasFormat("application/powerorequipment");
+    bool canPaste = clip->hasFormat(PowerMime);
     mUI->pastePowerOrEquipment->setEnabled(canPaste);
 #endif
 }
@@ -2682,7 +2684,7 @@ void Sheet::aboutToShowSkillsPerksAndTalentsMenu() {
 #else
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
-    bool canPaste = clip->hasFormat("application/skillperkortalent");
+    bool canPaste = clip->hasFormat(SkillMime);
 #endif
     auto skillMenuDialog = sDialog.SkillMenu;
     skillMenuDialog->setEdit(show);
@@ -2695,7 +2697,7 @@ void Sheet::aboutToShowSkillsPerksAndTalentsMenu() {
 #else
     QClipboard* clipboard = QGuiApplication::clipboard();
     const QMimeData* clip = clipboard->mimeData();
-    bool canPaste = clip->hasFormat("application/skillperkortalent");
+    bool canPaste = clip->hasFormat(SkillMime);
 
     mUI->editSkillTalentOrPerk->setEnabled(show);
     mUI->deleteSkillTalentOrPerk->setEnabled(show);
@@ -2735,10 +2737,10 @@ void Sheet::copyCharacter() {
 
     QJsonDocument doc = mCharacter.copy(mOption);
     QClipboard* clip = QGuiApplication::clipboard();
+    QString text = doc.toJson();
     QMimeData* dat = new QMimeData();
-    dat->setData("application/complication", doc.toJson());
-    QString text = getCharacter();
-    dat->setData("text/plain", text.toUtf8());
+    dat->setData(CharacterMime, text.toUtf8());
+    dat->setText(text);
     clip->setMimeData(dat);
 }
 
@@ -2752,7 +2754,7 @@ void Sheet::copyComplication() {
     QJsonObject obj = complication->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
-    dat->setData("application/complication", doc.toJson());
+    dat->setData(ComplicationMime, doc.toJson());
     QString descr = abbr ? complication->abbreviation() : complication->description();
     QString text = QString("%1\t%2").arg(complication->points(Complication::NoStore).points).arg(descr);
     dat->setData("text/plain", text.toUtf8());
@@ -2769,7 +2771,7 @@ void Sheet::copyPowerOrEquipment() {
     QJsonObject obj = power->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
-    dat->setData("application/powerorequipment", doc.toJson());
+    dat->setData(PowerMime, doc.toJson());
     QString descr = abbr ? power->abbreviation() : power->description();
     QString text = QString("%1\t%2").arg(power->points(Power::NoStore).points).arg(descr);
     dat->setData("text/plain", text.toUtf8());
@@ -2786,7 +2788,7 @@ void Sheet::copySkillTalentOrPerk() {
     QJsonObject obj = skilltalentorperk->toJson();
     QJsonDocument doc;
     doc.setObject(obj);
-    dat->setData("application/skillperkortalent", doc.toJson());
+    dat->setData(SkillMime, doc.toJson());
     QString descr = abbr ? skilltalentorperk->abbreviation() : skilltalentorperk->description();
     QString text = QString("%1\t%2\t%3").arg(skilltalentorperk->points(SkillTalentOrPerk::NoStore).points)
             .arg(descr, skilltalentorperk->roll());
@@ -3336,10 +3338,14 @@ void Sheet::options() {
 
 void Sheet::paste() {
     QClipboard* clip = QGuiApplication::clipboard();
+#ifndef __wasm__
     const QMimeData* dat = clip->mimeData();
-    QByteArray byteArray = dat->data("application/hsccucharacter");
+    QByteArray byteArray = dat->data(CharacterMime);
     QString jsonStr(byteArray);
-    if (byteArray.isEmpty()) return;
+#else
+    QString jsonStr = clip->text();
+#endif
+    if (jsonStr.isEmpty()) return;
     QJsonDocument doc = QJsonDocument::fromJson(jsonStr.toUtf8());
     mCharacter.erase();
     mCharacter.paste(mOption, doc);
@@ -3366,9 +3372,14 @@ void Sheet::pasteCharacter() {
 void Sheet::pasteComplication() {
     bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
+#ifndef __wasm__
     const QMimeData* dat = clip->mimeData();
-    QByteArray byteArray = dat->data("application/complication");
+    QByteArray byteArray = dat->data(ComplicationMime);
     QString jsonStr(byteArray);
+#else
+    QString jsonStr(clip->text());
+#endif
+    if (jsonStr.isEmpty()) return;
     QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
     QJsonObject obj = json.object();
     QString name = obj["name"].toString();
@@ -3390,9 +3401,14 @@ void Sheet::pasteComplication() {
 
 void Sheet::pastePowerOrEquipment() {
     QClipboard* clip = QGuiApplication::clipboard();
+#ifndef __wasm__
     const QMimeData* dat = clip->mimeData();
-    QByteArray byteArray = dat->data("application/powerorequipment");
+    QByteArray byteArray = dat->data(PowerMime);
     QString jsonStr(byteArray);
+#else
+    QString jsonStr(clip->text());
+#endif
+    if (jsonStr.isEmpty()) return;
     QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
     QJsonObject obj = json.object();
     QString name = obj["name"].toString();
@@ -3403,9 +3419,14 @@ void Sheet::pastePowerOrEquipment() {
 void Sheet::pasteSkillTalentOrPerk() {
     bool abbr = option().abbreviations();
     QClipboard* clip = QGuiApplication::clipboard();
+#ifndef __wasm__
     const QMimeData* dat = clip->mimeData();
-    QByteArray byteArray = dat->data("application/skillperkortalent");
+    QByteArray byteArray = dat->data(SkillMime);
     QString jsonStr(byteArray);
+#else
+    QString jsonStr(clip->text());
+#endif
+    if (jsonStr.isEmpty()) return;
     QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
     QJsonObject obj = json.object();
     QString name = obj["name"].toString();

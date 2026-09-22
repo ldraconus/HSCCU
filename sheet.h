@@ -388,10 +388,8 @@ public slots:
     void aboutToHideFileMenu();
 #endif
     void aboutToShowComplicationsMenu();
-#ifndef __wasm__
     void aboutToShowEditMenu();
     void aboutToShowFileMenu();
-#endif
     void aboutToShowPowersAndEquipmentMenu();
     void aboutToShowSkillsPerksAndTalentsMenu();
     void acceptComplication();
