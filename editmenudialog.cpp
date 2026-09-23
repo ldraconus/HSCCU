@@ -9,9 +9,9 @@
 
 static constexpr auto CharacterMime = "application/vnd.hsccu.character+json";
 
-EditMenuDialog::EditMenuDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::EditMenuDialog) {
+EditMenuDialog::EditMenuDialog(QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::EditMenuDialog) {
     ui->setupUi(this);
     connect(ui->CopyButton,   SIGNAL(clicked()), this, SLOT(doCopy()));
     connect(ui->CutButton,    SIGNAL(clicked()), this, SLOT(doCut()));
