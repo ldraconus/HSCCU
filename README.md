@@ -22,6 +22,29 @@ Recommended filenames:
 | --- | --- | --- | --- |
 | ![HSCCU on Windows](docs/images/hsccu-windows.png) | ![HSCCU on Linux](docs/images/hsccu-linux.png) | ![HSCCU on Android](docs/images/hsccu-android.png) | ![HSCCU in a web browser](docs/images/hsccu-wasm.png) |
 
+## About HSCCU
+
+**HSCCU puts your entire character sheet in one scrollable view.** No hopping between pages or tabs to find what you need. Just scroll up and down to see your character, and zoom in or out to get a comfortable view, whether you're using a desktop computer, tablet, or phone.
+
+### Using the Character Sheet
+
+HSCCU uses a simple color scheme to make it easy to distinguish between different types of fields:
+
+- **Cyan fields** are editable, and your changes are saved with your character.
+  - **Underlined fields** allow direct text entry.
+  - **Fields without underlines** are menu-driven. Depending on your operating system and input device, use a left-click, double-click, right-click, or tap to open their menus.
+- **Green, underlined fields** also allow text entry, but their contents are temporary and are not saved with your character.
+
+### More Than Just a Character Sheet
+
+**Printing:** Print your character sheet wherever the operating system supports it. Unfortunately, Android doesn't currently cooperate, so printing isn't available there.
+
+**Cut, Copy, and Paste:** Move entire characters, powers, complications, skills, talents, and perks using HSCCU's clipboard features. These operations are supported on the native desktop and Android versions.
+
+The WebAssembly version is the exception. Browser security restrictions prevent reliable clipboard access, so these features aren't currently available in the web version. Believe me, I tried!
+
+**One character sheet. Four platforms.** Create and manage your characters on Windows, Linux, Android, or directly in your web browser.
+
 ## Quick Links
 
 - **Source code:** https://github.com/ldraconus/HSCCU
@@ -192,6 +215,21 @@ HSCCU (**HERO System Character Creator, Unlicensed**) is an independent, unoffic
 No ownership of HERO System, Hero Games, or any other third-party intellectual property is claimed by HSCCU. References to third-party names and marks are for identification and compatibility purposes only. No license to any third-party intellectual property is granted by this repository or by distribution of HSCCU.
 
 Qt and all other third-party libraries or components remain subject to their respective licenses.
+
+## AI Disckainer
+
+AI was used in the creation of thi program. It was not, however, vibe coded. It was used to look up documentaion. Find bugs I can't see (forest --> trees!). And it actually taught me a few things about C++.
+
+No code went into the program that I did not understand completely (and there's a lot of it!). I take full responsibilty for
+
+1. The almost complete lack of comments (really, I can look at the code and remember how it works, even though it sat for at least two years in a limping, windows and WASM form),
+2. The almost pathological use of defines to solve a nasty problem that the upcoming C++26 <i>might</i> let me solve without it (clean map between a class definition, its creation, and a text name all in a nice list, and
+3. The struggle between CSS and code to get things to look right.
+
+Have fun, and in the words of the great Stan Lee, Excelsior!
+
+
+
 
 ---
 
