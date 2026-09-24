@@ -34,7 +34,7 @@ HSCCU uses a simple color scheme to make it easy to distinguish between differen
   - **Underlined fields** allow direct text entry.
   - **Fields without underlines** are menu-driven. Depending on your operating system and input device, use a left-click, double-click, right-click, or tap to open their menus.
 - **Green, underlined fields** also allow text entry, but their contents are temporary and are not saved with your character.
-- 
+
 
 ### More Than Just a Character Sheet 
 
