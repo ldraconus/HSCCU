@@ -34,8 +34,9 @@ HSCCU uses a simple color scheme to make it easy to distinguish between differen
   - **Underlined fields** allow direct text entry.
   - **Fields without underlines** are menu-driven. Depending on your operating system and input device, use a left-click, double-click, right-click, or tap to open their menus.
 - **Green, underlined fields** also allow text entry, but their contents are temporary and are not saved with your character.
+- 
 
-### More Than Just a Character Sheet
+### More Than Just a Character Sheet 
 
 **Printing:** Print your character sheet wherever the operating system supports it. Unfortunately, Android doesn't currently cooperate, so printing isn't available there.
 
@@ -49,6 +50,7 @@ The WebAssembly version is the exception. Browser security restrictions prevent 
 
 - **Source code:** https://github.com/ldraconus/HSCCU
 - **Releases:** https://github.com/ldraconus/HSCCU/releases
+- **Blog:** https://christophermartinolson.com
 - **Run HSCCU online:** https://hsccu.chris-m-olson.workers.dev/HSCCU
 
 The Releases page is the intended home for packaged Windows, Linux, Android, and WASM builds.
