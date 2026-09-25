@@ -35,7 +35,7 @@ public:
 #ifndef ISHSC
                                                                     add(Sheet::ref().character().INT().roll(), v.mPlus); }
 #else
-                                                                    QString("+%1").arg(v._plus); }
+                                                                    QString("+%1").arg(v.mPlus); }
 #endif
     void    store() override                                    { v.mTopic = topic->text();
                                                                   v.mPlus  = plus->text().toInt(0); }
@@ -95,7 +95,7 @@ public:
 #ifndef ISHSC
                                add(Sheet::ref().character().INT().roll(), v.mPlus)
 #else
-                               QString("+%1").arg(v._plus)
+                               QString("+%1").arg(v.mPlus)
 #endif
                          : "") + optOut(abbr); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override {
@@ -118,7 +118,7 @@ public:
 #ifndef ISHSC
     QString roll() override                                     { return add(Sheet::ref().character().INT().roll(), v.mPlus); }
 #else
-    QString roll() override                                     { return QString("%1-").arg(11 + v._plus); }
+    QString roll() override                                     { return QString("%1-").arg(11 + v.mPlus); }
 #endif
     void    store() override                                    {
         v.mPlus    = plus->text().toInt(0);

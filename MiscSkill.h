@@ -154,7 +154,7 @@ public:
 #ifndef ISHSC
                                                                              add(Sheet::ref().character().characteristic(v.mStat).roll(), v.mPlus)
 #else
-                                                                             QString("+%1").arg(v._plus)
+                                                                             QString("+%1").arg(v.mPlus)
 #endif
                                                                                         : ""; }
     void    store() override                                    { v.mWhat = what->text();

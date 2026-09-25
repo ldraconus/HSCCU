@@ -203,7 +203,7 @@ public:
 #ifndef ISHSC
                                                                   return add(Sheet::ref().character().INT().roll(), v.mPlus);
 #else
-                                                                  return QString("+%1").arg(v._plus);
+                                                                  return QString("+%1").arg(v.mPlus);
 #endif
                                                                 }
     void    store() override                                    { v.mPlus = plus->text().toInt(0);
@@ -313,7 +313,7 @@ public:
 #ifndef ISHSC
                                                                   return add(Sheet::ref().character().INT().roll(), mPlus);
 #else
-                                                                  return QString("+%1").arg(_plus);
+                                                                  return QString("+%1").arg(mPlus);
 #endif
                                                                 }
     void    store() override                                    { mPlus   = plus->text().toInt(0);
@@ -657,7 +657,7 @@ public:
 #ifndef ISHSC
                                                                           add(Sheet::ref().character().EGO().roll(), v.mPlus)
 #else
-                                                                          QString("+%1").arg(v._plus)
+                                                                          QString("+%1").arg(v.mPlus)
 #endif
                                                                           + " " : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -708,7 +708,7 @@ public:
 #ifndef ISHSC
                                                                   add(Sheet::ref().character().EGO().roll(), v.mPlus) +
 #else
-                                                                  QString("+%1").arg(v._plus) +
+                                                                  QString("+%1").arg(v.mPlus) +
 #endif
                                                                   " " : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { plus  = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -722,7 +722,7 @@ public:
 #ifndef ISHSC
                                                                       add(Sheet::ref().character().EGO().roll(), v.mPlus);
 #else
-                                                                      QString("+%1").arg(v._plus);
+                                                                      QString("+%1").arg(v.mPlus);
 #endif
                                                                 }
     void    store() override                                    { v.mPlus = plus->text().toInt(0);
@@ -858,7 +858,7 @@ public:
 #ifndef ISHSC
                                                                           add(Sheet::ref().character().INT().roll(), v.mPlus) +
 #else
-                                                                          QString("+%1").arg(v._plus) +
+                                                                          QString("+%1").arg(v.mPlus) +
 #endif
                                                                           " " : "") + optOut(); }
     bool    form(QWidget* parent, QVBoxLayout* layout) override { plus = createLineEdit(parent, layout, "Plus?", std::mem_fn(&SkillTalentOrPerk::numeric));
@@ -872,7 +872,7 @@ public:
 #ifndef ISHSC
                                                                       add(Sheet::ref().character().INT().roll(), v.mPlus); }
 #else
-                                                                      QString("+%1").arg(v._plus); }
+                                                                      QString("+%1").arg(v.mPlus); }
 #endif
     void    store() override                                    { v.mPlus = plus->text().toInt(0);
                                                                 }

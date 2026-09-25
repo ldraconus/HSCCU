@@ -27,7 +27,7 @@ public:
 #ifndef ISHSC
     QString roll() override                                  { return add(Sheet::ref().character().PRE().roll(), v.mPlus); }
 #else
-    QString roll() override                                  { return QString("+%1").arg(v._plus); }
+    QString roll() override                                  { return QString("+%1").arg(v.mPlus); }
 #endif
     void    store() override                                 { v.mPlus = plus->text().toInt(0); }
 

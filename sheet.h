@@ -244,7 +244,9 @@ private:
     bool         mExpired = true;
     bool         mRunning = false;
     QPointF      mTouchStart;
+#ifndef ISHSC
     QTimer       mLongPressTimer;
+#endif
     QMouseEvent* mSyntheticEvent = nullptr;
 
     static const bool DontUpdateTotal = false;

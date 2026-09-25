@@ -245,7 +245,6 @@ set(res1_resource_files
 
 qt_add_resources(HSCCU "res1"
     PREFIX
-
         "/font"
     FILES
         ${res1_resource_files}

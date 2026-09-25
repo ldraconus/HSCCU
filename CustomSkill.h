@@ -51,7 +51,7 @@ public:
     }
 #else
     QString roll() override {
-        return QString("+%1").arg(v._plus);
+        return QString("+%1").arg(v.mPlus);
     }
 #endif
     void store() override {

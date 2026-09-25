@@ -29,7 +29,7 @@ public:
                                                                       v.mExtreme ? (abbr ? "; Xtreme" : "; Extreme") : "", v.mLimited ? (abbr ? "Lim. Grp" : "; Limited Group") : "");
 #else
         return QString(abbr ? "Neg. Rep.: %1 (%2%3%4)" : "Negative Reputation: %1 (%2%3%4)").arg(v.mWhat,
-                                                               abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency]),
+                                                               abbr ? freqAbbr[v.mFrequency] : freq[v.mFrequency],
                                                                v.mExtreme ? (abbr ? "; Xtreme" : "; Extreme") : "", v.mLimited ? (abbr ? "Lim. Grp" : "; Limited Group") : "");
 #endif
     }

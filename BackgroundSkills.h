@@ -103,7 +103,7 @@ public:
 #ifndef ISHSC
     QString roll() override                                     { return v.mIntRoll ? add(Sheet::ref().character().INT().roll(), v.mPlus) : QString("%1-").arg(11 + v.mPlus); } // NOLINT
 #else
-    QString roll() override                                     { return QString("%1-").arg(11 + v._plus); }
+    QString roll() override                                     { return QString("%1-").arg(11 + v.mPlus); }
 #endif
     void    store() override                                    { v.mPlus    = plus->text().toInt(0);
                                                                   v.mFor     = forwhat->text();
@@ -250,7 +250,7 @@ public:
     QString roll() override                                     { return (v.mStat >= 1) ? add(Sheet::ref().character().characteristic(v.mStat - 1).roll(), v.mPlus)
                                                                                         : QString("%1-").arg(11 + v.mPlus); } // NOLINT
 #else
-    QString roll() override                                     { return QString("%1-").arg(11 + v._plus); }
+    QString roll() override                                     { return QString("%1-").arg(11 + v.mPlus); }
 #endif
     void    store() override                                    { v.mWhat = what->text();
                                                                   v.mPlus = plus->text().toInt(0);
@@ -325,7 +325,7 @@ public:
     QString roll() override                                     { return v.mInt ? add(Sheet::ref().character().INT().roll(), v.mPlus)
                                                                                 : QString("%1-").arg(11 + v.mPlus); } // NOLINT
 #else
-    QString roll() override                                     { return QString("%1-").arg(11 + v._plus); }
+    QString roll() override                                     { return QString("%1-").arg(11 + v.mPlus); }
 #endif
     void    store() override                                    { v.mWhat = what->text();
                                                                   v.mPlus = plus->text().toInt(0);
