@@ -146,6 +146,7 @@ public:
     class perkBase {
     public:
         perkBase() = default;
+
         virtual shared_ptr<SkillTalentOrPerk> create()                  = 0;
         virtual shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) = 0;
     };
@@ -199,20 +200,20 @@ public:
     static const bool NoStore = true;
     static const bool ShowRoll = true;
 
-    virtual QString     abbreviation(bool roll = false) { return description(roll); }
-    virtual QString     description(bool roll = false) = 0;
-    virtual bool        form(QWidget*, QVBoxLayout*)   = 0;
-    virtual QString     name()                         = 0;
-    virtual Points      points(bool noStore = false)   = 0;
-    virtual void        restore()                      = 0;
-    virtual QString     roll()                         = 0;
-    virtual void        store()                        = 0;
-    virtual bool        isSkill()                      { return false; }
-    virtual bool        isPerk()                       { return false; }
-    virtual bool        isTalent()                     { return false; }
-    virtual int         rED()                          { return 0; }
-    virtual int         rPD()                          { return 0; }
-    virtual int         place()                        { return 1; }
+    virtual QString     abbreviation(bool roll = !ShowRoll) { return description(roll); }
+    virtual QString     description(bool roll = !ShowRoll)  = 0;
+    virtual bool        form(QWidget*, QVBoxLayout*)        = 0;
+    virtual QString     name()                              = 0;
+    virtual Points      points(bool noStore = !NoStore)     = 0;
+    virtual void        restore()                           = 0;
+    virtual QString     roll()                              = 0;
+    virtual void        store()                             = 0;
+    virtual bool        isSkill()                           { return false; }
+    virtual bool        isPerk()                            { return false; }
+    virtual bool        isTalent()                          { return false; }
+    virtual int         rED()                               { return 0; }
+    virtual int         rPD()                               { return 0; }
+    virtual int         place()                             { return 1; }
 
     virtual void        checked(bool)    { }
     virtual void        numeric(QString) { }
@@ -225,11 +226,11 @@ public:
     void callback(QLineEdit*);
     bool createForm(QWidget*, QVBoxLayout*);
 
-    static QList<QString>      Available();
-    static void                ClearForm(QVBoxLayout*);
-    static QList<QString>      SkillsAvailable();
-    static QList<QString>      TalentsAvailable();
-    static QList<QString>      PerksAvailable();
+    static QList<QString> Available();
+    static void           ClearForm(QVBoxLayout*);
+    static QList<QString> SkillsAvailable();
+    static QList<QString> TalentsAvailable();
+    static QList<QString> PerksAvailable();
 
     static shared_ptr<SkillTalentOrPerk> ByName(QString);
     static shared_ptr<SkillTalentOrPerk> FromJson(QString, QJsonObject&);
@@ -237,6 +238,11 @@ public:
     bool isNumber(QString);
 
     static constexpr int BaseRoll = 11;
+
+    static void addSkill(const QString& name,    SkillTalentOrPerk::skillBase* skill)       { sSkills[name]    = skill; }
+    static void addTalent(const QString& name,   SkillTalentOrPerk::talentBase* talent)     { sTalents[name]   = talent; }
+    static void addPerk(const QString& name,     SkillTalentOrPerk::perkBase* perk)         { sPerks[name]     = perk; }
+    static void addEnhancer(const QString& name, SkillTalentOrPerk::enhancerBase* enhancer) { sEnhancers[name] = enhancer; }
 
 protected:
     QString mGuid;

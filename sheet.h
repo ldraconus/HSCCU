@@ -29,6 +29,7 @@
 #include "option.h"
 #include "shared.h"
 #include "sheet_ui.h"
+#include "5th.h"
 
 QT_BEGIN_NAMESPACE
 #ifdef __wasm__
@@ -118,7 +119,9 @@ public:
     void        addPower(shared_ptr<Power>);
     void        fixButtonBox(QDialogButtonBox*);
     QStringList getBanners();
+
     void        setCell(QTableWidget*, int, int, QString, const QFont&, bool wordWrap = false);
+    void               setiupVM();
     void        setCellLabel(QTableWidget*, int, int, QString, const QFont&);
     void        setCellLabel(QTableWidget*, int, int, QString);
     void        setNotes(bool visible);
@@ -169,7 +172,8 @@ public:
     Ui::Sheet* UI() { return mUi; }
 #endif
 
-    Option& option() { return mOption; }
+    Option&    option() { return mOption; }
+    fifth::vm& vm()     { return mVm; }
 
 #if defined(__wasm__)
     Ui::wasm* mUi = nullptr;
@@ -271,6 +275,7 @@ private:
     std::array<int, 19> mHitLocations { }; // NOLINT
 
     QMap<QObject*, cCharacteristicDef> mWidget2Def;
+    fifth::vm      mVm;
 
     Points             characteristicsCost();
     void               characteristicChanged(QLineEdit*, QString, bool update = true);
@@ -358,6 +363,7 @@ private:
 #if !defined(__wasm__) && !defined (Q_OS_ANDROID)
     void               doLoadImage();
 #endif
+    void               setupVM();
     void               updateBanner();
     void               updateCharacteristics();
     void               updateCharacter();

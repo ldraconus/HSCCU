@@ -281,6 +281,9 @@ Sheet::Sheet(QWidget *parent)
 
     mUi->setupUi(this);
 
+#if !defined(__wasm__) && !defined(Q_OS_ANDROID)
+#endif
+
     mUi->graphicsView->setStyleSheet("color: #000; background: #fff");
     mUI->setupUi(nullptr, nullptr);
     mUI->mWidget->setStyleSheet("color: #000; background: #fff");
@@ -2248,6 +2251,33 @@ void Sheet::setMaximum(cCharacteristicDef& def, QLabel* set, QLineEdit* cur) {
     int secondary = primary + def.characteristic()->secondary();
     set->setText(QString("%1").arg(secondary));
     cur->setText(set->text());
+}
+
+void Sheet::setupVM() {
+    mVm.addBuiltin("set", [this](fifth::vm* v) {    // w s -u->
+        auto& user = mVm.user();
+        auto s = user.pop();
+        auto w = user.pop();
+        if (!s.isStr() || !w.isNum()) return;
+        QString str = s.asString().str();
+        QWidget* widget = (QWidget*)(w.asNumber());
+        if (auto* label = dynamic_cast<QLabel*>(widget); label) label->setText(str);
+        else if (auto* check = dynamic_cast<QCheckBox*>(widget); check) check->setChecked(str == "true");
+        else if (auto* combo = dynamic_cast<QComboBox*>(widget); combo) combo->setCurrentText(str);
+        else if (auto* line = dynamic_cast<QLineEdit*>(widget); line) line->setText(str);
+    });
+    mVm.addBuiltin("get", [this](fifth::vm* v) {    // w -u-> s
+        auto& user = mVm.user();
+        auto w = user.pop();
+        if (!w.isNum()) return;
+        QString str;
+        QWidget* widget = (QWidget*)(w.asNumber());
+        if (auto* label = dynamic_cast<QLabel*>(widget); label) str = label->text();
+        else if (auto* check = dynamic_cast<QCheckBox*>(widget); check) str = check->isChecked() ? "true" : "false";
+        else if (auto* combo = dynamic_cast<QComboBox*>(widget); combo) str = combo->currentText();
+        else if (auto* line = dynamic_cast<QLineEdit*>(widget); line) str = line->text();
+        user.push(str);
+    });
 }
 
 void Sheet::updateCharacteristics() {

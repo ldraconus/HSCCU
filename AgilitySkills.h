@@ -53,22 +53,22 @@ private:
 };
 
 // NOLINTNEXTLINE
-#define CLASS(x)                                         \
-    class x: public AgilitySkills {                      \
-    public:                                              \
-        x()                                              \
-            : AgilitySkills(#x) { }                      \
-        x(QJsonObject& json)                             \
-            : AgilitySkills(json) { }                    \
+#define CLASS(x)                      \
+    class x: public AgilitySkills {   \
+    public:                           \
+        x()                           \
+            : AgilitySkills(#x) { }   \
+        x(QJsonObject& json)          \
+            : AgilitySkills(json) { } \
     };
 // NOLINTNEXTLINE
-#define CLASS_SPACE(x, y)                                \
-    class x: public AgilitySkills {                      \
-    public:                                              \
-        x()                                              \
-            : AgilitySkills(y) { }                       \
-        x(QJsonObject& json)                             \
-            : AgilitySkills(json) { }                    \
+#define CLASS_SPACE(x, y)             \
+    class x: public AgilitySkills {   \
+    public:                           \
+        x()                           \
+            : AgilitySkills(y) { }    \
+        x(QJsonObject& json)          \
+            : AgilitySkills(json) { } \
     };
 
 CLASS(Acrobatics);

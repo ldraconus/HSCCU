@@ -195,6 +195,10 @@ else()
             sheet_ui.cpp
             aboutdialog.cpp aboutdialog.h aboutdialog.ui
             docs/images/hsccu-android.png docs/images/hsccu-main.png docs/images/hsccu-wasm.png docs/images/hsccu-windows.png
+            5th.cpp 5th.h enumerate.h
+            dict.cpp
+            fifthSkills.h
+            fifthSkills.cpp
         )
     endif()
 endif()

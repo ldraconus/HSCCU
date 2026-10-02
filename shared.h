@@ -12,24 +12,7 @@
 #define _Mem_fn __mem_fn
 #endif
 
-template <typename T,
-          typename TIter = decltype(std::begin(std::declval<T>())),
-          typename = decltype(std::end(std::declval<T>()))>
-constexpr auto enumerate(T && iterable) {
-    struct iterator {
-        size_t i;
-        TIter iter;
-        bool operator != (const iterator & other) const { return iter != other.iter; }
-        void operator ++ () { ++i; ++iter; }
-        auto operator * () const { return std::tie(i, *iter); }
-    };
-    struct iterable_wrapper {
-        T iterable; // NOLINT
-        auto begin() { return iterator{ 0, std::begin(iterable) }; }
-        auto end() { return iterator{ 0, std::end(iterable) }; }
-    };
-    return iterable_wrapper{ std::forward<T>(iterable) };
-}
+#include "enumerate.h"
 
 using std::shared_ptr;
 using std::make_shared;
