@@ -58,11 +58,96 @@ static QMap<QWidget*, fifth::exe > sCheckCB;
 static QMap<QWidget*, fifth::exe > sComboCB;
 static QMap<QWidget*, fifth::exe > sEditCB;
 
+static void crtChkBox(fifth::vm* vm) {
+    auto& user = vm->user();
+    QCheckBox* checkbox = nullptr;
+    auto c = user.pop();
+    auto t = user.pop();
+    auto s = user.pop();
+    auto l = user.pop();
+    auto w = user.pop();
+    if (!c.isExe() || !t.isNum() || !s.isStr() || !l.isNum() || !w.isNum()) user.push(fifth::exe(nullptr));
+
+    fifth::exe   cb = c.asCallable();
+    FifthSkills* ths = (FifthSkills*)(t.asNumber());
+    QString      string = s.asString().str();
+    QVBoxLayout* layout = (QVBoxLayout*)(l.asNumber());
+    QWidget*     widget = (QWidget*)(w.asNumber());
+    checkbox = ths->createCheckBox(widget, layout, string, [ths, &user, &checkbox, &vm](SkillTalentOrPerk* stp, bool result) {
+        if (sCheckCB.contains(ths->sender())) {
+            user.push(result);
+            sCheckCB[ths->sender()]->eval(vm);
+        }
+    });
+    sCheckCB[checkbox] = cb;
+}
+
+static void crtCmbBox(fifth::vm* vm) {
+    auto& user = vm->user();
+    QComboBox* combobox = nullptr;
+    auto c = user.pop();
+    auto t = user.pop();
+    auto s = user.pop();
+    auto i = user.pop();
+    auto l = user.pop();
+    auto w = user.pop();
+    if (!i.isStr() || !c.isExe() || !t.isNum() || !s.isStr() || !l.isNum() || !w.isNum()) user.push(fifth::exe(nullptr));
+
+    fifth::exe   cb = c.asCallable();
+    FifthSkills* ths = (FifthSkills*)(t.asNumber());
+    QString      string = s.asString().str();
+    QStringList  list = i.asString().str().split(":");
+    QVBoxLayout* layout = (QVBoxLayout*)(l.asNumber());
+    QWidget*     widget = (QWidget*)(w.asNumber());
+    QComboBox* comboBox = nullptr;
+    combobox = ths->createComboBox(widget, layout, string, list, [ths, &user, &combobox, &vm](SkillTalentOrPerk* stp, int result) {
+        if (sComboCB.contains(ths->sender())) {
+            user.push(result);
+            sComboCB[ths->sender()]->eval(vm);
+        }
+    });
+    sComboCB[combobox] = cb;
+}
+
+static void crtLnEdit(fifth::vm* vm) {
+    auto& user = vm->user();
+    QLineEdit* lineedit = nullptr;
+    auto c = user.pop();
+    auto t = user.pop();
+    auto s = user.pop();
+    auto l = user.pop();
+    auto w = user.pop();
+    if (!c.isExe() || !t.isNum() || !s.isStr() || !l.isNum() || !w.isNum()) user.push(fifth::exe(nullptr));
+
+    fifth::exe   cb = c.asCallable();
+    FifthSkills* ths = (FifthSkills*)(t.asNumber());
+    QString      string = s.asString().str();
+    QVBoxLayout* layout = (QVBoxLayout*)(l.asNumber());
+    QWidget*     widget = (QWidget*)(w.asNumber());
+    lineedit = ths->createLineEdit(widget, layout, string, [ths, &user, &lineedit, &vm](SkillTalentOrPerk* stp, QString result) {
+        if (sEditCB.contains(ths->sender())) {
+            user.push(result);
+            sEditCB[ths->sender()]->eval(vm);
+        }
+    });
+    sEditCB[lineedit] = cb;
+}
+
 bool FifthSkills::initializeVM() {
     auto& vm = Sheet::ref().vm();
     auto& user = vm.user();
 
-    vm.addImmediate("createCheckBox", [this, &user, &vm](fifth::vm* v) {
+    vm.addImmediate("createCheckBox", [this, &user, &vm](fifth::vm*) {
+        if (vm.compiling()) {
+            static auto func = fifth::builtin(crtChkBox);
+            auto parent = dynamic_cast<fifth::compiled*>(vm.code());
+            parent->push(fifth::num(this));
+            auto cb = vm.getBlock(vm["word"], "}");
+            parent->push(cb);
+            parent->call(&func);
+            return;
+        }
+
         auto s = user.pop();
         auto l = user.pop();
         auto w = user.pop();
@@ -82,7 +167,17 @@ bool FifthSkills::initializeVM() {
         user.push(fifth::num(checkbox));
     });
 
-    vm.addImmediate("createComboBox", [this, &user, &vm](fifth::vm* v) {
+    vm.addImmediate("createComboBox", [this, &user, &vm](fifth::vm*) {
+        if (vm.compiling()) {
+            static auto func = fifth::builtin(crtCmbBox);
+            auto parent = dynamic_cast<fifth::compiled*>(vm.code());
+            parent->push(fifth::num(this));
+            auto cb = vm.getBlock(vm["word"], "}");
+            parent->push(cb);
+            parent->call(&func);
+            return;
+        }
+
         auto b = user.pop();
         auto s = user.pop();
         auto l = user.pop();
@@ -104,7 +199,7 @@ bool FifthSkills::initializeVM() {
         user.push(fifth::num(combobox));
     });
 
-    vm.addImmediate("createLabel", [this, &user, &vm](fifth::vm* v) {
+    vm.addBuiltin("createLabel", [this, &user, &vm](fifth::vm*) {
         auto s = user.pop();
         auto l = user.pop();
         auto w = user.pop();
@@ -119,7 +214,17 @@ bool FifthSkills::initializeVM() {
         user.push(fifth::num(label));
     });
 
-    vm.addImmediate("createLineEdit", [this, &user, &vm](fifth::vm* v) {
+    vm.addImmediate("createLineEdit", [this, &user, &vm](fifth::vm*) {
+        if (vm.compiling()) {
+            static auto func = fifth::builtin(crtLnEdit);
+            auto parent = dynamic_cast<fifth::compiled*>(vm.code());
+            parent->push(fifth::num(this));
+            auto cb = vm.getBlock(vm["word"], "}");
+            parent->push(cb);
+            parent->call(&func);
+            return;
+        }
+
         auto s = user.pop();
         auto l = user.pop();
         auto w = user.pop();
@@ -137,6 +242,8 @@ bool FifthSkills::initializeVM() {
         sEditCB[lineedit] = vm.getBlock(vm["word"], "}");
         user.push(fifth::num(lineedit));
     });
+
+    vm.addBuiltin("v", [this, &user](fifth::vm*) { user.push(v.mGuid); });
 
     return true;
 }

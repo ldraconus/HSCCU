@@ -20,7 +20,7 @@ static constexpr auto* IsPerk       = "isPerk";
 static constexpr auto* IsTalent     = "isTalent";
 static constexpr auto* RED          = "rED";
 static constexpr auto* RPD          = "rPD";
-static constexpr auto* Checked      = "chcked";
+static constexpr auto* Checked      = "checked";
 static constexpr auto* Numeric      = "numeric";
 
 class FifthSkills: public SkillTalentOrPerk {
@@ -34,7 +34,7 @@ public:
 
     QString abbreviation(bool roll = !ShowRoll) override { Sheet::ref().vm().user().push(roll); QString s = String(Abbreviation); return s.isEmpty() ? description() : s; }
     QString description(bool roll = !ShowRoll) override  { Sheet::ref().vm().user().push(roll); return String(Description); }
-    bool    form(QWidget* w, QVBoxLayout* v) override    { auto u = Sheet::ref().vm().user(); u.push(fifth::num(w)); u.push(fifth::num(v)); return Bool(Form); }
+    bool    form(QWidget* w, QVBoxLayout* l) override    { auto u = Sheet::ref().vm().user(); u.push(fifth::num(w)); u.push(fifth::num(l)); return Bool(Form); }
     QString name() override                              { return sGuidMap[v.mGuid]; }
     Points  points(bool noStore = !NoStore) override     { Sheet::ref().vm().user().push(noStore); return PntCost(Cost); }
     void    restore() override                           { return Void(Restore); }

@@ -171,6 +171,10 @@ else()
             sheet_ui.cpp
             dialog.cpp
             aboutdialog.cpp aboutdialog.h aboutdialog.ui
+            5th.cpp 5th.h enumerate.h
+            dict.cpp
+            fifthSkills.h
+            fifthSkills.cpp
         )
     else()
         qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
