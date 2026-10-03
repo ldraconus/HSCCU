@@ -95,3 +95,4 @@ HSCCU/android_release.*
 /HSCCU/HSCCU.js
 /HSCCU/HSCCM.wasm
 /deploy/
+*.keystore
