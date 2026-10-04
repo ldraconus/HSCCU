@@ -1785,8 +1785,13 @@ void Sheet::loadCatalogue() {
     QString json = file.readAll();
     file.close();
 
-    QJsonDocument doc;
-    doc.fromJson(json.toUtf8());
+    QJsonParseError error;
+    QByteArray array = json.toUtf8();
+    QJsonDocument doc = QJsonDocument::fromJson(array, &error);
+    if (doc.isNull()) {
+        qDebug() << "Error in catalogue.json: " + error.errorString() + " at " + QString::number(error.offset);;
+        return;
+    }
     if (!doc.isObject()) return;
     QJsonObject catalogue = doc.object();
     loadFiles(baseUrl, catalogue, "skills", [this](const QString& urlname) {

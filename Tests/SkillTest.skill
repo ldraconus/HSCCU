@@ -1,13 +1,16 @@
 {
-    "description": "v Str [@] length if { 'Test Edit: ' v Str [@] + } else { '<incomplete>' }",
-    "form": "var Edit 0 <--
-             over over 'Test Label' createLabel var Label -->
-             'Test Edit:' createLineEdit { } Edit -->",
-    "points": "5",
-    "restore": "Edit @ v Str [@] set",
-    "roll": "",
-    "store": "v Str Edit @ get [<--]",
-    "isSkill": "1",
-    "isPerk": "0",
-    "isTalent": "0",
+    "name": "Test Skill",
+    "description": "{ v Str [@] length if { 'Test Edit: ' v Str [@] + } else { '<incomplete>' } }",
+    "form": "{
+               var Edit 0 <--
+               over over 'Test Label' createLabel var Label -->
+               'Test Edit:' createLineEdit { } Edit -->
+             }",
+    "roll": "{ }",
+    "points": "{ 5 }",
+    "restore": "{ Edit @ v Str [@] set }",
+    "store": "{ v Str Edit @ get [<--] }",
+    "isSkill": "{ 1 }",
+    "isPerk": "{ 0 }",
+    "isTalent": "{ 0 }"
 }

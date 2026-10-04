@@ -11,7 +11,7 @@
 static constexpr auto* Abbreviation = "abbreviation";
 static constexpr auto* Description  = "description";
 static constexpr auto* Form         = "form";
-static constexpr auto* Cost         = "points";
+static constexpr auto* TheCost      = "points";
 static constexpr auto* Restore      = "restore";
 static constexpr auto* Roll         = "roll";
 static constexpr auto* Store        = "store";
@@ -37,7 +37,7 @@ public:
     void load(QJsonObject& json) { init(json[Name].toString(""), json); }
     bool valid()                 { return v.mValid; }
 
-    QString abbreviation(bool roll = !ShowRoll) override { Sheet::ref().vm().user().push(roll); QString s = String(Abbreviation); return s.isEmpty() ? description() : s; }
+    QString abbreviation(bool roll = !ShowRoll) override { auto u = Sheet::ref().vm().user(); u.push(roll); QString s = String(Abbreviation); return s.isEmpty() ? description(u.pop().asNumber()) : s; }
     QString description(bool roll = !ShowRoll) override  { Sheet::ref().vm().user().push(roll); return String(Description); }
     bool    form(QWidget* w, QVBoxLayout* l) override    { auto u = Sheet::ref().vm().user(); u.push(fifth::num(w)); u.push(fifth::num(l)); return Bool(Form); }
     QString name() override                              { return sGuidMap[v.mGuid]; }
@@ -62,15 +62,27 @@ private:
     auto call(const QString& symbol) {
         auto& vm = Sheet::ref().vm();
         auto bag = vm.bag(sGuidMap[v.mGuid]);
-        if (bag.contains(symbol)) bag[symbol].asCallable()->eval(&vm);
-        else vm.user().push(fifth::exe(nullptr));
+        bag[symbol].asCallable()->eval(&vm);
     }
 
-    QString String(const QString& symbol)  { call(symbol); return Sheet::ref().vm().user().pop().asString().str(); }
-    bool    Bool(const QString& symbol)    { call(symbol); return Sheet::ref().vm().user().pop().asNumber(); }
     Points  PntCost(const QString& symbol) { call(symbol); return Points(Sheet::ref().vm().user().pop().asNumber()); }
     void    Void(const QString& symbol)    { call(symbol); }
     int     Int(const QString& symbol)     { call(symbol); return Sheet::ref().vm().user().pop().asNumber(); }
+
+    QString String(const QString& symbol, std::function<QString()> def = [](){ return QString(""); }) {
+        auto& vm = Sheet::ref().vm();
+        auto bag = vm.bag(sGuidMap[v.mGuid]);
+        if (bag.contains(symbol)) call(symbol);
+        else return def();
+        return Sheet::ref().vm().user().pop().asString().str();
+    }
+    bool Bool(const QString& symbol, std::function<bool()> def = [](){ return false; }) {
+        auto& vm = Sheet::ref().vm();
+        auto bag = vm.bag(sGuidMap[v.mGuid]);
+        if (bag.contains(symbol)) call(symbol);
+        else return def();
+        return Sheet::ref().vm().user().pop().asNumber();
+    }
 
     void init(QString name, QJsonObject json = { }) {
         static bool vmInitialized = false;

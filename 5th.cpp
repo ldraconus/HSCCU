@@ -116,15 +116,18 @@ DBG_MSG(QString("----<User Stack>----------------------------"));
   }
 
   exe vm::getBlock(exe word, const str& n, compiled* code) {
-    exe subfunc = (*this)[n];
+    if (word == nullptr) word = (*this)["word"];
+    auto subfunc = (*this)[n];
+    if (subfunc ==nullptr) return exe(nullptr);
     word->eval(this);
     auto wrd = mUser.pop();
-    if (wrd.isExe()) return wrd.asCallable();
 
     if (wrd.isStr() && wrd.asString() == "{") {
       subfunc->eval(this);
       return mUser.pop().asCallable();
     }
+
+    if (wrd.isExe()) return wrd.asCallable();
 
     if (code == nullptr) code = newCompiled();  // NOLINT
     if (wrd.isNum()) code->push(wrd);
@@ -249,6 +252,7 @@ DBG_MSG(QString("----<User Stack>----------------------------"));
     ++mCompiling;
     auto save = code();
 
+    setCode(cd);
     for (exe word = mBuiltin["word"]; ; ) {
         if (!doNextWord(word, end, cd)) break;
     }
@@ -269,7 +273,6 @@ DBG_MSG(QString("----<User Stack>----------------------------"));
   bool vm::doNextWord(exe word, const str& end, exe cd, bool) {
     value x = get(word);
     compiled* code = dynamic_cast<compiled*>(cd);
-//DBG_MSG(QString("D 0x%1").arg((long long) code, 0, 16));
 
     if (x.isExe()) return false;
     if (x.isStr() && x.asString() == end) return false;

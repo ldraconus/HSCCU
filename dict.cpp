@@ -34,7 +34,6 @@ namespace fifth {
     stack& user = v->user();
     if (strng.isEmpty()) {
       user.push(exe(nullptr));
-      DBG_MSG("word: <null>");
       return;
     }
 
@@ -105,14 +104,11 @@ namespace fifth {
 
     if (isNum) {
         user.push(work.toLongLong());
-        DBG_MSG("word: " + work + " <number>");
     } else {
         if (!quoted && work.isEmpty()) {
             user.push(exe(nullptr));
-            DBG_MSG("word: <null>");
         } else {
             user.push(work);
-            DBG_MSG("word: '" + work + "' <string>");
         }
     }
 

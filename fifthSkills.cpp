@@ -7,10 +7,14 @@ QMap<QString, QString> FifthSkills::sGuidMap;
 FifthSkills::FifthSkills(QUrl& filename) {
     QFile file(filename.isLocalFile() ? filename.toLocalFile() : filename.toString());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
-    QByteArray data(file.readAll());
+    QString data(file.readAll());
     file.close();
-    QString jsonStr(data);
-    QJsonDocument json = QJsonDocument::fromJson(jsonStr.toUtf8());
+    QJsonParseError error;
+    QJsonDocument json = QJsonDocument::fromJson(data.toUtf8(), &error);
+    if (json.isEmpty()) {
+        qDebug() << "Parse error in " + filename.toString() + ": " + error.errorString() + " at " + QString::number(error.offset);
+        return;
+    }
     fromJson(json);
 }
 
@@ -39,7 +43,7 @@ void FifthSkills::fromJson(QJsonDocument &doc) {
     compile(obj, name, Abbreviation);
     if (!compile(obj, name, Description)) return;
     if (!compile(obj, name, Form)) return;
-    if (!compile(obj, name, Cost)) return;
+    if (!compile(obj, name, TheCost)) return;
     if (!compile(obj, name, Restore)) return;
     if (!compile(obj, name, Roll)) return;
     if (!compile(obj, name, Store)) return;
@@ -49,9 +53,9 @@ void FifthSkills::fromJson(QJsonDocument &doc) {
     compile(obj, name, RED);
     compile(obj, name, RPD);
 
-    if (Bool(IsTalent))    addTalent(name, (talentBase*)(this));
-    else if (Bool(IsPerk)) addPerk(name,   (perkBase*)(this));
-    else                   addSkill(name,  (skillBase*)(this));
+    if (Bool(IsTalent, [](){ return false; }))    addTalent(name, (talentBase*)(this));
+    else if (Bool(IsPerk, [](){ return false; })) addPerk(name,   (perkBase*)(this));
+    else                                          addSkill(name,  (skillBase*)(this));
     v.mValid = true;
 }
 
@@ -143,7 +147,7 @@ bool FifthSkills::initializeVM() {
             static auto func = fifth::builtin(crtChkBox);
             auto parent = dynamic_cast<fifth::compiled*>(vm.code());
             parent->push(fifth::num(this));
-            auto cb = vm.getBlock(vm["word"], "}");
+            auto cb = vm.getBlock();
             parent->push(cb);
             parent->call(&func);
             return;
@@ -164,7 +168,7 @@ bool FifthSkills::initializeVM() {
             if (sCheckCB.contains(sender())) sCheckCB[sender()]->eval(&vm);
         });
 
-        sCheckCB[checkbox] = vm.getBlock(vm["word"], "}");
+        sCheckCB[checkbox] = vm.getBlock();
         user.push(fifth::num(checkbox));
     });
 
@@ -173,7 +177,7 @@ bool FifthSkills::initializeVM() {
             static auto func = fifth::builtin(crtCmbBox);
             auto parent = dynamic_cast<fifth::compiled*>(vm.code());
             parent->push(fifth::num(this));
-            auto cb = vm.getBlock(vm["word"], "}");
+            auto cb = vm.getBlock();
             parent->push(cb);
             parent->call(&func);
             return;
@@ -196,7 +200,7 @@ bool FifthSkills::initializeVM() {
             if (sComboCB.contains(sender())) sComboCB[sender()]->eval(&vm);
         });
 
-        sCheckCB[combobox] = vm.getBlock(vm["word"], "}");
+        sCheckCB[combobox] = vm.getBlock();
         user.push(fifth::num(combobox));
     });
 
@@ -220,7 +224,7 @@ bool FifthSkills::initializeVM() {
             static auto func = fifth::builtin(crtLnEdit);
             auto parent = dynamic_cast<fifth::compiled*>(vm.code());
             parent->push(fifth::num(this));
-            auto cb = vm.getBlock(vm["word"], "}");
+            auto cb = vm.getBlock();
             parent->push(cb);
             parent->call(&func);
             return;
@@ -240,7 +244,7 @@ bool FifthSkills::initializeVM() {
             if (sEditCB.contains(sender())) sEditCB[sender()]->eval(&vm);
         });
 
-        sEditCB[lineedit] = vm.getBlock(vm["word"], "}");
+        sEditCB[lineedit] = vm.getBlock();
         user.push(fifth::num(lineedit));
     });
 
@@ -252,10 +256,9 @@ bool FifthSkills::initializeVM() {
 bool FifthSkills::compile(QJsonObject &obj, const QString &name, const QString &symbol) {
     auto& vm = Sheet::ref().vm();
     if (!obj.contains(symbol) || !obj[symbol].isString()) return false;
-    auto word = vm["word"];
     auto input = vm.input();
     vm.setInput(obj[symbol].toString());
-    auto code = vm.getBlock(word, "}");
+    auto code = vm.getBlock();
     vm.setInput(input);
     vm.set(name, symbol, code);
     return true;

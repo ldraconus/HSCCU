@@ -285,7 +285,7 @@ namespace fifth {
       void eval(vm* v) const override { mFunction(v); }
 
     private:
-      const function& mFunction;
+      const function mFunction;
   };
 
   class instruction {
@@ -387,7 +387,7 @@ class vm {
     void addImmediate(const str& n, const function& f);
     void addImmediate(const str& n, exe e);
     void unAdd(const str& n);
-    exe getBlock(exe word, const str& n, compiled* code = nullptr);
+    exe  getBlock(exe word = exe(nullptr), const str& n = "{", compiled* code = nullptr);
 
     QMap<str, value>& bag(const str& name)    { return mBags[name]; }
     exe               code()                  { return mCode; }
