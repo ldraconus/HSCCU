@@ -198,6 +198,8 @@ public:
     SkillTalentOrPerk()                  { id(); }
     SkillTalentOrPerk(QJsonObject& json) { id(json); }
 
+    virtual void load(QUrl& url)         { }
+
     static const bool NoStore = true;
     static const bool ShowRoll = true;
 
@@ -220,8 +222,10 @@ public:
     virtual void        numeric(QString) { }
     virtual QJsonObject toJson()         { QJsonObject obj; obj["id"] = mGuid; return obj; }
 
-    QWidget* sender() const { return mSender; }
-    QString  id() const     { return mGuid; }
+    QWidget* sender() const             { return mSender; }
+    QString  id() const                 { return mGuid; }
+    void     id(const QJsonObject json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces); }
+
 
     void callback(QCheckBox*);
     void callback(QLineEdit*);
@@ -247,8 +251,6 @@ public:
 
 protected:
     QString mGuid;
-
-    void    id(const QJsonObject json) { mGuid = json["id"].toString(); if (mGuid.isEmpty()) mGuid = QUuid::createUuid().toString(QUuid::WithoutBraces); }
 
 private:
     static QMap<QString, skillBase*>    sSkills;    // NOLINT

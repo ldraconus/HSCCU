@@ -4,7 +4,7 @@
 
 QMap<QString, QString> FifthSkills::sGuidMap;
 
-FifthSkills::FifthSkills(QUrl filename) {
+FifthSkills::FifthSkills(QUrl& filename) {
     QFile file(filename.isLocalFile() ? filename.toLocalFile() : filename.toString());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
     QByteArray data(file.readAll());
@@ -52,6 +52,7 @@ void FifthSkills::fromJson(QJsonDocument &doc) {
     if (Bool(IsTalent))    addTalent(name, (talentBase*)(this));
     else if (Bool(IsPerk)) addPerk(name,   (perkBase*)(this));
     else                   addSkill(name,  (skillBase*)(this));
+    v.mValid = true;
 }
 
 static QMap<QWidget*, fifth::exe > sCheckCB;
@@ -137,7 +138,7 @@ bool FifthSkills::initializeVM() {
     auto& vm = Sheet::ref().vm();
     auto& user = vm.user();
 
-    vm.addImmediate("createCheckBox", [this, &user, &vm](fifth::vm*) {
+    vm.addImmediate("createCheckBox", [this, &user, &vm](fifth::vm*) {   // p l s -u-> w
         if (vm.compiling()) {
             static auto func = fifth::builtin(crtChkBox);
             auto parent = dynamic_cast<fifth::compiled*>(vm.code());
@@ -150,12 +151,12 @@ bool FifthSkills::initializeVM() {
 
         auto s = user.pop();
         auto l = user.pop();
-        auto w = user.pop();
-        if (!s.isStr() || !l.isNum() || !w.isNum()) user.push(fifth::exe(nullptr));
+        auto p = user.pop();
+        if (!s.isStr() || !l.isNum() || !p.isNum()) user.push(fifth::exe(nullptr));
 
         QString      string = s.asString().str();
         QVBoxLayout* layout = (QVBoxLayout*)(l.asNumber());
-        QWidget*     widget = (QWidget*)(w.asNumber());
+        QWidget*     widget = (QWidget*)(p.asNumber());
 
         QCheckBox* checkbox = nullptr;
         checkbox = createCheckBox(widget, layout, string, [this, &user, &checkbox, &vm](SkillTalentOrPerk* stp, bool result) {
@@ -167,7 +168,7 @@ bool FifthSkills::initializeVM() {
         user.push(fifth::num(checkbox));
     });
 
-    vm.addImmediate("createComboBox", [this, &user, &vm](fifth::vm*) {
+    vm.addImmediate("createComboBox", [this, &user, &vm](fifth::vm*) {   // p l s c -u-> w
         if (vm.compiling()) {
             static auto func = fifth::builtin(crtCmbBox);
             auto parent = dynamic_cast<fifth::compiled*>(vm.code());
@@ -178,16 +179,16 @@ bool FifthSkills::initializeVM() {
             return;
         }
 
-        auto b = user.pop();
+        auto c = user.pop();
         auto s = user.pop();
         auto l = user.pop();
-        auto w = user.pop();
-        if (!b.isStr() || !s.isStr() || !l.isNum() || !w.isNum()) user.push(fifth::exe(nullptr));
-        QString      combined = b.asString().str();
+        auto p = user.pop();
+        if (!c.isStr() || !s.isStr() || !l.isNum() || !p.isNum()) user.push(fifth::exe(nullptr));
+        QString      combined = c.asString().str();
         auto         list     = combined.split(":");
         QString      string   = s.asString().str();
         QVBoxLayout* layout   = (QVBoxLayout*)(l.asNumber());
-        QWidget*     widget   = (QWidget*)(w.asNumber());
+        QWidget*     widget   = (QWidget*)(p.asNumber());
 
         QComboBox* combobox = nullptr;
         combobox = createComboBox(widget, layout, string, list, [this, &user, &combobox, &vm](SkillTalentOrPerk* stp, int result) {
@@ -199,14 +200,14 @@ bool FifthSkills::initializeVM() {
         user.push(fifth::num(combobox));
     });
 
-    vm.addBuiltin("createLabel", [this, &user, &vm](fifth::vm*) {
+    vm.addBuiltin("createLabel", [this, &user, &vm](fifth::vm*) { // p l s -u-<> w
         auto s = user.pop();
         auto l = user.pop();
-        auto w = user.pop();
-        if (!s.isStr() || !l.isNum() || !w.isNum()) user.push(fifth::exe(nullptr));
+        auto p = user.pop();
+        if (!s.isStr() || !l.isNum() || !p.isNum()) user.push(fifth::exe(nullptr));
         QString      string   = s.asString().str();
         QVBoxLayout* layout   = (QVBoxLayout*)(l.asNumber());
-        QWidget*     widget   = (QWidget*)(w.asNumber());
+        QWidget*     widget   = (QWidget*)(p.asNumber());
 
         QLabel* label = nullptr;
         label = createLabel(widget, layout, string);
@@ -214,7 +215,7 @@ bool FifthSkills::initializeVM() {
         user.push(fifth::num(label));
     });
 
-    vm.addImmediate("createLineEdit", [this, &user, &vm](fifth::vm*) {
+    vm.addImmediate("createLineEdit", [this, &user, &vm](fifth::vm*) { // p l s -u-> w
         if (vm.compiling()) {
             static auto func = fifth::builtin(crtLnEdit);
             auto parent = dynamic_cast<fifth::compiled*>(vm.code());
@@ -227,11 +228,11 @@ bool FifthSkills::initializeVM() {
 
         auto s = user.pop();
         auto l = user.pop();
-        auto w = user.pop();
-        if (!s.isStr() || !l.isNum() || !w.isNum()) user.push(fifth::exe(nullptr));
+        auto p = user.pop();
+        if (!s.isStr() || !l.isNum() || !p.isNum()) user.push(fifth::exe(nullptr));
         QString      string   = s.asString().str();
         QVBoxLayout* layout   = (QVBoxLayout*)(l.asNumber());
-        QWidget*     widget   = (QWidget*)(w.asNumber());
+        QWidget*     widget   = (QWidget*)(p.asNumber());
 
         QLineEdit* lineedit = nullptr;
         lineedit = createLineEdit(widget, layout, string, [this, &user, &lineedit, &vm](SkillTalentOrPerk* stp, QString result) {

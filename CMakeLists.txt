@@ -203,6 +203,8 @@ else()
             dict.cpp
             fifthSkills.h
             fifthSkills.cpp
+            Catalogue.json
+            Tests/SkillTest.skill
         )
     endif()
 endif()

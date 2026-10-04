@@ -30,7 +30,12 @@ public:
         : SkillTalentOrPerk() { init(name); }
     FifthSkills(QJsonObject& json)
         : SkillTalentOrPerk(json) { init(json[Name].toString(""), json); }
-    FifthSkills(QUrl filename);
+    FifthSkills(const FifthSkills& fs)
+        : v(fs.v) { }
+    FifthSkills(QUrl& filename);
+
+    void load(QJsonObject& json) { init(json[Name].toString(""), json); }
+    bool valid()                 { return v.mValid; }
 
     QString abbreviation(bool roll = !ShowRoll) override { Sheet::ref().vm().user().push(roll); QString s = String(Abbreviation); return s.isEmpty() ? description() : s; }
     QString description(bool roll = !ShowRoll) override  { Sheet::ref().vm().user().push(roll); return String(Description); }
@@ -45,13 +50,13 @@ public:
     bool    isTalent() override                          { return Bool(IsTalent); }
     int     rED() override                               { return Int(RED); }
     int     rPD() override                               { return Int(RPD); }
-    void    numeric(QString) override                    { return Void(Numeric); }
 
     QJsonObject toJson() override;
 
 private:
     struct vars {
         QString mGuid;
+        bool    mValid = false;
     } v;
 
     auto call(const QString& symbol) {
@@ -71,15 +76,18 @@ private:
         static bool vmInitialized = false;
         if (!vmInitialized) vmInitialized = initializeVM();
         auto& vm = Sheet::ref().vm();
-        auto guid = QUuid::createUuid().toString();
-        v.mGuid = guid;
-        sGuidMap[guid] = name;
-        vm.createBag(guid);
-        auto keys = json.keys();
-        vm.set(guid, Name, fifth::str(name));
-        for (const auto& key: std::as_const(keys)) {
-            if (json[key].isString()) vm.set(guid, key, fifth::str(json[key].toString()));
-            else vm.set(guid, key, json[key].toInt());
+        if (!sNameMap.contains(name)) {
+            auto guid = QUuid::createUuid().toString();
+            v.mGuid = guid;
+            sGuidMap[guid] = name;
+            sNameMap[name] = guid;
+            vm.createBag(guid);
+            auto keys = json.keys();
+            vm.set(guid, Name, fifth::str(name));
+            for (const auto& key: std::as_const(keys)) {
+                if (json[key].isString()) vm.set(guid, key, fifth::str(json[key].toString()));
+                else vm.set(guid, key, json[key].toInt());
+            }
         }
     }
 
@@ -88,4 +96,81 @@ private:
     bool compile(QJsonObject& obj, const QString& namne, const QString& symbol);
 
     static QMap<QString, QString> sGuidMap;
+    static QMap<QString, QString> sNameMap;
 };
+
+class fifthBase: public SkillTalentOrPerk::skillBase {
+public:
+    fifthBase() = default;
+
+    shared_ptr<SkillTalentOrPerk> create() override                  { return nullptr; }
+    shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { return nullptr; }
+};
+
+class fifthSkill: public fifthBase {
+public:
+    fifthSkill() = default;
+    fifthSkill(QUrl& url)
+        : fifthBase()
+        , mSkill(std::make_shared<FifthSkills>(url)) { }
+
+    shared_ptr<SkillTalentOrPerk> create() override                  { auto x = std::make_shared<FifthSkills>(*mSkill);              return x; }
+    shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { auto x = std::make_shared<FifthSkills>(*mSkill); x->id(json); return x; }
+
+    QString name()  { return mSkill->name(); }
+    bool    valid() { return mSkill->valid(); }
+
+private:
+    std::shared_ptr<FifthSkills> mSkill;
+};
+
+class fifthTBase: public SkillTalentOrPerk::talentBase {
+public:
+    fifthTBase() = default;
+
+    shared_ptr<SkillTalentOrPerk> create() override                  { return nullptr; }
+    shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { return nullptr; }
+};
+
+class fifthTalent: public fifthTBase {
+public:
+    fifthTalent() = default;
+    fifthTalent(QUrl& url)
+        : fifthTBase()
+        , mSkill(std::make_shared<FifthSkills>(url)) { }
+
+    shared_ptr<SkillTalentOrPerk> create() override                  { auto x = std::make_shared<FifthSkills>(*mSkill);              return x; }
+    shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { auto x = std::make_shared<FifthSkills>(*mSkill); x->id(json); return x; }
+
+    QString name()  { return mSkill->name(); }
+    bool    valid() { return mSkill->valid(); }
+
+private:
+    std::shared_ptr<FifthSkills> mSkill;
+};
+
+class fifthPBase: public SkillTalentOrPerk::perkBase {
+public:
+    fifthPBase() = default;
+
+    shared_ptr<SkillTalentOrPerk> create() override                  { return nullptr; }
+    shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { return nullptr; }
+};
+
+class fifthPerk: public fifthPBase {
+public:
+    fifthPerk() = default;
+    fifthPerk(QUrl& url)
+        : fifthPBase()
+        , mSkill(std::make_shared<FifthSkills>(url)) { }
+
+    shared_ptr<SkillTalentOrPerk> create() override                  { auto x = std::make_shared<FifthSkills>(*mSkill);              return x; }
+    shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { auto x = std::make_shared<FifthSkills>(*mSkill); x->id(json); return x; }
+
+    QString name()  { return mSkill->name(); }
+    bool    valid() { return mSkill->valid(); }
+
+private:
+    std::shared_ptr<FifthSkills> mSkill;
+};
+

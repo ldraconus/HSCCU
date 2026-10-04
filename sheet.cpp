@@ -1,6 +1,7 @@
-#include "Equipment.h"
 #include "complicationsdialog.h"
 #include "complication.h"
+#include "Equipment.h"
+#include "fifthSkills.h"
 #include "modifier.h"
 #ifdef __wasm__
 #include "editmenudialog.h"
@@ -281,8 +282,7 @@ Sheet::Sheet(QWidget *parent)
 
     mUi->setupUi(this);
 
-#if !defined(__wasm__) && !defined(Q_OS_ANDROID)
-#endif
+    loadCatalogue();
 
     mUi->graphicsView->setStyleSheet("color: #000; background: #fff");
     mUI->setupUi(nullptr, nullptr);
@@ -1771,6 +1771,54 @@ QString Sheet::KAwSTR(int STR) {
     return QString("%1%2d6%3").arg(dice).arg((extra == 2) ? Fraction(1, 2).toString() : "",(extra == 1) ? "+1" : "");
 }
 
+void Sheet::loadCatalogue() {
+#if defined(__wasm__) || defined(Q_OS_ANDROID)
+    QUrl baseUrl = "https:://https://hsccu.chris-m-olson.workers.dev";
+#else
+    QUrl baseUrl = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/HSCCU";
+    QDir working;
+    working.mkpath(baseUrl.isLocalFile() ? baseUrl.toLocalFile() : baseUrl.toString());
+#endif
+    QUrl url = baseUrl.toString() + "/Catalogue.json";
+    QFile file(url.isLocalFile() ? url.toLocalFile() : url.toString());
+    if (!file.open(QIODevice::Text | QIODevice::ReadOnly)) return;
+    QString json = file.readAll();
+    file.close();
+
+    QJsonDocument doc;
+    doc.fromJson(json.toUtf8());
+    if (!doc.isObject()) return;
+    QJsonObject catalogue = doc.object();
+    loadFiles(baseUrl, catalogue, "skills", [this](const QString& urlname) {
+        QUrl url(urlname);
+        auto* skill = new fifthSkill(url);
+        if (skill->valid()) SkillTalentOrPerk::addSkill(skill->name(), skill);
+        else delete skill;
+    });
+    loadFiles(baseUrl, catalogue, "talents", [this](const QString& urlname) {
+        QUrl url(urlname);
+        auto* talent = new fifthTalent(url);
+        if (talent->valid()) SkillTalentOrPerk::addTalent(talent->name(), talent);
+        else delete talent;
+    });
+    loadFiles(baseUrl, catalogue, "perks", [this](const QString& urlname) {
+        QUrl url(urlname);
+        auto* perk = new fifthPerk(url);
+        if (perk->valid()) SkillTalentOrPerk::addPerk(perk->name(), perk);
+        else delete perk;
+    });
+}
+
+void Sheet::loadFiles(const QUrl& base, QJsonObject& catalogue, const QString& entry, std::function<void(const QString&)> handler) {
+    if (!catalogue.contains(entry) || !catalogue[entry].isArray()) return;
+    QJsonArray list = catalogue[entry].toArray();
+    for (const auto item: std::as_const(list)) {
+        if (!item.isString()) continue;
+        QString url = base.toString() + "/" + item.toString();
+        handler(url);
+    }
+}
+
 void Sheet::rebuildMartialArt(shared_ptr<SkillTalentOrPerk> stp, QFont& font) {
     static QMap<QString, QStringList> table = {
         { "Choke Hold",       { "½", "-2", "+0", "Grab 1 limb, 2d6 NND~%1/%2/%3/%4/%5/%6/%7/%8/%9" } },
@@ -2254,8 +2302,23 @@ void Sheet::setMaximum(cCharacteristicDef& def, QLabel* set, QLineEdit* cur) {
 }
 
 void Sheet::setupVM() {
-    mVm.addBuiltin("set", [this](fifth::vm* v) {    // w s -u->
-        auto& user = mVm.user();
+    auto& user = mVm.user();
+
+    mVm.addBuiltin("numeric", [this, &user](fifth::vm*) {    // s -u-> 0|1
+        auto t = user.pop();
+        if (t.isStr()) {
+            QString txt = t.asString().str();
+            if (!txt.isEmpty()) {
+                bool ok;
+                txt.toInt(&ok, 10);
+                user.push(ok);
+                return;
+            }
+        }
+        user.push(false);
+    });
+
+    mVm.addBuiltin("set", [this, &user](fifth::vm*) {        // w s -u->
         auto s = user.pop();
         auto w = user.pop();
         if (!s.isStr() || !w.isNum()) return;
@@ -2266,8 +2329,8 @@ void Sheet::setupVM() {
         else if (auto* combo = dynamic_cast<QComboBox*>(widget); combo) combo->setCurrentText(str);
         else if (auto* line = dynamic_cast<QLineEdit*>(widget); line) line->setText(str);
     });
-    mVm.addBuiltin("get", [this](fifth::vm* v) {    // w -u-> s
-        auto& user = mVm.user();
+
+    mVm.addBuiltin("get", [this, &user](fifth::vm*) {        // w -u-> s
         auto w = user.pop();
         if (!w.isNum()) return;
         QString str;

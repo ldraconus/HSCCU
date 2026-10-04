@@ -315,7 +315,8 @@ private:
     void               hitLocations(std::shared_ptr<Power>&);
     void               justClose();
     QString            KAwSTR(int);
-
+    void               loadCatalogue();
+    void               loadFiles(const QUrl& base, QJsonObject& catalogue, const QString& entry, std::function<void(const QString& filename)> handler);
     void               loadImage(QPixmap&, QUrl);
 #ifdef __wasm__
     void               loadImage(const QByteArray&, QString);
