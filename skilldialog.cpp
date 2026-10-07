@@ -176,7 +176,7 @@ void SkillDialog::stateChanged(bool) {
     updateForm();
 }
 
-void SkillDialog::textChanged(QString) {
+void SkillDialog::textChanged(const QString&) {
     QLineEdit* text = static_cast<QLineEdit*>(sender());
     mSkillTalentOrPerk->callback(text);
     updateForm();

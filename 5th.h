@@ -270,6 +270,8 @@ namespace fifth {
       virtual str asString() const { return ""; }
       virtual exe asCallable()     { return this; }
 
+      virtual str disassemble(int indent, vm*) { return ""; };
+
       virtual void eval(vm*) const { }
 
   private:
@@ -305,7 +307,7 @@ namespace fifth {
       instruction& operator=(const instruction& i)     { if (this != &i) mPayload = i.mPayload; return *this; }
       instruction& operator=(instruction&& i) noexcept { mPayload = i.mPayload; return *this; }
 
-      str  disassemble(vm*);
+      str  disassemble(int indent, vm*);
       void eval(vm*) const;
 
   private:
@@ -328,7 +330,7 @@ namespace fifth {
       void call(exe e)          { mCode.push_back(instruction(e)); }
       void indirect()           { mCode.push_back(instruction(nullptr)); }
 
-      str  disassemble(vm* v);
+      str  disassemble(int indent, vm* v) override;
 
     private:
       std::vector<instruction> mCode;

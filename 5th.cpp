@@ -2,13 +2,14 @@
 
 namespace fifth {
 
-  str instruction::disassemble(vm* v) {
+  str instruction::disassemble(int indent, vm* v) {
     switch (mPayload.index()) {
     case VALUE: return "push " + std::get<VALUE>(mPayload).asString();
     case INT:   return "indirect";
     case EXE:
         if (v->contains(std::get<EXE>(mPayload))) return "call " + (*v)[std::get<EXE>(mPayload)];
-        return "call <sub-func>";
+        if (auto* call = std::get<EXE>(mPayload); call != nullptr) return "call:\n" + call->disassemble(indent + 4, v);
+        else return "call internal";
     }
     return "";
   }
@@ -29,7 +30,7 @@ namespace fifth {
     }
   }
 
-  str compiled::disassemble(vm* v) {
+  str compiled::disassemble(int indent, vm* v) {
     auto sz = mCode.size();
     str test = ::FString::number((long long)(sz));
     auto len = test.size();
@@ -40,7 +41,8 @@ namespace fifth {
         str num = ::FString::number((long long)(i));
         str line = "";
         for (auto j = num.size(); j < len; ++j) line += " ";
-        line += num + " " + instr.disassemble(v) + "\n";
+        for (auto j = 0; j < indent; ++j) line += " ";
+        line += num + " " + instr.disassemble(indent, v) + "\n";
         block += line;
       }
     } catch (...) { block = "disassemble crash:\n" + block; }
@@ -118,7 +120,7 @@ DBG_MSG(QString("----<User Stack>----------------------------"));
   exe vm::getBlock(exe word, const str& n, compiled* code) {
     if (word == nullptr) word = (*this)["word"];
     auto subfunc = (*this)[n];
-    if (subfunc ==nullptr) return exe(nullptr);
+    if (subfunc == nullptr) return exe(nullptr);
     word->eval(this);
     auto wrd = mUser.pop();
 
@@ -265,7 +267,7 @@ DBG_MSG(QString("----<User Stack>----------------------------"));
 
   void vm::disassemble(exe call) {
     compiled* code = dynamic_cast<compiled*>(call);
-    auto result = code->disassemble(this);
+    auto result = code->disassemble(0, this);
     const auto lines = result.str().split("\n");
     for (const auto& s: lines) DBG_MSG(s.toStdString().c_str());  // NOLINT
   }

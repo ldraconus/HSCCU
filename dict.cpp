@@ -425,16 +425,14 @@ namespace fifth {
     exe word = (*v)["word"];
     exe peek = (*v)["peek"];
 
-    auto input = v->get(word);
     if (v->compiling()) {
       static auto func = fifth::builtin(doIf);
       auto parent = dynamic_cast<fifth::compiled*>(v->code());
       exe code = v->getBlock(word, "{");
       parent->push(code);
-      input = v->get(peek);
+      value input = v->get(peek);
       if (input == "else") {
         v->get(word);
-        auto input = v->get(word);
         code = v->getBlock(word, "{");
         parent->push(code);
       } else user.push(exe(0));
@@ -442,7 +440,7 @@ namespace fifth {
     } else {
       auto test = user.pop();
       exe trueCode = v->getBlock(word, "{");
-      input = v->get(peek);
+      value input = v->get(peek);
       exe falseCode = nullptr;
       if (input == "else") falseCode = v->getBlock(word, "{");
       if (test.asNumber()) {
@@ -600,7 +598,10 @@ namespace fifth {
     }
     str var = a.asString();
     v->create(var);
-    user.push(var);
+    if (v->compiling()) {
+        auto parent = dynamic_cast<fifth::compiled*>(v->code());
+        parent->push(var);
+    } else user.push(var);
   }
 
   /**
@@ -790,7 +791,7 @@ namespace fifth {
       exe call = (*v)[st];
       auto code = dynamic_cast<compiled*>(call);
       if (code == nullptr) user.push(st + ": builtin\n");
-      str disassem = code->disassemble(v);
+      str disassem = code->disassemble(0, v);
       user.push(st + ":\n" + disassem);
     } else {
       user.push(st + ": not in dictionary\n");

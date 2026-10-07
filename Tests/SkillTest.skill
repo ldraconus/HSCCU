@@ -1,12 +1,16 @@
 {
     "name": "Test Skill",
-    "description": "{ v Str [@] length if { 'Test Edit: ' v Str [@] + } else { '<incomplete>' } }",
+    "description": "{ v Str [@] len if { 'Test Edit: ' v Str [@] + } else { '<incomplete>' } }",
     "form": "{
-               var Edit 0 <--
-               over over 'Test Label' createLabel var Label -->
-               'Test Edit:' createLineEdit { } Edit -->
+               Edit <var 0 <--
+               Label <var 0 <--
+               Layout <var -->
+               Widget <var -->
+               Widget @ Layout @ 'Test Label' createLabel Label -->
+               Widget @ Layout @ 'Test Edit:' createLineEdit { } Edit -->
+               v Str '' [<--]
              }",
-    "roll": "{ }",
+    "roll": "{ '' }",
     "points": "{ 5 }",
     "restore": "{ Edit @ v Str [@] set }",
     "store": "{ v Str Edit @ get [<--] }",

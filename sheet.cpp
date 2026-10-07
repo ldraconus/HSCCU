@@ -282,6 +282,8 @@ Sheet::Sheet(QWidget *parent)
 
     mUi->setupUi(this);
 
+    setupVM();
+
     loadCatalogue();
 
     mUi->graphicsView->setStyleSheet("color: #000; background: #fff");

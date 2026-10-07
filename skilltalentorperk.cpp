@@ -259,6 +259,10 @@ QMap<QString, SkillTalentOrPerk::enhancerBase*> SkillTalentOrPerk::sEnhancers {
     { SPCS("Well-Connected", WellConnected) }
 };
 
+QMap<QCheckBox*, SkillTalentOrPerk::BoolCallback>   SkillTalentOrPerk::mCallbacksCB;
+QMap<ComboBox*,  SkillTalentOrPerk::IntCallback>    SkillTalentOrPerk::mCallbacksCBox;
+QMap<QLineEdit*, SkillTalentOrPerk::StringCallback> SkillTalentOrPerk::mCallbacksEdit;
+
 bool SkillTalentOrPerk::isNumber(QString txt) {
     bool ok;
     txt.toInt(&ok, 10);
@@ -273,12 +277,20 @@ void SkillTalentOrPerk::callback(QCheckBox* checkBox) {
     function(this, checkBox->isChecked());
 }
 
+static void dumpMap(QMap<QLineEdit*, std::function<void (SkillTalentOrPerk*, QString)>> map) {
+    auto keys = map.keys();
+    int i = 1;
+    for (const auto& key: std::as_const(keys)) {
+        qDebug() << "Widget " + QString::number(i++) + ": " + QString::number((qlonglong)(key)) + " = " + QString::number((qlonglong)(&map[key]));
+    }
+}
+
 void SkillTalentOrPerk::callback(QLineEdit* edit) {
     mSender = edit;
-    auto f = mCallbacksEdit.find(edit);
-    if (f == mCallbacksEdit.end()) return;
-    auto function = f.value();
-    function(this, edit->text());
+    if (mCallbacksEdit.contains(edit)) {
+        auto function = mCallbacksEdit[edit];
+        function(this, edit->text());
+    }
 }
 
 QCheckBox* SkillTalentOrPerk::createCheckBox(QWidget* parent, QVBoxLayout* layout, QString prompt) {
@@ -330,7 +342,7 @@ QCheckBox* SkillTalentOrPerk::createCheckBox(QWidget* parent, QVBoxLayout* layou
     checkBox->setStyleSheet(style);
     layout->addWidget(checkBox);
     parent->connect(checkBox, SIGNAL(clicked(bool)), parent, SLOT(stateChanged(bool)));
-    mCallbacksCB.insert(mCallbacksCB.cend(), checkBox, callback);
+    mCallbacksCB[checkBox] = callback;
     return checkBox;
 }
 
@@ -363,7 +375,7 @@ ComboBox* SkillTalentOrPerk::createComboBox(QWidget* parent, QVBoxLayout* layout
     comboBox->setStyleSheet(style);
     layout->addWidget(comboBox);
     parent->connect(comboBox, SIGNAL(currentIndexChanged(int)), parent, SLOT(currentIndexChanged(int)));
-    mCallbacksCBox.insert(mCallbacksCBox.cend(), comboBox, callback);
+    mCallbacksCBox[comboBox] = callback;
     return comboBox;
 }
 
@@ -415,7 +427,7 @@ QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layou
     lineEdit->setStyleSheet(style);
     layout->addWidget(lineEdit);
     parent->connect(lineEdit, SIGNAL(textChanged(QString)), parent, SLOT(textChanged(QString)));
-    mCallbacksEdit.insert(mCallbacksEdit.cend(), lineEdit, callback);
+    mCallbacksEdit[lineEdit] = callback;
     return lineEdit;
 }
 
@@ -436,6 +448,9 @@ void SkillTalentOrPerk::ClearForm(QVBoxLayout* layout) {
         delete item->widget();
         delete item;
     }
+    mCallbacksCB.clear();
+    mCallbacksCBox.clear();
+    mCallbacksEdit.clear();
 }
 
 bool SkillTalentOrPerk::createForm(QWidget* parent, QVBoxLayout* layout) {
@@ -461,6 +476,7 @@ QList<QString> SkillTalentOrPerk::PerksAvailable() {
 
 
 shared_ptr<SkillTalentOrPerk> SkillTalentOrPerk::ByName(QString name) {
+    auto list = sSkills;
          if (sSkills.find(name)    != sSkills.end())    return sSkills[name]->create();
     else if (sTalents.find(name)   != sTalents.end())   return sTalents[name]->create();
     else if (sPerks.find(name)     != sPerks.end())     return sPerks[name]->create();

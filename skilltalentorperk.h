@@ -28,9 +28,9 @@ protected:
     ComboBox*  createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
     QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString);
 
-    QMap<QCheckBox*, BoolCallback>   mCallbacksCB;
-    QMap<ComboBox*,  IntCallback>    mCallbacksCBox;
-    QMap<QLineEdit*, StringCallback> mCallbacksEdit;
+    static QMap<QCheckBox*, BoolCallback>   mCallbacksCB;
+    static QMap<ComboBox*,  IntCallback>    mCallbacksCBox;
+    static QMap<QLineEdit*, StringCallback> mCallbacksEdit;
 
     void empty(bool)      { }
 
@@ -122,10 +122,10 @@ protected:
     static constexpr auto                  Wpns = "wpns";
 
 public:
-    QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString, BoolCallback);
-    ComboBox*  createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, IntCallback);
-    QLabel*    createLabel(QWidget*, QVBoxLayout*, QString);
-    QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, StringCallback);
+    static QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString, BoolCallback);
+    static ComboBox*  createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, IntCallback);
+    static QLabel*    createLabel(QWidget*, QVBoxLayout*, QString);
+    static QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString, StringCallback);
 
     class skillBase {
     public:

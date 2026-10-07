@@ -50,7 +50,7 @@ public slots:
     void pickOne(int);
     void pickType(int);
     void stateChanged(bool state);
-    void textChanged(QString);
+    void textChanged(const QString&);
 };
 
 #endif // SKILLDIALOG_H
