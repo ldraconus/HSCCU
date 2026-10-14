@@ -1,19 +1,15 @@
 {
     "name": "Test Skill",
-    "description": "{ v Str [@] len if { 'Test Edit: ' v Str [@] + } else { '<incomplete>' } }",
+    "description": "{ str Get len if { 'Test Edit: ' str Get + } else { '<incomplete>' } }",
     "form": "{
-               Edit <var 0 <--
-               Label <var 0 <--
-               Layout <var -->
-               Widget <var -->
-               Widget @ Layout @ 'Test Label' createLabel Label -->
-               Widget @ Layout @ 'Test Edit:' createLineEdit { } Edit -->
-               v Str '' [<--]
+               Label 'Test Label' Text pop
+               LineEdit 'Test Edit' Prompt { str swap Set } Callback edit Set
+               str '' Set
              }",
-    "roll": "{ '' }",
+    "roll": "{ }",
     "points": "{ 5 }",
-    "restore": "{ Edit @ v Str [@] set }",
-    "store": "{ v Str Edit @ get [<--] }",
+    "restore": "{ edit Get str Get Text pop }",
+    "store": "{ str edit Get Value Set }",
     "isSkill": "{ 1 }",
     "isPerk": "{ 0 }",
     "isTalent": "{ 0 }"

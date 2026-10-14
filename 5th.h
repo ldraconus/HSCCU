@@ -272,6 +272,7 @@ namespace fifth {
 
       virtual str disassemble(int indent, vm*) { return ""; };
 
+      virtual int  step(vm*, int) { return -1; }
       virtual void eval(vm*) const { }
 
   private:
@@ -283,6 +284,7 @@ namespace fifth {
       builtin(const function& f)
         : callable()
         , mFunction(f) { }
+
 
       void eval(vm* v) const override { mFunction(v); }
 
@@ -310,9 +312,16 @@ namespace fifth {
       str  disassemble(int indent, vm*);
       void eval(vm*) const;
 
-  private:
       enum Type { VALUE, EXE, INT };
-      std::variant<value, exe, int> mPayload;
+
+      Type type() { return (Type) mPayload.index(); }
+
+      typedef std::variant<value, exe, int> payloadType;
+
+      auto payload() { return mPayload; }
+
+  private:
+      payloadType mPayload;
   };
 
   class compiled: public callable {
@@ -320,6 +329,9 @@ namespace fifth {
       compiled()
         : callable() { }
 
+      instruction at(int pc) { return mCode[pc]; }
+
+      int  step(vm*, int) override;
       void eval(vm*) const override;
 
       void clear()              { mCode.clear(); }
@@ -350,8 +362,11 @@ namespace fifth {
       size_t size()  { return mStack.size(); }
 
       void  dump();
-      value top();
+      str   list();
+      void  over();
       value pop();
+      void  swap();
+      value top();
 
     private:
       std::vector<value> mStack;

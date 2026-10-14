@@ -8,7 +8,7 @@ namespace fifth {
     case INT:   return "indirect";
     case EXE:
         if (v->contains(std::get<EXE>(mPayload))) return "call " + (*v)[std::get<EXE>(mPayload)];
-        if (auto* call = std::get<EXE>(mPayload); call != nullptr) return "call:\n" + call->disassemble(indent + 4, v);
+        if (auto* call = dynamic_cast<compiled*>(std::get<EXE>(mPayload)); call != nullptr) return "call unnamed";
         else return "call internal";
     }
     return "";
@@ -49,10 +49,15 @@ namespace fifth {
     return block;
   }
 
+  int compiled::step(vm* v, int pc) {
+      const auto& instr = mCode[pc++];
+      instr.eval(v);
+      if (pc < mCode.size()) return pc;
+      else return -1;
+  }
+
   void compiled::eval(vm* v) const {
-    for (const auto& instr: mCode) {
-        instr.eval(v);
-    }
+      for (const auto& instr : mCode) { instr.eval(v); }
   }
 
   value stack::operator[](size_t x) {
@@ -63,6 +68,23 @@ namespace fifth {
   void stack::dump() {
 DBG_MSG(QString("----<User Stack>----------------------------"));
       for (size_t i = 0; i < mStack.size(); ++i) DBG_MSG("> " + mStack[i].asString().str());
+  }
+
+  str stack::list() {
+    str result;
+    for (size_t i = 0; i < mStack.size(); ++i) {
+        if (!result.isEmpty()) result += "\n";
+        result += mStack[i].asString().str();
+    }
+    return result;
+  }
+
+  void stack::over() {
+      auto a = mStack.back();
+      mStack.pop_back();
+      auto b = mStack.back();
+      mStack.push_back(a);
+      mStack.push_back(b);
   }
 
   value stack::top() {
@@ -76,6 +98,15 @@ DBG_MSG(QString("----<User Stack>----------------------------"));
     auto vl = mStack.back();
     mStack.pop_back();
     return vl;
+  }
+
+  void stack::swap() {
+      auto tp = mStack.back();
+      mStack.pop_back();
+      auto un = mStack.back();
+      mStack.pop_back();
+      mStack.push_back(tp);
+      mStack.push_back(un);
   }
 
   vm::vm()

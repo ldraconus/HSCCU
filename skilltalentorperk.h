@@ -24,10 +24,6 @@ protected:
     using IntCallback    = std::function<void (SkillTalentOrPerk*, int)>;
     using StringCallback = std::function<void (SkillTalentOrPerk*, QString)>;
 
-    QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString);
-    ComboBox*  createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
-    QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString);
-
     static QMap<QCheckBox*, BoolCallback>   mCallbacksCB;
     static QMap<ComboBox*,  IntCallback>    mCallbacksCBox;
     static QMap<QLineEdit*, StringCallback> mCallbacksEdit;
@@ -122,6 +118,10 @@ protected:
     static constexpr auto                  Wpns = "wpns";
 
 public:
+    static QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString);
+    static ComboBox*  createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>);
+    static QLineEdit* createLineEdit(QWidget*, QVBoxLayout*, QString);
+
     static QCheckBox* createCheckBox(QWidget*, QVBoxLayout*, QString, BoolCallback);
     static ComboBox*  createComboBox(QWidget*, QVBoxLayout*, QString, QList<QString>, IntCallback);
     static QLabel*    createLabel(QWidget*, QVBoxLayout*, QString);

@@ -205,6 +205,7 @@ else()
             fifthSkills.cpp
             Catalogue.json
             Tests/SkillTest.skill
+            debugdialog.h debugdialog.cpp debugdialog.ui
         )
     endif()
 endif()

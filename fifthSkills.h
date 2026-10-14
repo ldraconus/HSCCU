@@ -2,6 +2,10 @@
 
 #include <QUuid>
 
+#ifdef _DEBUG
+#include "debugdialog.h"
+#endif
+
 #ifndef ISHSC
 #include "sheet.h"
 #endif
@@ -31,93 +35,127 @@ public:
     FifthSkills(QJsonObject& json)
         : SkillTalentOrPerk(json) { init(json[Name].toString(""), json); }
     FifthSkills(const FifthSkills& fs)
-        : v(fs.v) { init(v.mName); }
+        : v(fs.v) { init(fs.v.mName); }
     FifthSkills(const FifthSkills& fs, QJsonObject& json)
-        : v(fs.v) { init(v.mName, json); }
+        : v(fs.v) { init(Name, json); }
     FifthSkills(QUrl& filename);
 
     void load(QJsonObject& json) { init(json[Name].toString(""), json); }
     bool valid()                 { return v.mValid; }
 
-    QString abbreviation(bool roll = !ShowRoll) override { auto& u = Sheet::ref().vm().user(); u.push(roll); QString s = String(Abbreviation); return s.isEmpty() ? description(u.pop().asNumber()) : s; }
-    QString description(bool roll = !ShowRoll) override  { Sheet::ref().vm().user().push(roll); return String(Description); }
+    QString description(bool roll = !ShowRoll) override  { auto& u = Sheet::ref().vm().user(); u.push(fifth::exe(this)); u.push(roll); return String(Description); }
     QString name() override                              { return v.mName; }
-    Points  points(bool noStore = !NoStore) override     { if (!noStore) store(); return PntCost(TheCost); }
-    void    restore() override                           { return Void(Restore); }
-    QString roll() override                              { return String(Roll); }
-    void    store() override                             { return Void(Store); }
-    bool    isSkill() override                           { return Bool(IsSkill); }
-    bool    isPerk() override                            { return Bool(IsPerk); }
-    bool    isTalent() override                          { return Bool(IsTalent); }
-    int     rED() override                               { return Int(RED); }
-    int     rPD() override                               { return Int(RPD); }
+    Points  points(bool noStore = !NoStore) override     { if (!noStore) store(); auto& u = Sheet::ref().vm().user(); u.push(fifth::exe(this)); u.pop(); return PntCost(TheCost); }
+    void    restore() override                           { Sheet::ref().vm().user().push(fifth::exe(this)); return Void(Restore); }
+    QString roll() override                              { Sheet::ref().vm().user().push(fifth::exe(this)); return String(Roll); }
+    void    store() override                             { Sheet::ref().vm().user().push(fifth::exe(this)); return Void(Store);  }
+    bool    isSkill() override                           { Sheet::ref().vm().user().push(fifth::exe(this)); return Bool(IsSkill); }
+    bool    isPerk() override                            { Sheet::ref().vm().user().push(fifth::exe(this)); return Bool(IsPerk); }
+    bool    isTalent() override                          { Sheet::ref().vm().user().push(fifth::exe(this));; return Bool(IsTalent); }
+    int     rED() override                               { Sheet::ref().vm().user().push(fifth::exe(this)); return Int(RED); }
+    int     rPD() override                               { Sheet::ref().vm().user().push(fifth::exe(this)); return Int(RPD); }
 
-    QString myV() { return mGuid; }
+    QString abbreviation(bool roll = !ShowRoll) override {
+        auto& u = Sheet::ref().vm().user();
+        u.push(fifth::exe(this));
+        u.push(roll);
+        QString s = String(Abbreviation);
+        return s.isEmpty() ? description(u.pop().asNumber()) : s; }
 
     bool form(QWidget* w, QVBoxLayout* l) override {
+        v.mLayout = l;
+        v.mWidget = w;
         auto& u = Sheet::ref().vm().user();
-        u.push(fifth::exe(w));
-        u.push(fifth::exe(l)); Void(Form);
+        u.push(fifth::exe(this));
+
+        Void(Form);
         return true;
     }
 
     QJsonObject toJson() override;
 
-private:
     struct vars {
-        QString mGuid;
-        QString mName;
-        bool    mValid = false;
+        QMap<QString, fifth::value> mBag;
+        QVBoxLayout*                mLayout = nullptr;
+        QString                     mName;
+        bool                        mValid = false;
+        QWidget*                    mWidget = nullptr;
     } v;
 
+#ifdef _DEBUG
+    DebugDialog* dbg { nullptr };
+#endif
+
+    void         set(const QString& fld, fifth::value val) { v.mBag[fld] = val; }
+    fifth::value get(const QString& fld)                   { return v.mBag[fld]; }
+
+private:
     auto call(const QString& symbol) {
         auto& vm = Sheet::ref().vm();
-        auto bag = vm.bag(sGuidMap[v.mGuid]);
-        bag[symbol].asCallable()->eval(&vm);
+        auto s = v.mBag[symbol];
+        auto c = s.asCallable();
+        c->eval(&vm);
     }
 
-    Points  PntCost(const QString& symbol) { call(symbol); return Points(Sheet::ref().vm().user().pop().asNumber()); }
-    void    Void(const QString& symbol)    { call(symbol); }
-    int     Int(const QString& symbol)     { call(symbol); return Sheet::ref().vm().user().pop().asNumber(); }
-
-    QString String(const QString& symbol, std::function<QString()> def = [](){ return QString(""); }) {
+    Points  PntCost(const QString& symbol) {
         auto& vm = Sheet::ref().vm();
-        auto bag = vm.bag(sGuidMap[v.mGuid]);
-        if (bag.contains(symbol)) call(symbol);
-        else return def();
-        return Sheet::ref().vm().user().pop().asString().str();
+        auto& u = vm.user();
+        call(symbol);
+        auto p = Points(u.pop().asNumber());
+        u.pop();
+        return p;
     }
-    bool Bool(const QString& symbol, std::function<bool()> def = [](){ return false; }) {
+
+    void Void(const QString& symbol) {
+        call(symbol);
+        Sheet::ref().vm().user().pop();
+    }
+
+    int Int(const QString& symbol) {
         auto& vm = Sheet::ref().vm();
-        auto bag = vm.bag(sGuidMap[v.mGuid]);
-        if (bag.contains(symbol)) call(symbol);
-        else return def();
-        return Sheet::ref().vm().user().pop().asNumber();
+        auto& u = vm.user();
+        call(symbol);
+        auto i = u.pop().asNumber();
+        u.pop();
+        return i;
+    }
+
+    QString String(const QString& symbol) {
+        auto& vm = Sheet::ref().vm();
+        auto& u = vm.user();
+        if (v.mBag.contains(symbol)) call(symbol);
+        else { u.pop(); return ""; }
+        QString val = u.pop().asString().str();
+        u.pop();
+        return val;
+    }
+
+    bool Bool(const QString& symbol) {
+        auto& vm = Sheet::ref().vm();
+        auto& u = vm.user();
+        if (v.mBag.contains(symbol)) call(symbol);
+        else {
+            u.pop();
+            return false;
+        }
+        bool f = Sheet::ref().vm().user().pop().asNumber();
+        u.pop();
+        return f;
     }
 
     void init(QString name, QJsonObject json = { }) {
         auto& vm = Sheet::ref().vm();
-        if (!sNameMap.contains(name)) {
-            auto guid = QUuid::createUuid().toString();
-            v.mGuid = guid;
-            sGuidMap[guid] = name;
-            sNameMap[name] = guid;
-            vm.createBag(guid);
-            auto keys = json.keys();
-            vm.set(guid, Name, fifth::str(name));
-            for (const auto& key: std::as_const(keys)) {
-                if (json[key].isString()) vm.set(guid, key, fifth::str(json[key].toString()));
-                else vm.set(guid, key, json[key].toInt());
-            }
+        v.mName = name;
+        auto keys = json.keys();
+        for (const auto& key: std::as_const(keys)) {
+            if (json[key].isString()) set(key, fifth::str(json[key].toString()));
+            else set(key, json[key].toInt());
         }
     }
 
     void fromJson(QJsonDocument& doc);
     bool initializeVM();
     bool compile(QJsonObject& obj, const QString& namne, const QString& symbol);
-
-    static QMap<QString, QString> sGuidMap;
-    static QMap<QString, QString> sNameMap;
 };
 
 class fifthBase: public SkillTalentOrPerk::skillBase {
@@ -135,13 +173,14 @@ public:
         : fifthBase()
         , mSkill(std::make_shared<FifthSkills>(url)) { }
 
-    shared_ptr<SkillTalentOrPerk> create() override                  { auto x = std::make_shared<FifthSkills>(*mSkill);                    return x; }
-    shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { auto x = std::make_shared<FifthSkills>(*mSkill, json); x->id(json); return x; }
+    shared_ptr<SkillTalentOrPerk> create() override                  { auto x = std::make_shared<FifthSkills>(*mSkill);
+                                                                       return x; }
+    shared_ptr<SkillTalentOrPerk> create(QJsonObject& json) override { auto x = std::make_shared<FifthSkills>(*mSkill, json);
+                                                                       x->id(json);
+                                                                       return x; }
 
     QString name()  { return mSkill->name(); }
-    bool    valid() {
-        return mSkill->valid();
-    }
+    bool    valid() { return mSkill->valid(); }
 
 private:
     std::shared_ptr<FifthSkills> mSkill;

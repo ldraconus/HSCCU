@@ -431,7 +431,7 @@ QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layou
     return lineEdit;
 }
 
-QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt) {
+QLineEdit* SkillTalentOrPerk::createLineEdit(QWidget* parent, QVBoxLayout* layout, QString prompt = "") {
     QLineEdit* lineEdit = new QLineEdit(layout->parentWidget());
     lineEdit->setPlaceholderText(prompt);
     lineEdit->setToolTip(prompt);

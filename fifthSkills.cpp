@@ -2,9 +2,6 @@
 
 #include <QFile>
 
-QMap<QString, QString> FifthSkills::sGuidMap;
-QMap<QString, QString> FifthSkills::sNameMap;
-
 FifthSkills::FifthSkills(QUrl& filename) {
     QFile file(filename.isLocalFile() ? filename.toLocalFile() : filename.toString());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
@@ -21,20 +18,19 @@ FifthSkills::FifthSkills(QUrl& filename) {
 
 QJsonObject FifthSkills::toJson() {
     QJsonObject obj = SkillTalentOrPerk::toJson();
-    obj[Name] = sGuidMap[v.mGuid];
+    obj[Name] = v.mName;
     auto& vm = Sheet::ref().vm();
-    auto& bag = vm.bag(mGuid);
+    auto& bag = v.mBag;
     auto keys = bag.keys();
     for (const auto& key: std::as_const(keys)) {
-        if (bag[key].isStr()) obj[key.str()] = bag[key].asString().str();
-        else obj[key.str()] = bag[key].asNumber();
+        if (bag[key].isStr()) obj[key] = bag[key].asString().str();
+        else obj[key] = bag[key].asNumber();
     }
     return obj;
 }
 
 void FifthSkills::fromJson(QJsonDocument &doc) {
     static bool vmInitialized = false;
-    if (!vmInitialized) vmInitialized = initializeVM();
 
     if (!doc.isObject()) return;
 
@@ -42,7 +38,8 @@ void FifthSkills::fromJson(QJsonDocument &doc) {
     QJsonObject obj = doc.object();
     if (!obj.contains(Name) || !obj[Name].isString()) return;
     QString name = v.mName = obj[Name].toString();
-    vm.createBag(name);
+
+    if (!vmInitialized) vmInitialized = initializeVM();
 
     compile(obj, name, Abbreviation);
     if (!compile(obj, name, Description)) return;
@@ -60,19 +57,13 @@ void FifthSkills::fromJson(QJsonDocument &doc) {
     v.mValid = true;
 }
 
-static QMap<QWidget*, fifth::exe > sCheckCB;
-static QMap<QWidget*, fifth::exe > sComboCB;
-static QMap<QWidget*, fifth::exe > sEditCB;
+static QMap<QWidget*, fifth::exe> sCheckCB;
+static QMap<QWidget*, fifth::exe> sComboCB;
+static QMap<QWidget*, fifth::exe> sEditCB;
 
 static void myV(fifth::vm* vm) {
     auto& user = vm->user();
-    auto t = user.pop();
-    if (!t.isExe()) {
-        user.push(fifth::exe(nullptr));
-        return;
-    }
-    FifthSkills* ths = (FifthSkills*)(t.asCallable());
-    user.push(ths->myV());
+    user.push(vm->get("guid"));
 }
 
 static void checkBoxCb(SkillTalentOrPerk* stp, bool result) {
@@ -81,7 +72,7 @@ static void checkBoxCb(SkillTalentOrPerk* stp, bool result) {
     auto& vm = Sheet::ref().vm();
     auto& user = vm.user();
     user.push(result);
-    if (sCheckCB.contains(fs->sender())) sCheckCB[fs->sender()]->eval(&vm);
+    if (sCheckCB.contains(fs->sender())) { user.push(fifth::exe(fs)); user.swap(); sCheckCB[fs->sender()]->eval(&vm); user.pop(); }
 }
 
 static void comboBoxCb(SkillTalentOrPerk* stp, int result) {
@@ -90,7 +81,7 @@ static void comboBoxCb(SkillTalentOrPerk* stp, int result) {
     auto& vm = Sheet::ref().vm();
     auto& user = vm.user();
     user.push(result);
-    if (sComboCB.contains(fs->sender())) sComboCB[fs->sender()]->eval(&vm);
+    if (sComboCB.contains(fs->sender())) { user.push(fifth::exe(fs)); user.swap(); sComboCB[fs->sender()]->eval(&vm); user.pop(); }
 }
 
 static void lineEditCb(SkillTalentOrPerk* stp, QString result) {
@@ -99,191 +90,163 @@ static void lineEditCb(SkillTalentOrPerk* stp, QString result) {
     auto& vm = Sheet::ref().vm();
     auto& user = vm.user();
     user.push(result);
-    if (sEditCB.contains(fs->sender())) sEditCB[fs->sender()]->eval(&vm);
+    if (sEditCB.contains(fs->sender())) { user.push(fifth::exe(fs)); user.swap(); sEditCB[fs->sender()]->eval(&vm); user.pop(); }
 }
 
 static void crtChkBox(fifth::vm* vm) {
     auto& user = vm->user();
-    QCheckBox* checkbox = nullptr;
-    auto c = user.pop();
-    auto t = user.pop();
-    auto s = user.pop();
-    auto l = user.pop();
-    auto w = user.pop();
-    if (!c.isExe() || !t.isExe() || !s.isStr() || !l.isExe() || !w.isExe()) {
+    auto s = user.top();
+    if (!s.isExe()) {
         user.push(fifth::exe(nullptr));
         return;
     }
 
-    fifth::exe   cb = c.asCallable();
-    FifthSkills* ths = (FifthSkills*)(t.asCallable());
-    QString      string = s.asString().str();
-    QVBoxLayout* layout = (QVBoxLayout*)(l.asCallable());
-    QWidget*     widget = (QWidget*)(w.asCallable());
-    checkbox = ths->createCheckBox(widget, layout, string, checkBoxCb);
-    sCheckCB[checkbox] = cb;
+    FifthSkills* ths = (FifthSkills*)(s.asCallable());
+    user.push(fifth::exe (ths->createCheckBox(ths->v.mWidget, ths->v.mLayout, "")));
 }
 
 static void crtCmbBox(fifth::vm* vm) {
     auto& user = vm->user();
-    QComboBox* combobox = nullptr;
-    auto c = user.pop();
-    auto t = user.pop();
-    auto s = user.pop();
-    auto i = user.pop();
-    auto l = user.pop();
-    auto w = user.pop();
-    if (!i.isStr() || !c.isExe() || !t.isExe() || !s.isStr() || !l.isExe() || !w.isExe()) {
+    auto s = user.top();
+    if (!s.isExe()) {
         user.push(fifth::exe(nullptr));
         return;
     }
 
-    fifth::exe   cb = c.asCallable();
-    FifthSkills* ths = (FifthSkills*)(t.asCallable());
-    QString      string = s.asString().str();
-    QStringList  list = i.asString().str().split(":");
-    QVBoxLayout* layout = (QVBoxLayout*)(l.asCallable());
-    QWidget*     widget = (QWidget*)(w.asCallable());
-    QComboBox* comboBox = nullptr;
-    combobox = ths->createComboBox(widget, layout, string, list, comboBoxCb);
-    sComboCB[combobox] = cb;
+    FifthSkills* ths = (FifthSkills*)(s.asCallable());
+    user.push(fifth::exe(ths->createComboBox(ths->v.mWidget, ths->v.mLayout, "", { })));
 }
 
 static void crtLnEdit(fifth::vm* vm) {
     auto& user = vm->user();
     QLineEdit* lineedit = nullptr;
-    auto c = user.pop();
-    auto t = user.pop();
-    auto s = user.pop();
-    auto l = user.pop();
-    auto w = user.pop();
-    if (!c.isExe() || !t.isExe() || !s.isStr() || !l.isExe() || !w.isExe()) {
+    auto s = user.top();
+    if (!s.isExe()) {
         user.push(fifth::exe(nullptr));
         return;
     }
 
-    fifth::exe   cb = c.asCallable();
-    FifthSkills* ths = (FifthSkills*)(t.asCallable());
-    QString      string = s.asString().str();
-    QVBoxLayout* layout = (QVBoxLayout*)(l.asCallable());
-    QWidget*     widget = (QWidget*)(w.asCallable());
-    lineedit = ths->createLineEdit(widget, layout, string, lineEditCb);
-    sEditCB[lineedit] = cb;
+    FifthSkills* ths = (FifthSkills*) (s.asCallable());
+    user.push(fifth::exe(ths->createLineEdit(ths->v.mWidget, ths->v.mLayout, "")));
+}
+
+static void callback(fifth::vm* v) {                            // (sp) w c -u-> (sp) w
+    auto& user = v->user();
+    auto c = user.pop();
+    auto w = user.top();
+    if (!w.isExe() || !c.isExe()) return;
+    auto* wdgt = (QWidget*) w.asCallable();
+    if (QLineEdit* edit = dynamic_cast<QLineEdit*>(wdgt); edit) sEditCB[edit] = c.asCallable();
+    else if (QCheckBox* chbx = dynamic_cast<QCheckBox*>(wdgt); chbx) sCheckCB[chbx] = c.asCallable();
+    else if (QComboBox* cmbo = dynamic_cast<QComboBox*>(wdgt); cmbo) sComboCB[cmbo] = c.asCallable();
 }
 
 bool FifthSkills::initializeVM() {
     auto& vm = Sheet::ref().vm();
     auto& user = vm.user();
 
-    vm.addBuiltin("skillName", [this, &user, &vm](fifth::vm*) { user.push(v.mName); });
-
-    vm.addImmediate("createCheckBox", [this, &user, &vm](fifth::vm*) {   // p l s -u-> w
-        if (vm.compiling()) {
-            static auto func = fifth::builtin(crtChkBox);
-            auto parent = dynamic_cast<fifth::compiled*>(vm.code());
-            parent->push(fifth::exe(this));
-            auto cb = vm.getBlock();
-            parent->push(cb);
-            parent->call(&func);
-            return;
-        }
-
-        auto s = user.pop();
-        auto l = user.pop();
-        auto p = user.pop();
-        if (!s.isStr() || !l.isExe() || !p.isExe()) user.push(fifth::exe(nullptr));
-
-        QString      string = s.asString().str();
-        QVBoxLayout* layout = (QVBoxLayout*)(l.asCallable());
-        QWidget*     widget = (QWidget*)(p.asCallable());
-
-        QCheckBox* checkbox = nullptr;
-        checkbox = createCheckBox(widget, layout, string, checkBoxCb);
-
-        sCheckCB[checkbox] = vm.getBlock();
-        user.push(fifth::exe(checkbox));
+    vm.addBuiltin("SkillName", [&user, &vm](fifth::vm*) {        // (sp) -u-> (sp) n
+        auto* skill = (FifthSkills*)(user.pop().asCallable());
+         user.push(skill->v.mName);
     });
 
-    vm.addImmediate("createComboBox", [this, &user, &vm](fifth::vm*) {   // p l s c -u-> w
-        if (vm.compiling()) {
-            static auto func = fifth::builtin(crtCmbBox);
-            auto parent = dynamic_cast<fifth::compiled*>(vm.code());
-            parent->push(fifth::exe(this));
-            auto cb = vm.getBlock();
-            parent->push(cb);
-            parent->call(&func);
-            return;
-        }
-
-        auto c = user.pop();
-        auto s = user.pop();
-        auto l = user.pop();
-        auto p = user.pop();
-        if (!c.isStr() || !s.isStr() || !l.isNum() || !p.isNum()) user.push(fifth::exe(nullptr));
-        QString      combined = c.asString().str();
-        auto         list     = combined.split(":");
-        QString      string   = s.asString().str();
-        QVBoxLayout* layout   = (QVBoxLayout*)(l.asCallable());
-        QWidget*     widget   = (QWidget*)(p.asCallable());
-
-        QComboBox* combobox = nullptr;
-        combobox = createComboBox(widget, layout, string, list, comboBoxCb);
-
-        sCheckCB[combobox] = vm.getBlock();
-        user.push(fifth::exe(combobox));
+    vm.addBuiltin("CheckBox", [&user, &vm](fifth::vm*) {         // (sp) -u-> (sp) w
+        auto s = user.top();
+        if (!s.isExe()) user.push(fifth::exe(nullptr));
+        FifthSkills* skill = (FifthSkills*) s.asCallable();
+        user.push(fifth::exe(skill->createCheckBox(skill->v.mWidget, skill->v.mLayout, "")));
     });
 
-    vm.addBuiltin("createLabel", [this, &user, &vm](fifth::vm*) { // p l s -u-<> w
-        auto s = user.pop();
-        auto l = user.pop();
-        auto p = user.pop();
-        if (!s.isStr() || !l.isExe() || !p.isExe()) user.push(fifth::exe(nullptr));
-        QString      string   = s.asString().str();
-        QVBoxLayout* layout   = (QVBoxLayout*)(l.asCallable());
-        QWidget*     widget   = (QWidget*)(p.asCallable());
-
-        QLabel* label = nullptr;
-        label = createLabel(widget, layout, string);
-
-        user.push(fifth::exe(label));
+    vm.addBuiltin("ComboBox", [this, &user, &vm](fifth::vm*) {   // (sp) -u-> (sp) w
+        auto s = user.top();
+        if (!s.isExe()) user.push(fifth::exe(nullptr));
+        FifthSkills* skill = (FifthSkills*) s.asCallable();
+        user.push(fifth::exe(skill->createComboBox(skill->v.mWidget, skill->v.mLayout, "", { })));
     });
 
-    vm.addImmediate("createLineEdit", [this, &user, &vm](fifth::vm*) { // p l s -u-> w
-        if (vm.compiling()) {
-            static auto func = fifth::builtin(crtLnEdit);
-            auto parent = dynamic_cast<fifth::compiled*>(vm.code());
-            parent->push(fifth::exe(this));
-            auto cb = vm.getBlock();
-            parent->push(cb);
-            parent->call(&func);
-            return;
-        }
-
-        auto s = user.pop();
-        auto l = user.pop();
-        auto p = user.pop();
-        if (!s.isStr() || !l.isExe() || !p.isExe()) user.push(fifth::exe(nullptr));
-        QString      string   = s.asString().str();
-        QVBoxLayout* layout   = (QVBoxLayout*)(l.asCallable());
-        QWidget*     widget   = (QWidget*)(p.asCallable());
-
-        QLineEdit* lineedit = nullptr;
-        lineedit = createLineEdit(widget, layout, string, lineEditCb);
-
-        sEditCB[lineedit] = vm.getBlock();
-        user.push(fifth::exe(lineedit));
+    vm.addBuiltin("Label", [&user, &vm](fifth::vm*) {            // (sp) -u-<> (sp) w
+        auto s = user.top();
+        if (!s.isExe()) user.push(fifth::exe(nullptr));
+        FifthSkills* skill = (FifthSkills*) s.asCallable();
+        user.push(fifth::exe(skill->createLabel(skill->v.mWidget, skill->v.mLayout, "")));
     });
 
-    vm.addImmediate("v", [this, &user, &vm](fifth::vm*) {
-        if (vm.compiling()) {
-            static auto func = fifth::builtin(::myV);
-            auto parent = dynamic_cast<fifth::compiled*>(vm.code());
-            parent->push(fifth::exe(this));
-            parent->call(&func);
-            return;
-        }
+    vm.addBuiltin("LineEdit", [&user, &vm](fifth::vm*) {         // (sp) -u-> (sp) w
+        auto s = user.top();
+        if (!s.isExe()) user.push(fifth::exe(nullptr));
+        FifthSkills* skill = (FifthSkills*) s.asCallable();
+        user.push(fifth::exe(skill->createLineEdit(skill->v.mWidget, skill->v.mLayout, "")));
+    });
 
-        user.push(v.mGuid);
+    vm.addBuiltin("Get", [&user, &vm](fifth::vm*) {              // (sp) var -u-> (sp) val
+        auto v = user.pop();
+        auto s = user.top();
+        if (!s.isExe() || !v.isStr()) return;
+        QString var = s.asString().str();
+        FifthSkills* skill = (FifthSkills*) s.asCallable();
+        user.push(skill->v.mBag[var]);
+    });
+
+    vm.addBuiltin("Set", [&user, &vm](fifth::vm*) { // (sp) var val -u-> (sp)
+        auto x = user.pop();
+        auto v = user.pop();
+        auto s = user.top();
+        if (!s.isExe() || !v.isStr()) return;
+        QString var = s.asString().str();
+        FifthSkills* skill = (FifthSkills*) s.asCallable();
+        skill->v.mBag[var] = x;
+    });
+
+    vm.addBuiltin("Text", [&user, &vm](fifth::vm*) { // w s -u-> w
+        auto t = user.pop();
+        auto w = user.top();
+        if (!w.isExe() || !t.isStr()) return;
+        auto* wdgt = (QWidget*) w.asCallable();
+        QString txt = t.asString().str();
+        if (QLineEdit* edit = dynamic_cast<QLineEdit*>(wdgt); edit) edit->setText(txt);
+        else if (QCheckBox* chbx = dynamic_cast<QCheckBox*>(wdgt); chbx) chbx->setText(txt);
+        else if (QComboBox* cmbo = dynamic_cast<QComboBox*>(wdgt); cmbo) cmbo->setCurrentText(txt);
+        else if (QLabel* labl = dynamic_cast<QLabel*>(wdgt); labl) labl->setText(txt);
+    });
+
+    vm.addBuiltin("Prompt", [&user, &vm](fifth::vm*) { // w s -u-> w
+        auto t = user.pop();
+        auto w = user.top();
+        if (!w.isExe() || !t.isStr()) return;
+        auto* wdgt = (QWidget*) w.asCallable();
+        QString txt = t.asString().str();
+        if (QLineEdit* edit = dynamic_cast<QLineEdit*>(wdgt); edit) edit->setPlaceholderText(txt);
+    });
+
+    vm.addBuiltin("Value", [&user, &vm](fifth::vm*) { // w -u-> w ?
+        auto w = user.top();
+        if (!w.isExe()) return;
+        auto* wdgt = (QWidget*) w.asCallable();
+        fifth::value txt;
+        if (QLineEdit* edit = dynamic_cast<QLineEdit*>(wdgt); edit) txt = edit->text();
+        else if (QCheckBox* chbx = dynamic_cast<QCheckBox*>(wdgt); chbx) txt = chbx->isChecked();
+        else if (QComboBox* cmbo = dynamic_cast<QComboBox*>(wdgt); cmbo) txt = cmbo->currentIndex();
+        user.push(txt);
+    });
+
+    vm.addBuiltin("SetValue", [&user, &vm](fifth::vm*) { // w ? -u-> w
+        auto t = user.pop();
+        auto w = user.top();
+        if (!w.isExe()) return;
+        auto* wdgt = (QWidget*) w.asCallable();
+        if (QLineEdit* edit = dynamic_cast<QLineEdit*>(wdgt); edit) edit->setText(t.asString().str());
+        else if (QCheckBox* chbx = dynamic_cast<QCheckBox*>(wdgt); chbx) chbx->setChecked(t.asNumber());
+        else if (QComboBox* cmbo = dynamic_cast<QComboBox*>(wdgt); cmbo) cmbo->setCurrentIndex(t.asNumber());
+    });
+
+    vm.addImmediate("Callback", [&user, &vm](fifth::vm*) { // [ c -u-> ] { c = pop(); code->push(c); }
+        if (vm.compiling()) {
+            static auto func = fifth::builtin(::callback);
+            auto c = user.pop();
+            auto parent = (fifth::compiled*) vm.code();
+            parent->push(c);
+            parent->call(&func);
+        }
     });
 
     return true;
@@ -296,6 +259,6 @@ bool FifthSkills::compile(QJsonObject &obj, const QString &name, const QString &
     vm.setInput(obj[symbol].toString());
     auto code = vm.getBlock();
     vm.setInput(input);
-    vm.set(name, symbol, code);
+    v.mBag[symbol] = code;
     return true;
 }
