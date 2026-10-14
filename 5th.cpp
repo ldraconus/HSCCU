@@ -22,9 +22,9 @@ namespace fifth {
         stack& user = v->user();
         auto val = user.pop();
         if (!val.isExe()) return;
-        auto exe = val.asCallable();
-        if (!exe) return;
-        exe->eval(v);
+        auto fnc = val.asCallable();
+        if (!fnc) return;
+        fnc->eval(v);
       }
       break;
     }
@@ -38,11 +38,11 @@ namespace fifth {
     try {
       for (size_t i = 0; i < sz; ++i) {
         auto instr = mCode[i];
-        str num = ::FString::number((long long)(i));
+        str number = ::FString::number((long long)(i));
         str line = "";
-        for (auto j = num.size(); j < len; ++j) line += " ";
+        for (auto j = number.size(); j < len; ++j) line += " ";
         for (auto j = 0; j < indent; ++j) line += " ";
-        line += num + " " + instr.disassemble(indent, v) + "\n";
+        line += number + " " + instr.disassemble(indent, v) + "\n";
         block += line;
       }
     } catch (...) { block = "disassemble crash:\n" + block; }

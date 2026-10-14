@@ -175,6 +175,8 @@ else()
             dict.cpp
             fifthSkills.h
             fifthSkills.cpp
+            Tests/Catalogue.json Tests/SkillTest.skill
+            debug.sh
         )
     else()
         qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE
@@ -380,7 +382,7 @@ else()
     set(WINDEPLOY "D:/ProgramFiles/Qt/6.12.0/msvc2022_64/bin/windeployqt6.exe")
 endif()
 
-# 2. Call bash, passing the script as an argument
+# Call bash, passing the script as an argument
 add_custom_target(InstallerCreator
                   COMMAND "${BASH_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/installer.sh"
                           "${CMAKE_CURRENT_BINARY_DIR}"
@@ -389,6 +391,12 @@ add_custom_target(InstallerCreator
                           "${WINDEPLOY}"
                           "HSCCU"
                           "HSCCU"
+                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                  DEPENDS HSCCU
+)
+
+add_custom_target(CopyTests
+                  COMMAND "${BASH_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/debug.sh"
                   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                   DEPENDS HSCCU
 )

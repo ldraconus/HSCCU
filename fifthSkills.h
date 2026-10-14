@@ -60,7 +60,8 @@ public:
         u.push(fifth::exe(this));
         u.push(roll);
         QString s = String(Abbreviation);
-        return s.isEmpty() ? description(u.pop().asNumber()) : s; }
+        return s.isEmpty() ? description(u.pop().asNumber()) : s;
+    }
 
     bool form(QWidget* w, QVBoxLayout* l) override {
         v.mLayout = l;

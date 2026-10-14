@@ -181,10 +181,10 @@ namespace fifth {
       if (!needsQuotes) {
           bool isNum = true;
           auto x = wrd.toStdString();
-          const char* wrd = x.c_str();                         // NOLINT
-          if (*wrd == '-') ++wrd;                              // NOLINT
-          for (; *wrd; ++wrd) {                                // NOLINT
-              if (!isdigit(*wrd)) {
+          const char* awrd = x.c_str();                         // NOLINT
+          if (*awrd == '-') ++awrd;                              // NOLINT
+          for (; *awrd; ++awrd) {                                // NOLINT
+              if (!isdigit(*awrd)) {
                   isNum = false;
                   break;
               }
@@ -504,8 +504,8 @@ namespace fifth {
       str var = val.asString();
       if (start > end) by = -1;
       for (num i = start; (by > 0) ? (i <= end) : (i >= end); i += by) {
-        auto val = value(i);
-        v->set(var, val);
+        auto aval = value(i);
+        v->set(var, aval);
         code->eval(v);
       }
       if (code) delete code;
@@ -848,10 +848,10 @@ namespace fifth {
     auto s = user.pop();
 
     if (s.isStr() && a.isNum()) {
-      auto num = a.asNumber();
+      auto anum = a.asNumber();
       auto var = s.asString();
       auto val = v->get(var);
-      val = val.asNumber() + num;
+      val = val.asNumber() + anum;
       v->set(var, val);
     }
   }
@@ -868,10 +868,10 @@ namespace fifth {
     auto a = user.pop();
 
     if (s.isStr() && a.isNum()) {
-      auto num = a.asNumber();
+      auto anum = a.asNumber();
       auto var = s.asString();
       auto val = v->get(var);
-      val = val.asNumber() + num;
+      val = val.asNumber() + anum;
       v->set(var, val);
     }
   }
@@ -888,10 +888,10 @@ namespace fifth {
     auto a = user.pop();
 
     if (s.isStr() && a.isNum()) {
-      auto num = a.asNumber();
+      auto anum = a.asNumber();
       auto var = s.asString();
       auto val = v->get(var);
-      val = val.asNumber() - num;
+      val = val.asNumber() - anum;
       v->set(var, val);
     }
   }
@@ -908,10 +908,10 @@ namespace fifth {
     auto s = user.pop();
 
     if (s.isStr() && a.isNum()) {
-      auto num = a.asNumber();
+      auto anum = a.asNumber();
       auto var = s.asString();
       auto val = v->get(var);
-      val = val.asNumber() - num;
+      val = val.asNumber() - anum;
       v->set(var, val);
     }
   }
@@ -928,10 +928,10 @@ namespace fifth {
     auto a = user.pop();
 
     if (s.isStr() && a.isNum()) {
-      auto num = a.asNumber();
+      auto anum = a.asNumber();
       auto var = s.asString();
       auto val = v->get(var);
-      val = val.asNumber() * num;
+      val = val.asNumber() * anum;
       v->set(var, val);
     }
   }
@@ -948,10 +948,10 @@ namespace fifth {
     auto s = user.pop();
 
     if (s.isStr() && a.isNum()) {
-      auto num = a.asNumber();
+      auto anum = a.asNumber();
       auto var = s.asString();
       auto val = v->get(var);
-      val = val.asNumber() * num;
+      val = val.asNumber() * anum;
       v->set(var, val);
     }
   }
@@ -968,11 +968,11 @@ namespace fifth {
     auto a = user.pop();
 
     if (s.isStr() && a.isNum()) {
-      auto num = a.asNumber();
+      auto anum = a.asNumber();
       auto var = s.asString();
       auto val = v->get(var);
-      if (num < 0) val = -LONG_MAX;
-      else val = val.asNumber() / num;
+      if (anum < 0) val = -LONG_MAX;
+      else val = val.asNumber() / anum;
       v->set(var, val);
     }
   }
@@ -989,11 +989,11 @@ namespace fifth {
     auto s = user.pop();
 
     if (s.isStr() && a.isNum()) {
-      auto num = a.asNumber();
+      auto anum = a.asNumber();
       auto var = s.asString();
       auto val = v->get(var);
-      if (num < 0) val = -LONG_MAX;
-      else val = val.asNumber() / num;
+      if (anum < 0) val = -LONG_MAX;
+      else val = val.asNumber() / anum;
       v->set(var, val);
     }
   }
@@ -1010,11 +1010,11 @@ namespace fifth {
       auto a = user.pop();
 
       if (s.isStr() && a.isNum()) {
-          auto num = a.asNumber();
+          auto anum = a.asNumber();
           auto var = s.asString();
           auto val = v->get(var);
-          if (num == 0) val = qlonglong(0);
-          else val = val.asNumber() % num;
+          if (anum == 0) val = qlonglong(0);
+          else val = val.asNumber() % anum;
           v->set(var, val);
       }
   }
@@ -1073,11 +1073,11 @@ namespace fifth {
     auto s = user.pop();
 
     if (s.isStr() && a.isNum()) {
-      auto num = a.asNumber();
+      auto anum = a.asNumber();
       auto var = s.asString();
       auto val = v->get(var);
-      if (num == 0) val = qlonglong(0);
-      else val = val.asNumber() % num;
+      if (anum == 0) val = qlonglong(0);
+      else val = val.asNumber() % anum;
       v->set(var, val);
     }
   }
@@ -1681,8 +1681,8 @@ namespace fifth {
       stack& user = v->user();
       auto a = user.pop();
       if (a.isStr()) {
-          str str = a.asString();
-          user.push(num(str.isEmpty() ? 1 : 0));
+          str astr = a.asString();
+          user.push(num(astr.isEmpty() ? 1 : 0));
       } else user.push(num(0));
   }
 

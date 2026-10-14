@@ -1,6 +1,6 @@
 {
     "name": "Test Skill",
-    "description": "{ str Get len if { 'Test Edit: ' str Get + } else { '<incomplete>' } }",
+    "description": "{ str Get len if { pop 'Test Edit: ' str Get + } else { '<incomplete>' } }",
     "form": "{
                Label 'Test Label' Text pop
                LineEdit 'Test Edit' Prompt { str swap Set } Callback edit Set

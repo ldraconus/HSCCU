@@ -1797,20 +1797,20 @@ void Sheet::loadCatalogue() {
     if (!doc.isObject()) return;
     QJsonObject catalogue = doc.object();
     loadFiles(baseUrl, catalogue, "skills", [this](const QString& urlname) {
-        QUrl url(urlname);
-        auto* skill = new fifthSkill(url);
+        QUrl surl(urlname);
+        auto* skill = new fifthSkill(surl);
         if (skill->valid()) SkillTalentOrPerk::addSkill(skill->name(), skill);
         else delete skill;
     });
     loadFiles(baseUrl, catalogue, "talents", [this](const QString& urlname) {
-        QUrl url(urlname);
-        auto* talent = new fifthTalent(url);
+        QUrl turl(urlname);
+        auto* talent = new fifthTalent(turl);
         if (talent->valid()) SkillTalentOrPerk::addTalent(talent->name(), talent);
         else delete talent;
     });
     loadFiles(baseUrl, catalogue, "perks", [this](const QString& urlname) {
-        QUrl url(urlname);
-        auto* perk = new fifthPerk(url);
+        QUrl purl(urlname);
+        auto* perk = new fifthPerk(purl);
         if (perk->valid()) SkillTalentOrPerk::addPerk(perk->name(), perk);
         else delete perk;
     });
