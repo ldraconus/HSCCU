@@ -13,7 +13,7 @@ class DebugDialog: public QDialog {
     Q_OBJECT
 
 public:
-    explicit DebugDialog(fifth::vm*, fifth::exe, QWidget* parent = nullptr);
+    explicit DebugDialog(fifth::vm*, fifth::exe, QMap<QString, fifth::value>& vars, QWidget* parent = nullptr);
     ~DebugDialog();
 
     void in();
@@ -36,12 +36,14 @@ private:
         fifth::exe word { nullptr };
     };
     \
-    int              pc    { 0 };
-    QStack<pos>      stack { };
-    Ui::DebugDialog* ui    { nullptr };
-    fifth::vm*       vm    { nullptr };
-    fifth::exe       word  { nullptr };
+    int                          pc    { 0 };
+    QStack<pos>                  stack { };
+    Ui::DebugDialog*             ui    { nullptr };
+    QMap<QString, fifth::value>& vars;
+    fifth::vm*                   vm    { nullptr };
+    fifth::exe                   word  { nullptr };
 
     void updateCode();
     void updateStack();
+    void updateVars();
 };

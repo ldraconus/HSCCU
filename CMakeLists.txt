@@ -177,6 +177,7 @@ else()
             fifthSkills.cpp
             Tests/Catalogue.json Tests/SkillTest.skill
             debug.sh
+            debugdialog.cpp debugdialog.h debugdialog.ui
         )
     else()
         qt_add_executable(HSCCU WIN32 MACOSX_BUNDLE

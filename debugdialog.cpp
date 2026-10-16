@@ -1,13 +1,15 @@
 #include "debugdialog.h"
 #include "ui_debugdialog.h"
 
-DebugDialog::DebugDialog(fifth::vm* v, fifth::exe w, QWidget* parent)
+DebugDialog::DebugDialog(fifth::vm* v, fifth::exe w, QMap<QString, fifth::value>& vs, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::DebugDialog)
+    , vars(vs)
     , vm(v)
     , word(w) {
     ui->setupUi(this);
     updateStack();
+    updateVars();
     if (auto* c = dynamic_cast<fifth::compiled*>(word); c == nullptr) {
         ui->inPushButton->setDisabled(true);
         ui->outPushButton->setDisabled(true);
@@ -61,6 +63,7 @@ void DebugDialog::over() {
     pc = word->step(vm, pc);
     updateCode();
     updateStack();
+    updateVars();
 }
 
 void DebugDialog::updateCode() {
@@ -92,4 +95,19 @@ void DebugDialog::updateStack() {
     auto items = view.split("\n");
     ui->userLstWidget->clear();
     ui->userLstWidget->addItems(items);
+}
+
+void DebugDialog::updateVars() {
+    ui->variableTableWidget->clear();
+    auto keys = vars.keys();
+    ui->variableTableWidget->setRowCount(keys.count());
+    ui->variableTableWidget->setColumnCount(2);
+    int row = 0;
+    for (const auto& key: std::as_const(keys)) {
+        QTableWidgetItem* item = nullptr;
+        ui->variableTableWidget->setItem(row, 0, item = new QTableWidgetItem(key));
+        item->setTextAlignment(Qt::AlignRight | Qt::AlignTop);
+        ui->variableTableWidget->setItem(row, 1, item = new QTableWidgetItem(vars[key].asString().str()));
+        item->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
+    }
 }

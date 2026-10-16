@@ -2,7 +2,7 @@
 
 #include <QUuid>
 
-#ifdef _DEBUG
+#ifdef QT_DEBUG
 #include "debugdialog.h"
 #endif
 
@@ -43,7 +43,6 @@ public:
     void load(QJsonObject& json) { init(json[Name].toString(""), json); }
     bool valid()                 { return v.mValid; }
 
-    QString description(bool roll = !ShowRoll) override  { auto& u = Sheet::ref().vm().user(); u.push(fifth::exe(this)); u.push(roll); return String(Description); }
     QString name() override                              { return v.mName; }
     Points  points(bool noStore = !NoStore) override     { if (!noStore) store(); auto& u = Sheet::ref().vm().user(); u.push(fifth::exe(this)); u.pop(); return PntCost(TheCost); }
     void    restore() override                           { Sheet::ref().vm().user().push(fifth::exe(this)); return Void(Restore); }
@@ -55,12 +54,54 @@ public:
     int     rED() override                               { Sheet::ref().vm().user().push(fifth::exe(this)); return Int(RED); }
     int     rPD() override                               { Sheet::ref().vm().user().push(fifth::exe(this)); return Int(RPD); }
 
+    QString strDebug(const QString& sym, int num = -1) {
+#ifdef QT_DEBUG
+        auto& u = Sheet::ref().vm().user();
+        u.push(fifth::exe(this));
+        auto& vm = Sheet::ref().vm();
+        if (v.mBag.contains(sym)) {
+            if (num >= 0) u.push(num >= 0);
+            auto s = v.mBag[sym];
+            auto c = s.asCallable();
+            dbg = new DebugDialog(&vm, c, v.mBag, &Sheet::ref());
+            dbg->exec();
+            delete dbg;
+        } else {
+            if (num >= 0) u.pop();
+            u.pop();
+            return "";
+        }
+        QString val = u.pop().asString().str();
+        if (num >= 0) u.pop();
+        u.pop();
+        return val;
+#else
+        return "";
+#endif
+    }
+
     QString abbreviation(bool roll = !ShowRoll) override {
+#ifdef QT_DEBUG
+        auto str = strDebug(Abbreviation, roll);
+        if (str.isEmpty()) return description(roll);
+        else return str;
+#else
+        auto& u = Sheet::ref().vm().user();
+        u.push(fifth::exe(this));
+        QString s = String(Abbreviation, roll);
+        return s.isEmpty() ? description(roll) : s;
+#endif
+    }
+
+    QString description(bool roll = !ShowRoll) override  {
+#ifdef QT_DEBUG
+        return strDebug(Description, roll);
+#else
         auto& u = Sheet::ref().vm().user();
         u.push(fifth::exe(this));
         u.push(roll);
-        QString s = String(Abbreviation);
-        return s.isEmpty() ? description(u.pop().asNumber()) : s;
+        return String(Description);
+#endif
     }
 
     bool form(QWidget* w, QVBoxLayout* l) override {
@@ -83,7 +124,7 @@ public:
         QWidget*                    mWidget = nullptr;
     } v;
 
-#ifdef _DEBUG
+#ifdef QT_DEBUG
     DebugDialog* dbg { nullptr };
 #endif
 
@@ -121,12 +162,15 @@ private:
         return i;
     }
 
-    QString String(const QString& symbol) {
+    QString String(const QString& symbol, int num = -1) {
         auto& vm = Sheet::ref().vm();
         auto& u = vm.user();
-        if (v.mBag.contains(symbol)) call(symbol);
-        else { u.pop(); return ""; }
+        if (v.mBag.contains(symbol)) {
+            if (num >= 0) u.push(num);
+            call(symbol);
+        } else { u.pop(); u.pop(); return ""; }
         QString val = u.pop().asString().str();
+        if (num >= 0) u.pop();
         u.pop();
         return val;
     }

@@ -146,55 +146,55 @@ bool FifthSkills::initializeVM() {
     auto& user = vm.user();
 
     vm.addBuiltin("SkillName", [&user, &vm](fifth::vm*) {        // (sp) -u-> (sp) n
-        auto* skill = (FifthSkills*)(user.pop().asCallable());
-         user.push(skill->v.mName);
+        auto* askill = (FifthSkills*)(user.pop().asCallable());
+         user.push(askill->v.mName);
     });
 
     vm.addBuiltin("CheckBox", [&user, &vm](fifth::vm*) {         // (sp) -u-> (sp) w
         auto s = user.top();
         if (!s.isExe()) user.push(fifth::exe(nullptr));
-        FifthSkills* skill = (FifthSkills*) s.asCallable();
-        user.push(fifth::exe(skill->createCheckBox(skill->v.mWidget, skill->v.mLayout, "")));
+        FifthSkills* askill = (FifthSkills*) s.asCallable();
+        user.push(fifth::exe(askill->createCheckBox(askill->v.mWidget, askill->v.mLayout, "")));
     });
 
     vm.addBuiltin("ComboBox", [this, &user, &vm](fifth::vm*) {   // (sp) -u-> (sp) w
         auto s = user.top();
         if (!s.isExe()) user.push(fifth::exe(nullptr));
-        FifthSkills* skill = (FifthSkills*) s.asCallable();
-        user.push(fifth::exe(skill->createComboBox(skill->v.mWidget, skill->v.mLayout, "", { })));
+        FifthSkills* askill = (FifthSkills*) s.asCallable();
+        user.push(fifth::exe(askill->createComboBox(askill->v.mWidget, askill->v.mLayout, "", { })));
     });
 
     vm.addBuiltin("Label", [&user, &vm](fifth::vm*) {            // (sp) -u-<> (sp) w
         auto s = user.top();
         if (!s.isExe()) user.push(fifth::exe(nullptr));
-        FifthSkills* skill = (FifthSkills*) s.asCallable();
-        user.push(fifth::exe(skill->createLabel(skill->v.mWidget, skill->v.mLayout, "")));
+        FifthSkills* askill = (FifthSkills*) s.asCallable();
+        user.push(fifth::exe(askill->createLabel(askill->v.mWidget, askill->v.mLayout, "")));
     });
 
     vm.addBuiltin("LineEdit", [&user, &vm](fifth::vm*) {         // (sp) -u-> (sp) w
         auto s = user.top();
         if (!s.isExe()) user.push(fifth::exe(nullptr));
-        FifthSkills* skill = (FifthSkills*) s.asCallable();
-        user.push(fifth::exe(skill->createLineEdit(skill->v.mWidget, skill->v.mLayout, "")));
+        FifthSkills* askill = (FifthSkills*) s.asCallable();
+        user.push(fifth::exe(askill->createLineEdit(askill->v.mWidget, askill->v.mLayout, "")));
     });
 
     vm.addBuiltin("Get", [&user, &vm](fifth::vm*) {              // (sp) var -u-> (sp) val
-        auto v = user.pop();
+        auto vl = user.pop();
         auto s = user.top();
-        if (!s.isExe() || !v.isStr()) return;
+        if (!s.isExe() || !vl.isStr()) return;
         QString var = s.asString().str();
-        FifthSkills* skill = (FifthSkills*) s.asCallable();
-        user.push(skill->v.mBag[var]);
+        FifthSkills* askill = (FifthSkills*) s.asCallable();
+        user.push(askill->v.mBag[var]);
     });
 
     vm.addBuiltin("Set", [&user, &vm](fifth::vm*) { // (sp) var val -u-> (sp)
         auto x = user.pop();
-        auto v = user.pop();
+        auto vl = user.pop();
         auto s = user.top();
-        if (!s.isExe() || !v.isStr()) return;
-        QString var = s.asString().str();
-        FifthSkills* skill = (FifthSkills*) s.asCallable();
-        skill->v.mBag[var] = x;
+        if (!s.isExe() || !vl.isStr()) return;
+        QString var = vl.asString().str();
+        FifthSkills* askill = (FifthSkills*) s.asCallable();
+        askill->v.mBag[var] = x;
     });
 
     vm.addBuiltin("Text", [&user, &vm](fifth::vm*) { // w s -u-> w
