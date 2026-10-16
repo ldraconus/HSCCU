@@ -1,15 +1,19 @@
 {
     "name": "Test Skill",
-    "description": "{ data Get len if { pop 'Test Edit: ' data Get + } else { '<incomplete>' } }",
+    "description": "{
+                      swap                                                        // skill-addr 1 (show-roll) -u-> 1 (show-roll) skill-addr
+                      data Get len if { swap pop 'Test Edit: ' swap data Get + }  // if data has a length return msg + it (get rid of roll)
+                                   else { swap pop '<incomplete>' }               // get rid of the roll and return '<incoomplete>'
+                    }",
     "form": "{
                Label 'Test Label' Text pop
-               LineEdit 'Test Edit' Prompt { data swap Set } Callback edit swap Set
+               LineEdit 'Test Edit' Prompt { } Callback edit swap Set
                data '' Set
              }",
     "roll": "{ }",
     "points": "{ 5 }",
     "restore": "{ edit Get data Get Text pop }",
-    "store": "{ data edit Get Value Set }",
+    "store": "{ edit Value data swap Set }",
     "isSkill": "{ 1 }",
     "isPerk": "{ 0 }",
     "isTalent": "{ 0 }"

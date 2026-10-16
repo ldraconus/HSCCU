@@ -109,5 +109,6 @@ void DebugDialog::updateVars() {
         item->setTextAlignment(Qt::AlignRight | Qt::AlignTop);
         ui->variableTableWidget->setItem(row, 1, item = new QTableWidgetItem(vars[key].asString().str()));
         item->setTextAlignment(Qt::AlignLeft | Qt::AlignTop);
+        ++row;
     }
 }
